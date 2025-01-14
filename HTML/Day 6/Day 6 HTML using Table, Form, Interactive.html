@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Elements Demo</title>
+</head>
+<body>
+
+    <!-- Table Section -->
+    <h2>Table Example</h2>
+    <table>
+        <caption>Employee Details</caption>
+        <colgroup>
+            <col style="background-color: #f2f2f2;">
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Alice</td>
+                <td>Engineer</td>
+            </tr>
+            <tr>
+                <td>Bob</td>
+                <td>Designer</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2">End of Employee Table</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Form Section -->
+    <h2>Form Example</h2>
+    <form>
+        <fieldset>
+            <legend>User Feedback</legend>
+
+            <label for="username">Name:</label>
+            <input type="text" id="username" name="username"><br><br>
+
+            <label for="role">Role:</label>
+            <select id="role" name="role">
+                <optgroup label="Job Roles">
+                    <option value="engineer">Engineer</option>
+                    <option value="designer">Designer</option>
+                    <option value="manager">Manager</option>
+                </optgroup>
+            </select><br><br>
+
+            <label for="comments">Comments:</label>
+            <textarea id="comments" name="comments"></textarea><br><br>
+
+            <label for="rating">Satisfaction Level:</label>
+            <input type="range" id="rating" name="rating" min="1" max="10"><br><br>
+
+            <label for="progress">Progress:</label>
+            <progress id="progress" value="50" max="100"></progress><br><br>
+
+            <button type="submit">Submit</button>
+        </fieldset>
+    </form>
+
+    <!-- Interactive Elements Section -->
+    <h2>Interactive Elements</h2>
+    <details>
+        <summary>Click to see more information</summary>
+        <p>This section contains additional details that are revealed on click.</p>
+    </details>
+
+    <dialog id="myDialog">
+        <p>This is a dialog box</p>
+        <button onclick="document.getElementById('myDialog').close()">Close</button>
+    </dialog>
+    <button onclick="document.getElementById('myDialog').showModal()">Open Dialog</button>
+
+</body>
+</html>
