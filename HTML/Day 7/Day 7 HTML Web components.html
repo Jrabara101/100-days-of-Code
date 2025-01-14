@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Components Example</title>
+</head>
+<body>
+
+    <h1>Web Components Demo</h1>
+
+    <!-- Using the custom component -->
+    <user-card name="Alice" email="alice@example.com"></user-card>
+    <user-card name="Bob" email="bob@example.com"></user-card>
+
+    <script>
+        // Define the Web Component
+        class UserCard extends HTMLElement {
+            constructor() {
+                super();
+
+                // Attach shadow DOM
+                this.attachShadow({ mode: 'open' });
+
+                // Create the template for the component
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        .card {
+                            font-family: Arial, sans-serif;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            padding: 16px;
+                            max-width: 250px;
+                            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+                        }
+                        .card h2 {
+                            font-size: 1.2em;
+                            margin: 0;
+                            color: #333;
+                        }
+                        .card p {
+                            margin: 8px 0 0;
+                            color: #777;
+                            font-size: 0.9em;
+                        }
+                    </style>
+                    <div class="card">
+                        <h2>${this.getAttribute('name')}</h2>
+                        <p>Email: ${this.getAttribute('email')}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Register the custom element
+        customElements.define('user-card', UserCard);
+    </script>
+
+</body>
+</html>
