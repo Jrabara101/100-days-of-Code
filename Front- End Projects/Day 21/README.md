@@ -59,3 +59,19 @@ In the `/src/BoardComponent` directory, you'll find the `BoardGenerator.jsx` fil
    let board = useRef(<paste your array here>);
 
 ![alt text](https://raw.githubusercontent.com/Kacper2048/PacMan-React/refs/heads/master/mapGenerator.png)
+
+
+Clone the Repository (https example)
+
+git clone https://github.com/Kacper2048/PacMan-React.git
+cd <project-folder>
+Install Dependencies( Ensure you have Node.js installed) then run:
+
+npm install
+Launch the app in your browser with:
+
+npm start
+
+Open in Browser
+
+Visit http://localhost:3000 to play the game! 🎮
