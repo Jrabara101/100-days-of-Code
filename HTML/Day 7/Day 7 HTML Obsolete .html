@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obsolete and Deprecated HTML Elements</title>
+</head>
+<body>
+
+    <h1>Deprecated HTML Elements</h1>
+
+    <!-- Obsolete text formatting elements -->
+    <p><acronym title="World Health Organization">WHO</acronym> was established in 1948.</p>
+    <p>This text is <big>larger</big> than normal.</p>
+    <center><p>This text is centered.</p></center>
+    <p><font color="blue" face="Arial" size="4">This text uses the font element.</font></p>
+    <p>This text has a <strike>strikethrough</strike>.</p>
+    <p><tt>This text is in monospace.</tt></p>
+
+    <!-- Obsolete frame and frameset elements -->
+    <frameset cols="50%,50%">
+        <frame src="frame1.html" name="frame1">
+        <frame src="frame2.html" name="frame2">
+        <noframes>
+            <p>Your browser does not support frames.</p>
+        </noframes>
+    </frameset>
+
+    <!-- Obsolete image and marquee elements -->
+    <p><image src="example.jpg" alt="Example image"> - Using the ancient <image> tag (replaced by <img>).</p>
+    <marquee>Scrolling text using the <marquee> element.</marquee>
+
+    <!-- Obsolete lists and menu items -->
+    <dir>
+        <li>File 1</li>
+        <li>File 2</li>
+        <li>File 3</li>
+    </dir>
+    <menuitem label="Save"></menuitem>
+
+    <!-- Obsolete noembed and param elements -->
+    <object data="example.mp4" type="video/mp4">
+        <noembed>Your browser does not support embedded videos.</noembed>
+        <param name="autoplay" value="true">
+    </object>
+
+    <!-- Prevent text wrapping with nobr -->
+    <p><nobr>This text will not wrap.</nobr></p>
+
+    <!-- Ruby annotations with obsolete rb, rtc, and rt elements -->
+    <ruby>
+        漢 <rb>字</rb>
+        <rtc>kanji</rtc>
+        <rt>hànzì</rt>
+    </ruby>
+
+    <!-- Obsolete Web Components elements -->
+    <shadow>This is a shadow element.</shadow>
+    <content>This is a content element.</content>
+
+    <!-- Plaintext and XMP -->
+    <plaintext>
+        Everything from here will be considered plain text with no HTML interpretation.
+    </plaintext>
+
+    <xmp>
+        <p>This text will appear exactly as written, with no HTML interpretation.</p>
+    </xmp>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+Memory Game React Js Project
+Guide link
+
+ https://request.geeksforgeeks.org/?p=1070465
+
+Write the following code in respective files:
+App.js:This file imports the GameBoard component and renders it.
+GameBoard.js: This file contains most of the logic from creation of individual cards to handling the various function calls and representing the cards in specific order.
+Card.js: This file contains the code to generate individual cards.
+Data.js:This file contains an array which has data regarding the images like image source, name and individual address it gets imported by GameBoard.js.
+App.css: This file contains the design for every component.
+
+A memory game is a famous game in which a pair of cards are placed in front of a player with their face down. The two pairs are always going to have the same content. The player has the choice to select any two cards at a time and check if the faces of the card match or not. If the face content match then he can 
+keep the images with their face up and continue else the players needs to put them back face down. The game is over when all the pairs have been matched.
+

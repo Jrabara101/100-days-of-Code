@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebGL Example</title>
+</head>
+<body>
+  <canvas id="myCanvas" width="500" height="500"></canvas>
+
+  <script>
+    const canvas = document.getElementById('myCanvas');
+    const gl = canvas.getContext('webgl');
+
+    // Vertex shader source code
+    const vertexShaderSource = `
+      attribute vec4 aVertexPosition;
+
+      void main() {
+        gl_Position = aVertexPosition;
+      }
+    `;
+
+    // Fragment shader source code
+    const fragmentShaderSource = `
+      precision mediump float;
+
+      void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Red color
+      }
+    `;
+
+    // Create shaders
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexShaderSource);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentShaderSource);
+    gl.compileShader(fragmentShader);
+
+    // Create shader program
+    const shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    gl.useProgram(shaderProgram);
+
+    // Define vertices of a triangle
+    const vertices = [
+      -1.0,  1.0,
+      -1.0, -1.0,
+       1.0, -1.0
+    ];
+
+    // Create a buffer to store vertices
+    const vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    // Get the attribute location
+    const positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'aVertexPosition');
+    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(positionAttributeLocation);
+
+    // Draw the triangle
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  </script>
+</body>
+</html>
