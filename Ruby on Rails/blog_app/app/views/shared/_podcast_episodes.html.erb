@@ -1,0 +1,277 @@
+<!-- app/views/shared/_podcast_episodes.html.erb -->
+<section class="bg-gray-900 text-white py-20">
+  <div class="max-w-7xl mx-auto px-6">
+    <!-- Section Header -->
+    <div class="mb-16">
+      <p class="text-gray-400 text-base mb-4 font-medium">Stay Informed with Fresh Content</p>
+      <h2 class="text-4xl md:text-5xl font-bold text-white">Latest Podcast Episodes</h2>
+    </div>
+
+    <!-- Podcast Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Podcast Episode 1 -->
+      <article class="group cursor-pointer">
+        <div class="relative overflow-hidden rounded-2xl mb-6">
+          <img src="https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=400&h=250&fit=crop" 
+               alt="VR Technology Discussion" 
+               class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105">
+          
+          <!-- Play Button Overlay -->
+          <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div class="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg">
+              <svg class="w-6 h-6 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Duration Badge -->
+          <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+            2:30 min
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Dr. Lisa Adams discusses how AI is revolutionizing healthcare, from diagnostic tools to patient care.
+          </p>
+          
+          <button class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 group/btn">
+            <span>Listen Podcast</span>
+            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </button>
+        </div>
+      </article>
+
+      <!-- Podcast Episode 2 -->
+      <article class="group cursor-pointer">
+        <div class="relative overflow-hidden rounded-2xl mb-6">
+          <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop" 
+               alt="AI Ethics Discussion" 
+               class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105">
+          
+          <!-- Play Button Overlay -->
+          <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div class="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg">
+              <svg class="w-6 h-6 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Duration Badge -->
+          <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+            2:30 min
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Explore the ethical dilemmas and considerations surrounding AI with guest speaker Dr. Michael Turner.
+          </p>
+          
+          <button class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 group/btn">
+            <span>Listen Podcast</span>
+            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </button>
+        </div>
+      </article>
+
+      <!-- Podcast Episode 3 -->
+      <article class="group cursor-pointer">
+        <div class="relative overflow-hidden rounded-2xl mb-6">
+          <img src="https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=400&h=250&fit=crop" 
+               alt="Machine Learning Expert" 
+               class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105">
+          
+          <!-- Play Button Overlay -->
+          <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div class="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg">
+              <svg class="w-6 h-6 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Duration Badge -->
+          <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+            2:30 min
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Dive into the intricacies of machine learning with AI expert Sarah Davis. In this episode
+          </p>
+          
+          <button class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 group/btn">
+            <span>Listen Podcast</span>
+            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </button>
+        </div>
+      </article>
+
+      <!-- Podcast Episode 4 -->
+      <article class="group cursor-pointer">
+        <div class="relative overflow-hidden rounded-2xl mb-6">
+          <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=250&fit=crop" 
+               alt="AI in Workplace" 
+               class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105">
+          
+          <!-- Play Button Overlay -->
+          <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div class="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg">
+              <svg class="w-6 h-6 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Duration Badge -->
+          <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+            2:30 min
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Dr. Olivia White joins John Parker to discuss the evolving role of AI in the workplace.
+          </p>
+          
+          <button class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 group/btn">
+            <span>Listen Podcast</span>
+            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </button>
+        </div>
+      </article>
+
+      <!-- Podcast Episode 5 -->
+      <article class="group cursor-pointer">
+        <div class="relative overflow-hidden rounded-2xl mb-6">
+          <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&h=250&fit=crop" 
+               alt="AI in Education" 
+               class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105">
+          
+          <!-- Play Button Overlay -->
+          <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div class="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg">
+              <svg class="w-6 h-6 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Duration Badge -->
+          <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+            2:30 min
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Explore the role of AI in education as Emily Turner discusses how AI is transforming the learning experience.
+          </p>
+          
+          <button class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 group/btn">
+            <span>Listen Podcast</span>
+            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </button>
+        </div>
+      </article>
+
+      <!-- Podcast Episode 6 -->
+      <article class="group cursor-pointer">
+        <div class="relative overflow-hidden rounded-2xl mb-6">
+          <img src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=400&h=250&fit=crop" 
+               alt="AI in Entertainment" 
+               class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105">
+          
+          <!-- Play Button Overlay -->
+          <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div class="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg">
+              <svg class="w-6 h-6 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Duration Badge -->
+          <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+            2:30 min
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <p class="text-gray-400 text-sm leading-relaxed">
+            David Smith as they explore the influence of AI in the entertainment industry.
+          </p>
+          
+          <button class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 group/btn">
+            <span>Listen Podcast</span>
+            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <!-- View All Episodes Button -->
+    <div class="text-center mt-16">
+      <a href="#" class="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full font-semibold text-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+        View All Episodes
+        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add click functionality to podcast episodes
+    const podcastCards = document.querySelectorAll('article.group');
+    
+    podcastCards.forEach(function(card) {
+      card.addEventListener('click', function() {
+        // You can add podcast player functionality here
+        console.log('Opening podcast episode...');
+        
+        // Example: Show a modal, redirect to podcast page, etc.
+        // For now, we'll just highlight the clicked card
+        card.style.transform = 'scale(0.98)';
+        setTimeout(function() {
+          card.style.transform = 'scale(1)';
+        }, 150);
+      });
+    });
+
+    // Listen Podcast button functionality
+    const listenButtons = document.querySelectorAll('button');
+    listenButtons.forEach(function(button) {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent card click event
+        console.log('Starting podcast playback...');
+        
+        // Add your podcast player logic here
+        button.innerHTML = '<span>Playing...</span>';
+        
+        // Reset button after 2 seconds (for demo)
+        setTimeout(function() {
+          button.innerHTML = '<span>Listen Podcast</span><svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>';
+        }, 2000);
+      });
+    });
+  });
+</script>
