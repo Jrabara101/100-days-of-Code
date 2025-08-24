@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 283b676 (Pokemon Website)
 body {
   background: url("pokemons.jpg") no-repeat center center fixed;
   background-size: cover; 
@@ -33,6 +36,7 @@ header {
   border: 1px solid #ccc;
   border-radius: 5px;
   margin: 40px 0;
+<<<<<<< HEAD
   text-align: center;
 }
 
@@ -62,29 +66,50 @@ ul {
 .pokemon-details {
 
 .App {
+=======
+>>>>>>> 283b676 (Pokemon Website)
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.pokemon-item {
+  float: left;
+  margin: 10px;
+}
+.pokemon-item a {
+  color: #000;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s ease;
+  text-transform: capitalize;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.pokemon-item a:hover {
+  color: #3B4CCA;
 }
 
+<<<<<<< HEAD
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
 
+=======
+ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 5px;
+  list-style: none;
+}
+
+.pokemon-details {
+>>>>>>> 283b676 (Pokemon Website)
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 283b676 (Pokemon Website)
   width: 30%;
   margin: 20px auto;
   padding: 20px;
@@ -113,6 +138,7 @@ ul {
 .type-badge {
   padding: 4px 10px;
   border-radius: 12px;
+<<<<<<< HEAD
   color: white;
   font-size: 0.9em;
   text-transform: capitalize;
@@ -138,9 +164,14 @@ ul {
 .type-normal { background: #A8A878; }
 
   font-size: calc(10px + 2vmin);
+=======
+>>>>>>> 283b676 (Pokemon Website)
   color: white;
+  font-size: 0.9em;
+  text-transform: capitalize;
 }
 
+<<<<<<< HEAD
 .App-link {
   color: #61dafb;
 }
@@ -154,3 +185,23 @@ ul {
   }
 }
 
+=======
+.type-fire { background: #F08030; }
+.type-water { background: #6890F0; }
+.type-grass { background: #78C850; }
+.type-electric { background: #F8D030; }
+.type-ice { background: #98D8D8; }
+.type-fighting { background: #C03028; }
+.type-poison { background: #A040A0; }
+.type-ground { background: #E0C068; }
+.type-flying { background: #A890F0; }
+.type-psychic { background: #F85888; }
+.type-bug { background: #A8B820; }
+.type-rock { background: #B8A038; }
+.type-ghost { background: #705898; }
+.type-dragon { background: #7038F8; }
+.type-dark { background: #705848; }
+.type-steel { background: #B8B8D0; }
+.type-fairy { background: #EE99AC; }
+.type-normal { background: #A8A878; }
+>>>>>>> 283b676 (Pokemon Website)
