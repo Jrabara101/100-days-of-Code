@@ -8,7 +8,6 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPokemon, setSelectedPokemon] = useState(null);
 
-
   const filteredPokemonList = pokemonList.filter((pokemon) =>
     pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -32,21 +31,22 @@ function App() {
     <div className="App">
       <header>
         <img alt="react logo" className="logo" src={logo} />
+        <h1>Pokédex</h1>
       </header>
 
       <main>
-        
+        {/* Search Box */}
         <div className="search-container">
           <input
             className="search-box"
             type="text"
-            placeholder="Search..."
+            placeholder="Search Pokémon..."
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
         </div>
 
-        
+        {/* Selected Pokemon Details */}
         {selectedPokemon && (
           <div className="pokemon-details">
             <h2>{selectedPokemon.name}</h2>
@@ -55,7 +55,6 @@ function App() {
               alt={selectedPokemon.name}
             />
 
-            
             <div className="pokemon-types">
               {selectedPokemon.types.map((t, idx) => (
                 <span key={idx} className={`type-badge type-${t.type.name}`}>
@@ -67,7 +66,6 @@ function App() {
             <p>Height: {selectedPokemon.height}</p>
             <p>Weight: {selectedPokemon.weight}</p>
 
-            
             {selectedPokemon.stats.map((stat, index) => (
               <div key={index}>
                 <p>
@@ -78,13 +76,13 @@ function App() {
           </div>
         )}
 
-        
+        {/* Pokemon List */}
         <ul>
           {filteredPokemonList.map((pokemon) => (
             <li key={pokemon.name} className="pokemon-item">
-              <a href="#" onClick={() => showPokemon(pokemon.url)}>
+              <button onClick={() => showPokemon(pokemon.url)}>
                 {pokemon.name}
-              </a>
+              </button>
             </li>
           ))}
         </ul>
