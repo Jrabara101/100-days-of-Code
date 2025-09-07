@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxuryEstates | Modern Real Estate Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@headlessui/react"></script>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@react-spring/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@heroicons/react@1.0.6/outline/esm/index.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .property-card {
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .property-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(72, 187, 255, 0.4),
+                        0 0 30px rgba(72, 187, 255, 0.2);
+            border: 1px solid rgba(72, 187, 255, 0.3);
+        }
+        
+        .glow-button {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(72, 187, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .glow-button:hover {
+            box-shadow: 0 0 10px rgba(72, 187, 255, 0.5),
+                        0 0 20px rgba(72, 187, 255, 0.3);
+            background: rgba(30, 41, 59, 0.9);
+        }
+        
+        .nav-link {
+            position: relative;
+            padding-bottom: 4px;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: rgba(72, 187, 255, 0.8);
+            box-shadow: 0 0 8px rgba(72, 187, 255, 0.5);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .search-bar {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(72, 187, 255, 0.2);
+        }
+        
+        .search-bar:focus {
+            box-shadow: 0 0 10px rgba(72, 187, 255, 0.3);
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, rgba(30, 41, 59, 0.5) 25%, rgba(51, 65, 85, 0.5) 50%, rgba(30, 41, 59, 0.5) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(72, 187, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(72, 187, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(72, 187, 255, 0); }
+        }
+        
+        .carousel-button {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(72, 187, 255, 0.2);
+        }
+        
+        .carousel-button:hover {
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 0 10px rgba(72, 187, 255, 0.3);
+        }
+        
+        .filter-section {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .agent-card {
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .agent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px rgba(72, 187, 255, 0.3);
+            border: 1px solid rgba(72, 187, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="glass-card fixed w-full z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-cyan-300">Luxury<span class="text-blue-400">Estates</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#" class="nav-link active text-cyan-200">Home</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-cyan-200">Properties</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-cyan-200">Agents</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-cyan-200">About</a>
+                    <a href="#" class="nav-link text-gray-300 hover:text-cyan-200">Contact</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="glow-button px-4 py-2 rounded-lg">Sign In</button>
+                    <button class="bg-cyan-500 px-4 py-2 rounded-lg text-gray-900 font-medium hover:bg-cyan-400 transition">Register</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Find Your Dream <span class="text-cyan-300">Home</span></h1>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">Discover the perfect property that matches your lifestyle and preferences from our extensive collection.</p>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="glass-card p-6 mb-16 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Location</label>
+                        <input type="text" placeholder="Enter city, neighborhood or ZIP" class="w-full search-bar rounded-lg px-4 py-3 bg-transparent border focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Property Type</label>
+                        <select class="w-full search-bar rounded-lg px-4 py-3 bg-transparent border focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                            <option>All Types</option>
+                            <option>House</option>
+                            <option>Apartment</option>
+                            <option>Condominium</option>
+                            <option>Villa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Price Range</label>
+                        <select class="w-full search-bar rounded-lg px-4 py-3 bg-transparent border focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                            <option>Any Price</option>
+                            <option>Under $100,000</option>
+                            <option>$100,000 - $200,000</option>
+                            <option>$200,000 - $500,000</option>
+                            <option>Over $500,000</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-center">
+                    <button class="glow-button flex items-center px-6 py-3 rounded-lg">
+                        <span class="mr-2">Search Properties</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+                <div class="stat-card rounded-xl p-6 text-center">
+                    <div class="text-4xl font-bold text-cyan-300 mb-2">1,258</div>
+                    <div class="text-gray-400">Total Properties</div>
+                </div>
+                <div class="stat-card rounded-xl p-6 text-center">
+                    <div class="text-4xl font-bold text-cyan-300 mb-2">324</div>
+                    <div class="text-gray-400">Happy Clients</div>
+                </div>
+                <div class="stat-card rounded-xl p-6 text-center">
+                    <div class="text-4xl font-bold text-cyan-300 mb-2">56</div>
+                    <div class="text-gray-400">Award Winners</div>
+                </div>
+            </div>
+            
+            <!-- Featured Listings -->
+            <div class="mb-16">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold">Featured <span class="text-cyan-300">Properties</span></h2>
+                    <a href="#" class="text-cyan-300 hover:text-cyan-200 flex items-center">
+                        View All
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Property Card 1 -->
+                    <div class="property-card rounded-xl overflow-hidden">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Luxury Villa" class="w-full h-48 object-cover">
+                            <div class="absolute top-4 left-4 bg-cyan-500 text-gray-900 text-sm font-medium px-2 py-1 rounded">FEATURED</div>
+                            <div class="absolute top-4 right-4 bg-red-500 rounded-full p-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-lg">Modern Luxury Villa</h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                        </svg>
+                                        Miami, Florida
+                                    </p>
+                                </div>
+                                <div class="text-cyan-300 font-bold">$750,000</div>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-400 mt-4">
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                    </svg>
+                                    4 Beds
+                                </div>
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    3 Baths
+                                </div>
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                    </svg>
+                                    2,500 sq.ft.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Property Card 2 -->
+                    <div class="property-card rounded-xl overflow-hidden">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1574362848149-11496d93a7c7?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Modern Apartment" class="w-full h-48 object-cover">
+                            <div class="absolute top-4 right-4 bg-red-500 rounded-full p-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-lg">Luxury Apartment</h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                        </svg>
+                                        New York, NY
+                                    </p>
+                                </div>
+                                <div class="text-cyan-300 font-bold">$520,000</div>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-400 mt-4">
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                    </svg>
+                                    3 Beds
+                                </div>
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    2 Baths
+                                </div>
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                    </svg>
+                                    1,800 sq.ft.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Property Card 3 -->
+                    <div class="property-card rounded-xl overflow-hidden">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Beach House" class="w-full h-48 object-cover">
+                            <div class="absolute top-4 left-4 bg-cyan-500 text-gray-900 text-sm font-medium px-2 py-1 rounded">NEW</div>
+                            <div class="absolute top-4 right-4 bg-red-500 rounded-full p-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-lg">Beachfront House</h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                        </svg>
+                                        Malibu, California
+                                    </p>
+                                </div>
+                                <div class="text-cyan-300 font-bold">$1,250,000</div>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-400 mt-4">
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                    </svg>
+                                    5 Beds
+                                </div>
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    4 Baths
+                                </div>
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                    </svg>
+                                    3,200 sq.ft.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Agents Section -->
+            <div class="mb-16">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold">Our <span class="text-cyan-300">Agents</span></h2>
+                    <a href="#" class="text-cyan-300 hover:text-cyan-200 flex items-center">
+                        View All
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Agent Card 1 -->
+                    <div class="agent-card rounded-xl p-4 text-center">
+                        <div class="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden border-2 border-cyan-400">
+                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="Agent" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-lg">Michael Johnson</h3>
+                        <p class="text-cyan-300 text-sm mb-3">Senior Real Estate Agent</p>
+                        <p class="text-gray-400 text-sm mb-4">Specializing in luxury properties and commercial real estate investments.</p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="pulse w-10 h-10 rounded-full flex items-center justify-center bg-cyan-500 text-gray-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                </svg>
+                            </a>
+                            <a href="#" class="pulse w-10 h-10 rounded-full flex items-center justify-center bg-cyan-500 text-gray-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Agent Card 2 -->
+                    <div class="agent-card rounded-xl p-4 text-center">
+                        <div class="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden border-2 border-cyan-400">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="Agent" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-lg">Sarah Williams</h3>
+                        <p class="text-cyan-300 text-sm mb-3">Luxury Home Specialist</p>
+                        <p class="text-gray-400 text-sm mb-4">Expert in high-end residential properties with over 10 years of experience.</p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="pulse w-10 h-10 rounded-full flex items-center justify-center bg-cyan-500 text-gray-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                </svg>
+                            </a>
+                            <a href="#" class="pulse w-10 h-10 rounded-full flex items-center justify-center bg-cyan-500 text-gray-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Agent Card 3 -->
+                    <div class="agent-card rounded-xl p-4 text-center">
+                        <div class="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden border-2 border-cyan-400">
+                            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="Agent" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-lg">David Chen</h3>
+                        <p class="text-cyan-300 text-sm mb-3">Commercial Real Estate</p>
+                        <p class="text-gray-400 text-sm mb-4">Focused on commercial properties and investment opportunities.</p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="pulse w-10 h-10 rounded-full flex items-center justify-center bg-cyan-500 text-gray-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                </svg>
+                            </a>
+                            <a href="#" class="pulse w-10 h-10 rounded-full flex items-center justify-center bg-cyan-500 text-gray-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Agent Card 4 -->
+                    <div class="agent-card rounded-xl p-4 text-center">
+                        <div class="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden border-2 border-cyan-400">
+                            <img src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" alt="Agent" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-lg">Jessica Martinez</h3>
+                        <p class="text-cyan-300 text-sm mb-3">First-Time Home Specialist</p>
+                        <p class="text-gray-400 text-sm mb-4">Dedicated to helping first-time buyers find their perfect home.</p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="pulse w-10 h-10 rounded-full flex items-center justify-center bg-cyan-500 text-gray-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                </svg>
+                            </a>
+                            <a href="#" class="pulse w-10 h-10 rounded-full flex items-center justify-center bg-cyan-500 text-gray-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="glass-card mt-16 pt-10 pb-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4 text-cyan-300">LuxuryEstates</h3>
+                    <p class="text-gray-400 text-sm">Finding your dream home has never been easier. Browse thousands of properties and connect with expert agents.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 text-sm">Properties</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 text-sm">Agents</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 text-sm">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 text-sm">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 text-sm">Buying Guide</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 text-sm">Selling Guide</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 text-sm">Mortgage Calculator</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 text-sm">Blog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Subscribe</h3>
+                    <p class="text-gray-400 text-sm mb-4">Get the latest properties and news delivered to your inbox.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Your email" class="flex-grow search-bar rounded-l-lg px-4 py-2 bg-transparent border focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                        <button class="bg-cyan-500 px-4 py-2 rounded-r-lg text-gray-900 font-medium hover:bg-cyan-400 transition">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 mt-8 border-t border-gray-800 text-sm text-gray-400 text-center">
+                <p>© 2023 LuxuryEstates. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple interactivity for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            // Favorite property toggle
+            const favoriteButtons = document.querySelectorAll('.property-card svg');
+            favoriteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('text-red-500');
+                    this.classList.toggle('text-gray-300');
+                });
+            });
+            
+            // Property card click
+            const propertyCards = document.querySelectorAll('.property-card');
+            propertyCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    alert('You clicked on a property! This would navigate to the property details page.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
