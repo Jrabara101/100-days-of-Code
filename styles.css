@@ -1,0 +1,79 @@
+body {
+    margin: 20px;
+    /*
+    Challenge:
+    Find a web safe font you like, and add it 
+    to your card. 
+    */
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.avatar {
+    width: 150px;
+}
+
+.card {
+    width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    background: linear-gradient(135deg, #8ef9f3, #7c606b);
+    color: #2b2839;
+    border-bottom: 15px solid #7C606B;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: backgroundShift 12s ease infinite;
+    background-size: 600% 600%;
+    background: linear-gradient(270deg, #8ef9f3, #ff7e6b, #a9f0d1 #8ef9f3);
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 20px rgba(124, 96, 107, 0.6);
+}
+
+.avatar {
+  width: 150px;
+  border-radius: 50%; /* Makes avatar round */
+  transition: transform 5s ease;
+}
+
+.avatar:hover {
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-15px);
+  }
+}
+
+.card div {
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.card:hover div {
+  opacity: 0.9;
+  transform: translateX(10px);
+}
+
+@keyframes backgroundShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
