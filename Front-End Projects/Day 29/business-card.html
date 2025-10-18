@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Business Card</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen py-10 px-2">
+
+  <div class="max-w-lg w-full rounded-xl shadow-lg overflow-hidden relative transition-colors duration-300"
+       style="background: url('images/image 1.png') center center/cover no-repeat;">
+    <div class="absolute inset-0 bg-white/80 dark:bg-gray-900/80"></div>
+
+    <button id="toggleDark"
+      class="absolute top-3 right-3 z-20 p-2 bg-white/90 dark:bg-gray-800/90 rounded-full shadow transition hover:bg-white/100 dark:hover:bg-gray-800/100"
+      aria-label="Toggle dark mode">
+      <svg class="w-6 h-6 text-yellow-400 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+        <path stroke="currentColor" stroke-width="2"
+          d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.07-7.07l-1.41 1.41M4.93 19.07l-1.41 1.41m0-18.36l1.41 1.41M19.07 19.07l1.41 1.41"/>
+      </svg>
+      <svg class="w-6 h-6 text-gray-800 dark:text-yellow-300 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke="currentColor" stroke-width="2"
+          d="M21 12.79A9 9 0 0111.21 3a7 7 0 100 14 9 9 0 009.79-4.21z"/>
+      </svg>
+    </button>
+
+    <div class="relative z-10 p-10">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white text-center">Johnrick Rabara</h2>
+      <p class="text-center text-gray-600 dark:text-gray-300 mt-1 text-sm">Web Developer</p>
+      <a href="https://portfolio-website-three-iota-46.vercel.app/"
+        class="text-center text-gray-500 dark:text-gray-400 text-xs mb-4 block hover:underline"
+        target="_blank" rel="noopener noreferrer">
+        Johnrick Rabara | Portfolio
+      </a>
+      <div class="flex justify-center gap-4 mb-5">
+        <a href="mailto:jrabara101@gmail.com" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+          Email
+        </a>
+        <a href="https://www.linkedin.com/in/johnrick-rabara" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition">
+          LinkedIn
+        </a>
+      </div>
+      <div>
+        <h3 class="font-semibold text-gray-800 dark:text-gray-100 text-lg mb-1">About</h3>
+        <p class="text-gray-700 dark:text-gray-300 text-sm mb-3">
+          I am a Web Developer with a passion for creating beautiful and functional websites. 
+          I have experience in both front-end and back-end development, 
+          and I enjoy working on projects that challenge me to think creatively.
+          I love to learn new technologies and improve my skills.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-semibold text-gray-800 dark:text-gray-100 text-lg mb-1">Interests</h3>
+        <p class="text-gray-700 dark:text-gray-300 text-sm">
+          Drawing. Web Design. UI/UX Design. Basketball. Web Development. Fullstack. Laravel. React. 
+        </p>
+      </div>
+    </div>
+    
+
+    <div class="flex justify-center space-x-6 bg-gray-100 dark:bg-gray-700 py-3 relative z-10">
+
+      <button aria-label="Twitter"
+         onclick="window.open('https://x.com/JRABARA1', '_blank', 'noopener,noreferrer')"
+         class="w-12 h-12 flex items-center justify-center rounded-lg bg-gray-400/40 text-gray-700 dark:text-gray-300 hover:text-[#1da1f2] hover:bg-gray-500/70 transition-all duration-200 transform hover:scale-110 focus:scale-110 focus:outline-none focus:ring-2 focus:ring-[#1da1f2]">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M21.5 6.1c-.6.3-1.3.5-2 .5.7-.4 1.2-1.1 1.5-1.8-.6.4-1.3.7-2 .9A3.39 3.39 0 0012 8.7c0 .3 0 .7.1 1A9.6 9.6 0 013 5.1a3.29 3.29 0 001 4.3c-.5 0-1-.2-1.4-.4 0 1.7 1.2 3.1 2.7 3.4-.3.1-.7.2-1.1.2-.2 0-.5 0-.7-.1.5 1.4 1.8 2.4 3.4 2.4A6.7 6.7 0 012 18.2a9.59 9.59 0 005.2 1.5c6.2 0 9.6-5.1 9.6-9.6v-.4c.7-.5 1.3-1.1 1.8-1.7z"/>
+        </svg>
+      </button>
+
+      <button aria-label="Facebook"
+         onclick="window.open('https://www.facebook.com/Jrabaraa/', '_blank', 'noopener,noreferrer')"
+         class="w-12 h-12 flex items-center justify-center rounded-lg bg-gray-400/40 text-gray-700 dark:text-gray-300 hover:text-[#1877f3] hover:bg-gray-500/70 transition-all duration-200 transform hover:scale-110 focus:scale-110 focus:outline-none focus:ring-2 focus:ring-[#1877f3]">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M22 12a10 10 0 10-11.5 9.9V14.9h-2v-2.2h2v-1.7c0-2 1.2-3.1 3-3.1.9 0 1.9.2 1.9.2v2.1h-1c-1 0-1.3.6-1.3 1.2v1.4h2.2l-.4 2.2h-1.8v7c6-.7 10.2-6 9.5-12z"/>
+        </svg>
+      </button>
+
+      <button aria-label="Instagram"
+         onclick="window.open('https://www.instagram.com/heyjrabara/', '_blank', 'noopener,noreferrer')"
+         class="w-12 h-12 flex items-center justify-center rounded-lg bg-gray-400/40 text-gray-700 dark:text-gray-300 hover:text-[#e1306c] hover:bg-gray-500/70 transition-all duration-200 transform hover:scale-110 focus:scale-110 focus:outline-none focus:ring-2 focus:ring-[#e1306c]">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <rect width="18" height="18" x="3" y="3" rx="4.5" fill="none" stroke="currentColor"></rect>
+          <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor"></circle>
+          <circle cx="17" cy="7" r="1.2" fill="currentColor" />
+        </svg>
+      </button>
+
+      <button aria-label="GitHub"
+         onclick="window.open('https://github.com/Jrabara101', '_blank', 'noopener,noreferrer')"
+         class="w-12 h-12 flex items-center justify-center rounded-lg bg-gray-400/40 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-500/70 transition-all duration-200 transform hover:scale-110 focus:scale-110 focus:outline-none focus:ring-2 focus:ring-black">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2a10 10 0 00-3.16 19.49c.5.09.68-.21.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.17-1.11-1.48-1.11-1.48-.9-.62.07-.61.07-.61 1 .08 1.53 1.05 1.53 1.05.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.1-4.55-4.88 0-1.08.39-1.96 1.03-2.65-.1-.26-.45-1.31.1-2.74 0 0 .84-.27 2.75 1.02a9.48 9.48 0 015 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.43.2 2.48.1 2.74.64.69 1.03 1.57 1.03 2.65 0 3.79-2.34 4.62-4.57 4.87.36.32.68.94.68 1.89v2.81c0 .27.18.58.69.48A10 10 0 0012 2z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const btn = document.getElementById('toggleDark');
+    btn.onclick = function() {
+      document.body.classList.toggle('dark');
+    }
+  </script>
+</body>
+</html>
