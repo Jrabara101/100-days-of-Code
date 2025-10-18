@@ -1,0 +1,39 @@
+.digit {
+  font-family: 'Cursed Timer ULiL', monospace;
+  font-size: 5rem;
+  color: #fa2742;
+  background: #11142f;
+  border-radius: 0.25rem;
+  width: 120px;
+  text-align: center;
+  margin: 0 auto;
+  letter-spacing: 0.15em;
+}
+.score-panel {
+  box-shadow: 0 0 24px rgba(10, 24, 68, 0.16);
+  border-radius: 1rem;
+  background: #16225b;
+  padding: 2rem 2.5rem;
+  min-width: 420px;
+}
+.btn {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #222b45;
+  background: #eef8ff;
+  border-radius: 0.5rem;
+  box-shadow: 0 3px 8px rgba(0,0,0,.11);
+  margin: 0.2rem 0.3rem;
+  padding: 0.75rem 1.2rem;
+  transition: background 0.22s;
+  border: none;
+}
+.btn:hover {
+  background: #a4e4ff;
+  color: #163d80;
+  cursor: pointer;
+}
+.highlight-leader {
+  border: 4px solid #fad834;
+  background: #1a2d6d;
+}

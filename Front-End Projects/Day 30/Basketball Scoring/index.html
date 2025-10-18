@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scoreboard Demo</title>
+  <!-- Tailwind v4 CDN (replace with latest stable link if needed) -->
+  <script src="https://cdn.tailwindcss.com/"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="flex items-center justify-center min-h-screen bg-slate-100">
+  <section class="score-panel flex flex-col items-center">
+    <div class="flex space-x-16 mb-4">
+      <div id="home-container" class="flex flex-col items-center">
+        <span class="text-white text-2xl font-bold mb-1">HOME</span>
+        <span id="home-score" class="digit">0</span>
+        <div class="flex mt-2">
+          <button onclick="updateScore('home',1)" class="btn">+1</button>
+          <button onclick="updateScore('home',2)" class="btn">+2</button>
+          <button onclick="updateScore('home',3)" class="btn">+3</button>
+        </div>
+      </div>
+      <div id="guest-container" class="flex flex-col items-center">
+        <span class="text-white text-2xl font-bold mb-1">GUEST</span>
+        <span id="guest-score" class="digit">0</span>
+        <div class="flex mt-2">
+          <button onclick="updateScore('guest',1)" class="btn">+1</button>
+          <button onclick="updateScore('guest',2)" class="btn">+2</button>
+          <button onclick="updateScore('guest',3)" class="btn">+3</button>
+        </div>
+      </div>
+    </div>
+    <!-- Stretch goals -->
+    <div class="flex space-x-6 mt-6">
+      <button onclick="newGame()" class="btn bg-yellow-300 text-blue-800 font-bold">New Game</button>
+    </div>
+    <div class="mt-4 text-gray-300 text-sm">
+      <span id="leader-indicator"></span>
+    </div>
+  </section>
+  <script src="app.js"></script>
+</body>
+</html>
