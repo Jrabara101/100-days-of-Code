@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Preload Example</title>
+  <style>
+    /* Preloader Styles */
+    #preloader {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #f5f6fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 6px solid #9c88ff;
+      border-top: 6px solid #f5f6fa;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+  </style>
+</head>
+<body>
+  <!-- Preloader -->
+  <div id="preloader">
+    <div class="loader"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main-content" style="display:none;">
+    <h1>Preload Example</h1>
+    <p>This is the main content that shows after the preloader is finished.</p>
+  </div>
+
+  <script>
+    // Preloader Script
+    window.addEventListener('load', function() {
+      var preloader = document.getElementById('preloader');
+      var mainContent = document.getElementById('main-content');
+      preloader.style.display = 'none';
+      mainContent.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
