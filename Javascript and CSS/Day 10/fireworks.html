@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Fireworks Generator</title>
+    <!-- Load Tailwind CSS for utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the dark, immersive experience */
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Hide scrollbars */
+            background-color: #0d0d1a; /* Very dark background */
+            font-family: 'Inter', sans-serif;
+            cursor: crosshair; /* Indicate interactivity */
+        }
+        #fireworksCanvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            pointer-events: none; /* Allows clicks to pass through to the canvas */
+            z-index: 20;
+        }
+        .controls {
+            pointer-events: all; /* Re-enable pointer events for controls */
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-dark': '#1e1b4b',
+                        'accent-light': '#a78bfa',
+                        'gemini-blue': '#4285F4',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <canvas id="fireworksCanvas"></canvas>
+
+    <div class="ui-overlay">
+        <!-- Top Control Bar (LLM Feature) -->
+        <div class="controls flex flex-col gap-2 p-3 bg-primary-dark/90 rounded-xl shadow-2xl border border-accent-light/50">
+            <h2 class="text-white text-lg font-bold">✨ Firework Show Generator (Gemini AI)</h2>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input type="text" id="promptInput" placeholder="e.g., 'A slow sequence of green and purple willows'"
+                       class="flex-grow p-2 rounded-lg text-sm bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gemini-blue"
+                       value="A quick burst of bright red and gold crackling stars"
+                >
+                <button id="generateBtn"
+                        class="px-4 py-2 bg-gemini-blue hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-200 shadow-md disabled:opacity-50 flex items-center justify-center">
+                    Generate Show
+                </button>
+            </div>
+            <div id="aiMessage" class="text-sm text-center text-white/70 min-h-[1.25rem]"></div>
+        </div>
+
+        <!-- Bottom Tip -->
+        <div class="bg-primary-dark/80 text-white p-3 rounded-xl shadow-2xl backdrop-blur-sm transition duration-300 transform border border-accent-light/50">
+            <p class="text-sm sm:text-base font-semibold">🌌 Tap or Click Anywhere to Launch a Firework 🚀</p>
+        </div>
+    </div>
+
+    <script>
+        // --- GEMINI API Configuration ---
+        const API_KEY = ""; // Canvas will provide this at runtime
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+
+        // Set up the canvas and context
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        const promptInput = document.getElementById('promptInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const aiMessage = document.getElementById('aiMessage');
+
+        // Global state
+        let fireworks = [];
+        const GRAVITY = 0.08;
+
+        // --- Core Firework/Particle Classes (Updated for AI Params) ---
+
+        /**
+         * Converts percentage string to canvas coordinate.
+         * @param {string} percentage - e.g., '50%'
+         * @param {number} max - max value (width or height)
+         * @returns {number}
+         */
+        function percentToCoord(percentage, max) {
+            const val = parseFloat(percentage);
+            return (val / 100) * max;
+        }
+
+        // Resize the canvas to fill the window
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, hue, isRocket = false, frictionOverride) {
+                this.x = x;
+                this.y = y;
+                this.hue = hue;
+                this.color = `hsl(${hue}, 100%, 60%)`;
+                this.alpha = 1;
+                this.friction = frictionOverride !== undefined ? frictionOverride : 0.99;
+                this.gravity = GRAVITY;
+                this.isRocket = isRocket;
+
+                this.history = [{ x: x, y: y }];
+                this.historyLength = isRocket ? 3 : 1;
+                this.vx = 0;
+                this.vy = 0;
+            }
+
+            setSparkVelocity(angle, speed) {
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+            }
+
+            update() {
+                if (!this.isRocket) {
+                    this.vx *= this.friction;
+                    this.vy *= this.friction;
+                    this.vy += this.gravity;
+                    this.alpha -= 0.015;
+                }
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                this.history.push({ x: this.x, y: this.y });
+                if (this.history.length > this.historyLength) {
+                    this.history.shift();
+                }
+
+                return this.alpha > 0;
+            }
+
+            draw() {
+                for (let i = 0; i < this.history.length; i++) {
+                    const pos = this.history[i];
+                    const trailAlpha = (i / this.history.length) * this.alpha;
+                    const trailColor = `hsla(${this.hue}, 100%, 60%, ${trailAlpha})`;
+
+                    ctx.beginPath();
+                    const radius = this.isRocket ? 1.5 : 1;
+                    ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = trailColor;
+                    ctx.fill();
+                }
+            }
+        }
+
+
+        class Firework {
+            constructor(startX, startY, targetX, targetY, params = {}) {
+                this.x = startX;
+                this.y = startY;
+                this.targetX = targetX;
+                this.targetY = targetY;
+
+                // AI Generated Parameters
+                this.hue = params.hue !== undefined ? params.hue : Math.floor(Math.random() * 360);
+                this.sparkCount = params.sparkCount !== undefined ? params.sparkCount : (Math.floor(Math.random() * 50) + 100);
+                this.maxSpeed = params.maxSpeed !== undefined ? params.maxSpeed : (Math.random() * 5 + 3);
+                this.frictionOverride = params.frictionOverride; // Passed to Particle constructor
+
+                this.color = `hsl(${this.hue}, 100%, 60%)`;
+
+                const distanceX = targetX - startX;
+                const distanceY = targetY - startY;
+                const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+                const speed = Math.min(2 + distance / 300, 10);
+                const angle = Math.atan2(distanceY, distanceX);
+
+                this.rocket = new Particle(startX, startY, this.hue, true);
+                this.rocket.vx = Math.cos(angle) * speed;
+                this.rocket.vy = Math.sin(angle) * speed;
+
+                this.sparks = [];
+                this.exploded = false;
+            }
+
+            update() {
+                if (!this.exploded) {
+                    const hasReachedTarget = (this.rocket.y <= this.targetY);
+
+                    if (hasReachedTarget) {
+                        this.explode();
+                        this.exploded = true;
+                        this.rocket = null;
+                        return true;
+                    } else {
+                        this.rocket.update();
+                        return true;
+                    }
+                } else {
+                    this.sparks = this.sparks.filter(spark => spark.update());
+                    return this.sparks.length > 0;
+                }
+            }
+
+            explode() {
+                for (let i = 0; i < this.sparkCount; i++) {
+                    const spark = new Particle(
+                        this.x,
+                        this.y,
+                        this.hue + (Math.random() * 40 - 20), // slight hue shift
+                        false,
+                        this.frictionOverride
+                    );
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * this.maxSpeed;
+                    spark.setSparkVelocity(angle, speed);
+                    this.sparks.push(spark);
+                }
+            }
+
+            draw() {
+                if (!this.exploded && this.rocket) {
+                    this.rocket.draw();
+                } else {
+                    this.sparks.forEach(spark => spark.draw());
+                }
+            }
+        }
+
+
+        // --- Main Animation Loop & Interaction ---
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Create trail effect
+            ctx.fillStyle = 'rgba(13, 13, 26, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            fireworks = fireworks.filter(firework => {
+                firework.update();
+                firework.draw();
+                return firework.exploded ? firework.sparks.length > 0 : firework.rocket;
+            });
+
+            // Draw ground glow
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height,
+                0,
+                canvas.width / 2, canvas.height,
+                canvas.width / 2
+            );
+            gradient.addColorStop(0, 'rgba(30, 27, 75, 0.4)');
+            gradient.addColorStop(1, 'rgba(13, 13, 26, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+        }
+
+        /**
+         * Launches a new firework towards the click/touch location (Manual Launch).
+         */
+        function launchFirework(x, y) {
+            const startX = Math.random() * canvas.width;
+            const startY = canvas.height + 10;
+            const targetX = x;
+            const targetY = y;
+
+            if (targetY < canvas.height * 0.8) {
+                 fireworks.push(new Firework(startX, startY, targetX, targetY));
+            }
+        }
+
+        // Mouse click listener
+        canvas.addEventListener('mousedown', (e) => {
+            launchFirework(e.clientX, e.clientY);
+        });
+
+        // Touch listener for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            launchFirework(touch.clientX, touch.clientY);
+        });
+
+        // --- LLM Integration Functions ---
+
+        /**
+         * Fetches show parameters from the Gemini API based on a text prompt.
+         * Implements exponential backoff for retries.
+         * @param {string} prompt - The user's description of the desired firework show.
+         */
+        async function fetchGeminiShowParameters(prompt) {
+            const systemPrompt = "You are a creative firework show designer. Given a description, generate a JSON array representing a sequence of fireworks. Use the provided schema. Ensure hue is 0-360, sparkCount is 80-200, and maxSpeed is 3-8. Use a variety of launch positions and target heights. Generate 2 to 4 fireworks in the sequence. For 'slow' effects, use a lower maxSpeed (e.g., 3-5). For 'cascading' or 'willow' effects, use a lower frictionOverride (e.g., 0.98). For 'crackling' or 'quick' effects, use a higher maxSpeed (e.g., 6-8).";
+
+            const payload = {
+                contents: [{ parts: [{ text: `Generate a firework show sequence based on this description: "${prompt}"` }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            description: { type: "STRING", description: "A one-sentence description of the generated effect." },
+                            fireworks: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        delayMs: { type: "NUMBER", description: "Delay before launch in milliseconds (0-2500)." },
+                                        hue: { type: "NUMBER", description: "Primary color hue (0-360)." },
+                                        sparkCount: { type: "NUMBER", description: "Number of sparks in the explosion (80-200)." },
+                                        maxSpeed: { type: "NUMBER", description: "Initial explosion speed (3-8)." },
+                                        frictionOverride: { type: "NUMBER", description: "Optional override for particle friction (0.95-0.995). Leave undefined for default (0.99)." },
+                                        launchX: { type: "STRING", description: "Launch X position as a percentage of width (e.g., '50%', '20%')." },
+                                        targetY: { type: "STRING", description: "Target Y height as a percentage of height (e.g., '20%', '40%')." }
+                                    },
+                                    required: ["delayMs", "hue", "sparkCount", "maxSpeed", "launchX", "targetY"]
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const maxRetries = 5;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429 && i < maxRetries - 1) {
+                            // Too Many Requests, retry with exponential backoff
+                            const delay = Math.pow(2, i) * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            continue;
+                        }
+                        throw new Error(`API request failed with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                    if (!jsonText) {
+                        throw new Error("Gemini API returned empty response.");
+                    }
+
+                    // The model returns a string of JSON, so we parse it.
+                    return JSON.parse(jsonText);
+
+                } catch (error) {
+                    console.error("Gemini API Error:", error.message);
+                    if (i === maxRetries - 1) throw new Error("Failed to connect to AI after multiple retries.");
+                }
+            }
+        }
+
+        /**
+         * Main function to handle the AI show generation and execution.
+         */
+        async function generateShow() {
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                aiMessage.textContent = "Please enter a description first.";
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = "Generating...";
+            aiMessage.textContent = "Requesting custom parameters from Gemini...";
+
+            try {
+                const showData = await fetchGeminiShowParameters(prompt);
+
+                if (showData && showData.fireworks && showData.fireworks.length > 0) {
+                    aiMessage.textContent = `Show generated: ${showData.description}`;
+
+                    // Execute the show sequence
+                    for (const fw of showData.fireworks) {
+                        await new Promise(resolve => setTimeout(resolve, fw.delayMs));
+
+                        const startX = percentToCoord(fw.launchX, canvas.width);
+                        const targetY = percentToCoord(fw.targetY, canvas.height);
+                        const targetX = Math.random() * canvas.width; // Random X target for variety
+
+                        // Launch with AI-generated parameters
+                        fireworks.push(new Firework(
+                            startX, canvas.height + 10, targetX, targetY,
+                            {
+                                hue: fw.hue,
+                                sparkCount: fw.sparkCount,
+                                maxSpeed: fw.maxSpeed,
+                                frictionOverride: fw.frictionOverride
+                            }
+                        ));
+                    }
+                } else {
+                     aiMessage.textContent = "AI could not generate a valid firework show. Try another prompt!";
+                }
+
+            } catch (error) {
+                console.error("Show Generation Failed:", error);
+                aiMessage.textContent = `Error: ${error.message}`;
+            } finally {
+                generateBtn.textContent = "Generate Show";
+                generateBtn.disabled = false;
+            }
+        }
+
+        generateBtn.addEventListener('click', generateShow);
+
+        // Start the animation when the window loads
+        window.onload = function () {
+            // Launch an initial firework to demonstrate manual control
+            launchFirework(canvas.width * 0.5, canvas.height * 0.2);
+            setTimeout(() => launchFirework(canvas.width * 0.2, canvas.height * 0.4), 1000);
+            setTimeout(() => launchFirework(canvas.width * 0.8, canvas.height * 0.3), 2500);
+
+            animate();
+        }
+    </script>
+
+</body>
+</html>
