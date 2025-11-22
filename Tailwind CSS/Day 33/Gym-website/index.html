@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Fitness | Gym & Workout Tracker</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script type="module" src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#059669', // Emerald 600
+                        'secondary': '#1f2937', // Gray 800
+                        'accent': '#34d399', // Emerald 300
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen">
+
+    <!-- Header & Navigation -->
+    <header class="sticky top-0 z-50 bg-secondary shadow-lg">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <!-- Logo/Branding -->
+            <a href="#home" onclick="navigate('home')" class="text-3xl font-extrabold text-primary flex items-center">
+                <i data-lucide="dumbbell" class="h-8 w-8 text-accent mr-2"></i>
+                Apex Fitness
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-6">
+                <button onclick="navigate('home')" class="nav-link text-lg text-gray-300 hover:text-accent transition duration-150">Home</button>
+                <button onclick="navigate('about')" class="nav-link text-lg text-gray-300 hover:text-accent transition duration-150">About Us</button>
+                <button onclick="navigate('services')" class="nav-link text-lg text-gray-300 hover:text-accent transition duration-150">Programs</button>
+                <button onclick="navigate('pricing')" class="nav-link text-lg text-gray-300 hover:text-accent transition duration-150">Pricing</button>
+                <button onclick="navigate('contact')" class="nav-link text-lg text-gray-300 hover:text-accent transition duration-150">Contact</button>
+            </div>
+
+            <!-- Member Portal CTA -->
+            <button onclick="navigate('portal')" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition duration-150 hidden md:block">
+                Member Portal
+            </button>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-300 focus:outline-none">
+                <i data-lucide="menu" class="h-8 w-8"></i>
+            </button>
+        </nav>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 border-t border-gray-700">
+            <div class="flex flex-col space-y-2 p-4">
+                <button onclick="navigate('home'); toggleMobileMenu()" class="nav-link text-left text-gray-300 hover:text-accent py-2 border-b border-gray-700">Home</button>
+                <button onclick="navigate('about'); toggleMobileMenu()" class="nav-link text-left text-gray-300 hover:text-accent py-2 border-b border-gray-700">About Us</button>
+                <button onclick="navigate('services'); toggleMobileMenu()" class="nav-link text-left text-gray-300 hover:text-accent py-2 border-b border-gray-700">Programs</button>
+                <button onclick="navigate('pricing'); toggleMobileMenu()" class="nav-link text-left text-gray-300 hover:text-accent py-2 border-b border-gray-700">Pricing</button>
+                <button onclick="navigate('contact'); toggleMobileMenu()" class="nav-link text-left text-gray-300 hover:text-accent py-2 border-b border-gray-700">Contact</button>
+                <button onclick="navigate('portal'); toggleMobileMenu()" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition duration-150 mt-2">
+                    Member Portal
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- === 1. HOME PAGE === -->
+        <section id="home-page" class="page-content active">
+            <!-- Hero Section -->
+            <div id="hero-section" class="relative text-center py-20 md:py-32 rounded-xl overflow-hidden shadow-2xl">
+                <div class="relative z-10 p-4">
+                    <h1 class="text-4xl md:text-7xl font-black text-white leading-tight mb-4">
+                        UNLEASH YOUR POTENTIAL
+                    </h1>
+                    <p class="text-xl md:text-3xl text-gray-200 mb-8 max-w-3xl mx-auto">
+                        Your journey to peak fitness starts here. State-of-the-art equipment, expert trainers, and a powerful community.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button onclick="navigate('pricing')" class="bg-accent text-gray-900 font-bold text-lg py-3 px-8 rounded-full shadow-lg hover:bg-green-400 transition transform hover:scale-105">
+                            Join Today
+                        </button>
+                        <button onclick="navigate('services')" class="bg-transparent border-2 border-white text-white font-bold text-lg py-3 px-8 rounded-full shadow-lg hover:bg-white hover:text-gray-900 transition transform hover:scale-105">
+                            View Programs
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Atmosphere Showcase/Value Props -->
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="bg-secondary p-6 rounded-xl shadow-xl transform hover:scale-[1.02] transition duration-300">
+                    <i data-lucide="zap" class="h-10 w-10 text-accent mx-auto mb-3"></i>
+                    <h3 class="text-2xl font-semibold mb-2">High-Energy</h3>
+                    <p class="text-gray-400">Motivating environment to push your limits every session.</p>
+                </div>
+                <div class="bg-secondary p-6 rounded-xl shadow-xl transform hover:scale-[1.02] transition duration-300">
+                    <i data-lucide="shield-check" class="h-10 w-10 text-accent mx-auto mb-3"></i>
+                    <h3 class="text-2xl font-semibold mb-2">Expert Guidance</h3>
+                    <p class="text-gray-400">Certified trainers dedicated to your personal success.</p>
+                </div>
+                <div class="bg-secondary p-6 rounded-xl shadow-xl transform hover:scale-[1.02] transition duration-300">
+                    <i data-lucide="barbell" class="h-10 w-10 text-accent mx-auto mb-3"></i>
+                    <h3 class="text-2xl font-semibold mb-2">Cutting-Edge Gear</h3>
+                    <p class="text-gray-400">The latest equipment for every type of workout.</p>
+                </div>
+            </div>
+
+            <!-- Virtual Tour / Promo Feature -->
+            <div class="mt-16 bg-primary p-8 rounded-xl flex flex-col lg:flex-row items-center shadow-2xl">
+                <div class="lg:w-2/3">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-3 text-white">LIMITED TIME OFFER: 30-Day Free Trial!</h2>
+                    <p class="text-gray-100 text-lg">Experience the Apex difference with full access to our facilities and classes for an entire month, no strings attached.</p>
+                </div>
+                <div class="lg:w-1/3 mt-6 lg:mt-0 lg:text-right">
+                    <button onclick="navigate('contact')" class="bg-white text-primary font-bold py-3 px-8 rounded-full hover:bg-gray-200 transition">
+                        Claim Your Trial
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- === 2. ABOUT US PAGE === -->
+        <section id="about-page" class="page-content hidden">
+            <h2 class="text-4xl font-bold mb-6 text-primary border-b-2 border-primary pb-2">Our Story & Mission</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                <div class="space-y-6 text-lg text-gray-300">
+                    <p><strong>The Apex Philosophy:</strong> Founded in 2015 by former Olympian Sarah Chen, Apex Fitness was built on the belief that peak physical condition is achievable by everyone, regardless of starting point. We are not just a gym; we are a dedicated community committed to excellence.</p>
+                    <p>Our mission is simple: To provide the highest quality training environment, supported by continuous innovation and personalized guidance, ensuring every member has the tools and motivation to exceed their fitness goals.</p>
+                    <p>We value accountability, continuous improvement, and positive energy. Join us and discover the best version of yourself.</p>
+                </div>
+                <div>
+                    <img src="https://placehold.co/600x400/10b981/ffffff?text=Apex+Founders+Team" alt="Apex Fitness Team Photo" class="w-full h-auto object-cover rounded-xl shadow-2xl">
+                </div>
+            </div>
+
+            <!-- Team / Trainers Section -->
+            <div class="mt-16">
+                <h3 class="text-3xl font-bold mb-8 text-accent">Meet Our Certified Trainers</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Trainer 1 -->
+                    <div class="bg-secondary p-5 rounded-xl text-center shadow-lg">
+                        <img src="https://placehold.co/150x150/065f46/ffffff?text=Sarah+Chen" alt="Sarah Chen" class="rounded-full w-24 h-24 object-cover mx-auto mb-4 border-4 border-primary">
+                        <h4 class="text-xl font-semibold text-white">Sarah Chen</h4>
+                        <p class="text-primary">Founder & Head Coach</p>
+                        <p class="text-sm text-gray-400 mt-2">Specializes in Olympic Lifting and Athletic Performance.</p>
+                    </div>
+                    <!-- Trainer 2 -->
+                    <div class="bg-secondary p-5 rounded-xl text-center shadow-lg">
+                        <img src="https://placehold.co/150x150/065f46/ffffff?text=Mike+J." alt="Mike Johnson" class="rounded-full w-24 h-24 object-cover mx-auto mb-4 border-4 border-primary">
+                        <h4 class="text-xl font-semibold text-white">Mike Johnson</h4>
+                        <p class="text-primary">Personal Trainer</p>
+                        <p class="text-sm text-gray-400 mt-2">Expert in bodybuilding, nutrition planning, and injury recovery.</p>
+                    </div>
+                    <!-- Trainer 3 -->
+                    <div class="bg-secondary p-5 rounded-xl text-center shadow-lg">
+                        <img src="https://placehold.co/150x150/065f46/ffffff?text=Lisa+R." alt="Lisa Rodriguez" class="rounded-full w-24 h-24 object-cover mx-auto mb-4 border-4 border-primary">
+                        <h4 class="text-xl font-semibold text-white">Lisa Rodriguez</h4>
+                        <p class="text-primary">Group Class Instructor</p>
+                        <p class="text-sm text-gray-400 mt-2">Leads our high-intensity HIIT and Yoga Fusion classes.</p>
+                    </div>
+                     <!-- Trainer 4 -->
+                    <div class="bg-secondary p-5 rounded-xl text-center shadow-lg">
+                        <img src="https://placehold.co/150x150/065f46/ffffff?text=David+S." alt="David Smith" class="rounded-full w-24 h-24 object-cover mx-auto mb-4 border-4 border-primary">
+                        <h4 class="text-xl font-semibold text-white">David Smith</h4>
+                        <p class="text-primary">Strength & Conditioning</p>
+                        <p class="text-sm text-gray-400 mt-2">Focuses on functional fitness and marathon preparation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- === 3. SERVICES / PROGRAMS PAGE === -->
+        <section id="services-page" class="page-content hidden">
+            <h2 class="text-4xl font-bold mb-6 text-primary border-b-2 border-primary pb-2">Our Programs & Services</h2>
+
+            <!-- Program List -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Service Card 1 -->
+                <div class="bg-secondary rounded-xl shadow-xl overflow-hidden group hover:shadow-primary/50 transition duration-300">
+                    <img src="https://placehold.co/600x350/059669/ffffff?text=Personal+Training" alt="Personal Training" class="w-full h-48 object-cover group-hover:scale-105 transition duration-500">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-accent mb-3">1-on-1 Personal Training</h3>
+                        <p class="text-gray-400 mb-4">Dedicated, customized workout plans and nutritional guidance from a certified Apex coach. Achieve specific goals faster and safer.</p>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><i data-lucide="check-circle" class="icon h-5 w-5 text-primary"></i>Goal-oriented sessions</li>
+                            <li><i data-lucide="check-circle" class="icon h-5 w-5 text-primary"></i>Body Composition analysis</li>
+                            <li><i data-lucide="check-circle" class="icon h-5 w-5 text-primary"></i>Flexible scheduling</li>
+                        </ul>
+                        <button onclick="navigate('pricing')" class="mt-4 w-full bg-primary text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">Inquire</button>
+                    </div>
+                </div>
+
+                <!-- Service Card 2 -->
+                <div class="bg-secondary rounded-xl shadow-xl overflow-hidden group hover:shadow-primary/50 transition duration-300">
+                    <img src="https://placehold.co/600x350/059669/ffffff?text=Group+Classes" alt="Group Classes" class="w-full h-48 object-cover group-hover:scale-105 transition duration-500">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-accent mb-3">Signature Group Classes</h3>
+                        <p class="text-gray-400 mb-4">Join our high-energy group environment. Choose from HIIT, Spin, Yoga Fusion, and Strength & Conditioning classes.</p>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><i data-lucide="check-circle" class="icon h-5 w-5 text-primary"></i>Over 50 classes weekly</li>
+                            <li><i data-lucide="check-circle" class="icon h-5 w-5 text-primary"></i>Community motivation</li>
+                            <li><i data-lucide="check-circle" class="icon h-5 w-5 text-primary"></i>All fitness levels welcome</li>
+                        </ul>
+                        <button onclick="navigate('schedule')" class="mt-4 w-full bg-primary text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">View Schedule</button>
+                    </div>
+                </div>
+
+                <!-- Service Card 3 -->
+                <div class="bg-secondary rounded-xl shadow-xl overflow-hidden group hover:shadow-primary/50 transition duration-300">
+                    <img src="https://placehold.co/600x350/059669/ffffff?text=Open+Gym+Access" alt="Open Gym Access" class="w-full h-48 object-cover group-hover:scale-105 transition duration-500">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-accent mb-3">24/7 Open Gym Access</h3>
+                        <p class="text-gray-400 mb-4">Workout on your own schedule with unlimited access to our cutting-edge facility, including free weights and cardio zones.</p>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><i data-lucide="check-circle" class="icon h-5 w-5 text-primary"></i>Access to all equipment</li>
+                            <li><i data-lucide="check-circle" class="icon h-5 w-5 text-primary"></i>Locker and shower facilities</li>
+                            <li><i data-lucide="check-circle" class="icon h-5 w-5 text-primary"></i>Secure, monitored environment</li>
+                        </ul>
+                        <button onclick="navigate('pricing')" class="mt-4 w-full bg-primary text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">Sign Up</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Class Schedule Sub-Section (Inline for quick access) -->
+            <div id="schedule" class="mt-16">
+                <h3 class="text-3xl font-bold mb-6 text-accent">Quick Class Schedule</h3>
+                <div class="overflow-x-auto bg-secondary p-4 rounded-xl shadow-xl">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-800">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Class</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Trainer</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Booking</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            <tr class="hover:bg-gray-800 transition duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">6:00 AM</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-primary">HIIT Circuit</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">Lisa R.</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                    <button class="text-accent hover:text-green-500 font-semibold" onclick="mockBooking('HIIT Circuit')">Book</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-800 transition duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">5:30 PM</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-primary">Strength & Power</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">Mike J.</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                    <button class="text-accent hover:text-green-500 font-semibold" onclick="mockBooking('Strength & Power')">Book</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-800 transition duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">7:00 PM</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-primary">Yoga Fusion</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">Lisa R.</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                    <button class="text-accent hover:text-green-500 font-semibold" onclick="mockBooking('Yoga Fusion')">Book</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- === 4. MEMBERSHIP AND PRICING PAGE === -->
+        <section id="pricing-page" class="page-content hidden">
+            <h2 class="text-4xl font-bold mb-6 text-primary border-b-2 border-primary pb-2">Membership Tiers & Pricing</h2>
+            <p class="text-xl text-gray-300 mb-10">Find the perfect plan to fit your goals and budget. All plans require a one-time setup fee of $49.</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Plan 1: Basic Access -->
+                <div class="bg-secondary p-8 rounded-xl shadow-2xl border-t-4 border-gray-600 transition duration-300 hover:border-accent">
+                    <h3 class="text-3xl font-bold text-white mb-2">Base Access</h3>
+                    <p class="text-gray-400 mb-4">Essential gym access for the independent trainee.</p>
+                    <div class="text-5xl font-extrabold text-primary mb-6">
+                        $49<span class="text-xl font-normal text-gray-400">/mo</span>
+                    </div>
+                    <ul class="space-y-4 text-lg text-gray-300">
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>Unlimited Open Gym Access (M-F)</li>
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>Locker Room & Shower Access</li>
+                        <li class="flex items-center"><i data-lucide="x-circle" class="icon h-6 w-6 text-gray-600"></i>No Group Classes</li>
+                        <li class="flex items-center"><i data-lucide="x-circle" class="icon h-6 w-6 text-gray-600"></i>No Personal Training Discounts</li>
+                    </ul>
+                    <button onclick="mockSignup('Base Access')" class="mt-8 w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-green-700 transition transform hover:scale-[1.02]">
+                        Select Plan
+                    </button>
+                </div>
+                
+                <!-- Plan 2: Prime Standard (Recommended) -->
+                <div class="bg-secondary p-8 rounded-xl shadow-2xl border-t-4 border-primary ring-4 ring-primary transform scale-[1.05]">
+                    <div class="text-center mb-4">
+                        <span class="bg-primary text-white text-xs font-bold uppercase px-3 py-1 rounded-full">Most Popular</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-white mb-2">Prime Standard</h3>
+                    <p class="text-gray-400 mb-4">Full access, plus unlimited group class entry.</p>
+                    <div class="text-5xl font-extrabold text-primary mb-6">
+                        $99<span class="text-xl font-normal text-gray-400">/mo</span>
+                    </div>
+                    <ul class="space-y-4 text-lg text-gray-300">
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>Unlimited Open Gym Access (24/7)</li>
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>Unlimited Group Classes</li>
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>1 Free Personal Training Session</li>
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>10% Off PT Sessions</li>
+                    </ul>
+                    <button onclick="mockSignup('Prime Standard')" class="mt-8 w-full bg-accent text-gray-900 py-3 rounded-lg font-bold hover:bg-green-400 transition transform hover:scale-[1.02]">
+                        Go Prime!
+                    </button>
+                </div>
+
+                <!-- Plan 3: Elite Coaching -->
+                <div class="bg-secondary p-8 rounded-xl shadow-2xl border-t-4 border-gray-600 transition duration-300 hover:border-accent">
+                    <h3 class="text-3xl font-bold text-white mb-2">Elite Coaching</h3>
+                    <p class="text-gray-400 mb-4">The ultimate package for accelerated results with full PT access.</p>
+                    <div class="text-5xl font-extrabold text-primary mb-6">
+                        $249<span class="text-xl font-normal text-gray-400">/mo</span>
+                    </div>
+                    <ul class="space-y-4 text-lg text-gray-300">
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>Everything in Prime Standard</li>
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>4 Personal Training Sessions/mo</li>
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>Customized Meal Plan Access</li>
+                        <li class="flex items-center"><i data-lucide="circle-check" class="icon h-6 w-6 text-accent"></i>Priority Class Booking</li>
+                    </ul>
+                    <button onclick="mockSignup('Elite Coaching')" class="mt-8 w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-green-700 transition transform hover:scale-[1.02]">
+                        Select Plan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Testimonials Sub-Section -->
+            <div id="testimonials" class="mt-16">
+                <h3 class="text-4xl font-bold mb-8 text-accent text-center">Client Success Stories</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Testimonial 1 -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-xl border-l-4 border-primary">
+                        <div class="flex items-center mb-4">
+                            <i data-lucide="quote" class="h-10 w-10 text-primary mr-3"></i>
+                            <span class="text-xl font-semibold text-white">"Life-Changing Results"</span>
+                        </div>
+                        <p class="text-gray-300 italic mb-4">"I joined Apex 6 months ago and I'm down 40lbs, but more importantly, my energy levels are through the roof! The Prime Standard membership is incredible value, and the trainers are genuinely invested in my progress."</p>
+                        <p class="text-sm font-medium text-accent">— Alex R., Prime Standard Member</p>
+                    </div>
+                    <!-- Testimonial 2 -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-xl border-l-4 border-primary">
+                         <div class="flex items-center mb-4">
+                            <i data-lucide="quote" class="h-10 w-10 text-primary mr-3"></i>
+                            <span class="text-xl font-semibold text-white">"The Best Coaching"</span>
+                        </div>
+                        <p class="text-gray-300 italic mb-4">"I chose the Elite Coaching package to train for a triathlon. Sarah Chen designed a perfect program. I hit my goal time by a huge margin. Apex is professional, clean, and top-tier."</p>
+                        <p class="text-sm font-medium text-accent">— Ben S., Elite Coaching Member</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- === 5. CONTACT PAGE === -->
+        <section id="contact-page" class="page-content hidden">
+            <h2 class="text-4xl font-bold mb-6 text-primary border-b-2 border-primary pb-2">Get In Touch</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <!-- Contact Form -->
+                <div class="lg:col-span-2 bg-secondary p-8 rounded-xl shadow-2xl">
+                    <h3 class="text-2xl font-semibold mb-6 text-white">Send Us a Message</h3>
+                    <form id="contact-form" onsubmit="handleContact(event)" class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+                            <input type="text" id="name" name="name" required class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
+                            <input type="email" id="email" name="email" required class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-300 mb-1">Your Message</label>
+                            <textarea id="message" name="message" rows="4" required class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-primary focus:border-primary"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-green-700 transition transform hover:scale-[1.01]">
+                            Submit Inquiry
+                        </button>
+                        <p id="contact-message" class="mt-4 text-center text-accent hidden"></p>
+                    </form>
+                </div>
+
+                <!-- Contact Info & Location -->
+                <div class="lg:col-span-1 space-y-8">
+                    <div class="bg-secondary p-6 rounded-xl shadow-xl">
+                        <h3 class="text-xl font-semibold mb-4 text-accent">Details</h3>
+                        <p class="flex items-center text-gray-300 mb-3"><i data-lucide="map-pin" class="icon h-5 w-5 text-primary"></i> 450 Fitness Ave, Metro City, 10010</p>
+                        <p class="flex items-center text-gray-300 mb-3"><i data-lucide="phone" class="icon h-5 w-5 text-primary"></i> (555) 123-4567</p>
+                        <p class="flex items-center text-gray-300 mb-3"><i data-lucide="mail" class="icon h-5 w-5 text-primary"></i> info@apexf.com</p>
+                        <h4 class="text-lg font-semibold mt-6 mb-2 text-accent">Operating Hours</h4>
+                        <p class="text-gray-300">Mon - Fri: 5:00 AM - 11:00 PM</p>
+                        <p class="text-gray-300">Sat - Sun: 7:00 AM - 9:00 PM</p>
+                    </div>
+
+                    <!-- Social Media Links -->
+                    <div class="bg-secondary p-6 rounded-xl shadow-xl">
+                        <h3 class="text-xl font-semibold mb-4 text-accent">Follow Us</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-400 hover:text-primary transition"><i data-lucide="facebook" class="h-8 w-8"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary transition"><i data-lucide="instagram" class="h-8 w-8"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary transition"><i data-lucide="twitter" class="h-8 w-8"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- === 6. MEMBER PORTAL PAGE === -->
+        <section id="portal-page" class="page-content hidden">
+            <h2 class="text-4xl font-bold mb-6 text-primary border-b-2 border-primary pb-2">Member Portal</h2>
+            
+            <!-- Mock Login Form -->
+            <div id="portal-login" class="max-w-md mx-auto bg-secondary p-8 rounded-xl shadow-2xl">
+                <h3 class="text-2xl font-semibold text-white mb-6 text-center">Secure Login</h3>
+                <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Username (e.g., "demo")</label>
+                        <input type="text" id="username" name="username" required class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password (e.g., "password")</label>
+                        <input type="password" id="password" name="password" required class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-primary focus:border-primary">
+                    </div>
+                    <button type="submit" class="w-full bg-accent text-gray-900 font-bold py-3 rounded-lg hover:bg-green-400 transition transform hover:scale-[1.01]">
+                        Login
+                    </button>
+                    <p id="login-error" class="text-red-400 text-center mt-3 hidden">Invalid credentials. Try "demo" / "password".</p>
+                </form>
+            </div>
+
+            <!-- Member Dashboard (Hidden until login) -->
+            <div id="portal-dashboard" class="hidden">
+                <div class="bg-secondary p-8 rounded-xl shadow-2xl mb-8">
+                    <h3 class="text-3xl font-bold text-accent mb-4">Welcome back, Demo User!</h3>
+                    <p class="text-gray-300">Your Prime Standard membership is active. You have 3/4 Personal Training sessions remaining this month.</p>
+                </div>
+
+                <!-- Progress Tracker -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
+                        <h4 class="text-xl font-semibold text-white mb-2 flex items-center"><i data-lucide="gauge" class="icon h-6 w-6 text-primary"></i>Weight Loss</h4>
+                        <div class="text-4xl font-bold text-accent">12 lbs</div>
+                        <p class="text-sm text-gray-400">Total Progress</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
+                        <h4 class="text-xl font-semibold text-white mb-2 flex items-center"><i data-lucide="armchair" class="icon h-6 w-6 text-primary"></i>Last Workout</h4>
+                        <div class="text-4xl font-bold text-accent">Leg Day</div>
+                        <p class="text-sm text-gray-400">Wednesday, 5:30 PM</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
+                        <h4 class="text-xl font-semibold text-white mb-2 flex items-center"><i data-lucide="calendar-check" class="icon h-6 w-6 text-primary"></i>Sessions Booked</h4>
+                        <div class="text-4xl font-bold text-accent">5</div>
+                        <p class="text-sm text-gray-400">Classes This Week</p>
+                    </div>
+                </div>
+
+                <!-- Workout Plan Section -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-xl mb-8">
+                    <h4 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-lucide="scroll" class="icon h-7 w-7 text-primary"></i>Current Workout Plan: Phase II - Strength Build</h4>
+                    <ul class="space-y-3 text-gray-300">
+                        <li class="p-3 bg-secondary rounded-lg flex justify-between items-center hover:bg-gray-700 transition">
+                            <span><span class="font-semibold text-accent">Day 1:</span> Chest & Triceps</span>
+                            <span class="text-sm text-gray-400">4 exercises, 4 sets each</span>
+                        </li>
+                        <li class="p-3 bg-secondary rounded-lg flex justify-between items-center hover:bg-gray-700 transition">
+                            <span><span class="font-semibold text-accent">Day 2:</span> Legs & Shoulders</span>
+                            <span class="text-sm text-gray-400">5 exercises, focus on Squat volume</span>
+                        </li>
+                        <li class="p-3 bg-secondary rounded-lg flex justify-between items-center hover:bg-gray-700 transition">
+                            <span><span class="font-semibold text-accent">Day 3:</span> Back & Biceps</span>
+                            <span class="text-sm text-gray-400">Heavy rows and pull-ups</span>
+                        </li>
+                    </ul>
+                    <button onclick="mockViewPlan()" class="mt-6 bg-primary text-white py-2 px-4 rounded-lg hover:bg-green-700 transition">View Full Plan</button>
+                    <button onclick="handleLogout()" class="mt-6 ml-4 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition">Logout</button>
+                </div>
+                
+                <!-- NEW: AI Workout Assistant Section -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
+                    <h4 class="text-2xl font-bold text-accent mb-4 flex items-center"><i data-lucide="sparkles" class="icon h-7 w-7 text-accent"></i>AI Workout Assistant</h4>
+                    <p class="text-gray-400 mb-4">Need a quick, specialized workout? Tell the AI your constraints and goals.</p>
+                    <form onsubmit="generateAiWorkout(event)" class="space-y-4">
+                        <div>
+                            <label for="ai-prompt" class="block text-sm font-medium text-gray-300 mb-1">Your Request (e.g., "A 20-minute bodyweight routine focused on shoulders and cardio.")</label>
+                            <textarea id="ai-prompt" rows="2" class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-primary focus:border-primary" required>A 15-minute high-intensity micro-workout focusing on core and legs. Assume I have access to dumbbells and a mat.</textarea>
+                        </div>
+                        <button type="submit" id="ai-generate-btn" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-green-700 transition transform hover:scale-[1.01] flex items-center justify-center">
+                            <span id="ai-btn-text">Generate Workout ✨</span>
+                            <svg id="ai-loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </form>
+                    
+                    <!-- AI Workout Result Display -->
+                    <div id="ai-workout-result" class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner hidden">
+                        <!-- Content will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mock Modal for Messages (Instead of alert()) -->
+        <div id="mock-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center hidden">
+            <div class="bg-secondary p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border-t-4 border-primary">
+                <i id="modal-icon" data-lucide="check-circle" class="h-10 w-10 text-primary mx-auto mb-4"></i>
+                <h4 id="modal-title" class="text-2xl font-bold text-white mb-3">Success!</h4>
+                <p id="modal-body" class="text-gray-300 mb-6">Your action was successful.</p>
+                <button onclick="closeModal()" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition">Close</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-secondary mt-16 py-8">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
+            <div class="mb-4">
+                <a href="#home" onclick="navigate('home')" class="text-primary hover:text-accent transition mx-2">Home</a> |
+                <a href="#services" onclick="navigate('services')" class="text-primary hover:text-accent transition mx-2">Programs</a> |
+                <a href="#contact" onclick="navigate('contact')" class="text-primary hover:text-accent transition mx-2">Contact</a>
+            </div>
+            <p>&copy; 2025 Apex Fitness. All Rights Reserved. Built with passion and code.</p>
+        </div>
+    </footer>
+    <script>
+
+    </script>
+    <script src="scripts.js"></script>
+</body>
+</html>

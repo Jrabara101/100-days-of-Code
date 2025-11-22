@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Rocket Run</title>
+    
+    <!-- Tailwind CSS (Using CDN for immediate utility classes) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Custom Styles (Simulating external CSS) -->
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0f172a; /* slate-900 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* UI Overlay */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Let clicks pass through to canvas when playing */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+            z-index: 10;
+        }
+
+        .interactive-ui {
+            pointer-events: auto;
+        }
+
+        /* HUD Text */
+        .hud-text {
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        
+        /* Game Over / Start Screen Modal */
+        #menu-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 1rem;
+            padding: 3rem;
+            pointer-events: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- The 3D Canvas is appended here by JS -->
+        
+        <!-- UI Layer -->
+        <div id="ui-layer">
+            <!-- Top HUD -->
+            <div class="flex justify-between items-start w-full">
+                <div class="text-cyan-400 font-bold text-xl tracking-widest hud-text">
+                    SHIELD: <span id="shield-val">100%</span>
+                </div>
+                <div class="text-right">
+                    <div class="text-white font-black text-4xl tracking-tighter hud-text" id="score">0</div>
+                    <div class="text-slate-400 text-sm uppercase tracking-wide">Distance</div>
+                </div>
+            </div>
+
+            <!-- Bottom HUD -->
+            <div class="flex justify-center w-full">
+                <div id="speed-indicator" class="h-1 bg-slate-700 w-64 rounded-full overflow-hidden">
+                    <div id="speed-bar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-600 w-1/2 transition-all duration-200"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Modal -->
+        <div id="menu-modal" class="interactive-ui">
+            <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-2">ORBITAL RUN</h1>
+            <p class="text-slate-300 mb-8 text-lg">Dodge the asteroids. Survive the void.</p>
+            
+            <div id="stats-container" class="hidden mb-6">
+                <p class="text-slate-400 text-sm uppercase">Final Score</p>
+                <p id="final-score" class="text-white text-3xl font-bold">0</p>
+            </div>
+
+            <button id="start-btn" class="group relative px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold rounded-full transition-all transform hover:scale-105 hover:shadow-[0_0_20px_rgba(34,211,238,0.6)]">
+                <span id="btn-text">LAUNCH MISSION</span>
+                <div class="absolute inset-0 rounded-full border-2 border-white opacity-0 group-hover:opacity-20 animate-ping"></div>
+            </button>
+            
+            <p class="mt-6 text-slate-500 text-xs">Use MOUSE to steer</p>
+        </div>
+    </div>
+
+    <!-- Game Logic (Simulating external JS) -->
+    <script>
+        /**
+         * GAME CONFIGURATION & STATE
+         */
+        const CONFIG = {
+            speed: 0.8,
+            maxSpeed: 2.0,
+            acceleration: 0.001,
+            asteroidSpawnRate: 8, // Lower is faster
+            starCount: 800,
+            fieldDepth: 1000,
+            cameraZ: 50,
+            colors: {
+                bg: 0x0f172a,
+                rocket: 0xe2e8f0,
+                rocketAccent: 0x06b6d4,
+                asteroid: 0x64748b
+            }
+        };
+
+        let state = {
+            isPlaying: false,
+            score: 0,
+            health: 100,
+            frame: 0,
+            mouse: { x: 0, y: 0 },
+            targetPosition: { x: 0, y: 0 }
+        };
+
+        // DOM Elements
+        const scoreEl = document.getElementById('score');
+        const finalScoreEl = document.getElementById('final-score');
+        const shieldEl = document.getElementById('shield-val');
+        const menuModal = document.getElementById('menu-modal');
+        const statsContainer = document.getElementById('stats-container');
+        const startBtn = document.getElementById('start-btn');
+        const btnText = document.getElementById('btn-text');
+        const speedBar = document.getElementById('speed-bar');
+
+        /**
+         * THREE.JS SETUP
+         */
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(CONFIG.colors.bg);
+        scene.fog = new THREE.FogExp2(CONFIG.colors.bg, 0.0025);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.z = CONFIG.cameraZ;
+        camera.position.y = 10;
+        camera.rotation.x = -0.1;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('game-container').appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(10, 20, 10);
+        scene.add(dirLight);
+
+        const engineLight = new THREE.PointLight(0x06b6d4, 2, 50);
+        scene.add(engineLight); // Will attach to rocket
+
+        /**
+         * ASSETS: ROCKET
+         */
+        const rocketGroup = new THREE.Group();
+        
+        // Fuselage
+        const bodyGeo = new THREE.CylinderGeometry(0.5, 1, 4, 8);
+        const bodyMat = new THREE.MeshPhongMaterial({ 
+            color: CONFIG.colors.rocket, 
+            flatShading: true 
+        });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.rotation.x = Math.PI / 2;
+        rocketGroup.add(body);
+
+        // Nose
+        const noseGeo = new THREE.ConeGeometry(0.5, 1.5, 8);
+        const noseMat = new THREE.MeshPhongMaterial({ color: CONFIG.colors.rocketAccent });
+        const nose = new THREE.Mesh(noseGeo, noseMat);
+        nose.rotation.x = Math.PI / 2;
+        nose.position.z = -2.75;
+        rocketGroup.add(nose);
+
+        // Fins
+        const finGeo = new THREE.BoxGeometry(0.2, 1.5, 1);
+        const finMat = new THREE.MeshPhongMaterial({ color: CONFIG.colors.rocketAccent });
+        
+        const fin1 = new THREE.Mesh(finGeo, finMat);
+        fin1.position.set(0, 0.8, 1.5);
+        fin1.rotation.x = Math.PI / 4;
+        rocketGroup.add(fin1);
+
+        const fin2 = new THREE.Mesh(finGeo, finMat);
+        fin2.position.set(0, -0.8, 1.5);
+        fin2.rotation.x = -Math.PI / 4;
+        rocketGroup.add(fin2);
+
+        const fin3 = new THREE.Mesh(finGeo, finMat);
+        fin3.position.set(0.8, 0, 1.5);
+        fin3.rotation.y = -Math.PI / 2;
+        fin3.rotation.x = Math.PI / 4;
+        rocketGroup.add(fin3);
+        
+        const fin4 = new THREE.Mesh(finGeo, finMat);
+        fin4.position.set(-0.8, 0, 1.5);
+        fin4.rotation.y = Math.PI / 2;
+        fin4.rotation.x = Math.PI / 4;
+        rocketGroup.add(fin4);
+
+        // Engine Glow (Particles)
+        const particlesGeo = new THREE.BufferGeometry();
+        const particlesCount = 50;
+        const posArray = new Float32Array(particlesCount * 3);
+        
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 0.5;
+        }
+        particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMat = new THREE.PointsMaterial({
+            size: 0.2,
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.8
+        });
+        const engineParticles = new THREE.Points(particlesGeo, particlesMat);
+        engineParticles.position.z = 2.5;
+        rocketGroup.add(engineParticles);
+
+        scene.add(rocketGroup);
+
+        /**
+         * ASSETS: ASTEROIDS
+         */
+        let asteroids = [];
+        const asteroidGeo = new THREE.DodecahedronGeometry(1, 0);
+        const asteroidMat = new THREE.MeshStandardMaterial({ 
+            color: CONFIG.colors.asteroid, 
+            roughness: 0.8,
+            flatShading: true
+        });
+
+        function spawnAsteroid() {
+            // Scale randomization
+            const scale = 1 + Math.random() * 2;
+            const mesh = new THREE.Mesh(asteroidGeo, asteroidMat);
+            
+            // Random position far away
+            const x = (Math.random() - 0.5) * 100;
+            const y = (Math.random() - 0.5) * 60;
+            const z = -CONFIG.fieldDepth;
+
+            mesh.position.set(x, y, z);
+            mesh.scale.set(scale, scale, scale);
+            
+            // Random rotation speed
+            mesh.userData = {
+                rotX: (Math.random() - 0.5) * 0.05,
+                rotY: (Math.random() - 0.5) * 0.05,
+                radius: scale // Approximation for collision
+            };
+
+            scene.add(mesh);
+            asteroids.push(mesh);
+        }
+
+        /**
+         * ASSETS: STARFIELD
+         */
+        const starGeo = new THREE.BufferGeometry();
+        const starPos = [];
+        for(let i = 0; i < CONFIG.starCount; i++) {
+            const x = (Math.random() - 0.5) * 600;
+            const y = (Math.random() - 0.5) * 600;
+            const z = (Math.random() - 0.5) * CONFIG.fieldDepth * 2;
+            starPos.push(x, y, z);
+        }
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 });
+        const starField = new THREE.Points(starGeo, starMat);
+        scene.add(starField);
+
+        /**
+         * GAME LOGIC
+         */
+        
+        // Input Handling
+        document.addEventListener('mousemove', (e) => {
+            // Normalize mouse position to -1 to 1
+            state.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            state.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            // Map to scene coordinates
+            state.targetPosition.x = state.mouse.x * 30;
+            state.targetPosition.y = state.mouse.y * 15;
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        startBtn.addEventListener('click', startGame);
+
+        function startGame() {
+            state.isPlaying = true;
+            state.score = 0;
+            state.health = 100;
+            state.frame = 0;
+            CONFIG.speed = 0.8; // Reset speed
+
+            // Clear existing asteroids
+            asteroids.forEach(a => scene.remove(a));
+            asteroids = [];
+
+            // Reset Rocket
+            rocketGroup.position.set(0, 0, 0);
+            rocketGroup.visible = true;
+
+            // UI Updates
+            menuModal.classList.add('hidden');
+            updateHUD();
+        }
+
+        function gameOver() {
+            state.isPlaying = false;
+            
+            // Show Menu
+            menuModal.classList.remove('hidden');
+            statsContainer.classList.remove('hidden');
+            btnText.innerText = "TRY AGAIN";
+            finalScoreEl.innerText = Math.floor(state.score);
+        }
+
+        function updateHUD() {
+            scoreEl.innerText = Math.floor(state.score);
+            shieldEl.innerText = `${state.health}%`;
+            shieldEl.style.color = state.health > 30 ? '#22d3ee' : '#ef4444';
+            
+            const speedPct = (CONFIG.speed / CONFIG.maxSpeed) * 100;
+            speedBar.style.width = `${speedPct}%`;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // 1. Rocket Movement (Always smooth follow)
+            rocketGroup.position.x += (state.targetPosition.x - rocketGroup.position.x) * 0.1;
+            rocketGroup.position.y += (state.targetPosition.y - rocketGroup.position.y) * 0.1;
+            
+            // Tilt effect based on velocity
+            rocketGroup.rotation.z = -(state.targetPosition.x - rocketGroup.position.x) * 0.05;
+            rocketGroup.rotation.x = (state.targetPosition.y - rocketGroup.position.y) * 0.05;
+
+            // Engine Light
+            engineLight.position.copy(rocketGroup.position);
+            engineLight.position.z += 2;
+
+            // Animate Engine Particles
+            const positions = engineParticles.geometry.attributes.position.array;
+            for(let i=0; i < particlesCount * 3; i+=3) {
+                positions[i+2] += 0.2; // Move back
+                if(positions[i+2] > 2) {
+                    positions[i+2] = 0; // Reset
+                    positions[i] = (Math.random() - 0.5) * 0.5;
+                    positions[i+1] = (Math.random() - 0.5) * 0.5;
+                }
+            }
+            engineParticles.geometry.attributes.position.needsUpdate = true;
+
+            if (!state.isPlaying) {
+                // Idle rotation if not playing
+                scene.rotation.z += 0.0005;
+                return; // Skip gameplay logic
+            } else {
+                scene.rotation.z = 0;
+            }
+
+            // 2. Gameplay Logic
+            state.frame++;
+            state.score += CONFIG.speed;
+            
+            // Increase speed over time
+            if (CONFIG.speed < CONFIG.maxSpeed) {
+                CONFIG.speed += CONFIG.acceleration;
+            }
+
+            // Spawn Asteroids
+            if (state.frame % Math.floor(60 / CONFIG.asteroidSpawnRate) === 0) {
+                spawnAsteroid();
+            }
+
+            // Move Asteroids & Collision
+            for (let i = asteroids.length - 1; i >= 0; i--) {
+                const a = asteroids[i];
+                
+                // Move towards camera
+                a.position.z += CONFIG.speed * 2; // Relative speed
+                
+                // Rotation
+                a.rotation.x += a.userData.rotX;
+                a.rotation.y += a.userData.rotY;
+
+                // Collision Check
+                // Simple distance check (Sphere vs Sphere approximation)
+                const dist = rocketGroup.position.distanceTo(a.position);
+                if (dist < 1 + a.userData.radius && a.position.z > -5 && a.position.z < 5) {
+                    // Hit!
+                    scene.remove(a);
+                    asteroids.splice(i, 1);
+                    state.health -= 34; // 3 hits = game over
+                    
+                    // Screen shake effect (concept)
+                    camera.position.x = (Math.random() - 0.5) * 2;
+                    
+                    if (state.health <= 0) {
+                        state.health = 0;
+                        gameOver();
+                    }
+                    continue;
+                }
+
+                // Remove if behind camera
+                if (a.position.z > CONFIG.cameraZ) {
+                    scene.remove(a);
+                    asteroids.splice(i, 1);
+                }
+            }
+
+            // Move Stars (Parallax)
+            const starPositions = starField.geometry.attributes.position.array;
+            for(let i = 2; i < starPositions.length; i += 3) {
+                starPositions[i] += CONFIG.speed * 10;
+                if(starPositions[i] > CONFIG.fieldDepth) {
+                    starPositions[i] = -CONFIG.fieldDepth;
+                }
+            }
+            starField.geometry.attributes.position.needsUpdate = true;
+
+            // Reset camera shake
+            camera.position.x += (0 - camera.position.x) * 0.1;
+
+            updateHUD();
+            renderer.render(scene, camera);
+        }
+
+        // Start the Loop
+        animate();
+
+    </script>
+</body>
+</html>

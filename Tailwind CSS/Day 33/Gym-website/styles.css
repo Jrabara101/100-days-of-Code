@@ -1,0 +1,49 @@
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        /* Custom scrollbar for aesthetics */
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+        body::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        body::-webkit-scrollbar-thumb {
+            background-color: #059669;
+            border-radius: 20px;
+        }
+
+        /* Hero image effect */
+        #hero-section {
+            background-image: url('https://placehold.co/1200x800/10b981/ffffff?text=Dynamic+Training+Floor');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        #hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.65); /* Dark overlay */
+        }
+        
+        .page-content {
+            min-height: calc(100vh - 8rem); /* Adjust for header/footer */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .page-content.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Utility for icon alignment */
+        .icon {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
