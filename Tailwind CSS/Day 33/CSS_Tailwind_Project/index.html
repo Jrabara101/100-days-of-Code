@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Document</title>
+</head>
+<body>
+    <div class="bg-red-800 -mt-10">
+        <div  style="margin-left: 60rem;" class="absolute inset-0 flex items-center ml-96">
+            <img src="Images/Pizza2.png" style="width: 40rem; height: 32rem;" class="absolute inset-0 object-cover w-full h-full">
+        </div>
+        <div class="nav-container relative z-10 mt-10">
+            <nav class="flex items-center mx-16">
+                <ul class="flex text-center text-white mx-32">
+                    <li class="mx-10 font-bold text-lg">
+                        <a href="ReservationTable.html">
+                            Reservations
+                        </a>
+                    </li>
+                    <li class="mx-10 font-bold text-lg">
+                        <a href="Menu.html">
+                            Menu
+                        </a>
+                    </li>
+                    <li class="mx-10 font-bold text-lg">
+                        <a href="Reviews.html">
+                            Reviews
+                        </a>
+                    </li>
+                    <li class="mx-10 font-bold text-lg">
+                        <a href="Chefs.html">
+                            Chefs
+                        </a>
+                    </li>
+                    <li class="mx-10">
+                        <form action="/search" method="get">
+                            <input class="rounded-lg h-10 pl-4 placeholder-gray-700 bg-red-500 border-4 border-red-900" type="text" name="q" placeholder="Search...">
+                        </form>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-heart fa-2xl mx-8 mt-5"></i>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-cart-shopping fa-2xl mt-5"></i>
+                    </li>
+                    <li class="mx-10 mt-2">
+                        <button class="text-white font-semibold bg-green-800 rounded-xl h-10 w-20 -mt-2 hover:bg-red-500 "> 
+                            Log in
+                        </button>
+                    </li>
+                    <li class="mt-2">
+                        <button class="text-white font-semibold bg-green-800 rounded-xl h-10 w-20 -mt-2 hover:bg-red-500">
+                            Sign Up
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    
+        <div class="flex items-center text-justify relative z-10">
+            <h1 class=" text-white text-6xl font-semibold mt-40 mx-56 leading-snug">
+                Lorem ipsum dolor <br>
+                Excepteur sint occaecat <br>
+                <span class="text-green-600">Experiences</span>
+            </h1>
+        </div>
+        <div class="flex relative z-10">
+            <h1 class="mx-56 mt-8 text-white text-lg">
+                Sed ut perspiciatis unde omnis iste natus error sit voluptatem <br>
+                accusantium doloremque laudantium, totam rem aperiam, eaque  <br>
+                ipsa quae ab illo inventore veritatis et 
+            </h1>
+        </div>
+        <div class="flex relative z-10 mt-8">
+            <div class="w-96 h-20 border border-white rounded-lg flex items-center mx-56">
+                <div class="flex items-center w-28 h-14 mx-2 bg-green-500 rounded-lg border-green-900">
+                    <i class="fa-solid fa-truck text-white mx-4"></i>
+                    <span class="text-white -mx-4 font-medium">Delivery</span>
+                </div>
+                <div class="flex items-center w-28 h-14 mx-2 bg-green-500 rounded-lg border-green-900">
+                    <i class="fa-solid fa-location-dot text-white mx-4"></i>
+                    <span class="text-white -mx-3 font-medium ">Pick Up</span>
+                </div>
+                <div class="flex items-center w-28 h-14 mx-2 bg-green-500 rounded-lg border-green-900">
+                    <i class="fa-solid fa-utensils text-white mx-4"></i>
+                    <span class="text-white -mx-3 font-medium">
+                        <a href="DineInReservations.html"> 
+                            Dine In 
+                        </a> 
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-center mt-16 h-96">
+        <div class="bg-black p-10 rounded-lg" style="height: 52rem;">
+            <h1 class="text-orange-700 font-serif text-3xl ml-60">
+                Reservations
+            </h1>
+            <h2 class="mt-10 text-6xl text-yellow-100 font-serif text-center">
+                Booking a Table
+            </h2>
+            <h3 class="mt-8 text-2xl text-yellow-100 text-center">
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco <br> laboris nisi ut 
+                aliquip ex ea commodo consequat 
+            </h3>
+            <div class="flex justify-center items-center h-10 relative mt-8">
+                <div class="w-96 border border-orange-300 ">
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 -translate-y-0.1">
+                    <div class="w-4 h-4 bg-orange-300 transform rotate-45"></div>
+                </div>
+                <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-12">
+                    <div class="w-96 h-16 border border-orange-300 flex items-center text-xl text-orange-300">
+                        <span class="ml-4">Name</span>
+                    </div>
+                    <div class="flex justify-center w-96">
+                        <div class="w-48 h-14 border border-orange-300 flex items-center mt-6 mr-4">
+                            <span class="ml-4 text-xl text-orange-300">Phone</span>
+                        </div>
+                        <div class="w-48 h-14 border border-orange-300 flex items-center mt-6 mr-4">
+                            <span class="ml-4 text-xl text-orange-300">20:00</span>
+                            <i class="ml-20 fa-solid fa-caret-down text-orange-300 "></i>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center w-96">
+                        <div class="w-48 h-14 border border-orange-300 flex items-center mt-6 mr-4">
+                            <span class="ml-4 text-xl text-orange-300">People</span>
+                            <i class="ml-16 fa-solid fa-caret-down text-orange-300 "></i>
+                        </div>
+                        <div class="w-48 h-14 border border-orange-300 flex items-center mt-6 mr-4">
+                            <span class="ml-4 text-xl text-orange-300">20/4/24</span>
+                            <i class="ml-16 fa-solid fa-caret-down text-orange-300 "></i>
+                        </div>
+                    </div>
+
+                    <div class="w-96 h-16 mt-14 border border-orange-300 flex items-center justify-center text-xl text-orange-300">
+                        <span class="ml-2 font-sans">Book Now</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="flex mt-8" style="height: 50rem;">
+            <img src="Images/Table.jpg" class="rounded-lg" alt="Table Image">
+        </div>
+    </div>
+
+
+    <div>
+        <div  style="margin-top: 99rem;" class="flex justify-center h-screen absolute inset-0 mt-32 ml-32">
+            <nav style="width: 30rem;" class="w-96 h-20 bg-white border border-orange-800 rounded-lg mt-4">
+                <ul class="flex text-center">
+                    <li class=" flex items-center mt-4 text-center w-26 h-11 mx-2 bg-orange-500 rounded-lg">
+                        <span class="mx-2">All Category</span>
+                    </li>
+                    <li class="mt-6 mx-2 text-gray-500 ">
+                        Thai
+                    </li>
+                    <li class="mt-6 mx-2 text-gray-500 ">
+                        Mexican
+                    </li>
+                    <li class="mt-6 mx-2 text-gray-500 ">
+                        Italian
+                    </li>
+                    <li class="mt-6 mx-2 text-gray-500 ">
+                        Vegetarian
+                    </li>
+                    <li class="mt-6 mx-2 text-gray-500 ">
+                        Seafood
+                    </li>
+                </ul>
+            </nav> 
+            <div class="flex items-center h-screen">
+                <div style="margin-left: -44rem; height: 28rem;" class="w-80 h-96 bg-white border border-orange-800 rounded-lg flex relative">  
+                    <div class="w-80 ">
+                        <img src="/Images/chicken skewers .jpg" class="w-full rounded-lg" >
+                        <h1 class="mx-6 mt-4 text-orange-500 font-bold text-2xl">
+                            $30
+                            <i class="fa-solid fa-star text-yellow-400 ml-28 "><span class="text-black font-normal text-base">4.7(2.5k)</span></i>
+                        </h1>
+                        <h1  class="text-black text-2xl font-bold ml-8 mt-2 ">
+                            Chicken Skewers
+                        </h1>
+                        <h1 class="text-gray-500 mx-6 mt-2">
+                            <i class="fa-solid fa-check text-orange-500 mx-2"></i>
+                            Lorem ipsum chicken
+                        </h1>
+                        <h1 class="text-gray-500 mx-6 mt-2">
+                            <i class="fa-solid fa-check text-orange-500 mx-2"></i>
+                            Lorem ipsum sauce
+                        </h1>
+                        <h1 class="mt-4 mx-24 text-gray-600 text-lg font-sans">
+                            <i class="fa-solid fa-cart-shopping text-gray-600"></i>
+                            Add to Cart
+                        </h1>
+                     </div>
+             </div>
+        </div>
+        <div class="flex items-center h-screen">
+            <div style="margin-left: -22rem; height: 28rem;" class="w-80 h-96 bg-white border border-orange-800 rounded-lg flex relative">  
+                <div class="w-80 ">
+                    <img src="/Images/lemon fish fry.jpg" class="w-full rounded-lg" >
+                    <h1 class="mx-6 mt-4 text-orange-500 font-bold text-2xl">
+                        $34
+                        <i class="fa-solid fa-star text-yellow-400 ml-28 "><span class="text-black font-normal text-base">4.7(2.5k)</span></i>
+                    </h1>
+                    <h1  class="text-black text-2xl font-bold ml-8 mt-2 ">
+                        Lemon fish
+                    </h1>
+                    <h1 class="text-gray-500 mx-6 mt-2">
+                        <i class="fa-solid fa-check text-orange-500 mx-2"></i>
+                        Lorem ipsum fish
+                    </h1>
+                    <h1 class="text-gray-500 mx-6 mt-2">
+                        <i class="fa-solid fa-check text-orange-500 mx-2"></i>
+                        Lorem ipsum sauce
+                    </h1>
+                    <h1 class="mt-4 mx-24 text-gray-600 text-lg font-sans">
+                        <i class="fa-solid fa-cart-shopping text-gray-600"></i>
+                        Add to Cart
+                    </h1>
+                 </div>
+         </div>
+        </div>
+    
+        <div class="flex items-center h-screen">
+            <div style="height: 28rem;" class="w-80 h-96 bg-white border border-orange-800 rounded-lg flex relative">  
+                <div class="w-80 ">
+                    <img src="/Images/Beef Sandwich.jpg" class="w-full rounded-lg" >
+                    <h1 class="mx-6 mt-4 text-orange-500 font-bold text-2xl">
+                        $20
+                        <i class="fa-solid fa-star text-yellow-400 ml-28 "><span class="text-black font-normal text-base">4.7(2.5k)</span></i>
+                    </h1>
+                    <h1  class="text-black text-2xl font-bold ml-8 mt-2 ">
+                        Beef Burger
+                    </h1>
+                    <h1 class="text-gray-500 mx-6 mt-2">
+                        <i class="fa-solid fa-check text-orange-500 mx-2"></i>
+                        Lorem ipsum burger
+                    </h1>
+                    <h1 class="text-gray-500 mx-6 mt-2">
+                        <i class="fa-solid fa-check text-orange-500 mx-2"></i>
+                        Lorem ipsum sauce
+                    </h1>
+                    <h1 class="mt-4 mx-24 text-gray-600 text-lg font-sans">
+                        <i class="fa-solid fa-cart-shopping text-gray-600"></i>
+                        Add to Cart
+                    </h1>
+                 </div>
+         </div>
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <div style="margin-top: 72rem;"  class="text-center mt-10">
+        <h1 class="text-pink-500 italic text-3xl">
+            Reviews
+        </h1>
+        <h2 class="text-black text-4xl font-semibold mt-5">
+            TESTIMONIALS
+        </h2>
+        <h3>
+            <i class="fa-solid fa-minus text-pink-500 text-2xl"></i> <i class="fa-solid fa-minus text-pink-500 text-2xl"></i>
+        </h3>
+        <h4 class="text-gray-600 font-medium text-base">
+            While mirth large of on front. Ye he greater related adapted proceed entered an. Throught it examine
+            express  <br>
+            promise no. Past add size game cold girl off how old
+        </h4>
+    </div> 
+
+    <div style="width: 30rem;" class="flex flex-col w-96 h-80 bg-white mx-96 mt-24 shadow-xl">
+        <h1 class="text-black text-xl font-semibold mt-6 ml-36">
+            Awesome Pizza
+        </h1>
+        <h2 class="text-gray-500 font-normal mt-6 justify-center mx-10">
+            quis nostrud exercitation ullamco laboris nisi ut  <br>
+            Ut enim ad minima veniam, quis nostrum exercitatio <br>
+            aliquip ex ea commodo.
+        </h2>
+        <h3 class="justify-center mx-48 mt-4">
+            <img src="Images/Profile1.jpg" class="w-20 h-20 rounded-full border border-black">
+        </h3>
+        <h4 style="margin-left: 11.5rem;" class="text-black text-lg ml-40">
+            Sarah James
+        </h4>
+        <h5 class="text-pink-500 mx-44">
+            <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i>  <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-regular fa-star"></i>
+        </h5>
+    </div>
+    <div style="width: 30rem; margin-left: 57rem;" class="flex flex-col w-96 h-80 -mt-80 bg-white mx-96 shadow-xl">
+        <h1 class="text-black text-xl font-semibold mt-6 ml-36">
+            Delicious Burger
+        </h1>
+        <h2 class="text-gray-500 font-normal mt-6 justify-center mx-10">
+            quis nostrud exercitation ullamco laboris nisi ut  <br>
+            Ut enim ad minima veniam, quis nostrum exercitatio <br>
+            aliquip ex ea commodo.
+        </h2>
+        <h3 class="justify-center mx-48 mt-4">
+            <img src="Images/Profile2.jpg" class="w-20 h-20 rounded-full border border-black">
+        </h3>
+        <h4 style="margin-left: 11.5rem;" class="text-black text-lg ml-40">
+            Ellie Shaun
+        </h4>
+        <h5 class="text-pink-500 mx-44">
+            <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i>  <i class="fa-solid fa-star"></i> <i class="fa-solid fa-star"></i> <i class="fa-regular fa-star-half-stroke"></i>
+        </h5>
+    </div>
+    <div  style="margin-left: 52rem;" class="mt-4">
+        <i class="fa-solid fa-minus text-gray-700 text-5xl w-3 mx-8"></i> <i class="fa-solid fa-minus text-pink-500 text-5xl"></i>
+    </div>
+</div>
+
+<div class="mt-12">
+    <div style="width: 40rem;height: 55rem; margin-left: 50rem;" class="flex flex-col bg-slate-200 ml-96 items-center">
+        <h1 class="text-black text-6xl font-serif mt-16">
+            Reservation
+        </h1>
+        <h2 class="text-orange-500 text-2xl italic mt-4 font-mono font-semibold">
+            Book A Table
+        </h2>
+        <div class="w-96 h-16 bg-white rounded-lg flex items-center mx-56 mt-16 ">
+            <span class="text-gray-600 mx-4 text-base font-medium">Total Person</span>
+            <i class="fas fa-users text-orange-500 ml-52"></i>
+        </div>
+        <div class="w-96 h-16 bg-white rounded-lg flex items-center mx-56 mt-8 ">
+            <span class="text-gray-600 mx-4 text-base font-medium">Select Date</span>
+            <i style="margin-left: 14rem;" class="fa-solid fa-calendar text-orange-500 "></i>
+        </div>
+        <div class="w-96 h-16 bg-white rounded-lg flex items-center mx-56 mt-8">
+            <span class="text-gray-600 mx-4 text-base font-medium">Time</span>
+            <i style="margin-left: 17rem;" class="fa-solid fa-clock text-orange-500"></i>
+        </div>
+        <div class="w-96 h-60 bg-white rounded-lg flex mx-56 mt-8"> 
+            <span class="text-gray-600 mx-4 text-base font-medium mt-4">Booking Purpose</span>
+            <i class="fa-solid fa-pen text-orange-500 ml-44 mt-4"></i>  
+        </div>
+        <div>
+            <button class="bg-orange-500 text-white mt-8 w-32 h-12">
+                Send Message
+            </button>
+        </div>
+    </div>
+    <div style="margin-top: -33rem;margin-left: 26rem;" class="w-96 h-96 bg-white rounded-lg flex items-center ml-96 -mt-96">
+        <img src="Images/Waiter.jpg" >
+        <h1 style="margin-top:-27rem;margin-left: -22rem;" class="-ml-80 -mt-96 text-white font-bold text-xl">
+            Opening Hours <br>     
+        </h1>
+        <h2 style="margin-left: -9rem;" class="-mt-72 text-white font-semibold ">
+            Monday-Thursday <br>
+            08am - 10pm <br>
+            Friday - Sunday <br>
+            10am - 05pm
+        </h2>
+        <h3 class="text-white font-bold text-xl -ml-32 -mt-14">
+            Address
+        </h3>
+        <h4 class=" -ml-20 mt-10">
+            <i class="fas fa-map-marker-alt text-orange-500"></i>
+            <span class="text-white font-semibold ">374 William S Canning Blvd, Fall 
+            River MA 2721</span>
+        </h4>
+        <h5 style="margin-left: -22.5rem;" class="mt-44 -ml-80">
+            <i  class="fa-regular fa-clock text-orange-500"></i>
+            <span class="text-white text-lg font-semibold ">Call For Order</span>
+            <span class="text-white text-lg font-bold">+869 526 616</span>
+        </h5>
+</div>
+</div>
+
+<div class="mt-52 -ml-20">
+    <div class="container -ml-40 px-4">
+        <div class="flex items-center justify-center mt-24">           
+            <h1 class="text-orange-500 text-lg font-medium mt-12">
+                BEST FOOD MENU
+            </h1>
+        </div>
+        <div class="flex items-center justify-center mt-4">
+            <h2 class="text-3xl text-black">
+                LOrem ipsum mid <br>
+                & cnahd Chefs
+            </h2>
+        </div>
+        <div class="flex items-center justify-center mt-8">
+            <div class="text-center">
+                <h1>
+                    <i class="fa-solid fa-check text-orange-500 mr-2"></i>
+                    25 years of Experience in Restaurant <br>
+                    Services in USA
+                </h1>
+                <h2 class="text-xl text-black mt-4">
+                    <i class="fa-solid fa-check text-orange-500 mr-2"></i>
+                    25 years of Experience in Restaurant <br>
+                    Services in USA
+                </h2>
+                <h3 class="text-black font-medium hover:bg-orange-500 rounded-lg mt-4">
+                    Become a Chef
+                </h3>
+            </div>
+        </div>
+
+        <div style="margin-left: 58rem;" class="flex items-center justify-center -mt-96">
+            <div class="grid grid-cols-3 gap-4">
+                <img src="Images/Chef1.jpg" class="w-56 h-72">
+                <img src="Images/Chef2.jpg" class="w-56 h-72">
+                <img src="Images/Chef3.jpg" class="w-56 h-72"> 
+                <img src="Images/Chef4.jpg" class="w-56 h-72"> 
+                <img src="Images/Chef5.jpg" class="w-56 h-72"> 
+                <img src="Images/Chef6.jpg" class="w-56 h-72">  
+
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="bg-red-800 mt-6 h-64 ">
+    <div class="flex items-start">
+        <div class="ml-20">
+            <h1 class="text-white text-4xl mt-6 font-serif">
+                Pizza Centre
+            </h1>
+            <h2 class="text-white text-lg font-thin mt-4">
+                Best Pizza in Town. Satisfy your cravings <br>
+                Order Now!
+            </h2>
+            <div class="mt-4 text-white text-xl">
+                <h1>
+                    Call us
+                    +92 123456789
+                </h1>
+                <h2>
+                    Email: test@gmail.com
+                </h2>
+            </div>
+        </div>
+        <div class="mx-48">
+            <h1 class="text-white text-3xl font-sans mt-6 underline">
+                Branches
+            </h1>
+            <h2 class="mt-4 my-4 text-white  text-xl font-mono">
+                <i class="fa-solid fa-location-dot"></i> Bahadurabad <br>
+                <i class="fa-solid fa-location-dot"></i>Clifton <br>
+                <i class="fa-solid fa-location-dot"></i>Sea View <br>
+                <i class="fa-solid fa-location-dot"></i>DHA <br>
+                <i class="fa-solid fa-location-dot"></i>Dolmen Mall <br>
+                <i class="fa-solid fa-location-dot"></i> Phase 6
+            </h2>
+        </div>
+        <div>
+            <h1 class="text-white text-3xl font-sans mt-6 underline">
+                TIMINGS
+            </h1>
+            <h2 class="mt-2 text-white text-xl font-semibold">
+                Weekdays 12am to 10pm <br>
+                Weekends 12am to 12 pm
+
+            </h2>
+                 <h3 class="text-white text-xl font-semibold">
+
+                 </h3>
+            <h4 class="text-white text-xl font-semibold">
+                Take Away
+            </h4>
+            <h5 class="text-white text-lg font-thin">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>24/7</span>
+            </h5>
+        </div>
+        <div class="mx-28">
+            <h1 class="text-white text-3xl font-sans mt-6 underline">
+                Information     
+            </h1>
+            <h2 class="mt-4 my-4 text-white text-xl font-mono">
+                Our Story <br> 
+                Top Recommendations<br>
+                Discounts <br>
+            </h2>
+
+        </div>
+
+    </div>
+
+</div>
+    
+</body>
+</html>
