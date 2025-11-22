@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ShopX - Products</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100">
+  <!-- Navbar -->
+  <nav class="flex items-center justify-between px-8 py-4 bg-white shadow">
+    <div class="flex items-center"><img src="assets/logo.svg" class="w-8 h-8 mr-2"> <span class="font-bold text-xl">ShopX</span></div>
+    <div class="flex gap-4">
+      <a href="cart.html" title="Cart"><svg class="w-6 h-6 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 6h15l-1.5 9h-13L4 6z"/></svg></a>
+      <a href="profile.html" title="Profile"><svg class="w-6 h-6 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20c0-2 4-4 6-4s6 2 6 4"/></svg></a>
+      <a href="admin-dashboard.html" title="Admin">Admin</a>
+    </div>
+  </nav>
+  <!-- Product Grid -->
+  <main class="p-8">
+    <h1 class="text-3xl font-bold mb-6">Products</h1>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white rounded shadow p-4 flex flex-col">
+        <img src="assets/images/product1.jpg" class="h-32 object-cover mb-2 rounded">
+        <h2 class="text-lg font-semibold">Product 1</h2>
+        <p class="text-gray-600">A cool product description.</p>
+        <span class="text-blue-500 font-bold mb-2">$49.99</span>
+        <button class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 mt-auto">Add to Cart</button>
+      </div>
+      <div class="bg-white rounded shadow p-4 flex flex-col">
+        <img src="assets/images/product2.jpg" class="h-32 object-cover mb-2 rounded">
+        <h2 class="text-lg font-semibold">Product 2</h2>
+        <p class="text-gray-600">Another item details.</p>
+        <span class="text-blue-500 font-bold mb-2">$79.99</span>
+        <button class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 mt-auto">Add to Cart</button>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
