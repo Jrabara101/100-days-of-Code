@@ -1,0 +1,17 @@
+/* Custom styles for appearance */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+}
+/* Custom scrollbar style for the sidebar */
+.sidebar {
+    scrollbar-width: none; /* Firefox */
+}
+.sidebar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* Chart container height for consistency */
+.chart-container {
+    height: 300px;
+}

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Modern Inventory Dashboard</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="min-h-screen flex">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 bg-gray-900 text-white flex-shrink-0 overflow-y-auto hidden md:block rounded-r-xl shadow-lg">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold tracking-wider text-indigo-400">InventoryFlow</h1>
+            <p class="text-xs text-gray-400 mt-1">Modern Logistics</p>
+        </div>
+        <nav class="mt-8 px-4">
+            <!-- Navigation links -->
+            <a href="#" class="flex items-center p-3 text-sm font-medium rounded-lg bg-indigo-700 text-white transition duration-200">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+            </a>
+            <a href="#" class="flex items-center p-3 text-sm font-medium text-gray-300 hover:bg-gray-800 rounded-lg mt-2 transition duration-200">
+                <i data-lucide="package-search" class="w-5 h-5 mr-3"></i> Products
+            </a>
+            <a href="#" class="flex items-center p-3 text-sm font-medium text-gray-300 hover:bg-gray-800 rounded-lg mt-2 transition duration-200">
+                <i data-lucide="truck" class="w-5 h-5 mr-3"></i> Suppliers
+            </a>
+            <a href="#" class="flex items-center p-3 text-sm font-medium text-gray-300 hover:bg-gray-800 rounded-lg mt-2 transition duration-200">
+                <i data-lucide="settings" class="w-5 h-5 mr-3"></i> Settings
+            </a>
+        </nav>
+        <div class="mt-auto p-4 absolute bottom-0 w-64">
+            <div class="flex items-center p-3 bg-gray-800 rounded-lg">
+                <img src="https://placehold.co/40x40/4f46e5/ffffff?text=U" alt="User Avatar" class="rounded-full mr-3" />
+                <div>
+                    <p class="text-sm font-semibold">Alex Chen</p>
+                    <p class="text-xs text-gray-400">Manager</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header/Top Bar -->
+        <header class="p-4 bg-white shadow-md flex justify-between items-center rounded-bl-xl">
+            <h2 class="text-xl font-semibold text-gray-800">Inventory Overview</h2>
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-500 hover:text-indigo-600 transition duration-150">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                </button>
+                <div class="relative">
+                    <input type="text" placeholder="Search inventory..." class="p-2 border border-gray-300 rounded-lg text-sm w-48 focus:ring-indigo-500 focus:border-indigo-500" />
+                    <i data-lucide="search" class="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 space-y-8">
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex items-center justify-between transition hover:shadow-xl duration-300 transform hover:-translate-y-0.5 border-t-4 border-indigo-500">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Total Inventory Value</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1" id="kpi-value">$2,450,123</p>
+                    </div>
+                    <div class="p-3 bg-indigo-100 rounded-full text-indigo-600">
+                        <i data-lucide="wallet" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex items-center justify-between transition hover:shadow-xl duration-300 transform hover:-translate-y-0.5 border-t-4 border-green-500">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Active SKU's</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1" id="kpi-items">1,452</p>
+                    </div>
+                    <div class="p-3 bg-green-100 rounded-full text-green-600">
+                        <i data-lucide="box" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex items-center justify-between transition hover:shadow-xl duration-300 transform hover:-translate-y-0.5 border-t-4 border-amber-500">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Low Stock Items</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1" id="kpi-low-stock">45</p>
+                    </div>
+                    <div class="p-3 bg-amber-100 rounded-full text-amber-600">
+                        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex items-center justify-between transition hover:shadow-xl duration-300 transform hover:-translate-y-0.5 border-t-4 border-cyan-500">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Units Shipped (7d)</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1" id="kpi-shipments">12,400</p>
+                    </div>
+                    <div class="p-3 bg-cyan-100 rounded-full text-cyan-600">
+                        <i data-lucide="send" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Chart 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Monthly Inventory Value ($)</h3>
+                    <div class="chart-container">
+                        <canvas id="valueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Last 6 Months Stock Movement</h3>
+                    <div class="chart-container">
+                        <canvas id="movementChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table Section -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Top Inventory Items</h3>
+                    <button class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md">
+                        <i data-lucide="plus" class="w-4 h-4 inline-block mr-1"></i> Add Product
+                    </button>
+                </div>
+
+                <!-- Inventory Table -->
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Data rows will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- External JS -->
+    <script src="script.js"></script>
+</body>
+</html>
