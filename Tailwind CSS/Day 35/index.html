@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamPilot - Visual Streaming App</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configure Tailwind to use Material-like colors and shadows -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#673AB7', // Deep Purple (Material primary)
+                        'secondary': '#FF4081', // Pink Accent
+                        'surface': '#f3f4f6', // Light gray background
+                        'card': '#ffffff',
+                    },
+                    boxShadow: {
+                        'material': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06)',
+                        'xl-material': '0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    
+    <!-- Video.js CSS -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Custom CSS for Video.js and Material Aesthetics -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.surface');
+        }
+        /* Overriding Video.js default theme for a darker, modern look */
+        .video-js {
+            font-size: 14px;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: theme('boxShadow.xl-material');
+        }
+        .vjs-control-bar {
+            background-color: rgba(20, 20, 20, 0.85); /* Semi-transparent dark control bar */
+            border-radius: 0 0 0.75rem 0.75rem;
+        }
+        .vjs-big-play-button {
+            border-radius: 50%;
+            width: 3em;
+            height: 3em;
+            line-height: 3em;
+            font-size: 2em;
+            background-color: theme('colors.primary');
+            border: 0;
+            opacity: 0.9;
+        }
+        .vjs-big-play-button:hover {
+            opacity: 1;
+        }
+        /* Ensure the player adapts to the container's width */
+        .video-container-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+        .video-container-wrapper .video-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Material Ripple Effect (for buttons/cards) */
+        .ripple-effect {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+        }
+        .ripple-effect:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.5s;
+        }
+        .ripple-effect:active:after {
+            transform: scale(0, 0);
+            opacity: 0.2;
+            transition: 0s;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header / Navigation Bar -->
+    <header id="header" class="bg-card shadow-material sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <h1 class="text-2xl font-extrabold text-primary flex items-center">
+                <i class="fa-solid fa-compact-disc mr-3 text-secondary text-3xl"></i>
+                <span id="app-title">StreamPilot</span>
+            </h1>
+            <nav class="hidden md:flex space-x-6 text-gray-600 font-medium">
+                <a href="#" class="hover:text-primary transition duration-150">Home</a>
+                <a href="#" class="hover:text-primary transition duration-150">Browse</a>
+                <a href="#" class="hover:text-primary transition duration-150">Library</a>
+                <button class="bg-primary text-white px-4 py-2 rounded-full text-sm font-semibold shadow-material hover:bg-primary/90 transition duration-150 ripple-effect">
+                    <i class="fa-solid fa-user-circle mr-2"></i> Profile
+                </button>
+            </nav>
+            <button class="md:hidden text-gray-600 hover:text-primary text-xl">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+            <!-- 1. Main Video Player and Details (3/4 width on desktop) -->
+            <div id="main-content" class="lg:col-span-3">
+
+                <!-- Video Player Container -->
+                <div id="player-container" class="video-container-wrapper mb-6 opacity-0 translate-y-4">
+                    <video id="my-video"
+                        class="video-js vjs-default-skin w-full h-full"
+                        controls
+                        preload="auto"
+                        poster="https://placehold.co/1280x720/673AB7/ffffff?text=StreamPilot+Video"
+                        data-setup='{}'>
+                        <!-- Mock Video Source: Replace with actual HLS/DASH/MP4 source -->
+                        <source src="https://vjs.zencdn.net/v/oceans.mp4" type="video/mp4" />
+                        <p class="vjs-no-js">
+                            To view this video please enable JavaScript, and consider upgrading to a web browser that
+                            <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                        </p>
+                    </video>
+                </div>
+
+                <!-- Video Metadata Card -->
+                <div class="bg-card p-6 rounded-xl shadow-material">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2" id="video-title">The Future of Generative AI in Media (Live)</h2>
+                    
+                    <div class="flex items-center justify-between border-b pb-4 mb-4">
+                        <div class="flex items-center space-x-4">
+                            <img src="https://placehold.co/48x48/FF4081/ffffff?text=C" alt="Channel Avatar" class="w-12 h-12 rounded-full border-2 border-secondary">
+                            <div>
+                                <p class="text-lg font-semibold text-gray-900">Creative Hub</p>
+                                <p class="text-sm text-gray-500">1.2M Subscribers</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-4">
+                            <button class="bg-primary text-white px-4 py-2 rounded-full font-semibold shadow-material hover:bg-primary/90 transition duration-150 ripple-effect">
+                                <i class="fa-solid fa-bell mr-2"></i> Subscribe
+                            </button>
+                            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full font-semibold hover:bg-gray-300 transition duration-150 ripple-effect">
+                                <i class="fa-solid fa-thumbs-up mr-2"></i> 14.5K
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Video Description -->
+                    <div class="text-gray-700 leading-relaxed">
+                        <p class="font-medium text-sm text-primary mb-2">Description</p>
+                        <p>Join us as we explore the revolutionary impact of generative AI on video production, music composition, and digital art. We'll be reviewing the latest models and discussing ethical implications. Don't forget to like and subscribe for more content!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Sidebar / Suggested Videos (1/4 width on desktop) -->
+            <aside id="sidebar" class="lg:col-span-1 space-y-6 opacity-0 translate-x-4">
+                <div class="bg-card p-4 rounded-xl shadow-material">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><i class="fa-solid fa-list-check mr-3 text-secondary"></i> Up Next</h3>
+                    
+                    <!-- Suggested Video Card 1 -->
+                    <div class="flex space-x-3 mb-4 hover:bg-surface p-2 rounded-lg cursor-pointer transition duration-150">
+                        <img src="https://placehold.co/100x56/333333/ffffff?text=Thumb1" class="w-24 h-14 rounded-md object-cover flex-shrink-0" alt="Thumbnail">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 line-clamp-2">Understanding Large Language Models in 10 Minutes</p>
+                            <p class="text-xs text-gray-500">Tech Today</p>
+                            <p class="text-xs text-gray-400">2 days ago</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Suggested Video Card 2 -->
+                    <div class="flex space-x-3 mb-4 hover:bg-surface p-2 rounded-lg cursor-pointer transition duration-150">
+                        <img src="https://placehold.co/100x56/555555/ffffff?text=Thumb2" class="w-24 h-14 rounded-md object-cover flex-shrink-0" alt="Thumbnail">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 line-clamp-2">How to Build a Reactive UI with Modern CSS Grid</p>
+                            <p class="text-xs text-gray-500">Code Master</p>
+                            <p class="text-xs text-gray-400">1 week ago</p>
+                        </div>
+                    </div>
+
+                    <!-- Suggested Video Card 3 -->
+                    <div class="flex space-x-3 hover:bg-surface p-2 rounded-lg cursor-pointer transition duration-150">
+                        <img src="https://placehold.co/100x56/777777/ffffff?text=Thumb3" class="w-24 h-14 rounded-md object-cover flex-shrink-0" alt="Thumbnail">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 line-clamp-2">The Hidden History of Video Game Music</p>
+                            <p class="text-xs text-gray-500">Retro Rewind</p>
+                            <p class="text-xs text-gray-400">4 hours ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trending Topics Card -->
+                <div class="bg-card p-4 rounded-xl shadow-material">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center"><i class="fa-solid fa-fire-flame-curved mr-3 text-secondary"></i> Trending</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="hover:text-primary cursor-pointer"><i class="fa-solid fa-hashtag mr-2 text-primary/70"></i>#WebDev2024</li>
+                        <li class="hover:text-primary cursor-pointer"><i class="fa-solid fa-hashtag mr-2 text-primary/70"></i>#TechNews</li>
+                        <li class="hover:text-primary cursor-pointer"><i class="fa-solid fa-hashtag mr-2 text-primary/70"></i>#DesignPrinciples</li>
+                    </ul>
+                </div>
+
+            </aside>
+        </div>
+    </main>
+
+    <!-- Video.js Script -->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    
+    <!-- GSAP Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <script>
+        // Global Video.js initialization
+        var player = videojs('my-video');
+
+        // Function to setup animations using GSAP
+        function setupAnimations() {
+            // GSAP Timeline for sequential, coordinated animations
+            const tl = gsap.timeline({
+                defaults: { duration: 0.8, ease: "power3.out" }
+            });
+
+            // 1. Animate the main app title/logo
+            tl.from("#app-title", {
+                y: -20,
+                opacity: 0,
+                scale: 0.95,
+                duration: 0.5
+            }, 0.2); // Start 0.2s after page load
+
+            // 2. Animate the main video player container
+            tl.to("#player-container", {
+                opacity: 1,
+                y: 0,
+                duration: 0.8
+            }, 0.4); // Start 0.4s into the timeline
+
+            // 3. Animate the sidebar (Up Next/Trending section)
+            tl.to("#sidebar", {
+                opacity: 1,
+                x: 0,
+                duration: 1
+            }, 0.6); // Start 0.6s into the timeline
+        }
+
+        // Initialize GSAP animations when the window loads
+        window.onload = setupAnimations;
+        
+        // Custom GSAP example for interactive elements (optional: demonstrates utility)
+        document.querySelectorAll('.ripple-effect').forEach(button => {
+            button.addEventListener('mouseover', (e) => {
+                gsap.to(e.currentTarget, {
+                    scale: 1.02,
+                    boxShadow: '0 8px 15px -5px rgba(0, 0, 0, 0.2)',
+                    duration: 0.2,
+                    ease: "power1.out"
+                });
+            });
+            button.addEventListener('mouseleave', (e) => {
+                gsap.to(e.currentTarget, {
+                    scale: 1,
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06)',
+                    duration: 0.2,
+                    ease: "power1.out"
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
