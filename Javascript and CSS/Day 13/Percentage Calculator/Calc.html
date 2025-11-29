@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percentage Calculator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .calculator-card {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .input-style {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.125rem;
+            color: #1f2937;
+            transition: border-color 0.2s;
+        }
+        .input-style:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Calculator Card -->
+    <div class="calculator-card bg-white p-6 sm:p-8 md:p-10 w-full max-w-2xl rounded-xl">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">
+            Percentage Calculator
+        </h1>
+        <p class="text-gray-500 mb-8 text-center">
+            Instantly calculate percentages in three ways.
+        </p>
+
+        <div class="space-y-8">
+            
+            <!-- Calculation Type 1: What is X% of Y? -->
+            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                <h2 class="text-xl font-semibold text-blue-800 mb-4">1. Percentage of a Number</h2>
+                <div class="grid grid-cols-5 gap-4 items-center">
+                    <span class="col-span-1 text-gray-700 font-medium">What is</span>
+                    <input
+                        type="number" id="percent1" value="15" step="0.01"
+                        oninput="calculatePercentOfNumber()"
+                        class="col-span-1 input-style w-full"
+                    >
+                    <span class="text-gray-700 font-medium">% of</span>
+                    <input
+                        type="number" id="whole1" value="200" step="0.01"
+                        oninput="calculatePercentOfNumber()"
+                        class="col-span-1 input-style w-full"
+                    >
+                    <div id="result1" class="col-span-1 text-2xl font-bold text-blue-600 text-center">
+                        30
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculation Type 2: X is what percent of Y? -->
+            <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                <h2 class="text-xl font-semibold text-green-800 mb-4">2. Finding the Percentage</h2>
+                <div class="grid grid-cols-5 gap-4 items-center">
+                    <input
+                        type="number" id="part2" value="50" step="0.01"
+                        oninput="calculateFindPercent()"
+                        class="col-span-1 input-style w-full"
+                    >
+                    <span class="col-span-1 text-gray-700 font-medium">is what % of</span>
+                    <input
+                        type="number" id="whole2" value="200" step="0.01"
+                        oninput="calculateFindPercent()"
+                        class="col-span-1 input-style w-full"
+                    >
+                    <div id="result2" class="col-span-2 text-2xl font-bold text-green-600 text-center">
+                        25 %
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculation Type 3: Percentage Change -->
+            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                <h2 class="text-xl font-semibold text-yellow-800 mb-4">3. Percentage Change (Increase/Decrease)</h2>
+                <div class="grid grid-cols-5 gap-4 items-center">
+                    <span class="col-span-1 text-gray-700 font-medium">From</span>
+                    <input
+                        type="number" id="start3" value="100" step="0.01"
+                        oninput="calculatePercentChange()"
+                        class="col-span-1 input-style w-full"
+                    >
+                    <span class="col-span-1 text-gray-700 font-medium">To</span>
+                    <input
+                        type="number" id="end3" value="125" step="0.01"
+                        oninput="calculatePercentChange()"
+                        class="col-span-1 input-style w-full"
+                    >
+                    <div id="result3" class="col-span-1 text-xl font-bold text-yellow-600 text-center">
+                        +25.00 %
+                    </div>
+                </div>
+                <p id="description3" class="mt-3 text-sm text-gray-600 text-center">
+                    A 25.00% increase.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Calculation Type 1: What is X% of Y?
+         * Formula: Result = (X / 100) * Y
+         */
+        function calculatePercentOfNumber() {
+            const percent = parseFloat(document.getElementById('percent1').value);
+            const whole = parseFloat(document.getElementById('whole1').value);
+            const resultElement = document.getElementById('result1');
+
+            if (isNaN(percent) || isNaN(whole)) {
+                resultElement.textContent = "0";
+                return;
+            }
+
+            const result = (percent / 100) * whole;
+            resultElement.textContent = result.toFixed(2);
+        }
+
+        /**
+         * Calculation Type 2: X is what percent of Y?
+         * Formula: Result = (X / Y) * 100
+         */
+        function calculateFindPercent() {
+            const part = parseFloat(document.getElementById('part2').value);
+            const whole = parseFloat(document.getElementById('whole2').value);
+            const resultElement = document.getElementById('result2');
+
+            if (isNaN(part) || isNaN(whole)) {
+                resultElement.textContent = "0 %";
+                return;
+            }
+
+            if (whole === 0) {
+                resultElement.textContent = "Error";
+                return;
+            }
+
+            const result = (part / whole) * 100;
+            resultElement.textContent = `${result.toFixed(2)} %`;
+        }
+
+        /**
+         * Calculation Type 3: Percentage Change from X to Y.
+         * Formula: Change = ((Y - X) / X) * 100
+         */
+        function calculatePercentChange() {
+            const startValue = parseFloat(document.getElementById('start3').value);
+            const endValue = parseFloat(document.getElementById('end3').value);
+            const resultElement = document.getElementById('result3');
+            const descriptionElement = document.getElementById('description3');
+
+            if (isNaN(startValue) || isNaN(endValue)) {
+                resultElement.textContent = "0.00 %";
+                descriptionElement.textContent = "";
+                return;
+            }
+
+            if (startValue === 0) {
+                resultElement.textContent = "Error";
+                descriptionElement.textContent = "Cannot calculate change from zero.";
+                return;
+            }
+
+            const change = ((endValue - startValue) / startValue) * 100;
+            const sign = change >= 0 ? '+' : '';
+            const type = change >= 0 ? 'increase' : 'decrease';
+            const textColor = change >= 0 ? 'text-green-600' : 'text-red-600';
+            const otherColor = change >= 0 ? 'text-yellow-600' : 'text-red-600';
+
+            // Update result text and color dynamically
+            resultElement.className = `col-span-1 text-xl font-bold ${otherColor} text-center`;
+            resultElement.textContent = `${sign}${change.toFixed(2)} %`;
+            
+            descriptionElement.textContent = `A ${Math.abs(change).toFixed(2)}% ${type}.`;
+        }
+
+        // Initialize all calculations on load
+        window.onload = () => {
+            calculatePercentOfNumber();
+            calculateFindPercent();
+            calculatePercentChange();
+        };
+    </script>
+</body>
+</html>
