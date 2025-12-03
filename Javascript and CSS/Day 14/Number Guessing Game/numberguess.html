@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Number Guessing Game</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="font-sans text-white antialiased">
+
+    <div class="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+        
+        <div class="pointer-events-auto bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-2xl shadow-2xl w-full max-w-md text-center transition-all duration-300 hover:bg-white/15">
+            
+            <h1 class="text-3xl font-bold mb-2 tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
+                GUESS THE ORB
+            </h1>
+            
+            <p class="text-gray-300 mb-6 text-sm">
+                Pick a number between <span class="font-bold text-white">1</span> and <span class="font-bold text-white">100</span>.
+            </p>
+
+            <div id="feedback" class="h-8 mb-4 font-semibold text-lg tracking-wide text-cyan-300">
+                Waiting for input...
+            </div>
+
+            <div class="flex gap-2 justify-center mb-6">
+                <input type="number" id="userGuess" 
+                    class="w-24 bg-black/30 border border-white/30 rounded-lg py-2 px-4 text-center text-xl focus:outline-none focus:border-cyan-400 transition-colors text-white"
+                    placeholder="#" 
+                    min="1" max="100">
+                
+                <button id="guessBtn" 
+                    class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg transition-transform active:scale-95 shadow-lg shadow-cyan-500/20">
+                    Guess
+                </button>
+            </div>
+
+            <div class="text-xs text-gray-500 mt-4">
+                Attempts: <span id="attempts" class="text-white">0</span>
+            </div>
+            
+            <button id="restartBtn" class="hidden mt-6 text-sm underline text-gray-400 hover:text-white transition-colors">
+                Play Again
+            </button>
+        </div>
+    </div>
+
+    <div id="canvas-container" class="absolute inset-0 z-0"></div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
