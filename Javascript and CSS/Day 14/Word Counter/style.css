@@ -1,0 +1,79 @@
+body {
+    width: 220px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+}
+
+.container {
+    padding: 16px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+h2 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Status Dot Animation */
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #ccc;
+    border-radius: 50%;
+}
+.status-dot.active {
+    background-color: #22c55e; /* Green */
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.stats-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 0;
+    margin-bottom: 12px;
+}
+
+.stat {
+    text-align: center;
+}
+
+.border-left {
+    border-left: 1px solid #e2e8f0;
+}
+
+.stat span {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.note {
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+    margin: 0;
+}

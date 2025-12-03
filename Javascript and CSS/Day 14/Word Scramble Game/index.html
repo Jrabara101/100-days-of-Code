@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Word Scramble 3D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Material Design CSS (Materialize) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    integrity="sha512-6S4oR9Gh2AV0Cq3Mh+4vYF1QbqhQAtEFVbCKTjq0I9ZrYnrGQx5G9txGvXn3UX0eD+s/COM24kTx5cXW7C3u0g=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="styles.css" />
+  
+  <!-- Custom override for input text color -->
+  <style>
+    /* Force input text and label to be white */
+    .input-field input[type=text] {
+      color: white !important;
+      border-bottom: 1px solid white !important;
+    }
+    .input-field input[type=text]:focus {
+      border-bottom: 1px solid #26a69a !important;
+      box-shadow: 0 1px 0 0 #26a69a !important;
+    }
+    .input-field label {
+      color: #e0e0e0 !important;
+    }
+    .input-field input[type=text]:focus + label {
+      color: #26a69a !important;
+    }
+  </style>
+</head>
+<body class="grey darken-4">
+
+  <!-- Three.js background container -->
+  <div id="three-bg"></div>
+
+  <!-- Main game content -->
+  <main class="container game-container">
+    <div class="row">
+      <div class="col s12 m10 offset-m1 l8 offset-l2">
+        <!-- Added blue-grey darken-3 for card background to contrast with white text -->
+        <div class="card z-depth-4 blue-grey darken-3">
+          <div class="card-content white-text">
+            <span class="card-title center-align white-text">
+              Word Scramble 3D
+            </span>
+            <p class="center-align grey-text text-lighten-3">
+              Unscramble the jumbled word. Type your guess and hit “Check”.
+            </p>
+
+            <div class="divider grey lighten-1" style="margin: 16px 0;"></div>
+
+            <!-- Scrambled word display -->
+            <div class="scramble-display center-align">
+              <!-- Changed to teal-text text-lighten-2 for visibility against dark card -->
+              <span id="scrambledWord" class="scramble-text teal-text text-lighten-2">LOADING</span>
+            </div>
+
+            <!-- Hint and status -->
+            <p id="hintText" class="center-align grey-text text-lighten-2"></p>
+            <p id="statusText" class="center-align white-text"></p>
+
+            <!-- Input + buttons -->
+            <div class="row" style="margin-top: 12px;">
+              <form id="gameForm" class="col s12">
+                <div class="input-field">
+                  <input id="guessInput" type="text" autocomplete="off" />
+                  <label for="guessInput">Your guess</label>
+                </div>
+
+                <div class="row">
+                  <div class="col s12 m4">
+                    <button
+                      type="submit"
+                      class="btn waves-effect waves-light teal lighten-1 full-width"
+                      id="checkBtn"
+                    >
+                      Check
+                    </button>
+                  </div>
+                  <div class="col s12 m4">
+                    <button
+                      type="button"
+                      class="btn waves-effect grey lighten-1 black-text full-width"
+                      id="skipBtn"
+                    >
+                      Skip
+                    </button>
+                  </div>
+                  <div class="col s12 m4">
+                    <button
+                      type="button"
+                      class="btn waves-effect deep-orange lighten-1 full-width"
+                      id="resetBtn"
+                    >
+                      Reset Game
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Score -->
+            <div class="center-align score-bar">
+              <span id="scoreText" class="chip teal lighten-4 teal-text">
+                Score: 0
+              </span>
+              <span id="roundText" class="chip blue-grey lighten-5 blue-grey-text">
+                Round: 1
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Materialize JS (for toasts, waves, etc.) -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"
+    integrity="sha512-CeXE3c78HhLRjvQfFErKfQpbaEiTiGfUFu7xjYI98MaD4lhPcNIuVQmVqVfvZaZX6mE6xPD58Ll35H5kya9gMw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+
+  <!-- Game logic + Three.js scene as module -->
+  <script type="module" src="game.js"></script>
+</body>
+</html>
