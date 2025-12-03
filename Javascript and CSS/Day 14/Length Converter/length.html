@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Length Converter - Professional Unit Conversion Tool</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font Awesome for Icons (Optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="logo-section">
+                <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/1a061790-3e59-4cad-a5ca-6647b5f1db11" alt="Logo" class="logo">
+                <h1>Length Converter</h1>
+            </div>
+            <p>Convert between metric, imperial, nautical, and astronomical length units</p>
+        </div>
+
+        <!-- Main Converter Card -->
+        <div class="converter-card">
+            <form id="converterForm">
+                <!-- Input Value -->
+                <div class="form-group">
+                    <label for="inputValue">Enter Value</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="number" 
+                            id="inputValue" 
+                            placeholder="Enter the length value..."
+                            step="any"
+                        >
+                    </div>
+                </div>
+
+                <!-- Unit Selectors -->
+                <div class="selectors-wrapper">
+                    <div class="selector-group">
+                        <label for="fromUnit">From Unit</label>
+                        <select id="fromUnit"></select>
+                    </div>
+                    <div class="selector-group">
+                        <label for="toUnit">To Unit</label>
+                        <select id="toUnit"></select>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="button" id="convertBtn" class="btn-convert">
+                        <i class="fas fa-exchange-alt"></i> Convert
+                    </button>
+                    <button type="button" id="resetBtn" class="btn-reset">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                    <button type="button" id="copyBtn" class="btn-copy">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message"></div>
+            </form>
+
+            <!-- Result Section -->
+            <div id="resultSection" class="result-section" style="display: none;">
+                <div class="result-label">Converted Result</div>
+                <div id="resultValue" class="result-value">-</div>
+                <div id="resultUnit" class="result-unit">Unit</div>
+            </div>
+        </div>
+
+        <!-- Common Conversions Table -->
+        <div class="table-section">
+            <h2>Common Conversions</h2>
+            <table class="conversion-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>From</th>
+                        <th></th>
+                        <th>To</th>
+                    </tr>
+                </thead>
+                <tbody id="conversionTableBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Information Section -->
+        <div class="info-section">
+            <h2>Unit Information</h2>
+            <div class="unit-cards">
+                <div class="unit-card">
+                    <h3>📏 Metric System</h3>
+                    <p>The metric system uses base-10 prefixes. Common units include millimeter (mm), centimeter (cm), meter (m), and kilometer (km).</p>
+                </div>
+                <div class="unit-card">
+                    <h3>📐 Imperial System</h3>
+                    <p>Used mainly in the US, imperial units include inch (in), foot (ft), yard (yd), and mile (mi). These units have historical origins.</p>
+                </div>
+                <div class="unit-card">
+                    <h3>⚓ Nautical Units</h3>
+                    <p>Nautical mile (nmi) is used in maritime and aviation. One nautical mile equals approximately 1.852 kilometers.</p>
+                </div>
+                <div class="unit-card">
+                    <h3>🌌 Astronomy</h3>
+                    <p>Light-year (ly) and Astronomical Unit (AU) measure vast cosmic distances. 1 AU = Earth-Sun distance.</p>
+                </div>
+                <div class="unit-card">
+                    <h3>🔄 How It Works</h3>
+                    <p>This converter uses standardized conversion factors based on international standards. All conversions are precise and accurate.</p>
+                </div>
+                <div class="unit-card">
+                    <h3>💡 Tip</h3>
+                    <p>Use decimal numbers for precise conversions. Press Enter to convert quickly, or use the Convert button.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- External JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
