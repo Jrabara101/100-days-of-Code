@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Side - Generator Card -->
+        <div class="generator-card">
+            <div class="card-header">
+                <h1>Random Number<br>Generator</h1>
+                <p>Generate random numbers within your specified range</p>
+            </div>
+
+            <!-- Range Inputs -->
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="minInput">Minimum Value</label>
+                    <input 
+                        type="number" 
+                        id="minInput" 
+                        placeholder="Enter minimum" 
+                        value="1"
+                    >
+                </div>
+
+                <div class="input-group">
+                    <label for="maxInput">Maximum Value</label>
+                    <input 
+                        type="number" 
+                        id="maxInput" 
+                        placeholder="Enter maximum" 
+                        value="100"
+                    >
+                </div>
+
+                <div class="input-group">
+                    <label for="countInput">How Many Numbers?</label>
+                    <input 
+                        type="number" 
+                        id="countInput" 
+                        placeholder="How many?" 
+                        value="1"
+                        min="1"
+                        max="50"
+                    >
+                </div>
+            </div>
+
+            <!-- Generated Numbers Display -->
+            <div class="result-section">
+                <div class="result-display" id="resultDisplay">
+                    <p class="result-placeholder">Click "Generate" to start</p>
+                </div>
+
+                <div class="result-info" id="resultInfo"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button class="btn btn-primary" id="generateBtn">
+                    <span class="btn-icon">🎲</span>
+                    Generate
+                </button>
+                <button class="btn btn-secondary" id="copyBtn" title="Copy results">
+                    <span class="btn-icon">📋</span>
+                    Copy
+                </button>
+                <button class="btn btn-secondary" id="resetBtn" title="Reset all">
+                    <span class="btn-icon">↻</span>
+                    Reset
+                </button>
+            </div>
+
+            <!-- Particle Animation Container -->
+            <div class="particle-container" id="particleContainer"></div>
+        </div>
+
+        <!-- Right Side - Info Section -->
+        <div class="info-section">
+            <h2>Random Number<br>Generator</h2>
+
+            <div class="features-box">
+                <h3>Features</h3>
+                <ul>
+                    <li>✓ Generate single or multiple random numbers</li>
+                    <li>✓ Set custom minimum and maximum range</li>
+                    <li>✓ Real-time range validation</li>
+                    <li>✓ Copy results to clipboard</li>
+                    <li>✓ View statistics (min, max, average)</li>
+                    <li>✓ Animated particle effects</li>
+                    <li>✓ Smooth transitions</li>
+                </ul>
+            </div>
+
+            <div class="stats-box">
+                <h3>Current Stats</h3>
+                <div class="stat-item">
+                    <span class="stat-label">Total Generated</span>
+                    <span class="stat-value" id="totalGenerated">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Last Count</span>
+                    <span class="stat-value" id="lastCount">0</span>
+                </div>
+            </div>
+
+            <div class="preset-box">
+                <h3>Quick Presets</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn" data-min="1" data-max="10">1-10</button>
+                    <button class="preset-btn" data-min="1" data-max="100">1-100</button>
+                    <button class="preset-btn" data-min="1" data-max="1000">1-1000</button>
+                    <button class="preset-btn" data-min="0" data-max="1">0-1 (Coin)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

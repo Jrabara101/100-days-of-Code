@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quote Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Side - Quote Display -->
+        <div class="quote-card">
+            <div class="quote-icon">❝</div>
+            
+            <div class="quote-content">
+                <p class="quote-text" id="quoteText">The only way to do great work is to love what you do.</p>
+                <p class="quote-author" id="quoteAuthor">— Steve Jobs</p>
+            </div>
+
+            <div class="quote-controls">
+                <button class="btn-quote" id="newQuoteBtn" title="Get new quote">
+                    <span class="btn-icon">↻</span>
+                    New Quote
+                </button>
+                <button class="btn-copy" id="copyBtn" title="Copy to clipboard">
+                    <span class="btn-icon">📋</span>
+                </button>
+                <button class="btn-share" id="shareBtn" title="Share quote">
+                    <span class="btn-icon">🔗</span>
+                </button>
+            </div>
+
+            <div class="loading-spinner" id="spinner"></div>
+        </div>
+
+        <!-- Right Side - Info & Category -->
+        <div class="info-section">
+            <h2>Random Quote<br>Generator</h2>
+
+            <div class="stats-section">
+                <div class="stat-item">
+                    <span class="stat-number" id="quoteCount">0</span>
+                    <span class="stat-label">Quotes Generated</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="categoryDisplay">General</span>
+                    <span class="stat-label">Current Category</span>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h3>Categories</h3>
+                <div class="category-buttons">
+                    <button class="category-btn active" data-category="all">All</button>
+                    <button class="category-btn" data-category="inspirational">Inspirational</button>
+                    <button class="category-btn" data-category="wisdom">Wisdom</button>
+                    <button class="category-btn" data-category="motivational">Motivational</button>
+                    <button class="category-btn" data-category="success">Success</button>
+                    <button class="category-btn" data-category="life">Life</button>
+                </div>
+            </div>
+
+            <div class="features-section">
+                <h3>Features</h3>
+                <ul>
+                    <li>✓ Real-time API integration</li>
+                    <li>✓ Multiple quote categories</li>
+                    <li>✓ Copy to clipboard</li>
+                    <li>✓ Share functionality</li>
+                    <li>✓ Loading animations</li>
+                    <li>✓ Quote counter</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
