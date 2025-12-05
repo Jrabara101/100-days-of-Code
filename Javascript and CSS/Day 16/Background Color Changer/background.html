@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>163k Color Grid</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            transition: background-color 0.5s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        #ui {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+            z-index: 20;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            padding-bottom: 50px;
+        }
+
+        h1 {
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 4px;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+
+        .instruction {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            backdrop-filter: blur(5px);
+        }
+
+        #stats {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        <h1>163,000 Colors</h1>
+        <p>Selected: <span id="color-code">Hover to inspect</span></p>
+        <div class="instruction">Scroll to Zoom &bull; Drag to Pan &bull; Click to Select</div>
+    </div>
+
+    <div id="stats">163,200 Interactive Tiles</div>
+    <div id="canvas-container"></div>
+
+    <script>
+        // --- Configuration ---
+        // 544 * 300 = 163,200 tiles
+        const config = {
+            gridCols: 544, 
+            gridRows: 300,
+            spacing: 1.0, // Tighter spacing for dense grid
+            boxSize: 0.9,
+        };
+
+        let scene, camera, renderer;
+        let instancedMesh;
+        let mouse;
+        let activeRipple = null; // Initialize to null
+        
+        // Mouse interaction state
+        let hoveredIndex = -1;
+        let lastHoveredIndex = -1;
+        
+        // Data arrays
+        const count = config.gridCols * config.gridRows;
+        const dummy = new THREE.Object3D();
+        const colors = new Float32Array(count * 3);
+
+        // Uniforms for Shader
+        const uniforms = {
+            uTime: { value: 0 },
+            uHoverPos: { value: new THREE.Vector2(-1000, -1000) }, // Grid coordinates
+            uClickPos: { value: new THREE.Vector2(-1000, -1000) },
+            uClickTime: { value: -1000 },
+            uGridCols: { value: config.gridCols },
+            uSpacing: { value: config.spacing }
+        };
+
+        init();
+        animate();
+
+        function init() {
+            // 1. Setup Scene
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            
+            // Perspective camera
+            const aspect = container.clientWidth / container.clientHeight;
+            // Calculate Z position to fit the width of the grid
+            // Width = 544 * 1.0 = 544.
+            // tan(FOV/2) = (Width/2) / Z
+            // Z = (Width/2) / tan(FOV/2)
+            const gridWidth = config.gridCols * config.spacing;
+            const distance = (gridWidth / 2) / Math.tan((45 * Math.PI / 180) / 2);
+            
+            camera = new THREE.PerspectiveCamera(45, aspect, 1, 5000);
+            camera.position.set(0, 0, distance * 0.9); // Zoom out to see everything
+
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false }); // Disable AA for performance at this scale
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // 2. Geometry & Shader Material
+            const geometry = new THREE.PlaneGeometry(config.boxSize, config.boxSize);
+            
+            const material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: `
+                    attribute vec3 aColor;
+                    
+                    varying vec2 vUv;
+                    varying vec3 vColor;
+                    varying float vHover;
+                    varying float vClickIntensity;
+                    
+                    uniform float uTime;
+                    uniform vec2 uHoverPos;
+                    uniform vec2 uClickPos;
+                    uniform float uClickTime;
+                    uniform float uGridCols;
+                    uniform float uSpacing;
+
+                    void main() {
+                        vUv = uv;
+                        vColor = aColor;
+
+                        // Calculate Grid Position based on Instance ID
+                        // We can reverse engineer the x,y from gl_InstanceID because we laid them out sequentially
+                        float instanceX = mod(float(gl_InstanceID), uGridCols);
+                        float instanceY = floor(float(gl_InstanceID) / uGridCols);
+                        vec2 gridPos = vec2(instanceX, instanceY);
+
+                        // --- Logic for Hover (GPU based) ---
+                        // Check if this instance is the one being hovered
+                        // We use a small epsilon for float comparison safety
+                        float isHovered = 0.0;
+                        if (distance(gridPos, uHoverPos) < 0.1) {
+                            isHovered = 1.0;
+                        }
+                        vHover = isHovered;
+
+                        // --- Logic for Ripple (GPU based) ---
+                        float clickDist = distance(gridPos, uClickPos);
+                        float waveSpeed = 80.0; // Cells per second
+                        float waveWaveLength = 30.0;
+                        
+                        float timeSinceClick = uTime - uClickTime;
+                        float wavePos = timeSinceClick * waveSpeed;
+                        
+                        // Create a ring that expands
+                        float ripple = 0.0;
+                        if (timeSinceClick > 0.0) {
+                            // Gaussian pulse moving outward
+                            float distFromWave = abs(clickDist - wavePos);
+                            if (distFromWave < waveWaveLength) {
+                                ripple = 1.0 - (distFromWave / waveWaveLength);
+                                ripple = smoothstep(0.0, 1.0, ripple);
+                                // Decay over distance/time
+                                ripple *= max(0.0, 1.0 - timeSinceClick * 0.2); 
+                            }
+                        }
+                        vClickIntensity = ripple;
+
+                        // --- Vertex Transformation ---
+                        float scale = 1.0;
+                        
+                        // Scale up on click ripple
+                        scale += vClickIntensity * 0.8;
+                        
+                        // Scale up on hover
+                        scale += vHover * 0.5;
+
+                        vec3 transformed = position * scale;
+                        
+                        vec4 finalPos = instanceMatrix * vec4(transformed, 1.0);
+                        
+                        // Lift z-index for hovered/active items so they render on top
+                        finalPos.z += vHover * 20.0 + vClickIntensity * 10.0;
+                        
+                        gl_Position = projectionMatrix * modelViewMatrix * finalPos;
+                    }
+                `,
+                fragmentShader: `
+                    varying vec2 vUv;
+                    varying vec3 vColor;
+                    varying float vHover;
+                    varying float vClickIntensity;
+
+                    void main() {
+                        vec3 finalColor = vColor;
+
+                        // Add brightness on hover
+                        finalColor += vec3(0.4) * vHover;
+
+                        // Add "wipe" effect directionally on hover? 
+                        // At this scale, a simple flash is better.
+                        
+                        // Ripple White Flash
+                        finalColor = mix(finalColor, vec3(1.0), vClickIntensity * 0.6);
+
+                        gl_FragColor = vec4(finalColor, 1.0);
+                    }
+                `,
+                side: THREE.DoubleSide
+            });
+
+            // 3. Create InstancedMesh
+            instancedMesh = new THREE.InstancedMesh(geometry, material, count);
+            instancedMesh.geometry.setAttribute('aColor', new THREE.InstancedBufferAttribute(colors, 3));
+
+            // 4. Position Instances & Set Colors
+            let i = 0;
+            const offsetX = (config.gridCols * config.spacing) / 2 - (config.spacing / 2);
+            const offsetY = (config.gridRows * config.spacing) / 2 - (config.spacing / 2);
+
+            for (let y = 0; y < config.gridRows; y++) {
+                for (let x = 0; x < config.gridCols; x++) {
+                    // Position
+                    dummy.position.set(
+                        x * config.spacing - offsetX,
+                        -(y * config.spacing - offsetY), 
+                        0
+                    );
+                    dummy.updateMatrix();
+                    instancedMesh.setMatrixAt(i, dummy.matrix);
+
+                    // 163k Color Generation
+                    // To get 160k distinct colors, we need to traverse Hue, Saturation, and Lightness effectively.
+                    // We map X primarily to Hue.
+                    // We map Y primarily to Lightness.
+                    // We can oscillate Saturation based on X or Y to add variety.
+
+                    const hue = x / config.gridCols; // 0 to 1
+                    const lightness = 0.1 + (y / config.gridRows) * 0.8; // 10% to 90% Lightness
+                    
+                    // Subtle Saturation wave across the grid to ensure we don't just have grey
+                    const saturation = 0.5 + 0.5 * Math.sin(x * 0.1 + y * 0.1); 
+
+                    const color = new THREE.Color().setHSL(hue, 0.85, lightness);
+
+                    colors[i * 3] = color.r;
+                    colors[i * 3 + 1] = color.g;
+                    colors[i * 3 + 2] = color.b;
+
+                    i++;
+                }
+            }
+
+            scene.add(instancedMesh);
+
+            // 5. Interaction Setup
+            mouse = new THREE.Vector2();
+
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('mousemove', onMouseMove, false);
+            document.addEventListener('click', onMouseClick, false);
+            
+            // Basic Pan/Zoom logic (simple implementation)
+            document.addEventListener('wheel', (e) => {
+                camera.position.z += e.deltaY * 0.5;
+                camera.position.z = Math.max(10, Math.min(camera.position.z, 2000));
+            });
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // --- Optimized Math-Based Picking ---
+        // Instead of Raycaster (slow for 160k), we calculate grid index directly
+        function getGridIndexFromMouse(clientX, clientY) {
+            // 1. Convert mouse to normalized device coordinates (NDC)
+            const container = document.getElementById('canvas-container');
+            const rect = renderer.domElement.getBoundingClientRect();
+            const ndcX = ((clientX - rect.left) / rect.width) * 2 - 1;
+            const ndcY = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+            // 2. Unproject to find world coordinates on the Z=0 plane
+            // We cast a ray from camera. Since grid is at Z=0, we find where vector hits Z=0
+            
+            // Get camera position
+            const camPos = camera.position;
+            
+            // Get direction from camera to mouse point on near plane
+            const vector = new THREE.Vector3(ndcX, ndcY, 0.5);
+            vector.unproject(camera);
+            vector.sub(camPos).normalize();
+            
+            // Ray: P = camPos + t * vector
+            // We want P.z = 0
+            // 0 = camPos.z + t * vector.z  =>  t = -camPos.z / vector.z
+            
+            const distanceToPlane = -camPos.z / vector.z;
+            const worldPos = camPos.clone().add(vector.multiplyScalar(distanceToPlane));
+
+            // 3. Convert World Pos to Grid Index
+            const offsetX = (config.gridCols * config.spacing) / 2 - (config.spacing / 2);
+            const offsetY = (config.gridRows * config.spacing) / 2 - (config.spacing / 2);
+
+            // Reverse the position logic from init()
+            // x * spacing - offsetX = worldX  =>  x = (worldX + offsetX) / spacing
+            // -(y * spacing - offsetY) = worldY => -y * spacing + offsetY = worldY => y = (offsetY - worldY) / spacing
+            
+            let gridX = Math.round((worldPos.x + offsetX) / config.spacing);
+            let gridY = Math.round((offsetY - worldPos.y) / config.spacing);
+
+            // Check bounds
+            if (gridX >= 0 && gridX < config.gridCols && gridY >= 0 && gridY < config.gridRows) {
+                return { 
+                    index: gridY * config.gridCols + gridX, 
+                    x: gridX, 
+                    y: gridY 
+                };
+            }
+            return null;
+        }
+
+        function onMouseMove(event) {
+            const result = getGridIndexFromMouse(event.clientX, event.clientY);
+            
+            if (result) {
+                hoveredIndex = result.index;
+                uniforms.uHoverPos.value.set(result.x, result.y);
+
+                // Update UI text (throttle this in a real app, but ok here)
+                if (hoveredIndex !== lastHoveredIndex) {
+                    const r = colors[hoveredIndex * 3];
+                    const g = colors[hoveredIndex * 3 + 1];
+                    const b = colors[hoveredIndex * 3 + 2];
+                    const hex = new THREE.Color(r, g, b).getHexString().toUpperCase();
+                    
+                    const codeEl = document.getElementById('color-code');
+                    codeEl.textContent = `#${hex}`;
+                    codeEl.style.color = `rgb(${r*255}, ${g*255}, ${b*255})`;
+                    lastHoveredIndex = hoveredIndex;
+                }
+            } else {
+                hoveredIndex = -1;
+                uniforms.uHoverPos.value.set(-1000, -1000); // Move off screen
+            }
+        }
+
+        function onMouseClick(event) {
+            const result = getGridIndexFromMouse(event.clientX, event.clientY);
+            
+            if (result) {
+                // Trigger Ripple
+                uniforms.uClickPos.value.set(result.x, result.y);
+                uniforms.uClickTime.value = uniforms.uTime.value;
+
+                // Update Background
+                const r = colors[result.index * 3];
+                const g = colors[result.index * 3 + 1];
+                const b = colors[result.index * 3 + 2];
+                document.body.style.backgroundColor = `rgb(${r*255}, ${g*255}, ${b*255})`;
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = performance.now();
+            uniforms.uTime.value = time * 0.001;
+
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>

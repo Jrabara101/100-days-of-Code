@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draggable Image Card Slider</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* Prevent text selection while dragging */
+            -webkit-user-select: none;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a1a1a;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Prevent scrolling on mobile while dragging */
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* The Card Stack Wrapper */
+        .card-stack {
+            position: relative;
+            width: 320px;
+            height: 450px;
+            perspective: 1000px;
+        }
+
+        /* Individual Card Styling */
+        .card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            background-color: #fff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transform-origin: center bottom;
+            transition: transform 0.1s ease-out; /* Fast transition for drag */
+            cursor: grab;
+            /* Flex layout for image containment */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none; /* Prevent default image dragging ghost */
+        }
+
+        .card:active {
+            cursor: grabbing;
+        }
+
+        /* Visual Hints */
+        .instructions {
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .instructions h1 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .instructions p {
+            font-size: 0.9rem;
+        }
+
+        /* Animation classes for leaving/returning */
+        .is-animating {
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+        }
+
+        /* Styles for cards further back in the stack */
+        .card:nth-child(n+2) {
+            transform: scale(0.95) translateY(10px);
+            opacity: 0.8;
+            pointer-events: none; /* Only top card is interactive */
+            z-index: -1;
+        }
+        
+        .card:nth-child(n+3) {
+            transform: scale(0.9) translateY(20px);
+            opacity: 0.6;
+            z-index: -2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card-stack" id="stack">
+            <!-- Cards will be injected here by JS -->
+        </div>
+
+        <div class="instructions">
+            <h1>Anime Card Slider</h1>
+            <p>Drag any direction or Click to swap</p>
+        </div>
+    </div>
+
+    <script>
+        // List of images provided by the user
+        const imageUrls = [
+            'image/geto.jpg',
+            'image/maki.jpg',
+            'image/megumi.jpg',
+            'image/nanamin.jpg',
+            'image/nobara.jpg',
+            'image/satoru.jpg',
+            'image/toji.jpg',
+            'image/yuji.jpg',
+            'image/yuki.jpg',
+            'image/yuta.jpg'
+        ];
+
+        const stack = document.getElementById('stack');
+        let cards = [];
+
+        // --- Initialization ---
+        function init() {
+            // Create DOM elements for each image
+            imageUrls.forEach((url, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                
+                // Set z-index so first item is on top
+                card.style.zIndex = imageUrls.length - index;
+
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = `Anime Character ${index + 1}`;
+                
+                // Handle image load errors cleanly
+                img.onerror = () => {
+                    img.style.display = 'none';
+                    card.style.backgroundColor = '#333';
+                    card.innerText = 'Image not found';
+                    card.style.color = '#fff';
+                };
+
+                card.appendChild(img);
+                stack.appendChild(card);
+                cards.push(card);
+
+                // Add Drag Listeners to the card
+                addDragLogic(card);
+            });
+
+            updateStackVisuals();
+        }
+
+        // --- Physics & Drag Logic ---
+        function addDragLogic(card) {
+            let isDragging = false;
+            let startX, startY;
+            let currentX, currentY;
+            let isClick = true; // Flag to distinguish drag vs click
+
+            const onDown = (e) => {
+                // Only allow dragging the top card
+                if (card !== getTopCard()) return;
+
+                isDragging = true;
+                isClick = true; // Assume click initially
+                card.style.transition = 'none'; // Remove transition for instant follow
+                
+                // Get start coordinates (mouse or touch)
+                if (e.type === 'touchstart') {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                } else {
+                    startX = e.clientX;
+                    startY = e.clientY;
+                }
+            };
+
+            const onMove = (e) => {
+                if (!isDragging) return;
+
+                e.preventDefault(); // Prevent scrolling on touch
+
+                let clientX, clientY;
+                if (e.type === 'touchmove') {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                const deltaX = clientX - startX;
+                const deltaY = clientY - startY;
+
+                // If moved significantly, it's not a click
+                if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+                    isClick = false;
+                }
+
+                // Apply transform
+                // Rotate slightly based on X movement for realistic feel
+                const rotate = deltaX * 0.05; 
+                card.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg)`;
+            };
+
+            const onUp = (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+
+                // Calculate final deltas
+                let clientX, clientY;
+                // For touchend, changedTouches usually has the info
+                if (e.type === 'touchend') {
+                    clientX = e.changedTouches[0].clientX;
+                    clientY = e.changedTouches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                const deltaX = clientX - startX;
+                const deltaY = clientY - startY;
+                const threshold = 100; // Pixel distance required to swipe away
+
+                if (isClick) {
+                    // It was just a tap/click
+                    moveCardToBack(card);
+                } 
+                else if (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold) {
+                    // Swiped away!
+                    flyAway(card, deltaX, deltaY);
+                } 
+                else {
+                    // Not far enough, spring back
+                    resetCard(card);
+                }
+            };
+
+            // Mouse events
+            card.addEventListener('mousedown', onDown);
+            window.addEventListener('mousemove', onMove); // Attach to window to catch drags outside card
+            window.addEventListener('mouseup', onUp);
+
+            // Touch events
+            card.addEventListener('touchstart', onDown);
+            window.addEventListener('touchmove', onMove, { passive: false });
+            window.addEventListener('touchend', onUp);
+        }
+
+        // --- Helpers ---
+
+        function getTopCard() {
+            // The last element in DOM is visually on top due to how we appended, 
+            // BUT wait, we actually need to check logic. 
+            // In a stack container, default stacking order: last child is on top.
+            // However, we are recycling DOM nodes to bottom of parent.
+            return stack.lastElementChild;
+        }
+
+        function flyAway(card, deltaX, deltaY) {
+            card.classList.add('is-animating');
+            
+            // Calculate a destination far off screen in the direction of the swipe
+            const moveX = deltaX * 5; // Amplify direction
+            const moveY = deltaY * 5;
+            
+            card.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${deltaX * 0.1}deg)`;
+            card.style.opacity = '0';
+
+            // Wait for animation to finish, then recycle
+            setTimeout(() => {
+                moveToBackOfStack(card);
+            }, 300); // 300ms matches CSS transition roughly (fast swipe)
+        }
+
+        function resetCard(card) {
+            card.classList.add('is-animating');
+            card.style.transform = 'translate(0, 0) rotate(0deg)';
+            card.style.opacity = '1';
+            
+            // Remove animation class after it settles
+            setTimeout(() => {
+                card.classList.remove('is-animating');
+            }, 500);
+        }
+
+        function moveCardToBack(card) {
+            // Animate it scaling down and fading slightly before moving
+            card.classList.add('is-animating');
+            
+            // "Click" effect: slide down slightly and fade
+            card.style.transform = 'translateY(50px) scale(0.9)';
+            card.style.opacity = '0';
+
+            setTimeout(() => {
+                moveToBackOfStack(card);
+            }, 300);
+        }
+
+        function moveToBackOfStack(card) {
+            // Reset styles
+            card.style.transition = 'none';
+            card.style.transform = 'scale(0.8) translateY(20px)'; // Start small at back
+            card.style.opacity = '1';
+            card.classList.remove('is-animating');
+            
+            // Move in DOM (This puts it visually at the "top" of z-order by default, 
+            // but we want it at the bottom of the pile visually)
+            // Actually, in CSS relative stacking, Last Child = Top.
+            // We want this card to go to the BOTTOM of the pile (First Child).
+            stack.insertBefore(card, stack.firstElementChild);
+
+            // Trigger reflow to apply the DOM change before animating visuals
+            void card.offsetWidth;
+
+            // Update all cards to correct positions
+            updateStackVisuals();
+        }
+
+        function updateStackVisuals() {
+            const allCards = Array.from(stack.children);
+            
+            // Determine z-indexes and transforms based on position in list
+            // Last child = Active Card (Top)
+            // Second to last = Behind
+            // etc.
+            
+            allCards.forEach((card, index) => {
+                card.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                
+                // Calculate position from top (0 = top card)
+                const posFromTop = (allCards.length - 1) - index;
+
+                if (posFromTop === 0) {
+                    // Top Card
+                    card.style.zIndex = 100;
+                    card.style.transform = 'scale(1) translateY(0)';
+                    card.style.opacity = '1';
+                    card.style.pointerEvents = 'auto'; // Enable interaction
+                } else if (posFromTop === 1) {
+                    // Second Card
+                    card.style.zIndex = 90;
+                    card.style.transform = 'scale(0.95) translateY(10px)';
+                    card.style.opacity = '0.8';
+                    card.style.pointerEvents = 'none';
+                } else if (posFromTop === 2) {
+                    // Third Card
+                    card.style.zIndex = 80;
+                    card.style.transform = 'scale(0.9) translateY(20px)';
+                    card.style.opacity = '0.6';
+                    card.style.pointerEvents = 'none';
+                } else {
+                    // Buried cards
+                    card.style.zIndex = 50;
+                    card.style.transform = 'scale(0.85) translateY(30px)';
+                    card.style.opacity = '0'; // Hide deep cards
+                    card.style.pointerEvents = 'none';
+                }
+            });
+        }
+
+        // Run
+        init();
+
+    </script>
+</body>
+</html>

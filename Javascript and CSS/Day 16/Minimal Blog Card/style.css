@@ -1,0 +1,95 @@
+/* 1. GLOBAL RESET & TYPOGRAPHY */
+* {
+    /* Crucial: Includes padding and border in the element's total width/height */
+    box-sizing: border-box; 
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f4f9;
+    display: flex; /* Centers the card on the screen for this demo */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* 2. CARD CONTAINER (The Box) */
+.card {
+    background-color: #ffffff;
+    width: 340px;          /* Fixed width */
+    border-radius: 12px;   /* Soft corners */
+    overflow: hidden;      /* Ensures image doesn't bleed out of rounded corners */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Subtle depth */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 3. IMAGE SIZING */
+.card-image {
+    width: 100%;
+    height: 200px; /* Fixed height forces uniformity */
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Key: Crops image to fill box without stretching */
+    display: block;    /* Removes default inline spacing underneath images */
+}
+
+/* 4. CONTENT & SPACING (Padding/Margins) */
+.card-content {
+    padding: 24px; /* Space inside the box */
+}
+
+.category {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 8px; /* Spacing below category */
+}
+
+.card-title {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    margin-bottom: 12px; /* Spacing below title */
+    color: #333;
+}
+
+.card-title a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.excerpt {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6; /* Improves readability */
+    margin-bottom: 20px;
+}
+
+.read-more {
+    text-decoration: none;
+    font-weight: 600;
+    color: #0066cc;
+    font-size: 0.9rem;
+}
+
+/* 5. INTERACTIVITY (Hover & Focus) */
+
+/* Hover: Lift the card up */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+/* Focus: Accessibility outline */
+a:focus {
+    outline: 2px solid #0066cc;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
