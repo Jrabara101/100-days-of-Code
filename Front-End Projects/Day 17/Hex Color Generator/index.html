@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Color Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hex Color Generator</h1>
+            <p class="subtitle">Click the button to generate random hex colors</p>
+        </header>
+
+        <main>
+            <div class="color-display" id="colorDisplay">
+                <div class="color-box" id="colorBox"></div>
+                <div class="color-info">
+                    <p class="hex-code" id="hexCode">#000000</p>
+                    <button class="copy-btn" id="copyBtn" aria-label="Copy hex code">
+                        <span class="copy-text">Copy</span>
+                        <span class="copied-text" style="display: none;">Copied!</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="generate-btn" id="generateBtn">
+                    <span>Generate Color</span>
+                </button>
+                
+                <div class="manual-input">
+                    <label for="hexInput">Or enter hex code:</label>
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="hexInput" 
+                            placeholder="#000000" 
+                            maxlength="7"
+                            pattern="^#[0-9A-Fa-f]{6}$"
+                        >
+                        <button class="apply-btn" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-colors" id="recentColors">
+                <h2>Recent Colors</h2>
+                <div class="color-history" id="colorHistory"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

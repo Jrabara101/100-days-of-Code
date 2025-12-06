@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Rating Widget</title>
+    <style>
+        /* --- 1. Basic Reset & Layout --- */
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #222;
+            color: white;
+            flex-direction: column;
+        }
+
+        h2 { margin-bottom: 20px; }
+
+        /* --- 2. The Star Container --- */
+        .star-container {
+            display: flex;
+            gap: 10px;
+            font-size: 3rem;
+            cursor: pointer;
+        }
+
+        /* --- 3. The Stars --- */
+        .star {
+            color: #555; /* Default unlit color */
+            transition: color 0.2s;
+        }
+
+        /* This class is added by JS when a star is active/selected */
+        .star.filled {
+            color: #ffc107; /* Gold color */
+        }
+
+        /* Hover effect: We want to light up stars visually on hover too.
+           This specific CSS handles hovering over the specific star.
+           (Full "hover trail" logic is often easier in CSS using row-reverse, 
+           but we will stick to JS for clarity on delegation) */
+        .star:hover {
+            transform: scale(1.2);
+        }
+
+        #rating-output {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Rate Us!</h2>
+
+    <div class="star-container" id="star-container">
+        <span class="star" data-value="1">&#9733;</span>
+        <span class="star" data-value="2">&#9733;</span>
+        <span class="star" data-value="3">&#9733;</span>
+        <span class="star" data-value="4">&#9733;</span>
+        <span class="star" data-value="5">&#9733;</span>
+    </div>
+
+    <p id="rating-output">Rating: 0/5</p>
+
+    <script>
+        // Select the parent container
+        const container = document.getElementById('star-container');
+        const stars = document.querySelectorAll('.star');
+        const output = document.getElementById('rating-output');
+        
+        // Variable to store the permanent rating
+        let currentRating = 0;
+
+        // --- EVENT DELEGATION: LISTENING TO THE PARENT ---
+        container.addEventListener('click', function(e) {
+            
+            // e.target is the specific element clicked (the star)
+            // e.currentTarget is the element the listener is on (the container)
+
+            // 1. Check if the clicked element is actually a star
+            if (e.target.classList.contains('star')) {
+                
+                // 2. Get the value from the data attribute
+                const ratingValue = parseInt(e.target.getAttribute('data-value'));
+                currentRating = ratingValue;
+
+                // 3. Update the UI
+                updateStars(currentRating);
+                output.innerText = `Rating: ${currentRating}/5`;
+                
+                console.log(`User rated: ${currentRating}`);
+            }
+        });
+
+        // Optional: Add hover effects using delegation (mouseover/mouseout)
+        container.addEventListener('mouseover', function(e) {
+            if (e.target.classList.contains('star')) {
+                const hoverValue = parseInt(e.target.getAttribute('data-value'));
+                updateStars(hoverValue);
+            }
+        });
+
+        container.addEventListener('mouseout', function(e) {
+            // When mouse leaves, reset to the actual saved rating
+            updateStars(currentRating);
+        });
+
+        // --- HELPER FUNCTION TO FILL STARS ---
+        function updateStars(rating) {
+            // Loop through all stars
+            stars.forEach((star, index) => {
+                // If the star's index is less than the rating, fill it
+                // (index 0 is star 1, index 1 is star 2, etc.)
+                if (index < rating) {
+                    star.classList.add('filled');
+                } else {
+                    star.classList.remove('filled');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
