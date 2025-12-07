@@ -5,6 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Sectioning Example</title>
+    <style>
+        /* Optional: Makes the scroll smooth when clicking nav links */
+        html { scroll-behavior: smooth; }
+        /* pointer cursor for the clickable offer */
+        aside { cursor: pointer; transition: transform 0.2s; }
+        aside:hover { transform: scale(1.02); }
+    </style>
 </head>
 <body>
     <header>
@@ -58,7 +65,9 @@
                 <h3>Digital Marketing</h3>
                 <p>Our digital marketing services include SEO, social media management, and email marketing campaigns designed to boost your online presence and drive targeted traffic to your business.</p>
             </article>
-            <aside>
+            
+            <!-- Added ID for the JS to target -->
+            <aside id="special-offer">
                 <h4>Special Offer</h4>
                 <p>Sign up for our monthly newsletter and get a 15% discount on your first project! Stay updated on the latest trends and tips in digital solutions.</p>
             </aside>
@@ -75,7 +84,9 @@
             <article>
                 <h3>Office Location</h3>
                 <p>123 Digital Avenue, Suite 456<br>Tech City, TX 78910<br>Phone: (123) 456-7890<br>Email: info@mywebsite.com</p>
-                
+            </article>
+        </section>
+    </main>
 
     <footer>
         <p>&copy; 2024 My Website. All rights reserved. | Privacy Policy | Terms of Service</p>
@@ -85,5 +96,8 @@
             <li><a href="https://www.instagram.com/heyjrabara/">Instagram</a></li>
         </ul>
     </footer>
+
+    <!-- JAVASCRIPT LINKED HERE -->
+    <script src="script.js"></script>
 </body>
 </html>
