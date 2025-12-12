@@ -1,0 +1,596 @@
+/* ============================================
+   POPUP BOX DESIGN - MODAL DIALOGS
+   Understanding z-index and positioning
+   ============================================ */
+
+/* CSS Variables for theming */
+:root {
+    --primary-color: #6366f1;
+    --secondary-color: #8b5cf6;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header Styles */
+.header {
+    text-align: center;
+    color: white;
+    margin-bottom: 40px;
+    padding: 30px 0;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Card Styles */
+.card {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow-xl);
+}
+
+.card h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+}
+
+.card h3 {
+    color: var(--text-primary);
+    margin: 20px 0 10px;
+    font-size: 1.3rem;
+}
+
+/* Concept Box */
+.concept-box {
+    background: var(--bg-secondary);
+    border-left: 4px solid var(--primary-color);
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+}
+
+.concept-box ul {
+    list-style-position: inside;
+    margin-top: 10px;
+}
+
+.concept-box li {
+    margin: 10px 0;
+    line-height: 1.8;
+}
+
+/* Button Styles */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    color: white;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* ============================================
+   MODAL OVERLAY (BACKDROP)
+   ============================================ */
+/* 
+   z-index: 1000 - This ensures the overlay appears above all page content
+   position: fixed - Makes it cover the entire viewport regardless of scroll
+   top: 0, left: 0, width: 100%, height: 100% - Covers entire screen
+*/
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   MODAL DIALOG
+   ============================================ */
+/* 
+   z-index: 1001 - Higher than overlay (1000) so modal appears on top
+   position: fixed - Positions relative to viewport, stays centered
+   top: 50%, left: 50%, transform: translate(-50%, -50%) - Perfect centering
+*/
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    z-index: 1001;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Modal Content */
+.modal-content {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    box-shadow: var(--shadow-2xl);
+    overflow: hidden;
+}
+
+.modal-large {
+    max-width: 600px;
+}
+
+.modal-success .modal-header {
+    background: linear-gradient(135deg, var(--success-color), #059669);
+    color: white;
+}
+
+/* Modal Header */
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 28px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 30px 25px;
+}
+
+.modal-icon {
+    font-size: 4rem;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.modal-body h3 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.modal-body p {
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    line-height: 1.8;
+}
+
+.modal-body ul {
+    margin-left: 20px;
+    color: var(--text-secondary);
+    line-height: 2;
+}
+
+/* Modal Footer */
+.modal-footer {
+    padding: 20px 25px;
+    background: var(--bg-secondary);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.modal-footer .btn {
+    min-width: 100px;
+}
+
+/* Form Styles */
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* ============================================
+   Z-INDEX DEMONSTRATION
+   ============================================ */
+.z-index-explanation {
+    position: relative;
+    height: 200px;
+    margin-top: 20px;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.layer {
+    position: absolute;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+}
+
+.layer-1 {
+    background: #ff6b6b;
+    top: 20px;
+    left: 20px;
+    z-index: 1;
+}
+
+.layer-2 {
+    background: #4ecdc4;
+    top: 50px;
+    left: 50px;
+    z-index: 2;
+}
+
+.layer-3 {
+    background: #45b7d1;
+    top: 80px;
+    left: 80px;
+    z-index: 3;
+}
+
+.layer-4 {
+    background: #5f27cd;
+    top: 110px;
+    left: 110px;
+    z-index: 4;
+}
+
+.z-index-visual {
+    position: relative;
+    height: 300px;
+    margin: 20px 0;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.z-box {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.3s ease;
+}
+
+.z-box:nth-child(1) {
+    top: 20px;
+    left: 20px;
+}
+
+.z-box:nth-child(2) {
+    top: 50px;
+    left: 50px;
+}
+
+.z-box:nth-child(3) {
+    top: 80px;
+    left: 80px;
+}
+
+.z-box:nth-child(4) {
+    top: 110px;
+    left: 110px;
+}
+
+.z-box:nth-child(5) {
+    top: 140px;
+    left: 140px;
+}
+
+.z-index-demo-modal {
+    max-width: 700px;
+}
+
+.note {
+    background: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    margin-top: 15px;
+    font-style: italic;
+}
+
+/* ============================================
+   POSITIONING EXAMPLES
+   ============================================ */
+.position-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.position-example {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+}
+
+.position-example h4 {
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.pos-container {
+    position: relative;
+    height: 100px;
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.pos-demo {
+    padding: 10px 15px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.pos-static {
+    /* Default position, no change */
+}
+
+.pos-relative {
+    position: relative;
+    top: 10px;
+    left: 10px;
+}
+
+.pos-absolute {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.pos-fixed {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--danger-color);
+}
+
+.position-example p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 10px;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    color: white;
+    padding: 30px 0;
+    margin-top: 40px;
+}
+
+.footer kbd {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.footer-note {
+    margin-top: 10px;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 2rem;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .modal {
+        width: 95%;
+        max-width: none;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    .position-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Accessibility - Prevent body scroll when modal is open */
+.body-no-scroll {
+    overflow: hidden;
+}
+

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Box Design - Modal Dialogs</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Modal Dialog Examples</h1>
+            <p class="subtitle">Understanding z-index and positioning</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Introduction Card -->
+            <section class="card">
+                <h2>What are Modal Dialogs?</h2>
+                <p>Modal dialogs are popup boxes that require user interaction before returning to the main content. They use <strong>z-index</strong> for stacking and <strong>positioning</strong> (fixed/absolute) to overlay the page.</p>
+                
+                <div class="concept-box">
+                    <h3>Key Concepts:</h3>
+                    <ul>
+                        <li><strong>z-index:</strong> Controls the stacking order of elements (higher = on top)</li>
+                        <li><strong>position: fixed:</strong> Positions element relative to viewport, stays in place when scrolling</li>
+                        <li><strong>position: absolute:</strong> Positions element relative to nearest positioned ancestor</li>
+                        <li><strong>backdrop/overlay:</strong> Semi-transparent background that covers the page</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Button Examples -->
+            <section class="card">
+                <h2>Try Different Modals</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" id="infoModalBtn">Info Modal</button>
+                    <button class="btn btn-secondary" id="confirmModalBtn">Confirmation Modal</button>
+                    <button class="btn btn-success" id="formModalBtn">Form Modal</button>
+                    <button class="btn btn-warning" id="customModalBtn">Custom Modal</button>
+                </div>
+            </section>
+
+            <!-- Z-Index Explanation -->
+            <section class="card">
+                <h2>Z-Index Visualization</h2>
+                <p>Click the button below to see how z-index layers work:</p>
+                <button class="btn btn-outline" id="zIndexDemoBtn">Show Z-Index Demo</button>
+                
+                <div class="z-index-explanation">
+                    <div class="layer layer-1">Layer 1 (z-index: 1)</div>
+                    <div class="layer layer-2">Layer 2 (z-index: 2)</div>
+                    <div class="layer layer-3">Layer 3 (z-index: 3)</div>
+                    <div class="layer layer-4">Layer 4 (z-index: 4)</div>
+                </div>
+            </section>
+
+            <!-- Positioning Examples -->
+            <section class="card">
+                <h2>Positioning Types</h2>
+                <div class="position-grid">
+                    <div class="position-example">
+                        <h4>Static (Default)</h4>
+                        <div class="pos-demo pos-static">I'm positioned static</div>
+                        <p>Default positioning, follows document flow</p>
+                    </div>
+                    <div class="position-example">
+                        <h4>Relative</h4>
+                        <div class="pos-demo pos-relative">I'm positioned relative</div>
+                        <p>Positioned relative to normal position</p>
+                    </div>
+                    <div class="position-example">
+                        <h4>Absolute</h4>
+                        <div class="pos-container">
+                            <div class="pos-demo pos-absolute">I'm positioned absolute</div>
+                        </div>
+                        <p>Positioned relative to nearest positioned parent</p>
+                    </div>
+                    <div class="position-example">
+                        <h4>Fixed</h4>
+                        <div class="pos-demo pos-fixed">I'm positioned fixed</div>
+                        <p>Positioned relative to viewport (used in modals!)</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Press <kbd>ESC</kbd> to close any open modal</p>
+            <p class="footer-note">Click outside modals (on backdrop) to close them</p>
+        </footer>
+    </div>
+
+    <!-- Modal Overlay (Backdrop) -->
+    <!-- z-index: 1000 - This goes above page content but below modals -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <!-- Info Modal -->
+    <!-- z-index: 1001 - This goes above the overlay -->
+    <div class="modal" id="infoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Information Modal</h2>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon info-icon">ℹ️</div>
+                <h3>This is an Info Modal</h3>
+                <p>This modal demonstrates a simple information dialog. Notice how:</p>
+                <ul>
+                    <li>The backdrop (overlay) has z-index: 1000</li>
+                    <li>The modal itself has z-index: 1001</li>
+                    <li>Both use position: fixed to overlay the entire page</li>
+                    <li>You can close by clicking the X, backdrop, or pressing ESC</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary modal-ok">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Action</h2>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon warning-icon">⚠️</div>
+                <h3>Are you sure?</h3>
+                <p>This action cannot be undone. Do you want to continue?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancel</button>
+                <button class="btn btn-danger modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Modal -->
+    <div class="modal" id="formModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Contact Form</h2>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="modal-form" id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-cancel">Cancel</button>
+                <button class="btn btn-primary modal-submit">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div class="modal" id="customModal">
+        <div class="modal-content modal-success">
+            <div class="modal-header">
+                <h2>Success!</h2>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon success-icon">✅</div>
+                <h3>Operation Completed</h3>
+                <p>Your action was successful. This modal demonstrates custom styling with different colors and icons.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success modal-ok">Awesome!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Z-Index Demo Modal -->
+    <div class="modal z-index-demo-modal" id="zIndexDemoModal">
+        <div class="modal-content z-index-content">
+            <div class="modal-header">
+                <h2>Z-Index Layers Demo</h2>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>This modal shows how z-index creates stacking layers:</p>
+                <div class="z-index-visual">
+                    <div class="z-box" style="z-index: 1; background: #ff6b6b;">z-index: 1</div>
+                    <div class="z-box" style="z-index: 2; background: #4ecdc4;">z-index: 2</div>
+                    <div class="z-box" style="z-index: 3; background: #45b7d1;">z-index: 3</div>
+                    <div class="z-box" style="z-index: 4; background: #f7b731;">z-index: 4</div>
+                    <div class="z-box" style="z-index: 5; background: #5f27cd;">z-index: 5 (top!)</div>
+                </div>
+                <p class="note">Higher z-index values appear on top. This modal itself uses z-index: 1001!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary modal-ok">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

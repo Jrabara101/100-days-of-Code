@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Mode Toggle - CSS Custom Properties</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Toggle -->
+        <header class="header">
+            <div class="header-content">
+                <h1>Dark Mode Toggle</h1>
+                <p class="subtitle">Learn CSS Custom Properties</p>
+            </div>
+            
+            <!-- Dark Mode Toggle Button -->
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                <span class="toggle-icon">
+                    <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </span>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Info Card -->
+            <section class="card">
+                <h2>CSS Custom Properties</h2>
+                <p>CSS custom properties (also known as CSS variables) allow you to store values that can be reused throughout your stylesheet. They're perfect for implementing themes!</p>
+                
+                <div class="code-example">
+                    <code>
+                        :root {<br>
+                        &nbsp;&nbsp;--primary-color: #6366f1;<br>
+                        &nbsp;&nbsp;--bg-color: #ffffff;<br>
+                        &nbsp;&nbsp;--text-color: #1f2937;<br>
+                        }
+                    </code>
+                </div>
+            </section>
+
+            <!-- Features Card -->
+            <section class="card">
+                <h2>Features</h2>
+                <ul class="feature-list">
+                    <li>
+                        <span class="icon">🌙</span>
+                        <div>
+                            <strong>Dark Mode</strong>
+                            <p>Switch between light and dark themes seamlessly</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">💾</span>
+                        <div>
+                            <strong>Persistent Storage</strong>
+                            <p>Your preference is saved in localStorage</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">🎨</span>
+                        <div>
+                            <strong>CSS Variables</strong>
+                            <p>Learn how to use custom properties for theming</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">✨</span>
+                        <div>
+                            <strong>Smooth Transitions</strong>
+                            <p>Beautiful animations when switching themes</p>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Examples Card -->
+            <section class="card">
+                <h2>Theme Variables</h2>
+                <div class="variable-grid">
+                    <div class="variable-item">
+                        <div class="variable-color" style="background: var(--bg-primary);"></div>
+                        <code>--bg-primary</code>
+                    </div>
+                    <div class="variable-item">
+                        <div class="variable-color" style="background: var(--bg-secondary);"></div>
+                        <code>--bg-secondary</code>
+                    </div>
+                    <div class="variable-item">
+                        <div class="variable-color" style="background: var(--text-primary);"></div>
+                        <code>--text-primary</code>
+                    </div>
+                    <div class="variable-item">
+                        <div class="variable-color" style="background: var(--text-secondary);"></div>
+                        <code>--text-secondary</code>
+                    </div>
+                    <div class="variable-item">
+                        <div class="variable-color" style="background: var(--accent);"></div>
+                        <code>--accent</code>
+                    </div>
+                    <div class="variable-item">
+                        <div class="variable-color" style="background: var(--border);"></div>
+                        <code>--border</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Button Examples -->
+            <section class="card">
+                <h2>Interactive Elements</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary">Primary Button</button>
+                    <button class="btn btn-secondary">Secondary Button</button>
+                    <button class="btn btn-outline">Outline Button</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Click the toggle button above to switch themes!</p>
+            <p class="footer-note">Theme preference is saved automatically</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
