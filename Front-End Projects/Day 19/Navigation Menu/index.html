@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Dashboard</title>
+    <!-- Tailwind CSS for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS (External File Content) -->
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f0f0f; /* Deep dark background */
+            color: #e5e7eb;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #18181b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #52525b; 
+        }
+
+        /* Sidebar Animations */
+        .sidebar {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #000000;
+            border-right: 1px solid #27272a;
+        }
+
+        /* Sidebar Link Hover Effects */
+        .nav-item {
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: #eab308; /* Gold accent from Image 1 */
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background-color: #18181b;
+            color: #ffffff;
+            padding-left: 1.2rem; /* Subtle shift right */
+        }
+
+        .nav-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .nav-item.active {
+            background-color: #18181b;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        /* Dropdown Animation */
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        .dropdown-content.open {
+            max-height: 500px; /* Arbitrary large number */
+            opacity: 1;
+        }
+
+        .rotate-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .rotate-icon.rotate {
+            transform: rotate(180deg);
+        }
+
+        /* Custom Toggle Switch for Settings */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #eab308;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #eab308;
+        }
+        
+        /* Main Content Fade In */
+        main {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Overlay */
+        .overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Radio Selection Card Style */
+        .radio-card:hover {
+            border-color: #52525b;
+            background-color: #18181b;
+        }
+        .radio-card.selected {
+            border-color: #eab308; /* Gold accent */
+            background-color: #18181b;
+        }
+        .radio-dot {
+            transition: all 0.2s;
+        }
+        .radio-card.selected .radio-dot {
+            background-color: #eab308;
+            border-color: #eab308;
+            box-shadow: 0 0 0 2px #000, 0 0 0 4px #eab308;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden flex items-center justify-between p-4 bg-black border-b border-gray-800 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <button id="mobile-menu-btn" class="text-gray-400 hover:text-white focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <span class="font-bold text-lg text-white">Dashboard</span>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500"></div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="overlay" class="fixed inset-0 overlay z-40 hidden opacity-0 pointer-events-none md:hidden"></div>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-50 w-64 transform -translate-x-full md:relative md:translate-x-0 flex flex-col h-full">
+            
+            <!-- User Profile (Top) - Inspired by Image 1 -->
+            <div class="p-4 border-b border-gray-800 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg">
+                    L
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white truncate">Liam's Workspace</p>
+                    <p class="text-xs text-gray-500 truncate">Free Plan</p>
+                </div>
+                <button class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+
+            <!-- Scrollable Nav Area -->
+            <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                
+                <!-- Upgrade Button - Inspired by Image 1 -->
+                <div class="mb-6 px-1">
+                    <button class="w-full bg-yellow-600 hover:bg-yellow-500 text-white text-sm font-medium py-2.5 px-4 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 group">
+                        <i class="fas fa-bolt text-yellow-200 group-hover:text-white"></i>
+                        View Upgrade Options
+                    </button>
+                </div>
+
+                <!-- Main Links -->
+                <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white group">
+                    <i class="fas fa-home w-5 text-center group-hover:text-yellow-500 transition-colors"></i>
+                    <span class="text-sm font-medium">Home</span>
+                </a>
+                <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white group">
+                    <i class="fas fa-compass w-5 text-center group-hover:text-yellow-500 transition-colors"></i>
+                    <span class="text-sm font-medium">Explore</span>
+                </a>
+                <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white group">
+                    <i class="fas fa-video w-5 text-center group-hover:text-yellow-500 transition-colors"></i>
+                    <span class="text-sm font-medium">Videos</span>
+                </a>
+
+                <!-- Collapsible Section: My Collection - Inspired by Image 1 Dropdowns -->
+                <div class="mt-6">
+                    <button class="dropdown-btn w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors">
+                        <span>My Collection</span>
+                        <i class="fas fa-chevron-down text-xs rotate-icon"></i>
+                    </button>
+                    <div class="dropdown-content open pl-2 space-y-1 mt-1">
+                        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white text-sm group">
+                            <i class="fas fa-broadcast-tower w-5 text-center text-xs group-hover:text-yellow-500"></i>
+                            Mixes & Radio
+                        </a>
+                        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white text-sm group">
+                            <i class="fas fa-music w-5 text-center text-xs group-hover:text-yellow-500"></i>
+                            Playlists
+                        </a>
+                        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white text-sm group">
+                            <i class="fas fa-compact-disc w-5 text-center text-xs group-hover:text-yellow-500"></i>
+                            Albums
+                        </a>
+                        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white text-sm group">
+                            <i class="fas fa-microphone w-5 text-center text-xs group-hover:text-yellow-500"></i>
+                            Artists
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Collapsible Section: Tags -->
+                <div class="mt-4">
+                    <button class="dropdown-btn w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors">
+                        <span>Tags</span>
+                        <i class="fas fa-chevron-right text-xs rotate-icon"></i>
+                    </button>
+                    <div class="dropdown-content pl-2 space-y-1 mt-1">
+                        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white text-sm">
+                            <i class="fas fa-tag w-5 text-center text-xs"></i>
+                            Favorites
+                        </a>
+                        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white text-sm">
+                            <i class="fas fa-tag w-5 text-center text-xs"></i>
+                            Archive
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Footer Links - Similar to Image 1 Trash -->
+                <div class="mt-8 pt-4 border-t border-gray-800">
+                    <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white group">
+                        <i class="fas fa-trash w-5 text-center group-hover:text-red-500 transition-colors"></i>
+                        <span class="text-sm font-medium">Trash</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 h-full overflow-y-auto bg-[#0f0f0f] relative w-full">
+            
+            <!-- Top Bar -->
+            <header class="sticky top-0 z-30 bg-[#0f0f0f]/90 backdrop-blur-md border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+                <!-- Navigation Breadcrumbs -->
+                <div class="flex items-center gap-2 text-sm">
+                    <button class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-all">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-all mr-4">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-white tracking-tight">Settings</h1>
+                </div>
+
+                <!-- Search & Notification -->
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:flex items-center bg-gray-800 rounded-full px-4 py-2 w-64 border border-gray-700 focus-within:border-gray-500 transition-colors">
+                        <i class="fas fa-search text-gray-500 mr-2"></i>
+                        <input type="text" placeholder="Search" class="bg-transparent border-none focus:outline-none text-sm text-white w-full placeholder-gray-500">
+                    </div>
+                    <button class="relative text-gray-400 hover:text-white transition-colors">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content - Settings (Inspired by Image 2) -->
+            <div class="max-w-4xl mx-auto px-6 py-8">
+                
+                <!-- Settings Tabs -->
+                <div class="flex gap-6 border-b border-gray-800 mb-8 overflow-x-auto pb-1">
+                    <button class="text-white border-b-2 border-white pb-3 font-medium text-sm whitespace-nowrap">General</button>
+                    <button class="text-gray-500 hover:text-gray-300 pb-3 font-medium text-sm transition-colors whitespace-nowrap">Account</button>
+                    <button class="text-gray-500 hover:text-gray-300 pb-3 font-medium text-sm transition-colors whitespace-nowrap">Beta features</button>
+                    <button class="text-gray-500 hover:text-gray-300 pb-3 font-medium text-sm transition-colors whitespace-nowrap">About</button>
+                </div>
+
+                <!-- Audio Quality Section -->
+                <section class="mb-10">
+                    <h2 class="text-lg font-semibold text-white mb-4">Audio quality</h2>
+                    
+                    <div class="space-y-3">
+                        <!-- Option: Low -->
+                        <div class="radio-card p-4 rounded-xl border border-gray-800 bg-[#121212] cursor-pointer group flex items-start justify-between transition-all" onclick="selectAudioOption(this)">
+                            <div class="flex gap-4">
+                                <div class="mt-1">
+                                    <div class="radio-dot w-5 h-5 rounded-full border border-gray-600"></div>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-white group-hover:text-white transition-colors">Low</p>
+                                    <p class="text-sm text-gray-500 mt-1">Balance audio quality and data consumption</p>
+                                </div>
+                            </div>
+                            <span class="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded border border-gray-700">320 kbps</span>
+                        </div>
+
+                        <!-- Option: High -->
+                        <div class="radio-card p-4 rounded-xl border border-gray-800 bg-[#121212] cursor-pointer group flex items-start justify-between transition-all" onclick="selectAudioOption(this)">
+                            <div class="flex gap-4">
+                                <div class="mt-1">
+                                    <div class="radio-dot w-5 h-5 rounded-full border border-gray-600"></div>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-white group-hover:text-white transition-colors">High</p>
+                                    <p class="text-sm text-gray-500 mt-1">16-bit, 44.1 kHz</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Option: Max (Selected by default) -->
+                        <div class="radio-card selected p-4 rounded-xl border border-gray-800 bg-[#121212] cursor-pointer group flex items-start justify-between transition-all" onclick="selectAudioOption(this)">
+                            <div class="flex gap-4">
+                                <div class="mt-1">
+                                    <div class="radio-dot w-5 h-5 rounded-full border border-gray-600"></div>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-white group-hover:text-white transition-colors">Max</p>
+                                    <p class="text-sm text-gray-500 mt-1">Up to 24-bit, 192 kHz</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Playback Section -->
+                <section>
+                    <h2 class="text-lg font-semibold text-white mb-4">Playback</h2>
+                    
+                    <div class="rounded-xl border border-gray-800 bg-[#121212] divide-y divide-gray-800">
+                        
+                        <!-- Toggle Item -->
+                        <div class="p-5 flex items-center justify-between">
+                            <div class="pr-4">
+                                <p class="font-medium text-white">Normalize volume</p>
+                                <p class="text-sm text-gray-500 mt-1">Set the same volume level for all tracks.</p>
+                            </div>
+                            <!-- Toggle Switch -->
+                            <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="toggle1" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                                <label for="toggle1" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer"></label>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Item -->
+                        <div class="p-5 flex items-center justify-between">
+                            <div class="pr-4">
+                                <p class="font-medium text-white">Autoplay</p>
+                                <p class="text-sm text-gray-500 mt-1">Play similar songs or Live sessions after the last track in your queue ends.</p>
+                            </div>
+                            <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="toggle2" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300" checked/>
+                                <label for="toggle2" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer"></label>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Item -->
+                        <div class="p-5 flex items-center justify-between">
+                            <div class="pr-4">
+                                <p class="font-medium text-white">Explicit content</p>
+                                <p class="text-sm text-gray-500 mt-1">Allow or restrict explicit content labeled with the E tag.</p>
+                            </div>
+                            <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="toggle3" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                                <label for="toggle3" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer"></label>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+                
+                <div class="h-20"></div> <!-- Bottom Spacer -->
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript (External File Content) -->
+    <script>
+        // DOM Elements
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const dropdownBtns = document.querySelectorAll('.dropdown-btn');
+
+        // Mobile Menu Toggle Logic
+        function toggleMenu() {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            
+            if (isClosed) {
+                // Open Menu
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden', 'opacity-0');
+                overlay.classList.add('pointer-events-auto');
+            } else {
+                // Close Menu
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0', 'hidden');
+                overlay.classList.remove('pointer-events-auto');
+            }
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Sidebar Dropdown Logic (Accordion style)
+        dropdownBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Toggle the arrow rotation
+                const icon = this.querySelector('.rotate-icon');
+                icon.classList.toggle('rotate');
+
+                // Toggle the content visibility
+                const content = this.nextElementSibling;
+                
+                if (content.classList.contains('open')) {
+                    content.classList.remove('open');
+                } else {
+                    content.classList.add('open');
+                }
+            });
+        });
+
+        // Radio Selection Logic (Settings Page)
+        function selectAudioOption(element) {
+            // Remove 'selected' class from all cards
+            document.querySelectorAll('.radio-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            // Add 'selected' class to clicked card
+            element.classList.add('selected');
+        }
+
+        // Close sidebar on window resize if screen becomes large
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('-translate-x-full'); // Always show on desktop
+                overlay.classList.add('hidden', 'opacity-0');
+            } else {
+                sidebar.classList.add('-translate-x-full'); // Hide by default on mobile resize
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Bar Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Smooth fade in animation for items */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 p-6 md:p-12">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header Section -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">Team Directory</h1>
+            <p class="text-slate-500">Find colleagues by name or role</p>
+        </div>
+
+        <!-- Search Bar Container -->
+        <div class="relative max-w-xl mx-auto mb-12 group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <!-- Search Icon SVG -->
+                <svg class="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <input 
+                type="text" 
+                id="searchInput"
+                class="block w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-sm transition-all duration-200 ease-in-out hover:shadow-md" 
+                placeholder="Start typing to filter..."
+                autocomplete="off"
+            >
+            <!-- Clear Button (Hidden by default) -->
+            <button id="clearBtn" class="absolute inset-y-0 right-0 pr-4 flex items-center hidden hover:text-red-500 text-slate-400 transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Content Grid -->
+        <div id="contentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- Card 1 -->
+            <div class="card-item bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-200 flex items-start space-x-4 animate-fade-in" data-search="sarah johnson product designer ui ux">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold text-lg">SJ</div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 name-target">Sarah Johnson</h3>
+                    <p class="text-sm text-indigo-600 font-medium role-target">Product Designer</p>
+                    <p class="text-xs text-slate-400 mt-1">San Francisco, CA</p>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="card-item bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-200 flex items-start space-x-4 animate-fade-in" data-search="michael chen senior developer engineer frontend">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg">MC</div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 name-target">Michael Chen</h3>
+                    <p class="text-sm text-indigo-600 font-medium role-target">Senior Developer</p>
+                    <p class="text-xs text-slate-400 mt-1">New York, NY</p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="card-item bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-200 flex items-start space-x-4 animate-fade-in" data-search="emma wilson marketing manager growth">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white font-bold text-lg">EW</div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 name-target">Emma Wilson</h3>
+                    <p class="text-sm text-indigo-600 font-medium role-target">Marketing Manager</p>
+                    <p class="text-xs text-slate-400 mt-1">London, UK</p>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="card-item bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-200 flex items-start space-x-4 animate-fade-in" data-search="james rodriguez devops engineer cloud aws">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white font-bold text-lg">JR</div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 name-target">James Rodriguez</h3>
+                    <p class="text-sm text-indigo-600 font-medium role-target">DevOps Engineer</p>
+                    <p class="text-xs text-slate-400 mt-1">Austin, TX</p>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="card-item bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-200 flex items-start space-x-4 animate-fade-in" data-search="priya patel product manager pm strategy">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-lg">PP</div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 name-target">Priya Patel</h3>
+                    <p class="text-sm text-indigo-600 font-medium role-target">Product Manager</p>
+                    <p class="text-xs text-slate-400 mt-1">Remote</p>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="card-item bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-200 flex items-start space-x-4 animate-fade-in" data-search="alex thompson copywriter content creative">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center text-white font-bold text-lg">AT</div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 name-target">Alex Thompson</h3>
+                    <p class="text-sm text-indigo-600 font-medium role-target">Creative Copywriter</p>
+                    <p class="text-xs text-slate-400 mt-1">Berlin, DE</p>
+                </div>
+            </div>
+            
+            <!-- Card 7 -->
+            <div class="card-item bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-200 flex items-start space-x-4 animate-fade-in" data-search="lisa wong hr specialist human resources">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-lg">LW</div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 name-target">Lisa Wong</h3>
+                    <p class="text-sm text-indigo-600 font-medium role-target">HR Specialist</p>
+                    <p class="text-xs text-slate-400 mt-1">Toronto, CA</p>
+                </div>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="card-item bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-200 flex items-start space-x-4 animate-fade-in" data-search="david miller qa engineer tester">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-lime-500 to-green-600 flex items-center justify-center text-white font-bold text-lg">DM</div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 name-target">David Miller</h3>
+                    <p class="text-sm text-indigo-600 font-medium role-target">QA Engineer</p>
+                    <p class="text-xs text-slate-400 mt-1">Chicago, IL</p>
+                </div>
+            </div>
+
+             <!-- Card 9 -->
+             <div class="card-item bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-200 flex items-start space-x-4 animate-fade-in" data-search="sophie martin customer support success">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-lg">SM</div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 name-target">Sophie Martin</h3>
+                    <p class="text-sm text-indigo-600 font-medium role-target">Customer Success</p>
+                    <p class="text-xs text-slate-400 mt-1">Paris, FR</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="hidden flex-col items-center justify-center py-16 text-center">
+            <div class="bg-slate-100 p-4 rounded-full mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-slate-900">No members found</h3>
+            <p class="text-slate-500 mt-1">We couldn't find anyone matching "<span id="searchTermDisplay" class="font-semibold text-slate-700"></span>"</p>
+            <button id="resetSearchBtn" class="mt-4 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors">
+                Clear Search
+            </button>
+        </div>
+
+        <!-- Stats Footer -->
+        <div class="mt-12 border-t border-slate-200 pt-6 text-center text-sm text-slate-400">
+            Showing <span id="countDisplay" class="font-semibold text-slate-600">9</span> team members
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const items = document.querySelectorAll('.card-item');
+            const noResults = document.getElementById('noResults');
+            const searchTermDisplay = document.getElementById('searchTermDisplay');
+            const countDisplay = document.getElementById('countDisplay');
+            const clearBtn = document.getElementById('clearBtn');
+            const resetSearchBtn = document.getElementById('resetSearchBtn');
+            const contentGrid = document.getElementById('contentGrid');
+
+            // Initialize count
+            updateCount(items.length);
+
+            // Main Filtering Logic
+            function filterItems(searchTerm) {
+                const term = searchTerm.toLowerCase().trim();
+                let visibleCount = 0;
+
+                items.forEach(item => {
+                    // We check against the visible text AND a custom data attribute for broader matching
+                    // (e.g., matching "frontend" even if the visible text says "Developer")
+                    const name = item.querySelector('.name-target').textContent.toLowerCase();
+                    const role = item.querySelector('.role-target').textContent.toLowerCase();
+                    const metadata = item.getAttribute('data-search') || '';
+                    
+                    if (name.includes(term) || role.includes(term) || metadata.includes(term)) {
+                        item.classList.remove('hidden');
+                        // Reset animation for a fresh feel on re-appear
+                        item.classList.remove('animate-fade-in');
+                        void item.offsetWidth; // Trigger reflow
+                        item.classList.add('animate-fade-in');
+                        visibleCount++;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                // Toggle No Results View
+                if (visibleCount === 0) {
+                    contentGrid.classList.add('hidden');
+                    noResults.classList.remove('hidden');
+                    noResults.classList.add('flex');
+                    searchTermDisplay.textContent = searchTerm;
+                } else {
+                    contentGrid.classList.remove('hidden');
+                    noResults.classList.add('hidden');
+                    noResults.classList.remove('flex');
+                }
+
+                // Toggle Clear Button
+                if (searchTerm.length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+
+                updateCount(visibleCount);
+            }
+
+            // Helper to update the counter at the bottom
+            function updateCount(count) {
+                countDisplay.textContent = count;
+            }
+
+            // Event Listener: Keyup
+            searchInput.addEventListener('keyup', (e) => {
+                filterItems(e.target.value);
+            });
+
+            // Event Listener: Clear Button
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                filterItems('');
+                searchInput.focus();
+            });
+
+            // Event Listener: Reset Button (in empty state)
+            resetSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                filterItems('');
+                searchInput.focus();
+            });
+        });
+    </script>
+</body>
+</html>
