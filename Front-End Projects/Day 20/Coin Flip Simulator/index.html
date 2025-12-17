@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Flip Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🪙 Coin Flip Simulator</h1>
+            <p class="subtitle">Animate coin flipping with random results</p>
+        </header>
+
+        <div class="coin-container">
+            <div class="coin" id="coin">
+                <div class="coin-face heads">
+                    <span>H</span>
+                </div>
+                <div class="coin-face tails">
+                    <span>T</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="flipBtn">Flip Coin</button>
+            <button class="btn btn-secondary" id="flip10Btn">Flip 10 Times</button>
+            <button class="btn btn-secondary" id="flip100Btn">Flip 100 Times</button>
+            <button class="btn btn-danger" id="resetBtn">Reset Stats</button>
+        </div>
+
+        <div class="result" id="result">
+            <p class="result-text">Click "Flip Coin" to start!</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Flips</div>
+                <div class="stat-value" id="totalFlips">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Heads</div>
+                <div class="stat-value heads-stat" id="headsCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tails</div>
+                <div class="stat-value tails-stat" id="tailsCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Heads %</div>
+                <div class="stat-value" id="headsPercent">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tails %</div>
+                <div class="stat-value" id="tailsPercent">0%</div>
+            </div>
+        </div>
+
+        <div class="history">
+            <h3>Recent Flips</h3>
+            <div class="history-list" id="historyList">
+                <p class="no-history">No flips yet</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Tic-Tac-Toe</h1>
+        <div class="game-info">
+            <div class="current-player">
+                <span>Current Player: </span>
+                <span id="current-player">X</span>
+            </div>
+            <div class="game-status" id="game-status"></div>
+        </div>
+        
+        <div class="game-board" id="game-board">
+            <div class="cell" data-index="0" tabindex="0"></div>
+            <div class="cell" data-index="1" tabindex="0"></div>
+            <div class="cell" data-index="2" tabindex="0"></div>
+            <div class="cell" data-index="3" tabindex="0"></div>
+            <div class="cell" data-index="4" tabindex="0"></div>
+            <div class="cell" data-index="5" tabindex="0"></div>
+            <div class="cell" data-index="6" tabindex="0"></div>
+            <div class="cell" data-index="7" tabindex="0"></div>
+            <div class="cell" data-index="8" tabindex="0"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="reset-btn" class="reset-btn">Reset Game</button>
+        </div>
+        
+        <div class="instructions">
+            <p>Click on a cell or use number keys (1-9) to make a move</p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
+

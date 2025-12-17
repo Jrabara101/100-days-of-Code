@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ripple Effect</title>
+    <!-- Using Tailwind for layout/typography -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-900 w-screen h-screen flex flex-col items-center justify-center text-white">
+
+    <!-- UI Content -->
+    <div class="text-center z-10 pointer-events-none p-6">
+        <h1 class="text-4xl font-bold mb-4 tracking-tighter">Click Anywhere</h1>
+        <p class="text-slate-400 mb-8">Create ripple effects based on event coordinates.</p>
+        
+        <!-- Coordinate Display -->
+        <div class="inline-block bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg px-6 py-3 font-mono text-sm shadow-xl transition-all duration-75" id="coord-display">
+            X: <span id="pos-x" class="text-cyan-400 font-bold">0</span> 
+            <span class="mx-2 text-slate-600">|</span> 
+            Y: <span id="pos-y" class="text-pink-400 font-bold">0</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

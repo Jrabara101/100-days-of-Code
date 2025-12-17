@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Keyboard Event Tester & Reflex Game</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div class="header">
+            <div class="log-panel" id="log-panel">
+                <div class="log-item">Waiting for input...</div>
+            </div>
+            <div class="title-block">
+                <h1>Key Event Tester</h1>
+                <p>Mode: <span id="mode-indicator">Free Play</span></p>
+            </div>
+        </div>
+
+        <div id="game-hud">
+            <div id="message-display" class="hud-message">CHALLENGE COMPLETE</div>
+            <button id="start-btn">Start Challenge</button>
+        </div>
+
+        <div id="key-display"></div>
+
+        <div class="footer">
+            <div class="stat-box">Score: <span id="score">0</span></div>
+            <div class="stat-box">Target: <span id="target">0</span></div>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
