@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Click Ripple Effect</title>
+    <style>
+        /* Basic reset and body styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Main container for the ripple effect */
+        .ripple-container {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 40px;
+            transition: transform 0.3s ease;
+        }
+
+        .ripple-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .ripple-container h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .ripple-container p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        /* Ripple element styling */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: rippleEffect 0.8s ease-out;
+        }
+
+        @keyframes rippleEffect {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 500px;
+                height: 500px;
+                opacity: 0;
+            }
+        }
+
+        /* Alternative ripple styles */
+        .ripple-style-2 {
+            background: radial-gradient(circle, rgba(255, 255, 0, 0.7) 0%, rgba(255, 255, 0, 0) 70%);
+        }
+
+        .ripple-style-3 {
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.7) 0%, rgba(0, 255, 255, 0) 70%);
+        }
+
+        /* Controls for customization */
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .control-group select option {
+            background: #333;
+            color: white;
+        }
+
+        /* Info panel */
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            max-width: 300px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="ripple-container" id="rippleContainer">
+        <h1>Ripple Click Effect</h1>
+        <p>Click anywhere on this container to create a beautiful ripple effect. The ripple will appear at the exact location where you click!</p>
+    </div>
+
+    <div class="controls">
+        <h3>Customization</h3>
+        
+        <div class="control-group">
+            <label for="rippleStyle">Ripple Style:</label>
+            <select id="rippleStyle">
+                <option value="default">Default White</option>
+                <option value="style2">Yellow Ripple</option>
+                <option value="style3">Cyan Ripple</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="rippleSize">Max Ripple Size:</label>
+            <input type="range" id="rippleSize" min="200" max="800" value="500">
+            <span id="sizeValue">500px</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="rippleSpeed">Animation Speed:</label>
+            <input type="range" id="rippleSpeed" min="400" max="1200" value="800">
+            <span id="speedValue">800ms</span>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <strong>Click Coordinates:</strong> <span id="coordinates"></span>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const container = document.getElementById('rippleContainer');
+        const rippleStyleSelect = document.getElementById('rippleStyle');
+        const rippleSizeInput = document.getElementById('rippleSize');
+        const rippleSpeedInput = document.getElementById('rippleSpeed');
+        const sizeValue = document.getElementById('sizeValue');
+        const speedValue = document.getElementById('speedValue');
+        const infoPanel = document.getElementById('infoPanel');
+        const coordinatesSpan = document.getElementById('coordinates');
+
+        // Add click event listener to the container
+        container.addEventListener('click', function(event) {
+            createRipple(event);
+            showCoordinates(event);
+        });
+
+        // Function to create ripple effect
+        function createRipple(event) {
+            // Create ripple element
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            
+            // Get click coordinates relative to the container
+            // event.clientX and event.clientY give absolute position
+            // We need to subtract container's position to get relative coordinates
+            const rect = container.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Position ripple at click location
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            // Apply custom ripple style
+            const selectedStyle = rippleStyleSelect.value;
+            if (selectedStyle === 'style2') {
+                ripple.classList.add('ripple-style-2');
+            } else if (selectedStyle === 'style3') {
+                ripple.classList.add('ripple-style-3');
+            }
+            
+            // Apply custom size
+            const maxSize = rippleSizeInput.value;
+            ripple.style.setProperty('--max-size', maxSize + 'px');
+            
+            // Update animation duration
+            const speed = rippleSpeedInput.value;
+            ripple.style.animationDuration = speed + 'ms';
+            
+            // Update keyframe dynamically
+            updateKeyframes(maxSize, speed);
+            
+            // Add ripple to container
+            container.appendChild(ripple);
+            
+            // Remove ripple after animation completes
+            setTimeout(() => {
+                ripple.remove();
+            }, speed);
+        }
+
+        // Function to update CSS keyframes dynamically
+        function updateKeyframes(size, duration) {
+            // Remove the old style if it exists
+            const existingStyle = document.getElementById('dynamic-keyframes');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+            
+            // Create new style element
+            const style = document.createElement('style');
+            style.id = 'dynamic-keyframes';
+            style.textContent = `
+                @keyframes rippleEffect {
+                    0% {
+                        width: 0;
+                        height: 0;
+                        opacity: 1;
+                    }
+                    100% {
+                        width: ${size}px;
+                        height: ${size}px;
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Function to show click coordinates
+        function showCoordinates(event) {
+            const rect = container.getBoundingClientRect();
+            const x = Math.round(event.clientX - rect.left);
+            const y = Math.round(event.clientY - rect.top);
+            
+            coordinatesSpan.textContent = `X: ${x}px, Y: ${y}px`;
+            infoPanel.style.display = 'block';
+            
+            // Hide after 2 seconds
+            setTimeout(() => {
+                infoPanel.style.display = 'none';
+            }, 2000);
+        }
+
+        // Update display values for controls
+        rippleSizeInput.addEventListener('input', function() {
+            sizeValue.textContent = this.value + 'px';
+        });
+
+        rippleSpeedInput.addEventListener('input', function() {
+            speedValue.textContent = this.value + 'ms';
+        });
+
+        // Enhanced keyframe animation with better performance
+        window.addEventListener('load', function() {
+            // Add a smooth transition to the ripple-container
+            container.style.transition = 'background-color 0.3s ease';
+            
+            // Add a subtle effect when hovering over the container
+            container.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+            });
+            
+            container.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            });
+        });
+    </script>
+</body>
+</html>
