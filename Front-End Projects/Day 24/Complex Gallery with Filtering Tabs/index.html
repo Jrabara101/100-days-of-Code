@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prism | Modern Gallery</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Script -->
+    <script defer src="script.js"></script>
+</head>
+
+<body>
+
+    <header class="gallery-header">
+        <h1>Prism Gallery</h1>
+        <p class="subtitle">Curated visual experiences</p>
+
+        <nav class="filter-nav">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="architecture">Architecture</button>
+            <button class="filter-btn" data-filter="nature">Nature</button>
+            <button class="filter-btn" data-filter="tech">Tech</button>
+            <button class="filter-btn" data-filter="art">Art</button>
+        </nav>
+    </header>
+
+    <main class="gallery-grid">
+        <!-- Item 1: Architecture (Wide) -->
+        <div class="gallery-item wide" data-category="architecture">
+            <img src="assets/images/architecture_modern_1766451045081.png" alt="Modern Concrete Facade">
+            <div class="overlay">
+                <h3>Concrete Dreams</h3>
+                <span>Architecture</span>
+            </div>
+        </div>
+
+        <!-- Item 2: Nature (Tall) -->
+        <div class="gallery-item tall" data-category="nature">
+            <img src="assets/images/nature_forest_1766451061726.png" alt="Misty Forest">
+            <div class="overlay">
+                <h3>Silent Mist</h3>
+                <span>Nature</span>
+            </div>
+        </div>
+
+        <!-- Item 3: Tech -->
+        <div class="gallery-item" data-category="tech">
+            <img src="assets/images/tech_setup_1766451079376.png" alt="Cyberpunk Setup">
+            <div class="overlay">
+                <h3>Neon Workspace</h3>
+                <span>Tech</span>
+            </div>
+        </div>
+
+        <!-- Item 4: Art -->
+        <div class="gallery-item" data-category="art">
+            <img src="assets/images/art_abstract_1766451094462.png" alt="Abstract Swirls">
+            <div class="overlay">
+                <h3>Fluid Fancy</h3>
+                <span>Art</span>
+            </div>
+        </div>
+
+        <!-- Item 5: Architecture -->
+        <div class="gallery-item" data-category="architecture">
+            <img src="assets/images/architecture_modern_1766451045081.png" alt="Modern Detail">
+            <div class="overlay">
+                <h3>Glass & Stone</h3>
+                <span>Architecture</span>
+            </div>
+        </div>
+
+        <!-- Item 6: Tech (Wide) -->
+        <div class="gallery-item wide" data-category="tech">
+            <img src="assets/images/tech_setup_1766451079376.png" alt="Coding Station">
+            <div class="overlay">
+                <h3>Dev Command</h3>
+                <span>Tech</span>
+            </div>
+        </div>
+
+        <!-- Item 7: Art (Tall) -->
+        <div class="gallery-item tall" data-category="art">
+            <img src="assets/images/art_abstract_1766451094462.png" alt="Vibrant Textures">
+            <div class="overlay">
+                <h3>Color Theory</h3>
+                <span>Art</span>
+            </div>
+        </div>
+
+        <!-- Item 8: Nature -->
+        <div class="gallery-item" data-category="nature">
+            <img src="assets/images/nature_forest_1766451061726.png" alt="Green Canopy">
+            <div class="overlay">
+                <h3>Deep Woods</h3>
+                <span>Nature</span>
+            </div>
+        </div>
+
+        <!-- Item 9: Tech -->
+        <div class="gallery-item" data-category="tech">
+            <img src="assets/images/tech_setup_1766451079376.png" alt="Future Rig">
+            <div class="overlay">
+                <h3>System Core</h3>
+                <span>Tech</span>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="gallery-footer">
+        <p>&copy; 2024 Prism Gallery. Built with code.</p>
+    </footer>
+
+</body>
+
+</html>

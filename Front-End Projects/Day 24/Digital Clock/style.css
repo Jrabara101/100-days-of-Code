@@ -1,0 +1,229 @@
+/* CSS Variables & Theme Engine */
+:root {
+    --bg-color: #0f0f12;
+    --clock-bg: rgba(30, 30, 35, 0.6);
+    --clock-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #ffffff;
+    --accent-color: #6c5ce7;
+    --hand-hour: #ffffff;
+    --hand-minute: #a29bfe;
+    --hand-second: #e056fd;
+    --shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    --font-ui: 'Inter', sans-serif;
+    --font-digital: 'JetBrains Mono', monospace;
+}
+
+/* Theme: Cloud */
+.theme-cloud {
+    --bg-color: #e0e6ed;
+    --clock-bg: rgba(255, 255, 255, 0.7);
+    --clock-border: rgba(255, 255, 255, 0.8);
+    --text-primary: #2d3436;
+    --accent-color: #0984e3;
+    --hand-hour: #2d3436;
+    --hand-minute: #636e72;
+    --hand-second: #d63031;
+    --shadow: 0 15px 35px rgba(160, 170, 180, 0.3);
+}
+
+/* Theme: Neon */
+.theme-neon {
+    --bg-color: #000000;
+    --clock-bg: rgba(20, 20, 20, 0.8);
+    --clock-border: #00ff00;
+    --text-primary: #00ff00;
+    --accent-color: #00ff00;
+    --hand-hour: #00ff00;
+    --hand-minute: #ff00de;
+    --hand-second: #fffa00;
+    --shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+/* Theme Switcher */
+.theme-switcher {
+    display: flex;
+    gap: 15px;
+    background: var(--clock-bg);
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: 1px solid var(--clock-border);
+    backdrop-filter: blur(10px);
+}
+
+.theme-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.theme-btn:hover,
+.theme-btn.active {
+    opacity: 1;
+}
+
+.theme-btn.active {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* Clock Container (Glassmorphism) */
+.clock-container {
+    position: relative;
+    width: 350px;
+    height: 500px;
+    /* Taller to accommodate digital below analog */
+    background: var(--clock-bg);
+    border: 1px solid var(--clock-border);
+    border-radius: 40px;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 40px;
+    backdrop-filter: blur(15px);
+    box-shadow: var(--shadow);
+}
+
+/* Analog Clock */
+.analog-clock {
+    width: 250px;
+    height: 250px;
+    position: relative;
+    border-radius: 50%;
+    border: 4px solid var(--text-primary);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.clock-face {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.marker {
+    position: absolute;
+    background-color: var(--text-primary);
+}
+
+.twelve,
+.six {
+    width: 4px;
+    height: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.twelve {
+    top: 10px;
+}
+
+.six {
+    bottom: 10px;
+}
+
+.three,
+.nine {
+    width: 15px;
+    height: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.three {
+    right: 10px;
+}
+
+.nine {
+    left: 10px;
+}
+
+/* Hands */
+.hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    border-radius: 10px;
+    z-index: 10;
+}
+
+.hour-hand {
+    width: 6px;
+    height: 60px;
+    background-color: var(--hand-hour);
+    margin-left: -3px;
+    /* Center alignment */
+}
+
+.minute-hand {
+    width: 4px;
+    height: 85px;
+    background-color: var(--hand-minute);
+    margin-left: -2px;
+}
+
+.second-hand {
+    width: 2px;
+    height: 95px;
+    background-color: var(--hand-second);
+    margin-left: -1px;
+    z-index: 11;
+    /* Mechanical sweep effect: smooth transition for transform */
+    transition: transform 0.1s cubic-bezier(0.4, 2.08, 0.55, 0.44);
+}
+
+/* Center Point */
+.center-point {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 12;
+}
+
+/* Digital Clock */
+.digital-clock {
+    font-family: var(--font-digital);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 2px;
+    background: rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    border-radius: 10px;
+}

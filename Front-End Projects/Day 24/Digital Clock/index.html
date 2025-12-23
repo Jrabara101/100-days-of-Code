@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrono | High-Fidelity Clock</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Script -->
+    <script defer src="script.js"></script>
+</head>
+
+<body class="theme-midnight">
+
+    <div class="app-container">
+        <!-- Theme Switcher -->
+        <div class="theme-switcher">
+            <button class="theme-btn active" data-theme="theme-midnight">Midnight</button>
+            <button class="theme-btn" data-theme="theme-cloud">Cloud</button>
+            <button class="theme-btn" data-theme="theme-neon">Neon</button>
+        </div>
+
+        <!-- Clock Container (Glassmorphism) -->
+        <div class="clock-container">
+
+            <!-- Analog Face -->
+            <div class="analog-clock">
+                <div class="clock-face">
+                    <div class="marker twelve"></div>
+                    <div class="marker three"></div>
+                    <div class="marker six"></div>
+                    <div class="marker nine"></div>
+
+                    <div class="hand hour-hand" id="hour-hand"></div>
+                    <div class="hand minute-hand" id="minute-hand"></div>
+                    <div class="hand second-hand" id="second-hand"></div>
+                    <div class="center-point"></div>
+                </div>
+            </div>
+
+            <!-- Digital Readout -->
+            <div class="digital-clock">
+                <span id="digital-time">00:00:00</span>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>
