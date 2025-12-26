@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA | Picture of the Day</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Dynamic Background (Video or Image) -->
+    <div id="media-container" class="media-background">
+        <!-- Media inserted by JS -->
+    </div>
+
+    <!-- Overlay Gradient to ensure text readability -->
+    <div class="overlay"></div>
+
+    <!-- Main Application UI -->
+    <div class="app-container">
+
+        <header class="glass-header">
+            <div class="logo">
+                <span class="nasa-text">NASA</span> <span class="apod-text">APOD</span>
+            </div>
+            <div class="controls">
+                <input type="date" id="date-picker" class="date-input">
+                <button id="random-btn" class="icon-btn" title="Random Date">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    🎲
+                </button>
+            </div>
+        </header>
+
+        <main class="hero-content">
+            <div class="content-wrapper">
+                <span class="date-badge" id="current-date-display">Computing...</span>
+                <h1 id="apod-title" class="title">Loading Universe...</h1>
+                <div class="hero-actions">
+                    <button id="info-btn" class="cta-btn primary">
+                        View Details
+                    </button>
+                    <a id="hd-download-btn" href="#" target="_blank" class="cta-btn secondary hidden">
+                        HD Image
+                    </a>
+                    <button id="share-btn" class="icon-btn tooltipped" aria-label="Share this view">
+                        🔗
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="glass-footer">
+            <p>Powered by NASA Open API</p>
+        </footer>
+
+    </div>
+
+    <!-- Info Drawer -->
+    <aside id="info-drawer" class="drawer">
+        <button id="close-drawer" class="close-btn">&times;</button>
+        <div class="drawer-content">
+            <h2 id="drawer-title">Title</h2>
+            <p class="copyright" id="drawer-copyright"></p>
+            <div class="divider"></div>
+            <p id="drawer-explanation" class="explanation-text">
+                <!-- Explanation goes here -->
+            </p>
+        </div>
+    </aside>
+
+    <!-- Loading Overlay -->
+    <div id="loader" class="loader-overlay">
+        <div class="rocket-loader">
+            🚀
+        </div>
+        <p>Traveling at light speed...</p>
+    </div>
+
+    <!-- API Key Modal -->
+    <dialog id="api-key-modal" class="glass-modal">
+        <form id="api-key-form">
+            <h2>Access Required</h2>
+            <p>Please enter your NASA API Key to explore the cosmos.</p>
+            <input type="text" id="api-key-input" placeholder="DEMO_KEY or Your Key" required>
+            <div class="modal-actions">
+                <button type="submit" class="cta-btn primary">Launch</button>
+                <a href="https://api.nasa.gov/" target="_blank" class="text-link">Get a Key</a>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

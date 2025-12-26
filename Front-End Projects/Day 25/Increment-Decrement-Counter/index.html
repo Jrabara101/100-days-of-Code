@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Counter Component</title>
+    <style>
+        /* --- CSS Variables & Theme --- */
+        :root {
+            --font-main: system-ui, -apple-system, sans-serif;
+            --c-bg: #ffffff;
+            --c-fg: #1f2937;
+            --c-border: #e5e7eb;
+            --c-primary: #4f46e5;
+            --c-primary-fg: #ffffff;
+            --c-danger: #ef4444;
+            --c-muted: #6b7280;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.3);
+            --h-control: 44px;
+            /* Min touch target */
+        }
+
+        [data-theme="dark"] {
+            --c-bg: #111827;
+            --c-fg: #f9fafb;
+            --c-border: #374151;
+            --c-muted: #9ca3af;
+            --c-primary: #6366f1;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--c-bg);
+            color: var(--c-fg);
+            margin: 0;
+            padding: 2rem;
+            transition: background 0.3s, color 0.3s;
+            line-height: 1.5;
+        }
+
+        /* --- Layout --- */
+        header {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        section {
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            background: rgba(125, 125, 125, 0.02);
+        }
+
+        section h3 {
+            margin: 0 0 1rem;
+            font-size: 1rem;
+            color: var(--c-muted);
+        }
+
+        /* --- Counter Component Styles --- */
+        .counter {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-md);
+            background: var(--c-bg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .counter:focus-within {
+            border-color: var(--c-primary);
+            box-shadow: var(--focus-ring);
+        }
+
+        .counter--error {
+            animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+            border-color: var(--c-danger);
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+
+        .counter__btn {
+            appearance: none;
+            background: transparent;
+            border: none;
+            width: var(--h-control);
+            height: var(--h-control);
+            display: grid;
+            place-items: center;
+            font-size: 1.25rem;
+            color: var(--c-fg);
+            cursor: pointer;
+            transition: background 0.1s;
+            user-select: none;
+            flex-shrink: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .counter__btn:hover:not(:disabled) {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .counter__btn:active:not(:disabled) {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(0.95);
+        }
+
+        .counter__btn:disabled {
+            color: var(--c-border);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .counter__input {
+            width: 3ch;
+            /* dynamic width controlled by JS usually, but base here */
+            min-width: 60px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            /* Use monospace for numbers preferably */
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--c-fg);
+            padding: 0;
+            margin: 0;
+            outline: none;
+            /* Hide spin buttons */
+            -moz-appearance: textfield;
+        }
+
+        .counter__input::-webkit-outer-spin-button,
+        .counter__input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .counter__label {
+            padding-right: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--c-muted);
+            user-select: none;
+        }
+
+        /* Helper Text / Error Message below */
+        .counter-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+
+        .counter-msg {
+            font-size: 0.75rem;
+            min-height: 1.1em;
+        }
+
+        .counter-msg.error {
+            color: var(--c-danger);
+        }
+
+        .counter-msg.info {
+            color: var(--c-muted);
+        }
+
+        /* --- Variations --- */
+        /* Compact */
+        .counter--compact .counter__btn {
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+        }
+
+        .counter--compact .counter__input {
+            min-width: 40px;
+            font-size: 0.875rem;
+        }
+
+        /* Loading */
+        .counter--loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .counter--loading .counter__input {
+            color: transparent;
+        }
+
+        .spinner {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px;
+            border: 2px solid var(--c-primary);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--c-fg);
+            color: var(--c-bg);
+            padding: 0.75rem 1.5rem;
+            border-radius: 99px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        .toast button {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: inherit;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        /* Floating Debug Panel */
+        #debug {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 300px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #0f0;
+            font-family: monospace;
+            padding: 1rem;
+            font-size: 0.75rem;
+            border-radius: var(--radius-md);
+            overflow-y: auto;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Counters</h1>
+        <button id="theme-toggle" style="padding: 0.5rem 1rem;">Toggle Theme</button>
+    </header>
+
+    <div class="grid">
+        <!-- Variation 1: Default -->
+        <section>
+            <h3>Default (Min 0, Max 10)</h3>
+            <div id="c-default"></div>
+        </section>
+
+        <!-- Variation 2: Compact & Steps -->
+        <section>
+            <h3>Compact (Step 0.5)</h3>
+            <div id="c-compact"></div>
+        </section>
+
+        <!-- Variation 3: Inline Form -->
+        <section>
+            <h3>Inline / Wrap Enabled</h3>
+            <div id="c-inline" style="display: flex; gap: 1rem; align-items: center;">
+                <label>Qty:</label>
+            </div>
+        </section>
+
+        <!-- Variation 4: With Unit Label -->
+        <section>
+            <h3>With Unit (kg)</h3>
+            <div id="c-unit"></div>
+        </section>
+
+        <!-- Variation 5: Clamp Mode + Helper -->
+        <section>
+            <h3>Helper Text (Clamp)</h3>
+            <div id="c-helper"></div>
+        </section>
+
+        <!-- Variation 6: Loading State -->
+        <section>
+            <h3>Loading / Disabled</h3>
+            <div id="c-loading"></div>
+            <div style="margin-top:1rem;">
+                <button onclick="toggleLoading()">Toggle State</button>
+            </div>
+        </section>
+    </div>
+
+
+    <div
+        style="max-width: 1000px; margin: 3rem auto; padding: 2rem; background: var(--c-primary); color: var(--c-primary-fg); border-radius: var(--radius-lg);">
+        <h2 style="margin-top:0;">Cart Subtotal Demo</h2>
+        <div style="display:flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <p>Monitor "Default" counter above.</p>
+                <p style="opacity: 0.9;">Price per item: <strong>$25.00</strong></p>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.875rem; opacity: 0.8;">Total</div>
+                <div style="font-size: 2.5rem; font-weight: bold;" id="cart-total">$0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">
+        <span id="toast-msg">Message</span>
+        <button id="toast-undo">Undo</button>
+    </div>
+
+    <!-- Debug Log -->
+    <div id="debug"></div>
+
+    <script>
+        /**
+         * Advanced Counter Component
+         * Vanilla JS, No Dependencies
+         */
+        class Counter {
+            constructor(root, options = {}) {
+                this.root = typeof root === 'string' ? document.querySelector(root) : root;
+
+                // Config
+                this.min = options.min ?? 0;
+                this.max = options.max ?? 100;
+                this.step = options.step ?? 1;
+                this.precision = options.precision ?? (Number.isInteger(this.step) ? 0 : 2);
+                this.initial = options.initial ?? this.min;
+                this.label = options.label || '';
+                this.unit = options.unit || '';
+                this.mode = options.mode || 'clamp'; // 'clamp' or 'wrap'
+                this.storeKey = options.storeKey || null;
+                this.compact = options.compact || false;
+                this.disabled = options.disabled || false;
+                this.loading = options.loading || false;
+                this.helperId = `active-descendant-${Math.random().toString(36).substr(2, 9)}`;
+
+                // State
+                this.value = this.#load() ?? this.initial;
+                this.prevValue = this.value;
+                this.timer = null;
+                this.intervalMs = 200;
+                this.isPressed = false;
+
+                // Bindings
+                this.startStr = this.startStr.bind(this);
+                this.endStr = this.endStr.bind(this);
+                // this.tick removed as it was undefined
+
+                this.#init();
+            }
+
+            #init() {
+                // Wrapper
+                const wrapper = document.createElement('div');
+                wrapper.className = 'counter-wrapper';
+
+                // Main Component
+                this.el = document.createElement('div');
+                this.el.className = `counter ${this.compact ? 'counter--compact' : ''} ${this.loading ? 'counter--loading' : ''}`;
+                if (this.disabled) this.el.classList.add('disabled');
+
+                // Buttons & Input
+                this.el.innerHTML = `
+                    <button class="counter__btn" data-action="dec" aria-label="Decrease value" tabindex="-1">−</button>
+                    ${this.loading ? '<div class="spinner"></div>' : ''}
+                    <input 
+                        type="text" 
+                        class="counter__input" 
+                        inputmode="decimal" 
+                        role="spinbutton"
+                        aria-valuemin="${this.min}"
+                        aria-valuemax="${this.max}"
+                        aria-valuenow="${this.value}"
+                        id="${this.helperId}-input"
+                    >
+                    ${this.unit ? `<span class="counter__label">${this.unit}</span>` : ''}
+                    <button class="counter__btn" data-action="inc" aria-label="Increase value" tabindex="-1">+</button>
+                `;
+
+                this.inp = this.el.querySelector('input');
+                this.btnDec = this.el.querySelector('[data-action="dec"]');
+                this.btnInc = this.el.querySelector('[data-action="inc"]');
+
+                // Helper Text Area (optional rendering)
+                this.msgEl = document.createElement('div');
+                this.msgEl.className = 'counter-msg';
+                this.msgEl.setAttribute('aria-live', 'polite');
+
+                wrapper.appendChild(this.el);
+                wrapper.appendChild(this.msgEl);
+                this.root.appendChild(wrapper);
+
+                this.#bindEvents();
+                this.#updateUI();
+            }
+
+            #bindEvents() {
+                // Button Interactions (Mouse/Touch with Acceleration)
+                [this.btnDec, this.btnInc].forEach(btn => {
+                    // Prevent context menu on long press
+                    btn.addEventListener('contextmenu', e => e.preventDefault());
+
+                    btn.addEventListener('pointerdown', (e) => {
+                        if (this.disabled || this.loading) return;
+                        this.activeBtn = btn;
+                        this.el.setPointerCapture(e.pointerId);
+                        this.startStr(btn.dataset.action === 'inc' ? 1 : -1);
+                    });
+
+                    btn.addEventListener('pointerup', this.endStr);
+                    btn.addEventListener('pointerleave', this.endStr);
+                });
+
+                // Input Handling
+                this.inp.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowUp') { e.preventDefault(); this.setValue(this.value + (e.shiftKey ? 10 * this.step : this.step)); }
+                    if (e.key === 'ArrowDown') { e.preventDefault(); this.setValue(this.value - (e.shiftKey ? 10 * this.step : this.step)); }
+                    if (e.key === 'Home') { e.preventDefault(); this.setValue(this.min); }
+                    if (e.key === 'End') { e.preventDefault(); this.setValue(this.max); }
+                    if (e.key === 'Enter') { this.inp.blur(); }
+                });
+
+                this.inp.addEventListener('change', () => {
+                    let val = parseFloat(this.inp.value);
+                    if (isNaN(val)) val = this.prevValue;
+                    this.setValue(val);
+                });
+
+                this.inp.addEventListener('focus', () => this.inp.select());
+            }
+
+            // Logic: Acceleration
+            startStr(dir) {
+                if (this.isPressed) return;
+                this.isPressed = true;
+                this.intervalMs = 400; // Start slow
+
+                // Immediate action
+                this.modify(dir);
+
+                const loop = () => {
+                    if (!this.isPressed) return;
+                    this.modify(dir);
+                    this.intervalMs = Math.max(50, this.intervalMs * 0.85); // Accelerate
+                    this.timer = setTimeout(loop, this.intervalMs);
+                };
+                this.timer = setTimeout(loop, 500); // Wait before repeating
+            }
+
+            endStr() {
+                this.isPressed = false;
+                clearTimeout(this.timer);
+                this.activeBtn = null;
+            }
+
+            // Core Logic
+            modify(multiplier) {
+                const delta = this.step * multiplier;
+                const next = parseFloat((this.value + delta).toFixed(this.precision));
+                this.setValue(next);
+            }
+
+            setValue(val, forceEvent = false) {
+                if (this.disabled || this.loading) return;
+
+                this.prevValue = this.value;
+                let next = val;
+                let hitConstraint = false;
+
+                // Bounds Logic
+                if (next < this.min) {
+                    if (this.mode === 'wrap') next = this.max;
+                    else { next = this.min; hitConstraint = true; }
+                }
+                if (next > this.max) {
+                    if (this.mode === 'wrap') next = this.min;
+                    else { next = this.max; hitConstraint = true; }
+                }
+
+                // Precision Clean
+                next = parseFloat(next.toFixed(this.precision));
+
+                // Shake if stuck
+                if (hitConstraint && next === this.prevValue) {
+                    this.#shake();
+                    this.#announce(`Limit reached: ${next}`);
+                    return;
+                }
+
+                // Update State
+                this.value = next;
+                this.#save();
+                this.#updateUI();
+
+                // Events
+                this.#emit('counter:change', { value: this.value, previous: this.prevValue });
+                if (hitConstraint) this.#emit('counter:error', { type: 'limit', message: 'Min/Max reached' });
+            }
+
+            // UI
+            #updateUI() {
+                this.inp.value = this.value.toFixed(this.precision);
+                this.inp.setAttribute('aria-valuenow', this.value);
+
+                // Button States (only in clamp mode)
+                if (this.mode === 'clamp') {
+                    this.btnDec.disabled = this.value <= this.min;
+                    this.btnInc.disabled = this.value >= this.max;
+                }
+
+                // Width adjustment for input
+                const chars = this.inp.value.length;
+                this.inp.style.width = `${Math.max(2, chars)}ch`;
+            }
+
+            #shake() {
+                this.el.classList.remove('counter--error');
+                void this.el.offsetWidth; // force reflow
+                this.el.classList.add('counter--error');
+            }
+
+            #announce(msg) {
+                this.msgEl.textContent = msg;
+                setTimeout(() => this.msgEl.textContent = '', 3000);
+            }
+
+            setLoading(isLoading) {
+                this.loading = isLoading;
+                this.el.classList.toggle('counter--loading', isLoading);
+                if (isLoading) {
+                    this.inp.disabled = true;
+                    if (!this.el.querySelector('.spinner')) {
+                        const sp = document.createElement('div');
+                        sp.className = 'spinner';
+                        this.el.insertBefore(sp, this.inp);
+                    }
+                } else {
+                    this.inp.disabled = false;
+                    const sp = this.el.querySelector('.spinner');
+                    if (sp) sp.remove();
+                }
+            }
+
+            // Storage
+            #save() {
+                if (this.storeKey) localStorage.setItem(this.storeKey, this.value);
+            }
+
+            #load() {
+                if (!this.storeKey) return null;
+                const v = localStorage.getItem(this.storeKey);
+                return v ? parseFloat(v) : null;
+            }
+
+            #emit(name, detail) {
+                this.root.dispatchEvent(new CustomEvent(name, { bubbles: true, detail }));
+                logEvent(name, detail);
+            }
+        }
+
+        // --- Demo Logic --- //
+
+        // 1. Default
+        new Counter('#c-default', { min: 0, max: 10, key: 'demo-default', storeKey: 'qty:default' });
+
+        // 2. Compact
+        new Counter('#c-compact', {
+            compact: true,
+            step: 0.5,
+            precision: 1,
+            min: 0, max: 20
+        });
+
+        // 3. Inline
+        new Counter('#c-inline', {
+            mode: 'wrap',
+            min: 1, max: 5
+        });
+
+        // 4. Unit
+        new Counter('#c-unit', {
+            unit: 'kg',
+            step: 5,
+            max: 50
+        });
+
+        // 5. Helper
+        const cHelper = new Counter('#c-helper', { min: 0, max: 5 });
+        // Custom external validation listener
+        document.querySelector('#c-helper').addEventListener('counter:error', () => {
+            // Show specific error UI if needed, currently built-in announce does job
+        });
+
+        // 6. Loading
+        const cLoading = new Counter('#c-loading', { loading: true, initial: 1 });
+        window.toggleLoading = () => cLoading.setLoading(!cLoading.loading);
+
+
+        // Cart Integration
+        const price = 25.00;
+        const cartEl = document.getElementById('cart-total');
+        // Listen to bubble events from #c-default
+        document.querySelector('#c-default').addEventListener('counter:change', (e) => {
+            const total = e.detail.value * price;
+            cartEl.textContent = '$' + total.toFixed(2);
+
+            // Animate
+            cartEl.animate([
+                { transform: 'scale(1)', color: 'var(--c-fg)' },
+                { transform: 'scale(1.1)', color: 'var(--c-primary)' },
+                { transform: 'scale(1)', color: 'var(--c-fg)' }
+            ], { duration: 200 });
+        });
+
+        // Theme Toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        themeBtn.addEventListener('click', () => {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        });
+        if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
+
+        // Toast logic
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        const toastUndo = document.getElementById('toast-undo');
+        let lastUndoAction = null;
+
+        function showToast(msg, onUndo) {
+            toastMsg.textContent = msg;
+            lastUndoAction = onUndo;
+            toast.classList.add('visible');
+            setTimeout(() => toast.classList.remove('visible'), 4000);
+        }
+
+        toastUndo.addEventListener('click', () => {
+            if (lastUndoAction) lastUndoAction();
+            toast.classList.remove('visible');
+        });
+
+        document.addEventListener('counter:error', (e) => {
+            if (e.detail.type === 'limit') {
+                showToast(`Limit reached!`, null);
+            }
+        });
+
+        // Debug
+        const debugEl = document.getElementById('debug');
+        function logEvent(name, detail) {
+            const line = document.createElement('div');
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${name} : ${JSON.stringify(detail)}`;
+            debugEl.prepend(line);
+            if (debugEl.children.length > 20) debugEl.lastChild.remove();
+        }
+
+    </script>
+</body>
+
+</html>

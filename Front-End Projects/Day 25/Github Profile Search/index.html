@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Profile Search</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <i class="fab fa-github"></i> DevFinder
+        </div>
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle Dark Mode">
+            <i class="fas fa-moon"></i> <span>Dark</span>
+        </button>
+    </header>
+
+    <div class="container">
+        <form id="form">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search" placeholder="Search GitHub username..." autocomplete="off" />
+                <button type="submit" class="search-btn">Search</button>
+            </div>
+        </form>
+
+        <main id="main">
+            <!-- Profile Card will be injected here -->
+            <div class="empty-state">
+                <img src="https://cdni.iconscout.com/illustration/premium/thumb/github-5638549-4706333.png"
+                    alt="Search Illustration" class="illustration" style="max-width: 200px; opacity: 0.8;">
+                <p>Enter a username to search for a GitHub profile.</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
