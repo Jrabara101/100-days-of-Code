@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpen Insights | Premium Article Feed</title>
+    <style>
+        /* Modern CSS Reset & Variable Definitions */
+        :root {
+            --primary-bg: #0f172a;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+
+            /* Category Accents */
+            --accent-tech: #38bdf8;
+            --accent-nature: #4ade80;
+            --accent-lifestyle: #fbbf24;
+
+            /* Default Accent (will be overridden by category class) */
+            --current-accent: var(--accent-tech);
+
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--primary-bg);
+            background-image:
+                linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)),
+                url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        /* --- App Layout --- */
+        .app-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Filter Bar --- */
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.6rem 1.4rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            transition: var(--transition-smooth);
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--text-main);
+            color: var(--primary-bg);
+            border-color: var(--text-main);
+        }
+
+        /* --- Article Grid & Container --- */
+        .article-feed {
+            display: grid;
+            grid-template-columns: 1fr;
+            /* Single column by default */
+            gap: 2rem;
+            /* CRITICAL: Enable Container Queries */
+            container-type: inline-size;
+            container-name: feed;
+        }
+
+        /* --- Article Card Component --- */
+        .card-wrapper {
+            container-type: inline-size;
+            width: 100%;
+        }
+
+        .article-card {
+            display: flex;
+            flex-direction: column;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            transition: var(--transition-smooth);
+            position: relative;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Theme Variants */
+        .theme-tech {
+            --current-accent: var(--accent-tech);
+        }
+
+        .theme-nature {
+            --current-accent: var(--accent-nature);
+        }
+
+        .theme-lifestyle {
+            --current-accent: var(--accent-lifestyle);
+        }
+
+        /* Micro-Interactions: The "Lift" Effect */
+        .article-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: var(--current-accent);
+        }
+
+        /* Image Aspect Ratio Control */
+        .image-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            position: relative;
+            background: #1e293b;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .article-card:hover .image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .content-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            flex-grow: 1;
+        }
+
+        .category-tag {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--current-accent);
+            margin-bottom: 0.2rem;
+        }
+
+        .title {
+            /* Fluid Typography based on container size */
+            font-size: clamp(1.2rem, 4cqw, 1.8rem);
+            font-weight: 700;
+            line-height: 1.3;
+            color: #fff;
+            transition: color 0.3s ease;
+        }
+
+        .article-card:hover .title {
+            color: var(--current-accent);
+        }
+
+        .excerpt {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Desktop-only elements (hidden on mobile via container query logic) */
+        .desktop-meta {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .author-bio {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .author-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--current-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: var(--primary-bg);
+        }
+
+        .read-more {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--current-accent);
+        }
+
+        .read-more svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .article-card:hover .read-more svg {
+            transform: translateX(6px);
+        }
+
+        /* --- CONTAINER QUERIES: Adapt Layout --- */
+        @container (min-width: 700px) {
+            .article-card {
+                flex-direction: row;
+                min-height: 280px;
+                align-items: stretch;
+            }
+
+            .image-wrapper {
+                flex: 0 0 42%;
+                aspect-ratio: auto;
+                /* Let flex control height */
+            }
+
+            .content-body {
+                padding: 2rem;
+                justify-content: center;
+            }
+
+            .desktop-meta {
+                display: flex;
+            }
+
+            .excerpt {
+                -webkit-line-clamp: 2;
+            }
+        }
+
+        /* --- Skeleton Loading State --- */
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.05),
+                    transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- Utilities --- */
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .article-feed {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>Alpen Insights</h1>
+            <p style="color: var(--text-muted)">Curated stories from the digital and physical peaks</p>
+        </header>
+
+        <div class="filter-bar" id="filter-bar">
+            <button class="filter-btn active" data-filter="all">All Stories</button>
+            <button class="filter-btn" data-filter="tech">Technology</button>
+            <button class="filter-btn" data-filter="nature">Nature</button>
+            <button class="filter-btn" data-filter="lifestyle">Lifestyle</button>
+        </div>
+
+        <main class="article-feed" id="article-grid">
+            <!-- Skeleton items are shown initially -->
+        </main>
+    </div>
+
+    <script>
+        const MOCK_DATA = [
+            {
+                id: 1,
+                category: 'tech',
+                theme: 'theme-tech',
+                title: 'The Future of AI in Remote Mountain Mapping',
+                excerpt: 'How neural networks are helping climbers navigate the world’s most dangerous terrains with centimeter precision and real-time feedback.',
+                author: 'Alex Rivet',
+                readingTime: '6 min read',
+                image: 'https://images.unsplash.com/photo-1484417894907-623942c8ee29?auto=format&fit=crop&w=800&q=80'
+            },
+            {
+                id: 2,
+                category: 'nature',
+                theme: 'theme-nature',
+                title: 'Echoes of the Glaciers: A 2026 Climate Report',
+                excerpt: 'An deep dive into the changing landscapes of the Swiss Alps and the resilient flora making a surprising comeback in high altitudes.',
+                author: 'Sarah Jenkins',
+                readingTime: '12 min read',
+                image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80'
+            },
+            {
+                id: 3,
+                category: 'lifestyle',
+                theme: 'theme-lifestyle',
+                title: 'The Art of Digital Detoxing at 3,000 Meters',
+                excerpt: 'Why high-altitude cabins are becoming the new Silicon Valley retreat for founders looking to reconnect with original thought.',
+                author: 'Marco Polo',
+                readingTime: '8 min read',
+                image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80'
+            },
+            {
+                id: 4,
+                category: 'tech',
+                theme: 'theme-tech',
+                title: 'Quantum Computing: Reaching the Final Summit',
+                excerpt: 'Researchers suggest that the next leap in quantum stability might actually happen in the stable, cold environments of mountain labs.',
+                author: 'Dr. Elena Vance',
+                readingTime: '15 min read',
+                image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80'
+            },
+            {
+                id: 5,
+                category: 'nature',
+                theme: 'theme-nature',
+                title: 'Flora of the Clouds',
+                excerpt: 'A photographic journey through the rarest orchids found only in the misty peaks of the Andes.',
+                author: 'Julian Thorne',
+                readingTime: '4 min read',
+                image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80'
+            }
+        ];
+
+        const grid = document.getElementById('article-grid');
+        const filterBar = document.getElementById('filter-bar');
+
+        // Initial State: Show Skeletons
+        function renderSkeletons() {
+            grid.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const skeleton = `
+                    <div class="card-wrapper">
+                        <div class="article-card skeleton" style="pointer-events: none;">
+                            <div class="image-wrapper skeleton"></div>
+                            <div class="content-body">
+                                <div class="skeleton-text skeleton" style="width: 30%"></div>
+                                <div class="skeleton-text skeleton" style="width: 80%; height: 2rem;"></div>
+                                <div class="skeleton-text skeleton" style="width: 100%"></div>
+                                <div class="skeleton-text skeleton" style="width: 90%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += skeleton;
+            }
+        }
+
+        // Render Real Articles
+        function renderArticles(filter = 'all') {
+            const filtered = filter === 'all'
+                ? MOCK_DATA
+                : MOCK_DATA.filter(item => item.category === filter);
+
+            grid.innerHTML = '';
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">No articles found for this category.</p>`;
+                return;
+            }
+
+            filtered.forEach(article => {
+                const initials = article.author.split(' ').map(n => n[0]).join('');
+                const card = `
+                    <div class="card-wrapper">
+                        <a href="#" class="article-card ${article.theme}">
+                            <div class="image-wrapper">
+                                <img src="${article.image}" alt="${article.title}" loading="lazy">
+                            </div>
+                            <div class="content-body">
+                                <span class="category-tag">${article.category}</span>
+                                <h2 class="title">${article.title}</h2>
+                                <p class="excerpt">${article.excerpt}</p>
+                                
+                                <div class="desktop-meta">
+                                    <div class="author-bio">
+                                        <div class="author-avatar">${initials}</div>
+                                        <div style="font-size: 0.85rem">
+                                            <div style="color: #fff; font-weight: 600">${article.author}</div>
+                                            <div style="color: var(--text-muted)">Chief Editor</div>
+                                        </div>
+                                    </div>
+                                    <div style="margin-left: auto; font-size: 0.8rem; color: var(--text-muted)">
+                                        ${article.readingTime}
+                                    </div>
+                                </div>
+
+                                <div class="read-more">
+                                    Continue Reading 
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', card);
+            });
+        }
+
+        // Handle Filter Clicks
+        filterBar.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('filter-btn')) return;
+
+            // Update UI
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            // Add simple transition out effect
+            grid.style.opacity = '0';
+            grid.style.transform = 'translateY(10px)';
+
+            setTimeout(() => {
+                renderArticles(e.target.dataset.filter);
+                grid.style.opacity = '1';
+                grid.style.transform = 'translateY(0)';
+            }, 300);
+        });
+
+        // App Init
+        window.onload = () => {
+            renderSkeletons();
+
+            // Simulate API fetch delay
+            setTimeout(() => {
+                grid.style.transition = 'var(--transition-smooth)';
+                renderArticles();
+            }, 1800);
+        };
+    </script>
+</body>
+
+</html>

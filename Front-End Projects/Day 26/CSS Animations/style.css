@@ -1,0 +1,768 @@
+:root {
+    /* Colors */
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --bg-card-glass: rgba(30, 41, 59, 0.7);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-primary: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.5);
+    --accent-success: #10b981;
+    --accent-danger: #ef4444;
+
+    /* Neumorphic / Glassmorphic Depth */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    --inner-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+
+    /* Animation */
+    --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --ease-squash: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+    --ease-out-circ: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.dashboard {
+    max-width: 1200px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+header {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-weight: 700;
+    font-size: 3rem;
+    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+p.subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 2rem;
+    /* Reduced padding from 5rem to something reasonable */
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    /* Subtle top highlight */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.span-2 {
+    grid-column: span 2;
+
+    @media(max-width: 800px) {
+        grid-column: 1;
+    }
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+/* =========================================
+   1. State-Sync Custom Loaders
+   ========================================= */
+.loader-grid {
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.loader-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Pulse Loader */
+.pulse-loader {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    position: relative;
+    box-shadow: 0 0 0 0 var(--accent-glow);
+    animation: pulse-ring 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+.pulse-loader::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    /* Static inner circle */
+    z-index: 2;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.8);
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 20px rgba(99, 102, 241, 0);
+    }
+
+    100% {
+        transform: scale(0.8);
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+    }
+}
+
+/* Progressive Ring (The Challenge) */
+.progress-ring {
+    /* UI Variables */
+    --size: 120px;
+    --thickness: 12px;
+    /* --percent is set inline by JS/HTML */
+
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    position: relative;
+    display: grid;
+    place-content: center;
+
+    /* Conic Gradient Logic */
+    background: conic-gradient(var(--accent-primary) calc(var(--percent) * 1%),
+            rgba(255, 255, 255, 0.1) 0);
+
+    /* Mask for the center hole */
+    mask: radial-gradient(farthest-side,
+            transparent calc(100% - var(--thickness)),
+            #000 0);
+    -webkit-mask: radial-gradient(farthest-side,
+            transparent calc(100% - var(--thickness)),
+            #000 0);
+
+    /* Smooth transition for demo purposes when slider moves */
+    transition: background 0.1s linear;
+}
+
+.progress-ring::after {
+    /* Reconstruct text in center since mask hides inner content of the div itself? 
+       Actually mask hides the center PIXELS. We can't put text inside .progress-ring 
+       because it will be masked out unless we position it or use a pseudo-element 
+       that isn't masked, or put text in a sibling.
+       
+       Better approach: The text should be a sibling or child. 
+       Wait, mask applies to the element's content too. 
+       BUT standard technique is using ::before for the ring and text in content, 
+       or simpler: separate element. 
+       
+       However, the User Starter Code used ::after with content: attr(data-value).
+       If I use `mask` on the parent, the ::after is ALSO masked? 
+       Yes. 
+       
+       Let's fix this by putting the ring in a pseudo-element or using a specific mask composite.
+       Actually, `radial-gradient(transparent x, black 0)` makes the center transparent. 
+       If I put text there, it disappears.
+       
+       Solution: Use `border-radius` and `background-clip` padding-box? No, conic gradient needs background.
+       Solution: The element itself is the ring. The text needs to be OUTSIDE or in a separate child that is absolutely positioned 
+       and Z-indexed or simply the parent is a wrapper.
+       
+       Let's stick to the starter code structure but fix the masking issue if it exists.
+       Actually, standard "donut chart" css often uses a mask. If you put text in it, it vanishes.
+       
+       I will use a `::before` for the gradient ring, and `::after` for the text? 
+       No, if mask is on parent, children are masked.
+       
+       Revised Strategy: 
+       .progress-ring is just a container. 
+       .progress-ring::before is the gradient ring with mask.
+       .progress-ring::after is the text.
+    */
+    content: attr(data-value);
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+
+    /* Counteract the mask? No, cannot unmask a child. 
+       We must move the mask to a pseudo-element. 
+    */
+}
+
+/* Fix for Ring Masking */
+.progress-ring {
+    background: none;
+    /* Remove background from parent */
+    mask: none;
+    /* Remove mask from parent */
+    isolate: isolate;
+}
+
+.progress-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent-primary) calc(var(--percent) * 1%),
+            rgba(255, 255, 255, 0.1) 0);
+    -webkit-mask: radial-gradient(farthest-side,
+            transparent calc(100% - var(--thickness)),
+            #000 0);
+    mask: radial-gradient(farthest-side,
+            transparent calc(100% - var(--thickness)),
+            #000 0);
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* =========================================
+   2. Physical Toggle Switch (Container Queries)
+   ========================================= */
+.resizable-container {
+    /* Define the container for queries */
+    container-type: inline-size;
+    container-name: switch-container;
+
+    width: 100%;
+    max-width: 400px;
+    /* Start large */
+    min-width: 120px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px dashed var(--text-secondary);
+    padding: 2rem;
+    resize: horizontal;
+    /* User can resize */
+    overflow: auto;
+    /* Required for resize */
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    position: relative;
+    transition: width 0.2s;
+}
+
+.resizable-container::after {
+    content: 'Drag corner ↘';
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+/* The Switch Component */
+.switch {
+    /* Variables for sizing */
+    --switch-w: 200px;
+    --switch-h: 60px;
+    --knob-size: 52px;
+    --knob-offset: 4px;
+
+    position: relative;
+    display: inline-block;
+    width: var(--switch-w);
+    height: var(--switch-h);
+    cursor: pointer;
+    user-select: none;
+}
+
+.switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-body);
+    border-radius: 100px;
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.5),
+        /* Inner depth */
+        0 1px 0 rgba(255, 255, 255, 0.1);
+    /* Bottom highlight */
+    transition: background-color 0.3s;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Text Labels (Visible only when large) */
+.switch-label-on,
+.switch-label-off {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    transition: color 0.3s;
+    z-index: 1;
+}
+
+.switch-label-on {
+    opacity: 0.5;
+}
+
+.switch-label-off {
+    color: var(--text-primary);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* The Knob */
+.switch-knob {
+    position: absolute;
+    top: var(--knob-offset);
+    left: var(--knob-offset);
+    width: var(--knob-size);
+    height: var(--knob-size);
+    background: linear-gradient(to bottom, #f8fafc, #cbd5e1);
+    border-radius: 50%;
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.4),
+        0 5px 10px rgba(0, 0, 0, 0.2),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.4s var(--ease-spring), width 0.2s ease, left 0.4s var(--ease-spring);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+}
+
+/* Icons inside knob (Hidden by default or shown based on container query? Request says: Icons when tight nav, Text when large. 
+   Usually icons are on the track, or inside the knob. 
+   "revert to simple icons (Sun/Moon) when placed in a tight navigation bar"
+   Let's put icons in the knob for the small state, and text on the track for large state.
+*/
+.knob-icon {
+    font-size: 1.5rem;
+    display: none;
+    /* Hidden by default (large state) */
+    color: #334155;
+}
+
+/* Checked State */
+.switch-input:checked+.switch-fill {
+    background-color: #0f172a;
+    /* Stay dark, maybe slightly lighter or colored? */
+}
+
+.switch-input:checked+.switch-fill .switch-knob {
+    transform: translateX(calc(var(--switch-w) - var(--knob-size) - (var(--knob-offset) * 2)));
+}
+
+.switch-input:checked+.switch-fill .switch-label-on {
+    opacity: 1;
+    color: var(--accent-success);
+    text-shadow: 0 0 15px var(--accent-success);
+}
+
+.switch-input:checked+.switch-fill .switch-label-off {
+    opacity: 0.5;
+    color: var(--text-secondary);
+    text-shadow: none;
+}
+
+/* Interaction: Click and Hold (Squash) */
+.switch:active .switch-knob {
+    width: calc(var(--knob-size) + 15px);
+    /* Stretch/Squash width */
+    /* Adjust border radius to look squashed? */
+    border-radius: 40px;
+}
+
+/* If checking (moving right) and holding, we need to adjust left pos or transform to center the squash. 
+   Simple width expansion works well for "gooey" feel.
+*/
+
+
+/* Container Queries Logic */
+@container switch-container (max-width: 250px) {
+    .switch {
+        --switch-w: 80px;
+        --switch-h: 40px;
+        --knob-size: 32px;
+    }
+
+    .switch-label-on,
+    .switch-label-off {
+        display: none;
+    }
+
+    .knob-icon {
+        display: block;
+    }
+
+    .knob-icon.moon {
+        display: none;
+    }
+
+    .knob-icon.sun {
+        display: block;
+    }
+}
+
+/* Logic to toggle icon based on state in small mode */
+@container switch-container (max-width: 250px) {
+    /* If checked (Dark Mode/Moon), show moon */
+    /* CSS cannot directly detect input:checked from the container query easily for the icon inside content 
+       without the input being a parent of container, but here container is outside.
+       
+       However, we can standard CSS style the icons based on :checked inside the query.
+    */
+}
+
+.switch-input:checked+.switch-fill .switch-knob .sun {
+    display: none;
+}
+
+.switch-input:checked+.switch-fill .switch-knob .moon {
+    display: block;
+}
+
+.switch-input:not(:checked)+.switch-fill .switch-knob .moon {
+    display: none;
+}
+
+/* Refine display logic for icons: Only show if container is small?
+   We need to combine @container and :checked.
+   
+   Actually, inside @container, we can target children.
+*/
+@container switch-container (max-width: 250px) {
+
+    /* This overrides the default display:none */
+    .switch-input:not(:checked)+.switch-fill .switch-knob .sun {
+        display: block;
+    }
+
+    .switch-input:checked+.switch-fill .switch-knob .moon {
+        display: block;
+    }
+}
+
+
+/* =========================================
+   3. Glassmorphic Modal
+   ========================================= */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+    transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.btn.primary {
+    background: var(--accent-primary);
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px var(--accent-glow);
+}
+
+.btn.secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--text-secondary);
+}
+
+.btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+dialog {
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: auto;
+    max-width: 500px;
+    width: 90%;
+    color: var(--text-primary);
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Open State Animations */
+dialog[open]::backdrop {
+    opacity: 1;
+}
+
+dialog[open] .modal-content {
+    animation: modal-enter 0.5s var(--ease-out-circ) forwards;
+    animation-delay: 0.1s;
+    /* 100ms delay after backdrop starts */
+    opacity: 0;
+    /* Start invisible for animation */
+}
+
+/* Exit Animations (Requires JS to handle closing class before removing [open] strictly speaking, 
+   but for pure CSS challenge focus, we do Entrance. 
+   Note: Dialog closing animation requires JS waiting for animationend.
+*/
+
+@keyframes modal-enter {
+    0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-content {
+    background: rgba(30, 41, 59, 0.6);
+    /* Glass */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+
+/* =========================================
+   4. Advanced Inputs
+   ========================================= */
+.input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    width: 100%;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Floating Label Logic */
+.floating-label-group label {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+    transition: transform 0.2s ease, font-size 0.2s ease, color 0.2s;
+    transform-origin: left top;
+}
+
+.floating-label-group input:focus+label,
+.floating-label-group input:not(:placeholder-shown)+label {
+    /* Move to top border */
+    transform: translateY(-2.8rem) scale(0.85);
+    color: var(--accent-primary);
+}
+
+/* Masked Input Hint */
+.masked-input-wrapper {
+    position: relative;
+    display: grid;
+}
+
+.masked-input-wrapper input {
+    background: transparent;
+    /* Transparent so we can maybe see hint behind? No, hint is on top or separate. */
+    z-index: 2;
+    position: relative;
+}
+
+.mask-hint {
+    position: absolute;
+    z-index: 1;
+    left: 17px;
+    /* Padding + border adjustment */
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.15);
+    pointer-events: none;
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: normal;
+    /* Match input */
+}
+
+/* Logic: Hide hint when user types */
+.masked-input-wrapper input:not(:placeholder-shown)~.mask-hint {
+    display: none;
+}
+
+/* Pattern Shake Validation */
+.validation-shake:invalid:not(:placeholder-shown) {
+    border-color: var(--accent-danger);
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-4px);
+    }
+
+    40% {
+        transform: translateX(4px);
+    }
+
+    60% {
+        transform: translateX(-4px);
+    }
+
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+/* Make body background nicer for glassmorphism context */
+.dashboard::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.dashboard::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    right: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+}

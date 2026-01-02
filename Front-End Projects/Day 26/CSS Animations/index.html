@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced CSS Animations & UI Components</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="dashboard">
+        <header>
+            <h1>Advanced UI Kit</h1>
+            <p>Premium CSS Animations & Interactions</p>
+        </header>
+
+        <!-- Section 1: State-Sync Custom Loaders -->
+        <section class="card" id="loaders">
+            <h2>State-Sync Loaders</h2>
+            <div class="loader-grid">
+                <!-- Pulse Loader -->
+                <div class="loader-item">
+                    <div class="pulse-loader" aria-label="Connecting..."></div>
+                    <span>Connecting</span>
+                </div>
+
+                <!-- Progressive Ring -->
+                <div class="loader-item">
+                    <div class="progress-ring" style="--percent: 45;" data-value="45%"></div>
+                    <div class="controls">
+                        <label for="progress-range">Progress: <span id="progress-value">45%</span></label>
+                        <input type="range" id="progress-range" min="0" max="100" value="45">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Physical Toggle Switch -->
+        <section class="card" id="toggles">
+            <h2>Physical Toggle Switch & Container Queries</h2>
+            <p class="subtitle">Resize container (drag handle) to see layout change</p>
+
+            <div class="resizable-container">
+                <div class="toggle-wrapper">
+                    <label class="switch">
+                        <input type="checkbox" class="switch-input">
+                        <div class="switch-fill">
+                            <span class="switch-label-on">ON</span>
+                            <span class="switch-label-off">OFF</span>
+                            <div class="switch-knob">
+                                <span class="knob-icon sun">☀</span>
+                                <span class="knob-icon moon">☾</span>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Glassmorphic Modal -->
+        <section class="card" id="modals">
+            <h2>Glassmorphism Modal</h2>
+            <button id="open-modal-btn" class="btn primary">Open Experience</button>
+
+            <dialog id="glass-modal" class="glass-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Premium Access</h3>
+                        <button class="close-btn" aria-label="Close modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Welcome to the premium experience. This modal utilizes native <code>&lt;dialog&gt;</code>,
+                            backdrop filters for the glass effect, and orchestrated entrance animations.</p>
+                        <div class="modal-actions">
+                            <button class="btn secondary close-modal-action">Cancel</button>
+                            <button class="btn primary">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+        </section>
+
+        <!-- Section 4: Advanced Inputs -->
+        <section class="card span-2" id="inputs">
+            <h2>Advanced Input Interactions</h2>
+            <div class="input-grid">
+
+                <!-- Floating Label -->
+                <div class="input-group floating-label-group">
+                    <input type="text" id="float-input" placeholder=" " required>
+                    <label for="float-input">Username</label>
+                </div>
+
+                <!-- Credit Card Masked -->
+                <div class="input-group">
+                    <div class="masked-input-wrapper">
+                        <input type="text" id="cc-input" placeholder=" " pattern="\d{4} \d{4} \d{4} \d{4}" required>
+                        <label for="cc-input">Card Number</label>
+                        <!-- Floating placeholder hint displayed when input is empty (not focused, logic differs slightly but using peer/placeholder-shown) -->
+                        <div class="mask-hint">0000 0000 0000 0000</div>
+                    </div>
+                </div>
+
+                <!-- Validation Shake -->
+                <div class="input-group">
+                    <input type="email" class="validation-shake" placeholder="Email (Invalid shakes)" required>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
