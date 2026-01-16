@@ -1,0 +1,64 @@
+:root {
+  --bg-dark: #121212;
+  --bg-panel: #1e1e1e;
+  --primary-color: #6366f1;
+  /* Indigo */
+  --accent-color: #8b5cf6;
+  /* Violet */
+  --text-main: #e5e5e5;
+  --text-muted: #a3a3a3;
+  --glass-bg: rgba(30, 30, 30, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Utility overrides for Bootstrap if needed to fit dark theme */
+.modal-content {
+  background-color: var(--bg-panel);
+  color: var(--text-main);
+  border-color: var(--glass-border);
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--glass-border);
+}
+
+.btn-close {
+  filter: invert(1);
+}
