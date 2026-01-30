@@ -1,0 +1,44 @@
+[
+    {
+        "id": 1,
+        "parent_id": null,
+        "author": "Juan",
+        "text": "Napaka-solid ng PHP for CLI projects!",
+        "created_at": "2026-01-30T00:00:00+00:00"
+    },
+    {
+        "id": 2,
+        "parent_id": 1,
+        "author": "Maria",
+        "text": "Agree! Lalo na yung recursive patterns.",
+        "created_at": "2026-01-30T00:01:00+00:00"
+    },
+    {
+        "id": 3,
+        "parent_id": 1,
+        "author": "Jose",
+        "text": "Mas gusto ko pa rin ang Laravel.",
+        "created_at": "2026-01-30T00:02:00+00:00"
+    },
+    {
+        "id": 4,
+        "parent_id": 2,
+        "author": "Pedro",
+        "text": "Hirap pa ako sa recursion, any tips?",
+        "created_at": "2026-01-30T00:03:00+00:00"
+    },
+    {
+        "id": 5,
+        "parent_id": 4,
+        "author": "Maria",
+        "text": "Start with a base case!",
+        "created_at": "2026-01-30T00:04:00+00:00"
+    },
+    {
+        "id": 6,
+        "parent_id": null,
+        "author": "Yes",
+        "text": "Yesss",
+        "created_at": "2026-01-30T00:59:01+00:00"
+    }
+]
