@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hufie - The Modular Workspace Ecosystem</title>
+  <meta
+    name="description"
+    content="Hufie is a modular productivity OS with a living Bento workspace that adapts to your team in real time."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <svg class="squircle-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="squircle-clip" clipPathUnits="objectBoundingBox">
+        <path d="M0.09,0 C0.03,0 0,0.03 0,0.09 V0.91 C0,0.97 0.03,1 0.09,1 H0.91 C0.97,1 1,0.97 1,0.91 V0.09 C1,0.03 0.97,0 0.91,0 Z" />
+      </clipPath>
+    </defs>
+  </svg>
+
+  <div class="page-shell">
+    <header class="site-header">
+      <a href="#" class="brand" aria-label="Hufie Home">
+        <span class="brand-mark" aria-hidden="true">+</span>
+        <span class="brand-word">Hufie</span>
+      </a>
+      <nav class="top-nav" aria-label="Primary">
+        <a href="#manifesto">Manifesto</a>
+        <a href="#ecosystem">The Ecosystem</a>
+        <a href="#legacy">Legacy</a>
+      </nav>
+      <div class="header-actions">
+        <button class="ghost-button" type="button">Sign in</button>
+        <button class="filled-button" type="button">Join the Circle</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-section" id="manifesto">
+        <p class="hero-kicker">A New Paradigm of Productivity</p>
+        <h1>Compose Your Workday Like a System, Not a Checklist.</h1>
+        <p class="hero-copy">
+          Hufie is a modular operating layer for focused teams. Build your workspace in blocks,
+          ship with context, and let every surface adapt to momentum.
+        </p>
+      </section>
+
+      <section class="bento-section" id="ecosystem" aria-labelledby="bento-heading">
+        <p class="section-kicker">Living Bento Workspace</p>
+        <h2 id="bento-heading">The ecosystem assembles itself around your team.</h2>
+
+        <div class="bento-grid" data-bento-grid>
+          <!-- DOM order is intentionally left-to-right/top-to-bottom for logical keyboard navigation. -->
+          <article
+            class="bento-card card-hero"
+            style="--entry-x:-140px; --entry-y:-34px; --entry-r:-5deg; --snap-x:11px; --snap-y:2px; --entry-order:0;"
+          >
+            <p class="card-label">Hero Module</p>
+            <h3 class="card-title">One command center for briefs, builds, and breakthroughs.</h3>
+            <p>
+              Pin missions, stack decisions, and route context to the exact people responsible for delivery.
+            </p>
+            <button type="button" class="card-button">Launch Workspace</button>
+            <div class="hero-glow" aria-hidden="true">
+              <span></span>
+            </div>
+          </article>
+
+          <article
+            class="bento-card card-metric"
+            style="--entry-x:85px; --entry-y:-58px; --entry-r:6deg; --snap-x:-9px; --snap-y:2px; --entry-order:1;"
+          >
+            <p class="card-label">Live Metric</p>
+            <p class="metric-value">
+              <span data-counter data-target="12400">0</span>
+            </p>
+            <p class="metric-caption">Active workspaces right now</p>
+            <button class="link-button" type="button">View live report</button>
+          </article>
+
+          <article
+            class="bento-card card-toggle"
+            data-card-theme="dark"
+            style="--entry-x:110px; --entry-y:-22px; --entry-r:3deg; --snap-x:-8px; --snap-y:1px; --entry-order:2;"
+          >
+            <p class="card-label">Theme Sandbox</p>
+            <h3 class="card-title">Isolated toggle widget</h3>
+            <p>Switch only this card between light and dark to demonstrate modular style isolation.</p>
+            <button
+              type="button"
+              class="theme-toggle"
+              data-theme-toggle
+              role="switch"
+              aria-checked="false"
+              aria-label="Toggle theme for this card"
+            >
+              <span class="toggle-thumb" aria-hidden="true"></span>
+              <span data-theme-label>Dark</span>
+            </button>
+          </article>
+
+          <article
+            class="bento-card card-video"
+            style="--entry-x:128px; --entry-y:70px; --entry-r:4deg; --snap-x:-10px; --snap-y:-3px; --entry-order:4;"
+          >
+            <video
+              class="product-video"
+              muted
+              autoplay
+              loop
+              playsinline
+              preload="metadata"
+              poster="https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80"
+            >
+              <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4" />
+            </video>
+            <div class="video-scrim" aria-hidden="true"></div>
+            <div class="video-meta">
+              <p class="card-label">Product Film</p>
+              <h3 class="card-title">Watch the workspace morph in real time.</h3>
+              <button type="button" class="card-button" data-video-expand aria-expanded="false">
+                Expand Fullscreen
+              </button>
+            </div>
+            <button type="button" class="video-close" data-video-close aria-label="Close fullscreen video">
+              Close
+            </button>
+          </article>
+
+          <article
+            class="bento-card card-chat"
+            style="--entry-x:-96px; --entry-y:66px; --entry-r:-3deg; --snap-x:8px; --snap-y:-2px; --entry-order:3;"
+          >
+            <p class="card-label">Team Chat</p>
+            <h3 class="card-title">Threaded clarity without channel sprawl.</h3>
+            <ul class="chat-list">
+              <li>
+                <span class="chat-user">Mika</span>
+                <span class="chat-text">Prototype shipped to QA. Need final copy.</span>
+              </li>
+              <li>
+                <span class="chat-user">Dion</span>
+                <span class="chat-text">Resolved blockers and attached release notes.</span>
+              </li>
+              <li>
+                <span class="chat-user">You</span>
+                <span class="chat-text">Green light for Friday launch.</span>
+              </li>
+            </ul>
+            <button type="button" class="link-button">Open inbox</button>
+          </article>
+
+          <article
+            class="bento-card card-profile"
+            style="--entry-x:102px; --entry-y:78px; --entry-r:5deg; --snap-x:-7px; --snap-y:-3px; --entry-order:5;"
+          >
+            <p class="card-label">Lead Profile</p>
+            <div class="profile-stack">
+              <div class="avatar" aria-hidden="true">SK</div>
+              <div>
+                <h3 class="card-title">Slava Kornilov</h3>
+                <p>Systems Architect</p>
+              </div>
+            </div>
+            <button type="button" class="card-button">Connect</button>
+          </article>
+
+          <article
+            class="bento-card card-integrations"
+            style="--entry-x:-88px; --entry-y:96px; --entry-r:-4deg; --snap-x:7px; --snap-y:-4px; --entry-order:6;"
+          >
+            <p class="card-label">Integration Rail</p>
+            <h3 class="card-title">Your stack, stitched into one velocity layer.</h3>
+            <div class="logo-marquee" aria-label="Connected tools">
+              <div class="logo-track">
+                <span>Slack</span>
+                <span>Notion</span>
+                <span>Figma</span>
+                <span>GitHub</span>
+                <span>Linear</span>
+                <span>Asana</span>
+                <span>Slack</span>
+                <span>Notion</span>
+                <span>Figma</span>
+                <span>GitHub</span>
+                <span>Linear</span>
+                <span>Asana</span>
+              </div>
+            </div>
+            <button type="button" class="link-button">Browse integrations</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="workflow-section" id="legacy">
+        <div>
+          <p class="section-kicker">Operating Principles</p>
+          <h2>Built to stay fast under real pressure.</h2>
+        </div>
+        <div class="workflow-columns">
+          <article>
+            <h3>Composable by Default</h3>
+            <p>Arrange modules by project stage, team topology, or release risk in minutes.</p>
+          </article>
+          <article>
+            <h3>AI with Guardrails</h3>
+            <p>Automate summaries and handoffs while preserving provenance for every action.</p>
+          </article>
+          <article>
+            <h3>Latency Obsessed</h3>
+            <p>Every surface is optimized for speed so decisions happen without interface drag.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <h2>Will you shape the workflow, or be shaped by it?</h2>
+        <p>Enter the vanguard of modular productivity.</p>
+        <div class="cta-actions">
+          <button type="button" class="filled-button">Request Access</button>
+          <button type="button" class="ghost-button">Read the Narrative</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Hufie Legacy &copy; 2026. All honors reserved.</p>
+      <nav aria-label="Footer">
+        <a href="#">Journal</a>
+        <a href="#">Archives</a>
+        <a href="#">Governance</a>
+      </nav>
+    </footer>
+  </div>
+</body>
+</html>
