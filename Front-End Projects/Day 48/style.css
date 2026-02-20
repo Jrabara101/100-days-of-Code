@@ -1,0 +1,110 @@
+/* Foundations UI Kit - Custom Styles */
+
+:root {
+    --header-height: 5rem;
+    --primary: #FF6B6B;
+    --secondary: #70D6FF;
+    --accent: #FFD93D;
+    --vibrant-purple: #A855F7;
+    --mint: #6BF1C3;
+    --background-playful: #FFF9F5;
+}
+
+/* Gradient Text Utility */
+.gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary via-vibrant-purple to-secondary;
+}
+
+/* Glassmorphism Navigation */
+.glass-nav {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(15px);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+    /* Transition for smart header */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-nav.is-hidden {
+    transform: translate(-50%, -100%);
+}
+
+/* Kinetic Mega-Menu */
+#mega-menu {
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.group:hover #mega-menu,
+button[aria-expanded="true"]+#mega-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+
+/* Asymmetric Blobs */
+.asymmetric-blob {
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+}
+
+/* FAQ Accordion <details> Logic */
+details>summary {
+    list-style: none;
+}
+
+details>summary::-webkit-details-marker {
+    display: none;
+}
+
+details .content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out;
+    opacity: 0;
+}
+
+details[open] .content {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+/* Floating Input Labels */
+.floating-input:placeholder-shown+label {
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+}
+
+.floating-input:not(:placeholder-shown)+label,
+.floating-input:focus+label {
+    top: 0;
+    transform: translateY(-50%) scale(0.85);
+    background-color: white;
+    padding: 0 0.5rem;
+    color: var(--primary);
+}
+
+.floating-input:valid:not(:placeholder-shown) {
+    border-color: var(--mint);
+}
+
+.floating-input:valid:not(:placeholder-shown)+label {
+    color: var(--mint);
+}
+
+/* Card Hover Effect */
+.card-pop {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-pop:hover {
+    transform: translateY(-8px) rotate(-1deg);
+}
+
+/* Back to Top Button Visibility */
+.back-to-top {
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+
+.back-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+}

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Foundations: Vibrant Startup UI Kit</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;family=Outfit:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="style.css">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FF6B6B", // Coral
+                        "secondary": "#70D6FF", // Sky Blue
+                        "accent": "#FFD93D", // Sunny Yellow
+                        "vibrant-purple": "#A855F7",
+                        "mint": "#6BF1C3",
+                        "background-playful": "#FFF9F5",
+                    },
+                    fontFamily: {
+                        "display": ["Outfit", "sans-serif"],
+                        "body": ["Quicksand", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2.5rem",
+                        "full": "9999px"
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-playful font-body text-slate-800 antialiased min-h-screen flex flex-col">
+<header class="enterprise-header fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-[1280px] z-50 glass-nav shadow-xl shadow-primary/5 rounded-2xl transition-all duration-300">
+    <div class="px-6 h-[var(--header-height)] flex items-center justify-between">
+        <div class="flex items-center gap-3 group cursor-pointer">
+            <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-vibrant-purple text-white rotate-3 group-hover:rotate-12 transition-transform">
+                <span class="material-symbols-outlined text-[24px]">rocket_launch</span>
+            </div>
+            <h1 class="text-2xl font-extrabold tracking-tight font-display bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">Foundations</h1>
+        </div>
+        <nav class="hidden md:flex items-center gap-2">
+            <div class="group relative">
+                <button class="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-slate-600 hover:text-primary transition-colors rounded-xl hover:bg-white/50" aria-expanded="false" aria-controls="mega-menu">
+                    Playground
+                    <span class="material-symbols-outlined text-[18px] transition-transform group-hover:rotate-180">expand_more</span>
+                </button>
+                <div id="mega-menu" class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-[500px] opacity-0 invisible translate-y-4 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 z-50">
+                    <div class="bg-white rounded-3xl shadow-2xl border-4 border-slate-50 p-6 grid grid-cols-2 gap-4">
+                        <a class="flex flex-col gap-2 p-4 rounded-2xl hover:bg-primary/5 transition-all group/item border-2 border-transparent hover:border-primary/10" href="#">
+                            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover/item:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">auto_fix_high</span>
+                            </div>
+                            <h3 class="font-bold text-slate-900">Joyful Inputs</h3>
+                            <p class="text-xs text-slate-500">Inputs that feel alive.</p>
+                        </a>
+                        <a class="flex flex-col gap-2 p-4 rounded-2xl hover:bg-secondary/5 transition-all group/item border-2 border-transparent hover:border-secondary/10" href="#">
+                            <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary group-hover/item:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">animation</span>
+                            </div>
+                            <h3 class="font-bold text-slate-900">Motion Lab</h3>
+                            <p class="text-xs text-slate-500">Expressive layouts.</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <a class="px-4 py-2 text-sm font-bold text-slate-600 hover:text-vibrant-purple transition-colors rounded-xl hover:bg-white/50" href="#">Community</a>
+            <a class="px-4 py-2 text-sm font-bold text-slate-600 hover:text-mint transition-colors rounded-xl hover:bg-white/50" href="#">Docs</a>
+        </nav>
+        <div class="flex items-center gap-4">
+            <a class="hidden sm:inline-block text-sm font-bold text-slate-600 hover:text-primary transition-colors" href="#">Sign In</a>
+            <button class="bg-gradient-to-r from-primary to-vibrant-purple hover:scale-105 active:scale-95 text-white text-sm font-bold px-6 py-3 rounded-2xl transition-all shadow-lg shadow-primary/20">
+                Get the Kit
+            </button>
+        </div>
+    </div>
+</header>
+<main class="flex-grow pt-32 overflow-hidden">
+    <section class="relative py-20 lg:py-32">
+        <div class="absolute top-20 right-[-10%] w-[500px] h-[500px] bg-secondary/20 asymmetric-blob blur-3xl -z-10 animate-pulse"></div>
+        <div class="absolute bottom-0 left-[-5%] w-[400px] h-[400px] bg-accent/20 asymmetric-blob blur-3xl -z-10"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-vibrant-purple/5 asymmetric-blob blur-3xl -z-10"></div>
+        <div class="max-w-[1280px] mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="flex flex-col gap-10">
+                    <div class="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white shadow-xl shadow-slate-200/50 text-slate-800 text-sm font-bold w-fit rotate-[-1deg]">
+<span class="flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-mint opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-mint"></span>
+</span>
+                        New: Developer Joy Pack v3.0
+                    </div>
+                    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold font-display leading-[1.05] tracking-tight text-slate-900">
+                        Design with <span class="gradient-text">Soul.</span> <br/>
+                        Build with <span class="underline decoration-mint decoration-8 underline-offset-4">Joy.</span>
+                    </h1>
+                    <p class="text-xl text-slate-600 leading-relaxed max-w-lg font-medium">
+                        Ditch the boring enterprise grids. Foundations is the playground for developers who believe software should feel like a masterpiece.
+                    </p>
+                    <div class="flex flex-wrap gap-5">
+                        <button class="group flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-800 text-white px-8 py-5 rounded-2xl font-extrabold text-lg transition-all shadow-2xl hover:scale-105">
+                            <span class="material-symbols-outlined group-hover:rotate-12 transition-transform">bolt</span>
+                            Start Creating
+                        </button>
+                        <button class="flex items-center justify-center gap-3 bg-white border-4 border-slate-100 text-slate-900 px-8 py-5 rounded-2xl font-extrabold text-lg hover:border-mint transition-all shadow-xl shadow-slate-100">
+                            <span class="material-symbols-outlined">play_circle</span>
+                            Quick Demo
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-6 pt-8">
+                        <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Built for humans at</p>
+                        <div class="flex gap-4 flex-wrap">
+                            <div class="h-8 w-20 bg-slate-200/50 rounded-xl"></div>
+                            <div class="h-8 w-24 bg-slate-200/50 rounded-xl"></div>
+                            <div class="h-8 w-16 bg-slate-200/50 rounded-xl"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative lg:ml-12">
+                    <div class="relative w-full aspect-[4/5] rounded-[3rem] overflow-hidden shadow-[0_40px_100px_-15px_rgba(0,0,0,0.1)] border-8 border-white bg-slate-200 rotate-2 card-pop">
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCc6Q0Jd1-_CX1h3sLfYNNb7Y2LqJxi7xQf6xV6JiO_Cr1JVbUMSVwrzpku39B5pTF7yFK-AK7pdTLzbBlcAg-LZIirK8wB1U06zEKp5JJqyh7bsyvnnV7C7yo3uHESwuf9frRCE6zRneX0YeXkZBD138JGfOodNwBVVxhllduND3FFVej1ZegDxNLpesQHp5kpROGbYb5vXfRnH89ygkciwuK6NW6B2szt2OVfsy9qzhPk_vVh-rVbaOHXL8JS8Uk_gySRsAunUztM');"></div>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-vibrant-purple/20"></div>
+                        <div class="absolute top-10 -right-8 p-5 bg-mint rounded-3xl shadow-2xl -rotate-6 hidden sm:block">
+                            <span class="material-symbols-outlined text-white text-4xl">celebration</span>
+                        </div>
+                        <div class="absolute -bottom-6 -left-6 p-8 bg-white rounded-3xl shadow-2xl border-2 border-slate-50 max-w-[280px]">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center text-white shadow-lg">
+                                    <span class="material-symbols-outlined">handshake</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-900">Collaboration</h3>
+                                    <p class="text-xs text-slate-500">Live sync active</p>
+                                </div>
+                            </div>
+                            <div class="flex -space-x-2">
+                                <div class="w-8 h-8 rounded-full bg-primary ring-2 ring-white"></div>
+                                <div class="w-8 h-8 rounded-full bg-secondary ring-2 ring-white"></div>
+                                <div class="w-8 h-8 rounded-full bg-mint ring-2 ring-white"></div>
+                                <div class="w-8 h-8 rounded-full bg-slate-100 ring-2 ring-white flex items-center justify-center text-[10px] font-bold">+12</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="py-32 bg-white relative">
+        <div class="absolute top-0 right-0 p-20 text-slate-50/50 pointer-events-none select-none">
+            <span class="material-symbols-outlined text-[300px] rotate-12">brush</span>
+        </div>
+        <div class="max-w-[1000px] mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
+                <div class="max-w-xl">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-display text-slate-900 mb-6">Built for <span class="gradient-text">Innovation</span></h2>
+                    <p class="text-lg text-slate-600 font-medium leading-relaxed">We focus on the boring stuff so you can focus on building the next big thing. Our tech stack is as energetic as your ideas.</p>
+                </div>
+                <div class="p-6 bg-accent rounded-[2rem] rotate-3 hidden md:block">
+                    <span class="material-symbols-outlined text-white text-4xl">lightbulb</span>
+                </div>
+            </div>
+            <div class="grid gap-6">
+                <details class="group bg-slate-50/50 hover:bg-white transition-all rounded-[2rem] border-4 border-slate-50 overflow-hidden" open="">
+                    <summary class="flex cursor-pointer items-center justify-between p-8 focus:outline-none">
+                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center transition-transform group-hover:scale-110">
+                                <span class="material-symbols-outlined text-3xl">devices</span>
+                            </div>
+                            <h3 class="text-2xl font-extrabold text-slate-900">Omnichannel Magic</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:text-primary transition-all">
+                            <span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </div>
+                    </summary>
+                    <div class="content">
+                        <div class="px-8 pb-8 pl-[6rem]">
+                            <p class="text-lg text-slate-600 font-medium leading-relaxed">
+                                Our components are buttery smooth across every screen. Whether it's a 4K monitor or a foldable phone, your app will feel right at home with our fluid-first responsive engine.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+                <details class="group bg-slate-50/50 hover:bg-white transition-all rounded-[2rem] border-4 border-slate-50 overflow-hidden">
+                    <summary class="flex cursor-pointer items-center justify-between p-8 focus:outline-none">
+                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 rounded-2xl bg-vibrant-purple/10 text-vibrant-purple flex items-center justify-center transition-transform group-hover:scale-110">
+                                <span class="material-symbols-outlined text-3xl">face_6</span>
+                            </div>
+                            <h3 class="text-2xl font-extrabold text-slate-900">Empathy-Driven UX</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:text-primary transition-all">
+                            <span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </div>
+                    </summary>
+                    <div class="content">
+                        <div class="px-8 pb-8 pl-[6rem]">
+                            <p class="text-lg text-slate-600 font-medium leading-relaxed">
+                                Accessibility isn't a checkbox; it's our DNA. Every interaction is designed to be inclusive, intuitive, and most importantly, delightful for everyone who uses it.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+                <details class="group bg-slate-50/50 hover:bg-white transition-all rounded-[2rem] border-4 border-slate-50 overflow-hidden">
+                    <summary class="flex cursor-pointer items-center justify-between p-8 focus:outline-none">
+                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 rounded-2xl bg-mint/10 text-mint flex items-center justify-center transition-transform group-hover:scale-110">
+                                <span class="material-symbols-outlined text-3xl">palette</span>
+                            </div>
+                            <h3 class="text-2xl font-extrabold text-slate-900">Hyper-Customization</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:text-primary transition-all">
+                            <span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </div>
+                    </summary>
+                    <div class="content">
+                        <div class="px-8 pb-8 pl-[6rem]">
+                            <p class="text-lg text-slate-600 font-medium leading-relaxed">
+                                Change a single variable and watch your entire universe transform. Our theme engine supports infinite variations, from "Dark Mode Professional" to "Pink Neon Startup" in seconds.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+    <section class="py-24 relative overflow-hidden">
+        <div class="absolute inset-0 bg-primary/5 pointer-events-none -z-10"></div>
+        <div class="max-w-[800px] mx-auto px-6">
+            <div class="bg-white rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(255,107,107,0.15)] p-10 md:p-16 text-center border-b-8 border-slate-100">
+                <div class="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-8 text-primary rotate-6">
+                    <span class="material-symbols-outlined text-4xl">send</span>
+                </div>
+                <h2 class="text-4xl font-extrabold font-display text-slate-900 mb-4">Join the Joy List</h2>
+                <p class="text-lg text-slate-500 font-medium mb-12 max-w-sm mx-auto">Get the latest design insights, component updates, and high-fives from our team.</p>
+                <form class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto" onsubmit="event.preventDefault();">
+                    <div class="relative flex-grow text-left">
+                        <input class="floating-input block px-6 pb-3 pt-6 w-full text-base font-bold text-slate-900 bg-slate-50 rounded-2xl border-4 border-transparent focus:border-primary focus:ring-0 appearance-none outline-none transition-all h-[64px]" id="email" placeholder=" " required="" type="email"/>
+                        <label class="absolute text-base font-bold text-slate-400 duration-300 left-6 cursor-text pointer-events-none" for="email">
+                            What's your email?
+                        </label>
+                    </div>
+                    <button class="h-[64px] px-10 bg-primary text-white font-black rounded-2xl hover:bg-slate-900 transition-all shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 flex items-center justify-center gap-2" type="submit">
+                        Join Now
+                        <span class="material-symbols-outlined">rocket</span>
+                    </button>
+                </form>
+                <p class="mt-8 text-sm font-bold text-slate-400">
+                    No spam. Just pure <span class="text-primary">developer joy.</span>
+                </p>
+            </div>
+        </div>
+    </section>
+</main>
+<footer class="bg-slate-900 text-slate-400 py-20 relative overflow-hidden">
+    <div class="absolute bottom-[-100px] right-[-100px] w-[400px] h-[400px] bg-primary/10 asymmetric-blob blur-3xl"></div>
+    <div class="max-w-[1280px] mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-20">
+            <div class="lg:col-span-2">
+                <div class="flex items-center gap-3 mb-8 group cursor-pointer">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-white text-slate-900 rotate-3 group-hover:rotate-12 transition-transform">
+                        <span class="material-symbols-outlined text-[24px]">rocket_launch</span>
+                    </div>
+                    <h2 class="text-2xl font-extrabold font-display text-white">Foundations</h2>
+                </div>
+                <p class="text-lg font-medium max-w-xs mb-8">
+                    The playground for modern teams building software people actually love to use.
+                </p>
+                <div class="flex gap-4">
+                    <a class="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center text-white hover:bg-primary transition-all" href="#">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg>
+                    </a>
+                    <a class="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center text-white hover:bg-secondary transition-all" href="#">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg>
+                    </a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-white font-black uppercase tracking-widest text-sm mb-8">Play</h3>
+                <ul class="space-y-4 font-bold">
+                    <li><a class="hover:text-primary transition-colors" href="#">Components</a></li>
+                    <li><a class="hover:text-primary transition-colors" href="#">Starter Kits</a></li>
+                    <li><a class="hover:text-primary transition-colors" href="#">Themes</a></li>
+                    <li><a class="hover:text-primary transition-colors" href="#">Figma File</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-white font-black uppercase tracking-widest text-sm mb-8">Learn</h3>
+                <ul class="space-y-4 font-bold">
+                    <li><a class="hover:text-mint transition-colors" href="#">Tutorials</a></li>
+                    <li><a class="hover:text-mint transition-colors" href="#">API Docs</a></li>
+                    <li><a class="hover:text-mint transition-colors" href="#">Best Practices</a></li>
+                    <li><a class="hover:text-mint transition-colors" href="#">Community</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-white font-black uppercase tracking-widest text-sm mb-8">About</h3>
+                <ul class="space-y-4 font-bold">
+                    <li><a class="hover:text-secondary transition-colors" href="#">The Team</a></li>
+                    <li><a class="hover:text-secondary transition-colors" href="#">Manifesto</a></li>
+                    <li><a class="hover:text-secondary transition-colors" href="#">Careers</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="pt-10 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-sm font-bold">
+                © 2024 Foundations UI Kit. Made with 💖 for creators.
+            </p>
+            <div class="flex items-center gap-3 px-4 py-2 bg-slate-800 rounded-full text-sm font-bold">
+                <span class="w-3 h-3 rounded-full bg-mint animate-pulse"></span>
+                <span class="text-white">Creativity Levels: Maximum</span>
+            </div>
+        </div>
+    </div>
+    <a aria-label="Back to top" class="back-to-top fixed bottom-10 right-10 bg-accent hover:bg-slate-900 text-slate-900 hover:text-white w-14 h-14 rounded-[1.5rem] shadow-2xl transition-all flex items-center justify-center hover:-translate-y-2 z-40 rotate-12 opacity-0 invisible" href="#">
+        <span class="material-symbols-outlined font-black">arrow_upward</span>
+    </a>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
