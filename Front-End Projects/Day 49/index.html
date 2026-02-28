@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRON_LEDGER_SYSTEM_V.2.0.4</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="Cyberpunk Fitness Tracker for high-intensity training data analysis.">
+</head>
+<body class="crt-flicker">
+    <div class="crt-overlay"></div>
+    <div class="scanline"></div>
+
+    <header>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 0.75rem;">[<]</span>
+            <h1 style="font-size: 0.75rem; font-weight: bold; letter-spacing: 0.2em;">SYSTEM_ANALYTICS://VOLUME_TREND</h1>
+        </div>
+        <div id="sys-time" style="font-size: 0.625rem; opacity: 0.7;">
+            [SYS_TIME: --:--:--]
+        </div>
+    </header>
+
+    <main>
+        <div class="ascii-logo">
+ ██████╗  █████╗ ████████╗ █████╗ 
+ ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
+ ██║  ██║███████║   ██║   ███████║
+ ██║  ██║██╔══██║   ██║   ██╔══██║
+ ██████╔╝██║  ██║   ██║   ██║  ██║
+ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+        </div>
+
+        <div class="movement-selector">
+            <div style="font-size: 0.625rem; margin-bottom: 0.5rem; opacity: 0.5; text-transform: uppercase;">SELECT_MOVEMENT_TYPE:</div>
+            <div class="movement-list hide-scrollbar" id="movement-list">
+                <!-- Dynamically filled -->
+                <span class="movement-item active" data-type="SANDBAG_CARRY">/SANDBAG_CARRY</span>
+                <span class="movement-item" data-type="DEADLIFT">/DEADLIFT</span>
+                <span class="movement-item" data-type="BACK_SQUAT">/BACK_SQUAT</span>
+                <span class="movement-item" data-type="CLEAN_JERK">/CLEAN_JERK</span>
+            </div>
+        </div>
+
+        <section class="metrics-section">
+            <div class="metrics-header">
+                <div>Total_Vol_30D_Metrics</div>
+                <div id="trend-indicator" style="font-weight: bold;">Δ +0.0%</div>
+            </div>
+            <div class="metrics-value">
+                <span class="big" id="total-volume">0</span>
+                <span style="opacity: 0.7;">KG</span>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-grid">
+                    <div></div><div></div><div></div><div></div>
+                </div>
+                <svg id="trend-chart" width="100%" height="100%" viewBox="0 0 400 150" preserveAspectRatio="none">
+                    <polyline id="chart-path" fill="none" stroke="var(--terminal-cyan)" stroke-width="2" points="0,150 400,150"></polyline>
+                </svg>
+                <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 8px; opacity: 0.6;">
+                    <span>T_MIN_30</span>
+                    <span>T_MIN_20</span>
+                    <span>T_MIN_10</span>
+                    <span>CURRENT_T</span>
+                </div>
+            </div>
+        </section>
+
+        <section style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+            <div class="stat-card">
+                <div class="stat-label">_PERSONAL_BEST</div>
+                <div class="stat-value">
+                    <span class="val" id="pb-val">0</span>
+                    <span style="font-size: 0.625rem; opacity: 0.7;">KG</span>
+                </div>
+                <div class="stat-status">STATUS: <span id="pb-status">INITIALIZING</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">_PREV_LOG_ENTRY</div>
+                <div class="stat-value">
+                    <span class="val" id="prev-val">0</span>
+                    <span style="font-size: 0.625rem; opacity: 0.7;">KG</span>
+                </div>
+                <div class="stat-status" style="opacity: 0.6;">STATUS: <span id="prev-status">NOMINAL</span></div>
+            </div>
+        </section>
+
+        <section class="diagnostic-box">
+            <div class="diagnostic-tag">AI_DIAGNOSTIC</div>
+            <div class="diagnostic-content">
+                <div style="font-size: 1.25rem;">[!]</div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.625rem; font-weight: bold; margin-bottom: 0.25rem; text-decoration: underline;">SYS_ADVISORY_REPORT_#<span id="report-id">772</span></div>
+                    <p id="diagnostic-text" style="font-size: 0.625rem; line-height: 1.4; opacity: 0.9;">
+                        WAITING FOR DATA INPUT... <br><br>
+                        ESTABLISH BASELINE VOLUME TO GENERATE RECOMMENDATIONS.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="#" class="nav-link opacity-50">[LOG]</a>
+            <a href="#" class="nav-link active">[ANL]</a>
+            <div style="display: flex; justify-content: center;">
+                <button class="add-btn" id="open-modal">+</button>
+            </div>
+            <a href="#" class="nav-link opacity-50">[PRG]</a>
+            <a href="#" class="nav-link opacity-50">[USR]</a>
+        </div>
+    </nav>
+
+    <!-- Modal for Logging -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content">
+            <div style="font-size: 0.75rem; font-weight: bold; margin-bottom: 1rem; border-bottom: 1px solid var(--terminal-cyan); padding-bottom: 0.5rem;">
+                INITIALIZE_LOG_ENTRY
+            </div>
+            <form id="log-form">
+                <div class="input-group">
+                    <label>MOVEMENT_ID</label>
+                    <input type="text" id="log-movement" readonly>
+                </div>
+                <div class="input-group">
+                    <label>LOAD_WEIGHT (KG)</label>
+                    <input type="number" id="log-weight" step="0.5" required autofocus>
+                </div>
+                <div class="input-group">
+                    <label>TOTAL_REPS</label>
+                    <input type="number" id="log-reps" required>
+                </div>
+                <button type="submit" class="pixel-btn">EXECUTE_LOG_SEQUENCE</button>
+                <button type="button" class="pixel-btn secondary" id="close-modal">ABORT_SEQUENCE</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
