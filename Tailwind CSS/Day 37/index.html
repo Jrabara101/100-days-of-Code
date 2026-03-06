@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Scribble Bird's Playbook</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&amp;family=Gochi+Hand&amp;family=Patrick+Hand&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "sky-pastel": "#e0f2fe",
+                        "grass-pastel": "#dcfce7",
+                        "crayon-red": "#ff595e",
+                        "crayon-yellow": "#ffca3a",
+                        "crayon-green": "#8ac926",
+                        "crayon-blue": "#1982c4",
+                        "crayon-purple": "#6a4c93",
+                    },
+                    fontFamily: {
+                        "chunky": ["Fredoka", "sans-serif"],
+                        "handwritten": ["Patrick Hand", "cursive"],
+                        "scribble": ["Gochi Hand", "cursive"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .sketch-border {
+                border: 3px solid #333;
+                border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            }
+            .off-kilter {
+                transform: rotate(-1.5deg);
+            }
+            .off-kilter-alt {
+                transform: rotate(1.2deg);
+            }
+            .cloud-shape {
+                background: white;
+                border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+                position: relative;
+                filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.1));
+            }
+            .cloud-shape::before, .cloud-shape::after {
+                content: '';
+                position: absolute;
+                background: inherit;
+                border-radius: 50%;
+            }
+            .cloud-shape::before {
+                width: 70%; height: 80%;
+                top: -40%; left: 10%;
+            }
+            .cloud-shape::after {
+                width: 60%; height: 70%;
+                top: -30%; right: 10%;
+            }
+            .rainbow-gradient {
+                background: linear-gradient(to right, #ff595e, #ffca3a, #8ac926, #1982c4, #6a4c93);
+            }
+            
+            @keyframes shake {
+                0%, 100% { transform: translate(0, 0); }
+                25% { transform: translate(-10px, 10px); }
+                50% { transform: translate(10px, -10px); }
+                75% { transform: translate(-10px, -10px); }
+            }
+            .animate-shake {
+                animation: shake 0.2s ease-in-out infinite;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-sky-pastel font-chunky text-slate-800 antialiased overflow-hidden cursor-default">
+    <div id="game-container"
+        class="relative flex h-screen w-full flex-col overflow-hidden transition-colors duration-200">
+        <!-- Background elements (Parallax could be added here) -->
+        <div class="absolute inset-0 z-0 opacity-60 pointer-events-none">
+            <div class="absolute bottom-0 left-0 right-0 h-[30%] bg-grass-pastel"
+                style="clip-path: ellipse(70% 100% at 50% 100%);"></div>
+            <div class="absolute bottom-0 left-[-10%] right-[-10%] h-[25%] bg-green-200 opacity-80"
+                style="clip-path: ellipse(60% 100% at 30% 100%);"></div>
+            <div class="absolute top-20 left-20 w-40 h-16 bg-white rounded-full opacity-80 off-kilter"
+                style="filter: blur(2px);"></div>
+            <div class="absolute top-40 right-40 w-56 h-20 bg-white rounded-full opacity-60 off-kilter-alt"
+                style="filter: blur(1px);"></div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen"
+            class="absolute inset-0 z-50 backdrop-blur-md bg-black/40 flex flex-col items-center justify-center transition-opacity duration-300">
+            <div class="bg-white p-8 sketch-border off-kilter shadow-2xl flex flex-col items-center gap-6">
+                <h1 class="text-6xl font-black font-scribble text-crayon-blue mb-2">SCRIBBLE BIRD</h1>
+                <p class="text-xl font-handwritten font-bold text-slate-600">Press [SPACE] or Click to Flap!</p>
+                <button id="start-button"
+                    class="px-12 py-4 bg-crayon-green text-white text-2xl font-black sketch-border hover:scale-110 transition-transform shadow-xl">
+                    START SPRINT!
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen"
+            class="absolute inset-0 z-50 backdrop-blur-md bg-black/40 hidden flex flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+            <div class="bg-white p-10 sketch-border off-kilter-alt shadow-2xl flex flex-col items-center gap-6">
+                <h1 class="text-5xl font-black font-scribble text-crayon-red">CRASHED!</h1>
+                <div class="flex gap-8 my-4">
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs uppercase font-black text-slate-400">SCORE</span>
+                        <span id="final-score" class="text-4xl font-black text-crayon-purple">0</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs uppercase font-black text-slate-400">BEST</span>
+                        <span id="best-score" class="text-4xl font-black text-crayon-blue">0</span>
+                    </div>
+                </div>
+                <!-- Creator's Mark -->
+                <div
+                    class="text-black font-black text-sm tracking-widest opacity-100 py-2 border-y border-black/10 bg-transparent">
+                    BEEJAY T.
+                </div>
+                <button id="restart-button"
+                    class="px-10 py-3 bg-crayon-yellow text-slate-800 text-xl font-black sketch-border hover:scale-110 transition-transform shadow-xl">
+                    TRY AGAIN
+                </button>
+            </div>
+        </div>
+
+        <!-- HUD -->
+        <div class="relative z-30 flex flex-col h-full pointer-events-none">
+            <header class="flex items-center justify-between px-10 py-8 pointer-events-auto">
+                <div class="flex items-center gap-2 bg-white p-3 sketch-border off-kilter shadow-sm">
+                    <div class="bg-crayon-yellow p-2 rounded-full border-2 border-slate-800">
+                        <span class="material-symbols-outlined text-slate-800 font-bold">child_care</span>
+                    </div>
+                    <h2 class="text-2xl font-bold tracking-tight font-scribble">Playbook Fun!</h2>
+                </div>
+                <div class="flex items-center gap-8">
+                    <div class="flex gap-6 bg-white/80 p-4 sketch-border off-kilter-alt shadow-sm">
+                        <div class="flex flex-col items-center">
+                            <span class="text-xs uppercase font-black text-crayon-blue">BEST SPRINT</span>
+                            <span id="hud-best" class="text-2xl font-bold font-scribble">0</span>
+                        </div>
+                        <div class="w-1 bg-slate-300 rounded-full h-8 self-center"></div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-xs uppercase font-black text-crayon-red">POINTS</span>
+                            <span id="hud-score" class="text-2xl font-bold font-scribble">0</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Floating Score (Center) -->
+            <div id="floating-score-container"
+                class="flex-1 flex flex-col items-center justify-start pt-8 opacity-0 transition-opacity">
+                <div class="relative w-64 h-32 flex items-center justify-center">
+                    <div class="absolute inset-0 cloud-shape bg-white border-[4px] border-crayon-blue/20"></div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <span id="current-score"
+                            class="text-[90px] font-black text-crayon-red drop-shadow-[4px_4px_0px_#fff] leading-none mb-1">0</span>
+                        <span
+                            class="font-scribble text-xl font-bold text-crayon-blue bg-white/50 px-4 py-0.5 rounded-full border-2 border-dashed border-crayon-blue uppercase">Points!</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-10 py-10 flex justify-between items-end pointer-events-auto">
+                <div class="flex gap-6">
+                    <div id="music-toggle"
+                        class="size-14 flex items-center justify-center bg-white sketch-border off-kilter shadow-sm cursor-pointer hover:bg-yellow-50">
+                        <span class="material-symbols-outlined text-crayon-blue text-3xl">music_note</span>
+                    </div>
+                </div>
+                <div
+                    class="text-right font-handwritten text-lg font-bold text-slate-600 bg-white/40 px-4 py-2 sketch-border">
+                    <p id="engine-status">CRAYON ENGINE v3.0</p>
+                    <p class="text-sm opacity-60">OPTIMIZED 60FPS</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game World -->
+        <div id="game-world" class="absolute inset-0 z-10 pointer-events-none">
+            <!-- Pipes will be injected here by pooling system -->
+            <div id="pipes-container" class="absolute inset-0"></div>
+
+            <!-- Bird (Headcrab) -->
+            <div id="player"
+                class="absolute left-[20%] top-[48%] size-16 transform-gpu transition-transform duration-75">
+                <div class="relative w-full h-full">
+                    <div
+                        class="absolute inset-0 bg-crayon-yellow sketch-border rounded-[40%_60%_70%_30%/40%_50%_50%_60%] shadow-lg">
+                    </div>
+                    <!-- Eye -->
+                    <div
+                        class="absolute top-3 right-3 size-5 bg-white rounded-full border-2 border-slate-800 flex items-center justify-center">
+                        <div class="size-2 bg-slate-800 rounded-full"></div>
+                    </div>
+                    <!-- Wing -->
+                    <div id="wing"
+                        class="absolute top-7 left-1 w-8 h-5 bg-yellow-400 sketch-border rounded-full transform -rotate-12 transition-transform duration-100">
+                    </div>
+                    <!-- Beak -->
+                    <div class="absolute top-6 -right-2 w-5 h-4 bg-crayon-red sketch-border rounded-r-full"></div>
+                    <!-- Legs -->
+                    <div class="absolute -bottom-1 left-5 w-2 h-5 bg-crayon-red rounded-full"></div>
+                    <div class="absolute -bottom-1 left-9 w-2 h-5 bg-crayon-red rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONSTANTS & CONFIG ---
+        const CONFIG = {
+            gravity: 1200,      // pixels/s^2
+            jumpForce: -400,    // pixels/s
+            terminalVelocity: 600,
+            pipeSpeed: 250,     // pixels/s
+            pipeGap: 240,       // pixels
+            pipeFrequency: 1800, // ms between pipes
+            hitboxScale: 0.8,    // 80% visual size
+            maxPipes: 4
+        };
+
+        const STATES = {
+            MENU: 'MENU',
+            PLAYING: 'PLAYING',
+            GAME_OVER: 'GAME_OVER'
+        };
+
+        // --- GAME STATE ---
+        let state = STATES.MENU;
+        let lastTime = 0;
+        let score = 0;
+        let bestScore = localStorage.getItem('scribble-bird-best') || 0;
+        let birdY = 0;
+        let birdVelocity = 0;
+        let birdRotation = 0;
+        let pipes = [];
+        let animationId = null;
+
+        // --- DOM ELEMENTS ---
+        const el = {
+            container: document.getElementById('game-container'),
+            world: document.getElementById('game-world'),
+            player: document.getElementById('player'),
+            pipesContainer: document.getElementById('pipes-container'),
+            startScreen: document.getElementById('start-screen'),
+            gameOverScreen: document.getElementById('game-over-screen'),
+            scoreHud: document.getElementById('hud-score'),
+            bestHud: document.getElementById('hud-best'),
+            finalScore: document.getElementById('final-score'),
+            bestScore: document.getElementById('best-score'),
+            currentScore: document.getElementById('current-score'),
+            floatingScore: document.getElementById('floating-score-container'),
+            startButton: document.getElementById('start-button'),
+            restartButton: document.getElementById('restart-button')
+        };
+
+        // --- INITIALIZATION ---
+        function init() {
+            el.bestHud.textContent = bestScore;
+
+            // Event Listeners
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') handleInput();
+            });
+            el.container.addEventListener('mousedown', handleInput);
+            el.startButton.addEventListener('click', startGame);
+            el.restartButton.addEventListener('click', startGame);
+
+            // Visibility API
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && state === STATES.PLAYING) {
+                    // Simple pause logic: just stop the loop
+                    cancelAnimationFrame(animationId);
+                } else if (!document.hidden && state === STATES.PLAYING) {
+                    lastTime = performance.now();
+                    animationId = requestAnimationFrame(gameLoop);
+                }
+            });
+
+            // Initialize position
+            resetGame();
+            updateBirdPosition();
+        }
+
+        function handleInput() {
+            if (state === STATES.MENU) {
+                startGame();
+            } else if (state === STATES.PLAYING) {
+                jump();
+            } else if (state === STATES.GAME_OVER) {
+                // Wait a bit before allowing restart to prevent accidental clicks
+            }
+        }
+
+        function startGame() {
+            resetGame();
+            state = STATES.PLAYING;
+            el.startScreen.classList.add('opacity-0');
+            setTimeout(() => el.startScreen.classList.add('hidden'), 300);
+            el.gameOverScreen.classList.add('hidden');
+            el.gameOverScreen.classList.remove('opacity-100');
+            el.floatingScore.classList.remove('opacity-0');
+            lastTime = performance.now();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function resetGame() {
+            score = 0;
+            updateScore(0);
+            birdY = window.innerHeight * 0.48;
+            birdVelocity = 0;
+            birdRotation = 0;
+
+            // Reset Pipes
+            el.pipesContainer.innerHTML = '';
+            pipes = [];
+            for (let i = 0; i < CONFIG.maxPipes; i++) {
+                createPipe(i);
+            }
+
+            el.container.classList.remove('bg-red-900/50', 'animate-shake');
+        }
+
+        function createPipe(index) {
+            const pipe = {
+                x: window.innerWidth + (index * 400),
+                width: 80,
+                gapY: Math.random() * (window.innerHeight - CONFIG.pipeGap - 200) + 100,
+                passed: false,
+                topElement: document.createElement('div'),
+                bottomElement: document.createElement('div')
+            };
+
+            // Top Pipe
+            pipe.topElement.className = 'absolute w-20 bg-crayon-blue sketch-border transform-gpu';
+            pipe.topElement.style.height = `${pipe.gapY}px`;
+            pipe.topElement.innerHTML = '<div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-8 bg-crayon-blue sketch-border"></div>';
+
+            // Bottom Pipe
+            pipe.bottomElement.className = 'absolute w-20 bg-crayon-red sketch-border transform-gpu';
+            pipe.bottomElement.style.height = `${window.innerHeight - pipe.gapY - CONFIG.pipeGap}px`;
+            pipe.bottomElement.style.bottom = '0';
+            pipe.bottomElement.innerHTML = '<div class="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-8 bg-crayon-red sketch-border"></div>';
+
+            el.pipesContainer.appendChild(pipe.topElement);
+            el.pipesContainer.appendChild(pipe.bottomElement);
+            pipes.push(pipe);
+            updatePipeDOM(pipe);
+        }
+
+        function jump() {
+            birdVelocity = CONFIG.jumpForce;
+            // Visual wing flap
+            const wing = document.getElementById('wing');
+            wing.classList.remove('-rotate-12');
+            wing.classList.add('-rotate-45');
+            setTimeout(() => wing.classList.remove('-rotate-45'), 100);
+            setTimeout(() => wing.classList.add('-rotate-12'), 100);
+        }
+
+        // --- GAME LOOP ---
+        function gameLoop(currentTime) {
+            if (state !== STATES.PLAYING) return;
+
+            const dt = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+
+            update(dt);
+            draw();
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function update(dt) {
+            // Bird physics
+            birdVelocity += CONFIG.gravity * dt;
+            birdVelocity = Math.min(birdVelocity, CONFIG.terminalVelocity);
+            birdY += birdVelocity * dt;
+
+            // Rotation based on velocity
+            birdRotation = Math.min(Math.max(birdVelocity * 0.1, -20), 45);
+
+            // Pipe logic & Object Pooling
+            pipes.forEach(pipe => {
+                pipe.x -= CONFIG.pipeSpeed * dt;
+
+                // Collision detection (AABB)
+                if (checkCollision(pipe)) {
+                    gameOver();
+                }
+
+                // Scoring
+                if (!pipe.passed && pipe.x + pipe.width < window.innerWidth * 0.2) {
+                    pipe.passed = true;
+                    updateScore(score + 1);
+                }
+
+                // Recycle pipe (Object Pooling)
+                if (pipe.x + pipe.width < -100) {
+                    recyclePipe(pipe);
+                }
+            });
+
+            // Bounds check
+            if (birdY < 0 || birdY + 64 > window.innerHeight) {
+                gameOver();
+            }
+        }
+
+        function recyclePipe(pipe) {
+            // Teleport to the end of the line
+            const maxRight = Math.max(...pipes.map(p => p.x));
+            pipe.x = maxRight + 400;
+            pipe.gapY = Math.random() * (window.innerHeight - CONFIG.pipeGap - 200) + 100;
+            pipe.passed = false;
+
+            // Update Height
+            pipe.topElement.style.height = `${pipe.gapY}px`;
+            pipe.bottomElement.style.height = `${window.innerHeight - pipe.gapY - CONFIG.pipeGap}px`;
+        }
+
+        function checkCollision(pipe) {
+            // Scaled hitboxes for "farily"
+            const birdRect = {
+                x: window.innerWidth * 0.2 + (8 * (1 - CONFIG.hitboxScale)),
+                y: birdY + (8 * (1 - CONFIG.hitboxScale)),
+                w: 64 * CONFIG.hitboxScale,
+                h: 64 * CONFIG.hitboxScale
+            };
+
+            const topPipeRect = { x: pipe.x, y: 0, w: pipe.width, h: pipe.gapY };
+            const bottomPipeRect = { x: pipe.x, y: pipe.gapY + CONFIG.pipeGap, w: pipe.width, h: window.innerHeight - pipe.gapY - CONFIG.pipeGap };
+
+            return (
+                rectIntersect(birdRect, topPipeRect) ||
+                rectIntersect(birdRect, bottomPipeRect)
+            );
+        }
+
+        function rectIntersect(r1, r2) {
+            return r1.x < r2.x + r2.w &&
+                r1.x + r1.w > r2.x &&
+                r1.y < r2.y + r2.h &&
+                r1.y + r1.h > r2.y;
+        }
+
+        function draw() {
+            updateBirdPosition();
+            pipes.forEach(updatePipeDOM);
+        }
+
+        function updateBirdPosition() {
+            // Using translate3d for GPU acceleration
+            el.player.style.transform = `translate3d(0, ${birdY - (window.innerHeight * 0.48)}px, 0) rotate(${birdRotation}deg)`;
+        }
+
+        function updatePipeDOM(pipe) {
+            pipe.topElement.style.transform = `translate3d(${pipe.x}px, 0, 0)`;
+            pipe.bottomElement.style.transform = `translate3d(${pipe.x}px, 0, 0)`;
+        }
+
+        function updateScore(newScore) {
+            score = newScore;
+            el.scoreHud.textContent = score;
+            el.currentScore.textContent = score;
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('scribble-bird-best', bestScore);
+                el.bestHud.textContent = bestScore;
+            }
+        }
+
+        function gameOver() {
+            state = STATES.GAME_OVER;
+            cancelAnimationFrame(animationId);
+
+            // Visual feedback
+            el.container.classList.add('bg-red-900/50', 'animate-shake');
+
+            el.finalScore.textContent = score;
+            el.bestScore.textContent = bestScore;
+
+            el.gameOverScreen.classList.remove('hidden');
+            setTimeout(() => el.gameOverScreen.classList.add('opacity-100'), 10);
+        }
+
+        // --- BOOTSTRAP ---
+        init();
+    </script>
+</body>
+
+</body>
+
+</html>
