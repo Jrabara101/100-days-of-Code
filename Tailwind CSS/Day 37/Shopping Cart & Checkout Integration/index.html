@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scribble Bird | Premium Store</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for Signature -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        card: 'rgba(30, 41, 59, 0.7)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-dark min-h-screen text-slate-200 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-40 glass border-b border-white/5 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-purple-500 to-cyan-400 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/20">
+                SB</div>
+            <span class="text-xl font-bold tracking-tight text-gradient">Scribble Bird</span>
+        </div>
+        <button id="cart-toggle" class="relative p-2 rounded-full hover:bg-white/5 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span id="cart-count"
+                class="absolute -top-1 -right-1 bg-purple-500 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-dark hidden">0</span>
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-28 pb-12 px-6 max-w-7xl mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">The Future of <span
+                    class="text-gradient">Everyday Tech</span></h1>
+            <p class="text-slate-400 max-w-xl mx-auto">Discover our curated selection of premium gadgets designed for
+                the modern architectural lifestyle.</p>
+        </header>
+
+        <!-- Product Grid -->
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Products will be injected by JS -->
+        </div>
+    </main>
+
+    <!-- Cart Sidebar Overlay -->
+    <div id="cart-overlay"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    </div>
+
+    <!-- Cart Sidebar -->
+    <aside id="cart-drawer"
+        class="fixed top-0 right-0 h-full w-full max-w-md bg-dark/95 border-l border-white/5 glass z-50 translate-x-full transition-transform duration-500 flex flex-col">
+        <div class="p-6 border-b border-white/5 flex justify-between items-center">
+            <h2 class="text-xl font-bold">Shopping Cart</h2>
+            <button id="cart-close" class="p-2 hover:bg-white/5 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6">
+            <!-- Cart items injected by JS -->
+            <div id="empty-cart-msg" class="h-full flex flex-col items-center justify-center text-slate-500 gap-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 opacity-20" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <p>Your cart is currently empty</p>
+                <button id="start-shopping"
+                    class="text-purple-400 font-medium hover:text-purple-300 transition-colors">Start Shopping</button>
+            </div>
+        </div>
+
+        <div id="cart-footer" class="p-6 border-t border-white/5 space-y-4 hidden">
+            <div class="space-y-2">
+                <div class="flex justify-between text-slate-400">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal" class="tabular-nums">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Tax (12%)</span>
+                    <span id="cart-tax" class="tabular-nums">$0.00</span>
+                </div>
+                <div class="flex justify-between text-xl font-bold pt-2 border-t border-white/5">
+                    <span>Total</span>
+                    <span id="cart-total" class="text-gradient tabular-nums">$0.00</span>
+                </div>
+            </div>
+            <button id="checkout-btn"
+                class="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl font-bold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all hover:-translate-y-0.5 active:translate-y-0">
+                Proceed to Checkout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Checkout Modal Overlay -->
+    <div id="checkout-modal" class="fixed inset-0 bg-dark z-[60] hidden overflow-y-auto">
+        <nav
+            class="sticky top-0 w-full z-40 bg-dark/80 backdrop-blur-md border-b border-white/5 px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <button id="back-to-cart" class="mr-2 p-2 hover:bg-white/5 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <span class="text-xl font-bold tracking-tight">Checkout Pipeline</span>
+            </div>
+        </nav>
+
+        <div class="max-w-3xl mx-auto px-6 py-12">
+            <div class="space-y-6">
+                <!-- Step 1: Shipping -->
+                <div class="checkout-step glass rounded-2xl overflow-hidden border border-white/5">
+                    <button class="w-full p-6 flex justify-between items-center text-left" id="step1-trigger">
+                        <div class="flex items-center gap-4">
+                            <span
+                                class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm">01</span>
+                            <div>
+                                <h3 class="font-bold">Shipping Details</h3>
+                                <p id="shipping-summary" class="text-sm text-slate-400 hidden">Shipping to: <span
+                                        class="summary-text text-slate-200"></span></p>
+                            </div>
+                        </div>
+                        <span class="indicator text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </span>
+                    </button>
+                    <div class="accordion-content open" id="step1-content">
+                        <div class="accordion-inner p-6 pt-0">
+                            <form id="shipping-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label for="full-name"
+                                        class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Full
+                                        Name</label>
+                                    <input type="text" id="full-name" required
+                                        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:border-purple-500 outline-none transition-colors"
+                                        placeholder="John Doe">
+                                </div>
+                                <div class="space-y-1">
+                                    <label for="email"
+                                        class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email
+                                        Address</label>
+                                    <input type="email" id="email" required
+                                        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:border-purple-500 outline-none transition-colors"
+                                        placeholder="john@example.com">
+                                </div>
+                                <div class="md:col-span-2 space-y-1">
+                                    <label for="address"
+                                        class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Full
+                                        Address</label>
+                                    <input type="text" id="address" required
+                                        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:border-purple-500 outline-none transition-colors"
+                                        placeholder="Street, City, Province">
+                                </div>
+                                <div class="md:col-span-2 pt-4">
+                                    <button type="submit"
+                                        class="w-full py-3 bg-white/10 hover:bg-white/20 rounded-lg font-bold transition-all">Continue
+                                        to Payment</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Payment -->
+                <div class="checkout-step glass rounded-2xl overflow-hidden border border-white/5">
+                    <button class="w-full p-6 flex justify-between items-center text-left opacity-50 cursor-not-allowed"
+                        id="step2-trigger" disabled>
+                        <div class="flex items-center gap-4">
+                            <span
+                                class="w-8 h-8 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm">02</span>
+                            <div>
+                                <h3 class="font-bold">Payment Method</h3>
+                                <p id="payment-summary" class="text-sm text-slate-400 hidden">Card ending in <span
+                                        class="summary-text text-slate-200"></span></p>
+                            </div>
+                        </div>
+                        <span class="indicator text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </span>
+                    </button>
+                    <div class="accordion-content" id="step2-content">
+                        <div class="accordion-inner p-6 pt-0">
+                            <form id="payment-form" class="space-y-6">
+                                <div class="relative">
+                                    <label for="card-number"
+                                        class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Card
+                                        Number</label>
+                                    <div class="relative mt-1">
+                                        <input type="text" id="card-number" required maxlength="19"
+                                            class="w-full bg-white/5 border border-white/10 rounded-lg pl-4 pr-12 py-3 focus:border-purple-500 outline-none transition-colors tabular-nums"
+                                            placeholder="0000 0000 0000 0000">
+                                        <div id="card-type-icon"
+                                            class="absolute right-4 top-1/2 -translate-y-1/2 opacity-60">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1">
+                                        <label for="expiry"
+                                            class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Expiry
+                                            (MM/YY)</label>
+                                        <input type="text" id="expiry" required maxlength="5"
+                                            class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:border-purple-500 outline-none transition-colors"
+                                            placeholder="12/26">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label for="cvc"
+                                            class="text-xs font-semibold text-slate-500 uppercase tracking-wider">CVC</label>
+                                        <input type="text" id="cvc" required maxlength="3"
+                                            class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:border-purple-500 outline-none transition-colors"
+                                            placeholder="123">
+                                    </div>
+                                </div>
+                                <button type="submit"
+                                    class="w-full py-3 bg-white/10 hover:bg-white/20 rounded-lg font-bold transition-all">Review
+                                    Order</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Review -->
+                <div class="checkout-step glass rounded-2xl overflow-hidden border border-white/5">
+                    <button class="w-full p-6 flex justify-between items-center text-left opacity-50 cursor-not-allowed"
+                        id="step3-trigger" disabled>
+                        <div class="flex items-center gap-4">
+                            <span
+                                class="w-8 h-8 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm">03</span>
+                            <div>
+                                <h3 class="font-bold">Final Review</h3>
+                                <p class="text-sm text-slate-400">Review your items and place order</p>
+                            </div>
+                        </div>
+                        <span class="indicator text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </span>
+                    </button>
+                    <div class="accordion-content" id="step3-content">
+                        <div class="accordion-inner p-6 pt-0 space-y-4">
+                            <div id="checkout-total-section" class="bg-white/5 rounded-xl p-4 space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Total Items</span>
+                                    <span id="final-count" class="font-bold">0</span>
+                                </div>
+                                <div class="flex justify-between text-xl border-t border-white/5 pt-2 mt-2">
+                                    <span class="font-bold">Grand Total</span>
+                                    <span id="final-total" class="font-bold text-gradient tabular-nums">$0.00</span>
+                                </div>
+                            </div>
+                            <button id="place-order-btn"
+                                class="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl font-bold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all flex justify-center items-center gap-3">
+                                <span>Place Order</span>
+                                <div id="loading-spinner" class="hidden">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Undo Snackbar -->
+    <div id="undo-snackbar"
+        class="fixed bottom-6 left-6 glass rounded-xl px-4 py-3 flex items-center gap-4 translate-y-[150%] transition-transform duration-300 z-[100] border border-white/10">
+        <span class="text-sm">Item removed from cart</span>
+        <button id="undo-btn"
+            class="text-purple-400 text-sm font-bold uppercase tracking-wider hover:text-purple-300">Undo</button>
+    </div>
+
+    <!-- Receipt Overlay -->
+    <div id="receipt-overlay"
+        class="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] hidden items-center justify-center p-6">
+        <div
+            class="glass max-w-md w-full rounded-3xl overflow-hidden shadow-2xl relative animate-fadeIn border border-white/10">
+            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 p-8 text-center text-white">
+                <div
+                    class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold">Order Confirmed</h2>
+                <p class="opacity-80">Transaction #SB-9842</p>
+            </div>
+
+            <div class="p-8 space-y-6 bg-[#0f172a]/80">
+                <div class="space-y-4">
+                    <div id="receipt-items" class="space-y-2 text-sm">
+                        <!-- Items injected here -->
+                    </div>
+                    <div class="border-t border-white/5 pt-4 flex justify-between font-bold text-lg">
+                        <span>Total Paid</span>
+                        <span id="receipt-total" class="text-gradient">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="text-center pt-4">
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-2">Authored Receipt</p>
+                    <div class="digital-signature py-2">Beejay T.</div>
+                </div>
+
+                <button id="close-receipt"
+                    class="w-full py-3 border border-white/10 rounded-xl hover:bg-white/5 transition-colors font-medium">Close
+                    & Return</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/app.js"></script>
+</body>
+
+</html>

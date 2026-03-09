@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary: #c084fc;
+    --secondary: #22d3ee;
+    --accent: #f472b6;
+    --bg-dark: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-dark);
+    color: #f8fafc;
+    overflow-x: hidden;
+}
+
+/* Glassmorphism */
+.glass {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-light {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Animations */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes flyingItem {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.1) translate(var(--target-x), var(--target-y)); opacity: 0; }
+}
+
+.animate-slide-in {
+    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-out {
+    animation: slideOutRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.staggered-item {
+    opacity: 0;
+}
+
+.staggered-item.show {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Flying Item Animation Class */
+.flying-product {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    border-radius: 50%;
+    object-fit: cover;
+    animation: flyingItem 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+/* Morphing Button Classes */
+.morphing-btn {
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.morphing-btn.pill {
+    width: 120px;
+    border-radius: 9999px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* Tabular Nums for Price stability */
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Accordion Transitions */
+.accordion-content {
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease-out;
+    display: grid;
+}
+
+.accordion-content.open {
+    grid-template-rows: 1fr;
+}
+
+.accordion-inner {
+    overflow: hidden;
+}
+
+/* Digital Signature */
+.digital-signature {
+    font-family: 'Dancing Script', cursive; /* I'll add this font */
+    font-size: 1.5rem;
+    color: black;
+    background: transparent;
+}
+
+/* Utilities */
+.text-gradient {
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
