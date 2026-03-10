@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Match Fun! | Memory Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@500;700;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body
+    class="bg-[#FDF9F0] text-slate-800 min-h-screen flex flex-col items-center justify-center p-4 font-['Inter'] relative overflow-x-hidden">
+
+    <!-- Background Dots Pattern -->
+    <div class="fixed inset-0 pointer-events-none -z-10 opacity-[0.05]"
+        style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 24px 24px;"></div>
+
+    <header class="w-full max-w-4xl flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+        <div class="text-center md:text-left">
+            <h1 class="text-4xl md:text-5xl font-black text-[#FF8A00] tracking-tight uppercase"
+                style="text-shadow: 2px 2px 0px rgba(0,0,0,0.05);">
+                CODE MATCH <span class="text-[#4F46E5]">FUN!</span>
+            </h1>
+            <p class="text-slate-500 font-bold mt-1">Ready to build and match?</p>
+        </div>
+
+        <div
+            class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-8 py-5 flex items-center gap-8 border border-slate-100">
+            <div class="text-center">
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-1">Time</p>
+                <span id="timer" class="text-2xl font-black text-[#4F46E5] font-['Outfit']">00:00</span>
+            </div>
+            <div class="w-[1px] h-10 bg-slate-100"></div>
+            <div class="text-center">
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-1">Guesses</p>
+                <span id="move-counter" class="text-2xl font-black text-[#EF4444] font-['Outfit']">0</span>
+            </div>
+            <div class="w-[1px] h-10 bg-slate-100"></div>
+            <div class="text-center">
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-1">Points</p>
+                <span id="score-counter" class="text-2xl font-black text-[#10B981] font-['Outfit']">0</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full max-w-5xl bg-[#FAF7F0] rounded-[40px] p-8 md:p-12 shadow-inner border-8 border-white relative">
+        <div id="game-board" class="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 md:gap-6 perspective-1000">
+            <!-- Cards will be injected by JavaScript -->
+        </div>
+    </main>
+
+    <footer class="w-full max-w-5xl mt-12 flex items-center justify-between px-4">
+        <button id="reset-btn"
+            class="px-8 py-4 bg-white text-[#4F46E5] border-2 border-[#4F46E5]/10 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 font-black text-sm uppercase tracking-wider flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 11-9-9c2.52 0 4.85.83 6.72 2.25L21 8m0-5v5h-5"></path>
+            </svg>
+            Start Over!
+        </button>
+        <div class="authored-stamp select-none pointer-events-none opacity-40 hover:opacity-100 transition-opacity">
+            <span class="text-sm font-black italic text-slate-400 font-['Outfit']">Beejay T.</span>
+        </div>
+    </footer>
+
+    <!-- Asset Preloader (Hidden) -->
+    <div id="asset-preloader" class="hidden" aria-hidden="true"></div>
+
+    <!-- Victory Overlay -->
+    <div id="victory-overlay"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/20 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-700">
+        <div
+            class="bg-white p-12 rounded-[50px] shadow-2xl text-center transform scale-90 transition-transform duration-700 border-8 border-white max-w-md w-full">
+            <h2 class="text-5xl font-black mb-4 text-[#4F46E5] uppercase tracking-tight">LEVEL CLEAR!</h2>
+            <p class="text-slate-400 text-lg font-bold mb-8 tracking-widest uppercase">Benchmark Completed</p>
+            <div id="final-stats" class="text-2xl font-black text-[#10B981] mb-12 flex flex-col gap-2"></div>
+            <button onclick="window.location.reload()"
+                class="w-full py-5 bg-[#4F46E5] text-white rounded-3xl font-black text-xl hover:shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] transition-all duration-300 hover:-translate-y-1 active:translate-y-0">
+                PLAY AGAIN?
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
