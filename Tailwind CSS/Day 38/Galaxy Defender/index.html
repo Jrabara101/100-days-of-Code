@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Retro Galaxy Defender - Senior Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="relative flex w-screen h-screen overflow-hidden bg-[#1a0524]">
+    <!-- CRT Scanlines Overlay -->
+    <div class="absolute inset-0 z-40 scanlines pointer-events-none"></div>
+
+    <div class="relative w-full h-full overflow-hidden">
+        <canvas class="w-full h-full z-0" id="gameCanvas"></canvas>
+
+        <!-- Telemetry HUD Overlay (DOM + Tailwind) -->
+        <div class="absolute inset-0 pointer-events-none flex justify-between p-6 z-50" id="hud-container">
+            <!-- Left Side Telemetry -->
+            <div
+                class="flex flex-col gap-4 w-64 h-fit p-6 glass-panel border-r-2 border-[var(--retro-magenta)] pointer-events-auto">
+                <div class="flex flex-col gap-2">
+                    <span class="text-[var(--retro-orange)] text-[10px] uppercase">Navigation</span>
+                    <span class="text-white font-mono text-[10px]" id="coords">X:0 Y:0</span>
+                </div>
+                <div class="border-t border-[var(--retro-purple)] pt-4">
+                    <span class="text-[var(--retro-orange)] text-[10px] uppercase">Defense</span>
+                    <span class="text-[var(--retro-cyan)] text-[10px] block mt-1">SHIELDS STABLE</span>
+                </div>
+            </div>
+
+            <!-- Right Side Telemetry -->
+            <div class="flex flex-col gap-6 w-80 h-fit p-6 glass-panel arcade-panel-border pointer-events-auto">
+                <div class="flex flex-col gap-2">
+                    <span class="text-[var(--retro-orange)] text-[10px] uppercase">Main Engine</span>
+                    <span class="text-[var(--retro-cyan)] text-[8px] animate-pulse">SYSTEMS ONLINE</span>
+                </div>
+
+                <div class="border-t-2 border-[var(--retro-purple)] pt-4">
+                    <span class="text-[var(--retro-orange)] text-[10px] mb-2 block uppercase">Top Score</span>
+                    <span class="text-[var(--retro-yellow)] text-xl retro-text-shadow" id="scoreDisplay">000000</span>
+                </div>
+
+                <div class="border-t-2 border-[var(--retro-purple)] pt-4">
+                    <span class="text-[var(--retro-orange)] text-[10px] mb-2 block uppercase">Vessels</span>
+                    <div class="flex items-center gap-4">
+                        <span class="text-[var(--retro-yellow)] text-2xl" id="livesCount">03</span>
+                        <div class="flex flex-wrap gap-2" id="livesDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="border-t-2 border-[var(--retro-purple)] pt-4">
+                    <span class="text-[var(--retro-orange)] text-[10px] mb-2 block uppercase">Weaponry</span>
+                    <div class="w-full h-4 bg-gray-900 border border-[var(--retro-orange)] p-0.5">
+                        <div class="h-full bg-gradient-to-r from-[var(--retro-yellow)] via-[var(--retro-orange)] to-red-600 transition-all duration-75"
+                            id="heatBar" style="width: 0%"></div>
+                    </div>
+                    <span class="text-[8px] text-[var(--retro-magenta)] mt-1 uppercase">Plasma Core Heat</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authored Pause Menu -->
+    <div class="absolute inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md hidden transition-all duration-300"
+        id="pauseMenu">
+        <div
+            class="border-4 border-[var(--retro-magenta)] bg-[#1a0524] p-12 text-center flex flex-col items-center shadow-[0_0_50px_rgba(255,0,255,0.4)]">
+            <h1 class="text-4xl text-[var(--retro-yellow)] mb-8 retro-text-shadow italic uppercase">Interrupted</h1>
+            <div class="space-y-6 w-80">
+                <button
+                    class="w-full py-4 bg-[var(--retro-orange)] hover:bg-[var(--retro-yellow)] text-black font-bold border-b-4 border-orange-800 transition-all active:translate-y-1 active:border-b-0"
+                    onclick="togglePause()">RESUME MISSION</button>
+                <button
+                    class="w-full py-4 bg-transparent border-2 border-[var(--retro-magenta)] text-[var(--retro-magenta)] font-bold hover:bg-[var(--retro-magenta)] hover:text-white transition-all"
+                    onclick="location.reload()">ABORT / REBOOT</button>
+            </div>
+            <!-- Senior E-Signature -->
+            <div class="mt-12 pt-8 border-t border-[var(--retro-purple)] w-full">
+                <p class="text-[10px] text-gray-400 uppercase mb-4">Physics Engine Authored By</p>
+                <div class="bg-transparent inline-block p-2">
+                    <span class="text-black font-bold text-2xl tracking-tighter"
+                        style="font-family: 'Press Start 2P';">Beejay T.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

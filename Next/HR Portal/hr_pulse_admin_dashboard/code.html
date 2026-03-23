@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2463eb",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-nav { @apply bg-primary/10 text-primary border-r-4 border-primary; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary rounded-lg p-1.5 text-white">
+<span class="material-symbols-outlined block">pulse_alert</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">HR Pulse</h1>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">person_search</span>
+                    Recruitment
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+                    Onboarding
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+                    Time Off
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">contacts</span>
+                    Directory
+                </a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<a class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</div>
+</aside>
+<!-- Main Content -->
+<div class="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
+<!-- Top Bar -->
+<header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-10">
+<div class="flex items-center flex-1 max-w-md">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none text-slate-900 dark:text-slate-100" placeholder="Search employees, files, or tasks..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="relative p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900">3</span>
+</button>
+<div class="h-8 w-px bg-slate-200 dark:border-slate-800 mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer group">
+<div class="text-right hidden md:block">
+<p class="text-sm font-semibold text-slate-900 dark:text-white leading-none">Marcus Miller</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">HR Manager</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary/20 border border-primary/10 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional portrait of a male HR manager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkxeMy_PzV5aHbdlD618O_89_ykVMRzaPCT9ZEIo7t17PMZOmyYWIIVjl47m2QcNgMIRjWFg4qvSXYGyLQWVQQwOTcFKqx-fFAZfznfFX39HZlaGXLLXD-ZI1c-0Z0RQ7pwCwAA8Uvje0xZOuLlz4o7LWS6JiKHiNoKmyzGReQ0OUdLF5RkmYM8SJcR-HcIRP1TGvG7MYt0EJ-PP4sDDedYG9qxLr7pl4x-qFQMIYNjH1tkaHgXaV9EANYeATGQZBNejSVYtKnLOhK"/>
+</div>
+</div>
+</div>
+</header>
+<main class="p-8">
+<!-- Key Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<span class="text-green-600 text-xs font-bold bg-green-50 px-2 py-1 rounded">+2.4%</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Employees</p>
+<h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1">248</h3>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">work</span>
+</div>
+<span class="text-slate-400 text-xs font-bold bg-slate-50 px-2 py-1 rounded">0%</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Active Job Openings</p>
+<h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1">12</h3>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-lg">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<span class="text-red-600 text-xs font-bold bg-red-50 px-2 py-1 rounded">-5%</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">New Hires (Month)</p>
+<h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1">8</h3>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg">
+<span class="material-symbols-outlined">pending_actions</span>
+</div>
+<span class="text-green-600 text-xs font-bold bg-green-50 px-2 py-1 rounded">+12%</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Leave Requests</p>
+<h3 class="text-3xl font-bold text-slate-900 dark:text-white mt-1">5</h3>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Recruitment Funnel -->
+<div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-center mb-8">
+<h4 class="font-bold text-slate-900 dark:text-white">Recruitment Funnel</h4>
+<select class="text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded py-1 px-2 text-slate-600 outline-none">
+<option>This Month</option>
+<option>Last Quarter</option>
+</select>
+</div>
+<div class="flex items-end justify-between gap-4 h-64 px-4">
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg relative group h-full">
+<div class="absolute bottom-0 left-0 w-full bg-primary rounded-t-lg transition-all" style="height: 100%"></div>
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-bold text-slate-900">142</div>
+</div>
+<span class="text-xs text-slate-500 font-medium truncate w-full text-center">Applied</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg relative group h-full">
+<div class="absolute bottom-0 left-0 w-full bg-primary rounded-t-lg transition-all" style="height: 65%"></div>
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-bold text-slate-900">92</div>
+</div>
+<span class="text-xs text-slate-500 font-medium truncate w-full text-center">Screened</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg relative group h-full">
+<div class="absolute bottom-0 left-0 w-full bg-primary rounded-t-lg transition-all" style="height: 35%"></div>
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-bold text-slate-900">48</div>
+</div>
+<span class="text-xs text-slate-500 font-medium truncate w-full text-center">Interviewed</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-2">
+<div class="w-full bg-primary/20 rounded-t-lg relative group h-full">
+<div class="absolute bottom-0 left-0 w-full bg-primary rounded-t-lg transition-all" style="height: 15%"></div>
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-bold text-slate-900">22</div>
+</div>
+<span class="text-xs text-slate-500 font-medium truncate w-full text-center">Offered</span>
+</div>
+</div>
+</div>
+<!-- Onboarding Readiness -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+<h4 class="font-bold text-slate-900 dark:text-white mb-6">Onboarding Readiness</h4>
+<div class="space-y-6 flex-1">
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-semibold text-slate-900 dark:text-slate-100">Jane Doe</span>
+<span class="text-primary font-bold">75%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-3/4"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-semibold text-slate-900 dark:text-slate-100">Michael Chen</span>
+<span class="text-primary font-bold">40%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-2/5"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-semibold text-slate-900 dark:text-slate-100">Sarah Smith</span>
+<span class="text-primary font-bold">90%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[90%]"></div>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold rounded-lg text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                            View All Onboarding
+                        </button>
+</div>
+</div>
+<!-- Out Today Widget -->
+<div class="mt-8 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-2">
+<h4 class="font-bold text-slate-900 dark:text-white">Out Today</h4>
+<span class="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded-full uppercase tracking-wider">4 Employees</span>
+</div>
+<a class="text-sm text-primary font-semibold hover:underline" href="#">Full Calendar</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+<div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a female employee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9t13ytd36AFEjGJs_ku3zDKJMMkGyzT9oQ5FuFgFDM5PtnVPigdqrDPvgB5o5HTH0YeKLHaFm1lZdDQMMlTZVHXQQVlVzF7QrtbvEyRkMyl-3MMaAPNAMpWQFqpJhAbmVg3QHcY-qqQqf915mksMAG50e9xxgTJiZNOxxeSKrHaDx02fv62wlwbp2JTc4zo09spV6-JFgvHxkuPAMVUCgM__gI_qBu2p9NUbd77JTesZOvy00YZ3hZNT4_ogBEh0Ysr58JscYGmCX"/>
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-white leading-none">Emily Blunt</p>
+<p class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Back May 14</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a male employee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-bWpjlVqLWdVvype3xUoeTRYWSw11VTjEnvxwjYtGcBuhWqKjhL0NbTZopI0eC8xZGJk1u0sEZ48qxgyyzRi0a-_cSVsOB0lZaFqOFtSivqb8Qkt3l7y4MYEZzkETc1e3s-9DcuG_uJU0NUVtaBslcRVWgPqwVFh6jTruJbpZ5pJL-mzRQupPfydHxnRrDvNnZ6HTbYDTpY5XG4Lw9L4l1RA7Ej19yxckA6bpreLZ14Ph-XY_l9jmqD6-9ujA0gNarK75at6XmxRI"/>
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-white leading-none">James Wilson</p>
+<p class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Back May 12</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a female employee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaWPvHeeCg1qCyZLnQxPX262hEJ0wIWqcrLtG1BZDWwTl-pj9lNr6-cOqdJogkfg150xB9x8NtTwDy5mdNIGJkKAobP6TRC70rAYxNZDifK9NqZsEiX1P7T3qhuOxXFqhbn8N9urBIhKwbT8IVnaSGd5f1F-ElauxK2YJ1WWaBKvJvd2PtIB0b-woaEa0jlk6f6L529-SiiviCiWnevLif4iHjV0i_bv_P2A2iDdwD_gFNIwG3oj8fgqU85ecjkwtrV12ebR4fCGfF"/>
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-white leading-none">Elena Rodriguez</p>
+<p class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Back May 15</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a male employee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKh0JPjbMTTg3pDJmGG_arfD-khrBezUvulWMQVAIfvb8xSc54hogiQUxYPBir9JFK2fn5WzyLWRIntmiFqom5X4PrPKvljdRYDV8VBq8obmHqxxMH6bFuXMVZmbI_wzUHlvCnVWGGO-hpM4XkTctJSrUW65knAi018Dd4VRO5OXGwsy83eBork1sqKTC22CTOzrZcUwdpU-d6T3IAt5h24faJkw6x7Rox9-ipETYzMTJPnPg0yHa3TnagOe1aOTpx-skb3Zz_khNI"/>
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-white leading-none">David Kim</p>
+<p class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Back May 16</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>My Tickets - VibeCheck</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-card {
+            background: rgba(25, 37, 64, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #060e20;
+        }
+
+        h1,
+        h2,
+        h3,
+        .headline-font {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface": "#dee5ff",
+                        "primary-container": "#ae8dff",
+                        "outline": "#6d758c",
+                        "surface-container": "#0f1930",
+                        "on-error": "#490013",
+                        "on-secondary": "#005a3c",
+                        "surface-variant": "#192540",
+                        "on-secondary-fixed-variant": "#006544",
+                        "tertiary-fixed-dim": "#ccd4ee",
+                        "on-background": "#dee5ff",
+                        "tertiary-fixed": "#dae2fd",
+                        "secondary-container": "#006c49",
+                        "on-primary-fixed-variant": "#370086",
+                        "background": "#060e20",
+                        "surface-bright": "#1f2b49",
+                        "tertiary": "#eef0ff",
+                        "on-tertiary-container": "#4a5167",
+                        "primary": "#ba9eff",
+                        "on-error-container": "#ffb2b9",
+                        "tertiary-container": "#dae2fd",
+                        "surface-container-lowest": "#000000",
+                        "secondary-fixed": "#69f6b8",
+                        "secondary-fixed-dim": "#58e7ab",
+                        "primary-dim": "#8455ef",
+                        "on-secondary-container": "#e1ffec",
+                        "tertiary-dim": "#ccd4ee",
+                        "surface-container-high": "#141f38",
+                        "surface": "#060e20",
+                        "error-dim": "#d73357",
+                        "on-secondary-fixed": "#00452d",
+                        "on-tertiary-fixed-variant": "#535b71",
+                        "primary-fixed-dim": "#a27cff",
+                        "on-surface-variant": "#a3aac4",
+                        "error": "#ff6e84",
+                        "surface-container-low": "#091328",
+                        "on-primary": "#39008c",
+                        "inverse-surface": "#faf8ff",
+                        "inverse-on-surface": "#4d556b",
+                        "outline-variant": "#40485d",
+                        "inverse-primary": "#6e3bd7",
+                        "on-primary-container": "#2b006e",
+                        "on-tertiary": "#525a70",
+                        "secondary": "#69f6b8",
+                        "primary-fixed": "#ae8dff",
+                        "on-tertiary-fixed": "#373f54",
+                        "surface-container-highest": "#192540",
+                        "surface-dim": "#060e20",
+                        "surface-tint": "#ba9eff",
+                        "error-container": "#a70138",
+                        "secondary-dim": "#58e7ab",
+                        "on-primary-fixed": "#000000"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface min-h-screen pb-32">
+    <!-- TopAppBar -->
+    <header
+        class="fixed top-0 w-full z-50 bg-[#060e20]/80 backdrop-blur-lg no-border bg-gradient-to-b from-[#060e20] to-transparent">
+        <div class="flex justify-between items-center w-full px-6 py-4">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-violet-400"
+                    data-icon="confirmation_number">confirmation_number</span>
+                <h1 class="font-['Plus_Jakarta_Sans'] font-bold tracking-tight text-xl text-violet-100">My Tickets</h1>
+            </div>
+            <div
+                class="h-10 w-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant/20">
+                <img alt="User profile" data-alt="User profile circular avatar placeholder"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-alY0SezL-IwoNYo3FNirNzF_K8j6jORJTvHmedl1t5pUbBj-o4Q19PCjAI7RNt2Awt2ca5gKwV8Obb6eWS1gJRkzuKye91t7jDWy0xynljI87ZfXvgXLULtn2KCZoQIn8WUbH9iVE85E2kGatVaffkO-ul8m28pYCx9-qDoKnqFWMi2OZwulUFtGx-NE1HRKHUnN5VTzWOuCkeiyTBNYUP5jgnyWbr9oGN_1Jvm04KDz_kOIJMc3-KVBGMra6YLUajcDoJGuqF8" />
+            </div>
+        </div>
+    </header>
+    <main class="pt-24 px-6 max-w-2xl mx-auto space-y-8">
+        <!-- Search Section -->
+        <section class="relative">
+            <div
+                class="flex items-center bg-surface-container-highest rounded-2xl px-4 py-3 group focus-within:ring-2 ring-primary-dim/30 transition-all">
+                <span class="material-symbols-outlined text-outline mr-3" data-icon="search">search</span>
+                <input
+                    class="bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline w-full headline-font font-medium"
+                    placeholder="Search events or venues..." type="text" />
+                <span
+                    class="material-symbols-outlined text-outline ml-2 hover:text-primary transition-colors cursor-pointer"
+                    data-icon="tune">tune</span>
+            </div>
+        </section>
+        <!-- Active Tickets List -->
+        <section class="space-y-6">
+            <div class="flex justify-between items-end">
+                <h2 class="text-2xl font-bold headline-font text-on-surface">Upcoming</h2>
+                <span class="text-sm font-semibold label-md uppercase tracking-widest text-primary">2 Events</span>
+            </div>
+            <!-- Ticket Card 1 -->
+            <div
+                class="group relative overflow-hidden rounded-[2rem] bg-surface-container-low shadow-2xl transition-all duration-300 hover:scale-[1.01]">
+                <div class="aspect-[16/9] relative overflow-hidden">
+                    <img alt="Concert Stage"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        data-alt="Dynamic concert stage with purple and blue lights"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYPcQpXHOCw1Dmrl3DivlfjQI1g_DOc8bzuGhgCNWH-9kWK0CjKs0xU_jITwwHOLna0NNJk0P8-uiHA0lHcXfzN3UBbBsKNPV-VNrocug4-mmNAdIqOgXrt21G-iZOM2HW_TMdM5UtaXd2WGdzNciXDmY3AnlqR3hER2-nd3iFUDdCtSuBxj5nvnhqYfP2Ug0HZuvzvDv_auROCMW6uOTcAj6egSYfWz_Jvbffyr9YMZObK1CoZSZ9FaAlyWxCPVv61Jvd5N4NbVw" />
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent">
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 bg-secondary/20 backdrop-blur-md px-3 py-1 rounded-full border border-secondary/30 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-secondary text-[14px]" data-icon="verified"
+                            style="font-variation-settings: 'FILL' 1;">verified</span>
+                        <span class="text-[10px] font-bold uppercase tracking-tighter text-secondary">Official
+                            Ticket</span>
+                    </div>
+                </div>
+                <div class="p-6 -mt-12 relative z-10 glass-card mx-4 mb-4 rounded-3xl border border-white/5">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="text-xl font-extrabold headline-font tracking-tight text-white mb-1">Neon Pulse
+                                2024</h3>
+                            <p class="text-sm text-outline flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]"
+                                    data-icon="location_on">location_on</span>
+                                The Indigo Dome, SF
+                            </p>
+                        </div>
+                        <div class="bg-primary/10 px-3 py-2 rounded-2xl text-center min-w-[50px]">
+                            <span class="block text-primary font-black text-lg leading-none">24</span>
+                            <span class="text-[10px] font-bold text-primary-fixed uppercase">Oct</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 py-4 border-t border-outline-variant/10 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-violet-400 text-[18px]"
+                                data-icon="schedule">schedule</span>
+                            <span class="text-sm font-medium text-on-surface-variant">Doors 8:00 PM</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-violet-400 text-[18px]"
+                                data-icon="confirmation_number">confirmation_number</span>
+                            <span class="text-sm font-medium text-on-surface-variant">Sec GA, Row 2</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button
+                            class="col-span-2 bg-gradient-to-br from-[#ba9eff] to-[#8455ef] text-black font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(186,158,255,0.3)] active:scale-95 transition-transform">
+                            <span class="material-symbols-outlined" data-icon="qr_code_2">qr_code_2</span>
+                            View QR Ticket
+                        </button>
+                        <button
+                            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface text-sm font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]" data-icon="ios_share">ios_share</span>
+                            Transfer
+                        </button>
+                        <button
+                            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface text-sm font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]"
+                                data-icon="calendar_add_on">calendar_add_on</span>
+                            Calendar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Ticket Card 2 -->
+            <div
+                class="group relative overflow-hidden rounded-[2rem] bg-surface-container-low shadow-2xl transition-all duration-300 hover:scale-[1.01]">
+                <div class="aspect-[16/9] relative overflow-hidden">
+                    <img alt="Club Vibes"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        data-alt="Underground club with neon strobe lights and smoke"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu1KjAgIOz4wdv3Lah5tffGGPyJJDH1LGeh_r2fG-BoGV3N0UG22AoxPHONIsA9uQ0P7AztrFJhIjLPbYsXngw0fSZ1rqTy_KyUEtXHS9OThYsSUOVoyIEQp3OkOQDt-3xvZ7zOIOu5cmxrW1lLhmiJfX3j1b4n_FD_oocyEunwa9IT8uDQBSy7dpu78oJd-KSv1vxe0k5cQ_9m-BSWAgHT2-wq5SiaWC_qwZg9ce88Z_tweSSXyvDfPlzO_qBVKTRBwUekvaNhhE" />
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent">
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 bg-secondary/20 backdrop-blur-md px-3 py-1 rounded-full border border-secondary/30 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-secondary text-[14px]" data-icon="verified"
+                            style="font-variation-settings: 'FILL' 1;">verified</span>
+                        <span class="text-[10px] font-bold uppercase tracking-tighter text-secondary">Official
+                            Ticket</span>
+                    </div>
+                </div>
+                <div class="p-6 -mt-12 relative z-10 glass-card mx-4 mb-4 rounded-3xl border border-white/5">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="text-xl font-extrabold headline-font tracking-tight text-white mb-1">Midnight
+                                Resonance</h3>
+                            <p class="text-sm text-outline flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]"
+                                    data-icon="location_on">location_on</span>
+                                Warehouse 404, LA
+                            </p>
+                        </div>
+                        <div class="bg-primary/10 px-3 py-2 rounded-2xl text-center min-w-[50px]">
+                            <span class="block text-primary font-black text-lg leading-none">12</span>
+                            <span class="text-[10px] font-bold text-primary-fixed uppercase">Nov</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 py-4 border-t border-outline-variant/10 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-violet-400 text-[18px]"
+                                data-icon="schedule">schedule</span>
+                            <span class="text-sm font-medium text-on-surface-variant">Doors 11:30 PM</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-violet-400 text-[18px]"
+                                data-icon="confirmation_number">confirmation_number</span>
+                            <span class="text-sm font-medium text-on-surface-variant">VIP Access</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button
+                            class="col-span-2 bg-gradient-to-br from-[#ba9eff] to-[#8455ef] text-black font-bold py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(186,158,255,0.3)] active:scale-95 transition-transform">
+                            <span class="material-symbols-outlined" data-icon="qr_code_2">qr_code_2</span>
+                            View QR Ticket
+                        </button>
+                        <button
+                            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface text-sm font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]" data-icon="ios_share">ios_share</span>
+                            Transfer
+                        </button>
+                        <button
+                            class="bg-surface-variant/50 hover:bg-surface-variant text-on-surface text-sm font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]"
+                                data-icon="calendar_add_on">calendar_add_on</span>
+                            Calendar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Empty State (Hidden by default, used for demonstration) -->
+        <section class="hidden py-16 flex flex-col items-center text-center space-y-4">
+            <div class="w-24 h-24 bg-surface-container-high rounded-full flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-4xl text-outline" data-icon="event_busy">event_busy</span>
+            </div>
+            <h3 class="text-xl font-bold headline-font">No upcoming tickets</h3>
+            <p class="text-outline max-w-[250px]">Looks like your calendar is empty. Time to find your next vibe!</p>
+            <button class="mt-4 bg-primary text-on-primary-container px-8 py-3 rounded-full font-bold">Explore
+                Events</button>
+        </section>
+        <!-- Error State (Hidden by default, used for demonstration) -->
+        <section
+            class="hidden py-16 flex flex-col items-center text-center space-y-4 bg-error-container/10 rounded-[2rem] border border-error/20 p-8">
+            <span class="material-symbols-outlined text-4xl text-error" data-icon="error">error</span>
+            <h3 class="text-xl font-bold headline-font text-on-error-container">Unable to load tickets</h3>
+            <p class="text-outline text-sm">We're having trouble connecting to the stage. Please try again later.</p>
+            <button class="px-6 py-2 bg-surface-variant rounded-full text-sm font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span>
+                Retry
+            </button>
+        </section>
+    </main>
+    <!-- BottomNavBar -->
+    <nav
+        class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-[#060e20]/90 backdrop-blur-2xl rounded-t-[2rem] shadow-[0px_-10px_40px_rgba(0,0,0,0.4)]">
+        <a class="flex flex-col items-center justify-center bg-gradient-to-br from-[#ba9eff] to-[#8455ef] text-black rounded-2xl px-5 py-2 scale-90 duration-200"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="event_available"
+                style="font-variation-settings: 'FILL' 1;">event_available</span>
+            <span
+                class="font-['Plus_Jakarta_Sans'] text-[11px] font-semibold uppercase tracking-widest mt-1">Upcoming</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-slate-500 opacity-70 hover:text-violet-200 transition-all"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="history">history</span>
+            <span
+                class="font-['Plus_Jakarta_Sans'] text-[11px] font-semibold uppercase tracking-widest mt-1">Past</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-slate-500 opacity-70 hover:text-violet-200 transition-all"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="report_problem">report_problem</span>
+            <span
+                class="font-['Plus_Jakarta_Sans'] text-[11px] font-semibold uppercase tracking-widest mt-1">Disputed</span>
+        </a>
+    </nav>
+</body>
+
+</html>

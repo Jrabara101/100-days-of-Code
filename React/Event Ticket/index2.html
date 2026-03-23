@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Select Tickets | Neon Dreams: Midnight Rave</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface": "#dee5ff",
+                        "on-secondary-container": "#e1ffec",
+                        "surface-dim": "#060e20",
+                        "secondary-fixed": "#69f6b8",
+                        "inverse-surface": "#faf8ff",
+                        "secondary": "#69f6b8",
+                        "primary": "#ba9eff",
+                        "on-secondary": "#005a3c",
+                        "primary-fixed-dim": "#a27cff",
+                        "primary-fixed": "#ae8dff",
+                        "on-tertiary-container": "#4a5167",
+                        "surface-bright": "#1f2b49",
+                        "on-secondary-fixed": "#00452d",
+                        "on-background": "#dee5ff",
+                        "surface-container-highest": "#192540",
+                        "surface-container": "#0f1930",
+                        "error-container": "#a70138",
+                        "tertiary-dim": "#ccd4ee",
+                        "secondary-fixed-dim": "#58e7ab",
+                        "on-error": "#490013",
+                        "surface-container-low": "#091328",
+                        "on-tertiary-fixed": "#373f54",
+                        "on-primary-fixed-variant": "#370086",
+                        "primary-dim": "#8455ef",
+                        "on-primary-fixed": "#000000",
+                        "primary-container": "#ae8dff",
+                        "tertiary-fixed": "#dae2fd",
+                        "outline-variant": "#40485d",
+                        "inverse-on-surface": "#4d556b",
+                        "inverse-primary": "#6e3bd7",
+                        "on-tertiary-fixed-variant": "#535b71",
+                        "surface-variant": "#192540",
+                        "on-secondary-fixed-variant": "#006544",
+                        "tertiary-fixed-dim": "#ccd4ee",
+                        "surface-tint": "#ba9eff",
+                        "surface-container-high": "#141f38",
+                        "on-primary": "#39008c",
+                        "secondary-dim": "#58e7ab",
+                        "secondary-container": "#006c49",
+                        "surface-container-lowest": "#000000",
+                        "on-primary-container": "#2b006e",
+                        "background": "#060e20",
+                        "tertiary-container": "#dae2fd",
+                        "surface": "#060e20",
+                        "on-error-container": "#ffb2b9",
+                        "tertiary": "#eef0ff",
+                        "error": "#ff6e84",
+                        "outline": "#6d758c",
+                        "on-surface-variant": "#a3aac4",
+                        "on-tertiary": "#525a70",
+                        "error-dim": "#d73357"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-panel {
+            background: rgba(25, 37, 64, 0.6);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-body text-on-surface selection:bg-primary selection:text-on-primary">
+    <!-- TopAppBar -->
+    <header
+        class="fixed top-0 w-full z-50 bg-[#060e20]/60 backdrop-blur-xl flex items-center justify-between px-6 py-4 w-full">
+        <div class="flex items-center gap-4">
+            <button
+                class="text-white/70 hover:text-white transition-colors scale-95 active:opacity-80 transition-transform">
+                <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+            </button>
+            <h1 class="font-headline font-bold tracking-tight text-white text-xl">The Digital Pulse</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary"
+                data-icon="confirmation_number">confirmation_number</span>
+        </div>
+    </header>
+    <main class="pt-20 pb-40">
+        <!-- Hero Banner Section -->
+        <section class="px-6 mb-8">
+            <div class="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-[2rem] overflow-hidden group">
+                <img alt="Neon Dreams Midnight Rave"
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    data-alt="Vibrant neon stage lights at a midnight electronic music festival"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuChUeV97YxVOCVg9Xwz-uYzs2Vru13Lk8LTULyDphT82OUTVGDVYwla4Q-WsOcxPkMpfZAL0fQfwcFwL_9nwGIC4_e0cPP-eXs8fclE5s8JgrfNzSf2Mc4Qx9E2gvy_n_Yolk7U1sonJHYpnnmtONOEefkZUoEDcpXTZIrsLqD9e-zOj--n2V1Joqrev6nBMESCHgdZnSbdRZwMIUYktXaDiTXMAVQ_jMQg_jiXUMTgDWGx7x3ca954mSa_2LVJSEEeKbjmhJ9KTxs" />
+                <div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent"></div>
+                <div class="absolute bottom-6 left-8 right-8">
+                    <span
+                        class="inline-block px-3 py-1 bg-secondary text-on-secondary text-[10px] font-bold tracking-widest uppercase rounded-full mb-3">Trending</span>
+                    <h2 class="font-headline text-4xl md:text-6xl font-extrabold tracking-tighter text-white mb-2">Neon
+                        Dreams: Midnight Rave</h2>
+                    <div class="flex items-center gap-4 text-white/80 font-medium">
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-primary text-sm"
+                                data-icon="calendar_today">calendar_today</span>
+                            <span class="text-sm">AUG 24, 2024</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-primary text-sm"
+                                data-icon="location_on">location_on</span>
+                            <span class="text-sm">THE GRID, BERLIN</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Ticket Tiers -->
+        <section class="px-6 mb-12">
+            <div class="flex items-end justify-between mb-6">
+                <div>
+                    <h3 class="font-headline text-2xl font-bold text-white mb-1">Select Tickets</h3>
+                    <p class="text-on-surface-variant text-sm">Choose your experience level</p>
+                </div>
+                <div
+                    class="hidden md:flex items-center gap-2 text-secondary text-xs font-bold tracking-wider uppercase">
+                    <span class="material-symbols-outlined text-sm" data-icon="verified">verified</span>
+                    Official Resale Available
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- General Admission -->
+                <div
+                    class="bg-surface-container-low rounded-[2rem] p-6 flex flex-col justify-between transition-all hover:bg-surface-container border border-transparent hover:border-outline-variant/20 group">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-surface-container-highest flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined"
+                                    data-icon="confirmation_number">confirmation_number</span>
+                            </div>
+                            <span class="text-2xl font-black text-white">$45</span>
+                        </div>
+                        <h4 class="font-headline text-xl font-bold text-white mb-2">General Admission</h4>
+                        <p class="text-on-surface-variant text-sm mb-6 leading-relaxed">Experience the heart of the
+                            pulse with full access to the main dance floor and standard zones.</p>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4 bg-surface-container-highest rounded-2xl p-2">
+                            <button
+                                class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-white hover:bg-surface-container-high active:scale-90 transition-all">
+                                <span class="material-symbols-outlined" data-icon="remove">remove</span>
+                            </button>
+                            <span class="font-headline font-bold text-lg w-4 text-center">0</span>
+                            <button
+                                class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:brightness-110 active:scale-90 transition-all">
+                                <span class="material-symbols-outlined" data-icon="add">add</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Vibe Experience -->
+                <div
+                    class="bg-surface-container rounded-[2rem] p-6 flex flex-col justify-between border-2 border-primary/30 relative overflow-hidden group">
+                    <div
+                        class="absolute top-0 right-0 px-4 py-1 bg-primary text-on-primary text-[10px] font-black uppercase tracking-tighter rounded-bl-xl">
+                        Popular</div>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+                            </div>
+                            <span class="text-2xl font-black text-white">$75</span>
+                        </div>
+                        <h4 class="font-headline text-xl font-bold text-white mb-2">Vibe Experience</h4>
+                        <p class="text-on-surface-variant text-sm mb-6 leading-relaxed">Immersive 360 visuals access,
+                            dedicated express bar entry, and limited edition event poster.</p>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4 bg-surface-container-highest rounded-2xl p-2">
+                            <button
+                                class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-white hover:bg-surface-container-high active:scale-90 transition-all">
+                                <span class="material-symbols-outlined" data-icon="remove">remove</span>
+                            </button>
+                            <span class="font-headline font-bold text-lg w-4 text-center">2</span>
+                            <button
+                                class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:brightness-110 active:scale-90 transition-all">
+                                <span class="material-symbols-outlined" data-icon="add">add</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Royal Access -->
+                <div
+                    class="bg-surface-container-low rounded-[2rem] p-6 flex flex-col justify-between transition-all hover:bg-surface-container border border-transparent hover:border-outline-variant/20 group">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-surface-container-highest flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined" data-icon="diamond">diamond</span>
+                            </div>
+                            <span class="text-2xl font-black text-white">$120</span>
+                        </div>
+                        <h4 class="font-headline text-xl font-bold text-white mb-2">Royal Access</h4>
+                        <p class="text-on-surface-variant text-sm mb-6 leading-relaxed">Elevated VIP lounge, private
+                            entrance, inclusive premium drinks, and artist meet-and-greet chance.</p>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4 bg-surface-container-highest rounded-2xl p-2">
+                            <button
+                                class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-white hover:bg-surface-container-high active:scale-90 transition-all">
+                                <span class="material-symbols-outlined" data-icon="remove">remove</span>
+                            </button>
+                            <span class="font-headline font-bold text-lg w-4 text-center">0</span>
+                            <button
+                                class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:brightness-110 active:scale-90 transition-all">
+                                <span class="material-symbols-outlined" data-icon="add">add</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Promo & Trust -->
+        <section class="px-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="bg-surface-container-low p-8 rounded-[2rem]">
+                <label class="block font-headline font-bold text-white mb-4">Promo Code</label>
+                <div class="flex gap-3">
+                    <input
+                        class="flex-1 bg-surface-container-highest border-none rounded-2xl px-6 py-4 text-white focus:ring-2 focus:ring-primary-dim transition-all"
+                        placeholder="Enter code" type="text" />
+                    <button
+                        class="bg-surface-container-high px-8 rounded-2xl font-bold text-primary hover:bg-surface-variant transition-colors active:scale-95">Apply</button>
+                </div>
+            </div>
+            <div class="flex flex-col gap-6">
+                <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-surface-container-low transition-colors">
+                    <div
+                        class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                        <span class="material-symbols-outlined" data-icon="shield_lock">shield_lock</span>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-white">Secure Transaction</h5>
+                        <p class="text-on-surface-variant text-xs">256-bit SSL encrypted checkout for your safety.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-surface-container-low transition-colors">
+                    <div
+                        class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                        <span class="material-symbols-outlined" data-icon="repeat">repeat</span>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-white">Official Resale Hub</h5>
+                        <p class="text-on-surface-variant text-xs">Safe and verified ticket exchange platform.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- BottomNavBar as Checkout Bar -->
+    <footer
+        class="fixed bottom-0 w-full z-50 rounded-t-[24px] bg-[#060e20]/80 backdrop-blur-2xl shadow-[0px_-20px_40px_rgba(0,0,0,0.4)]">
+        <div class="flex justify-between items-center px-8 py-6 w-full max-w-7xl mx-auto">
+            <div class="text-white/80 flex flex-col items-start gap-1">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Subtotal</span>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-white text-2xl font-black font-headline">$150</span>
+                    <span class="text-white/50 text-xs font-medium">USD</span>
+                </div>
+            </div>
+            <button
+                class="bg-gradient-to-br from-[#ba9eff] to-[#8455ef] text-black rounded-[1.5rem] px-8 py-3 font-bold flex items-center gap-3 hover:brightness-110 transition-all active:scale-[0.98] duration-200">
+                <span>Continue</span>
+                <span class="material-symbols-outlined font-bold" data-icon="arrow_forward">arrow_forward</span>
+            </button>
+        </div>
+    </footer>
+</body>
+
+</html>

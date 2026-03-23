@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=EB+Garamond:ital,wght@0,400;0,500;1,400&amp;family=Inter:wght@300;400;500&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "espresso": "#1A1412",
+                        "ochre": "#E2B06D",
+                        "antique-brass": "#B58451",
+                        "parchment": "#F4F0E6",
+                    },
+                    fontFamily: {
+                        "serif-title": ["Playfair Display", "serif"],
+                        "serif-body": ["EB Garamond", "serif"],
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-espresso text-parchment font-serif-body antialiased;
+            }
+            h1, h2, h3, .serif-font {
+                @apply font-serif-title tracking-tight;
+            }
+        }
+        .text-narrative {
+            @apply leading-relaxed text-lg text-parchment/80 max-w-2xl mx-auto;
+        }
+        .full-bleed-section {
+            @apply min-h-screen relative flex flex-col justify-center overflow-hidden;
+        }
+        .scrolling-container {
+            scroll-snap-type: y proximity;
+        }
+        .scroll-item {
+            scroll-snap-align: start;
+        }
+    </style>
+    <title>Chef's Chronicle: A Journey in Flavors</title>
+</head>
+
+<body class="bg-espresso overflow-x-hidden">
+    <div class="layout-container flex h-full grow flex-col">
+        <header
+            class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-8 md:px-12 py-6 bg-espresso/40 backdrop-blur-md border-b border-antique-brass/20">
+            <div class="flex items-center gap-12">
+                <div class="flex flex-col">
+                    <h2 class="text-xl font-bold tracking-widest uppercase text-ochre">Beejay T.</h2>
+                    <span class="text-[9px] tracking-[0.5em] text-antique-brass uppercase -mt-0.5">Memoir of
+                        Gastronomy</span>
+                </div>
+            </div>
+            <nav class="hidden lg:flex items-center gap-12">
+                <a class="text-parchment/60 hover:text-ochre text-[10px] uppercase tracking-[0.3em] transition-all"
+                    href="#">Chronicle</a>
+                <a class="text-parchment/60 hover:text-ochre text-[10px] uppercase tracking-[0.3em] transition-all"
+                    href="#">Essence</a>
+                <a class="text-ochre text-[10px] uppercase tracking-[0.3em] border-b border-ochre pb-1" href="#">Current
+                    Chapters</a>
+                <a class="text-parchment/60 hover:text-ochre text-[10px] uppercase tracking-[0.3em] transition-all"
+                    href="#">Archives</a>
+            </nav>
+            <div class="flex items-center gap-6">
+                <span
+                    class="material-symbols-outlined text-ochre cursor-pointer hover:scale-110 transition-transform">menu</span>
+            </div>
+        </header>
+        <main class="w-full">
+            <section class="full-bleed-section scroll-item">
+                <div class="absolute inset-0 bg-fixed bg-cover bg-center"
+                    style="background-image: linear-gradient(to bottom, rgba(26,20,18,0.7), rgba(26,20,18,0.9)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuBeYi5WYB8hHfv15jVqS5mvlSXKNDRGPSrYMdanac-ovyz1bWJeOzzu_0bE-xu3i8969flIWefBTDIC6ZqAt3mHKl2aT5XsO6QbsF5tmFf7jgWAOfmQuL464TQ70a0vlO-BeLESuWLj6igTpOrXEcVBif3p9WF2NtO3-N1XFaQ_kOXgX4eG_Str-i0cVkiElamTZapzAzoEYgBwjuslsPkt94cZfHTMELF1-H5E1driS4nTxSp-AED8iDC8od6fHmo0oeOslHN8FE4');">
+                </div>
+                <div class="relative z-10 px-8 md:px-24 max-w-5xl">
+                    <span class="text-antique-brass text-xs uppercase tracking-[0.6em] mb-6 block font-sans">Chapter I —
+                        Origins</span>
+                    <h1 class="text-6xl md:text-9xl font-bold text-parchment mb-8 leading-[0.9]">Chef's
+                        Chronicle:<br /><span class="italic text-ochre">A Journey in Flavors</span></h1>
+                    <p class="text-narrative font-sans font-light !mx-0">Every plate tells a story of dawn markets,
+                        blistered hands, and the quiet alchemy of the kitchen. This is not just a menu; it is a memoir
+                        captured in oils, salts, and the memory of the earth.</p>
+                    <div class="mt-12 flex items-center gap-4">
+                        <span class="h-[1px] w-24 bg-antique-brass"></span>
+                        <span class="text-[10px] uppercase tracking-[0.4em] text-ochre">Scroll to Begin</span>
+                    </div>
+                </div>
+            </section>
+            <section class="min-h-screen bg-parchment text-espresso flex flex-col md:flex-row scroll-item">
+                <div class="w-full md:w-1/2 h-[50vh] md:h-screen sticky top-0 overflow-hidden">
+                    <img alt="Seafood Preparation" class="w-full h-full object-cover"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzO0gVvTlru752N_51VNeYGL9-CgnMqKUIEZUfGijpnho0YVSWDQt5HT0TmY-WAFAv0_kUGQ1InTwZ-wiFyloJX-T6Hr9JthyIKCfeBmP4uJId59ZiJXOgW_GGxpaOBkVSRt8LIOrFeg4M3Vi9W-IOnH6cxfaFJpMGiHFREYWrsxGCV7wtMCL8OHSQQKtXn4SeKBkv78F-SKDjD-gCoOIN4jZD8pQ41r5Hrb37DSnmxL-ZgaF-NGodpol8qwg9-KN_VtyQN_IDG2w" />
+                    <div class="absolute inset-0 bg-espresso/10"></div>
+                </div>
+                <div class="w-full md:w-1/2 p-12 md:p-24 flex flex-col justify-center">
+                    <h2 class="text-4xl md:text-6xl mb-8 italic">The Icthyus Sequence</h2>
+                    <p
+                        class="text-espresso/70 text-lg leading-relaxed mb-8 italic border-l-4 border-antique-brass pl-8">
+                        "The sea is a cruel mistress but a generous provider. In the morning light, the scales shimmer
+                        like ancient coins, demanding respect and precision."</p>
+                    <p class="font-sans text-sm leading-loose text-espresso/80 mb-12">
+                        We begin with the Atlantic catch, honey-glazed and rested until the internal heat whispers of
+                        perfection. This composition isn't about complexity, but rather the stark contrast between the
+                        mineral salt of the ocean and the amber warmth of highland honey. Each element is placed with an
+                        intention that mirrors the rhythmic pull of the tides.
+                    </p>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center justify-between border-b border-espresso/10 pb-4">
+                            <span class="uppercase tracking-widest text-[10px]">Composition 042</span>
+                            <span class="font-serif italic text-xl">Honey Glazed Atlantic</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-espresso/10 pb-4">
+                            <span class="uppercase tracking-widest text-[10px]">Paring</span>
+                            <span class="font-serif italic text-xl">Fermented Sea Salt &amp; Honey</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="full-bleed-section bg-espresso scroll-item py-24">
+                <div class="max-w-[1400px] mx-auto px-8 md:px-16 grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
+                    <div class="order-2 md:order-1">
+                        <h2 class="text-5xl md:text-7xl text-ochre mb-10 leading-tight">The Earth's<br />Quiet Bounty
+                        </h2>
+                        <p class="text-narrative !mx-0 mb-12">
+                            I remember the smell of damp earth in the Tuscan mornings. Picking tomatoes that were still
+                            warm from the previous day's sun—an experience that cannot be replicated, only honored
+                            through minimal intervention.
+                        </p>
+                        <div class="grid grid-cols-2 gap-8 mb-16">
+                            <div class="border-t border-antique-brass/30 pt-4">
+                                <h4 class="text-ochre font-bold text-xs uppercase tracking-widest mb-2">Botanical Study
+                                </h4>
+                                <p class="text-parchment/60 text-sm italic">Wild-foraged mushrooms, ancient grains, and
+                                    micro-herbs.</p>
+                            </div>
+                            <div class="border-t border-antique-brass/30 pt-4">
+                                <h4 class="text-ochre font-bold text-xs uppercase tracking-widest mb-2">Heritage</h4>
+                                <p class="text-parchment/60 text-sm italic">Sourced exclusively from artisan collectives
+                                    across the continent.</p>
+                            </div>
+                        </div>
+                        <button
+                            class="px-12 py-4 border border-ochre text-ochre uppercase tracking-[0.4em] text-[10px] hover:bg-ochre hover:text-espresso transition-all">Explore
+                            the Pantry</button>
+                    </div>
+                    <div class="order-1 md:order-2 relative aspect-[3/4] overflow-hidden group">
+                        <img alt="Chef at Work"
+                            class="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdIFa5T4UKu-BiyW7uWm02tpBI1tYGUH7gy59LiE3diG8FgErsTZS-ZxpEoarHKeMtU8Y5e1hHOQ2u0NReJNtdlcKd9MxnW4WiwH6itSCJNTvikarwvYtttp_IkMQcXZBLe08t0DGQPMINZS-IB9BaJXLnTNDQ-JnGT47N1CqhDx2taL5pyHDh8t6DqB8OKbDnKvVX5BuoHXjDAWdXE0DA_Jtn1PCtBtrV8iOeevADAEqtkA6t_89ZgVog5h8qLbi9wN_JLt2pvbY" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-espresso via-transparent to-transparent">
+                        </div>
+                        <div class="absolute bottom-8 left-8">
+                            <span class="text-[10px] uppercase tracking-[0.5em] text-antique-brass">Captured In-Situ /
+                                2024</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="bg-parchment py-32 scroll-item">
+                <div class="px-8 md:px-16 mb-24 text-center max-w-4xl mx-auto">
+                    <span class="text-antique-brass text-[10px] uppercase tracking-[0.6em] block mb-6">Chapter
+                        III</span>
+                    <h2 class="text-espresso text-5xl md:text-7xl mb-8 italic">The Essence of Form</h2>
+                    <p class="text-espresso/60 text-lg">In these plates, we strip away the superfluous. We allow the
+                        texture to define the narrative.</p>
+                </div>
+                <div class="flex flex-col gap-0">
+                    <div class="flex flex-col md:flex-row h-auto md:h-[80vh] bg-espresso overflow-hidden">
+                        <div class="w-full md:w-3/5">
+                            <img alt="Wagyu"
+                                class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKcuPIRRa8Yi6L_LjsTu2iPI9kscu6XSKOiqIw80bflDI4oQKoup9JGxKAiYRTvyefFFcCCf6zUeQvAa9DZ8jsvS4QkUU14f_aCo2zrKuDFiHY8ceTJwVZbqvJE5Zg1Z_DJTf3pdAen78BI-0ktl71Z-7IecIDhIiGpeOB3zm36a-2nGum379UxwGA1HqTwpcnfEf7dJ8Tyvc19iHLJBHKvSBIzNZyUIm1I0b3Y6rKwm71GsVVKJGKF-gRz8fiDNYhYdJ_fS37aUs" />
+                        </div>
+                        <div
+                            class="w-full md:w-2/5 p-16 md:p-24 flex flex-col justify-center border-l border-antique-brass/20">
+                            <span class="text-ochre text-[10px] uppercase tracking-[0.4em] mb-4">Volume IV:
+                                Autumn</span>
+                            <h3 class="text-parchment text-4xl mb-6 italic">Marbled Composition</h3>
+                            <p class="font-sans text-sm text-parchment/60 leading-relaxed mb-8">
+                                A study in fat and fire. The Wagyu series explores the delicate threshold between raw
+                                and rendered, where the marble melts into a story of pasture and patience.
+                            </p>
+                            <a class="text-antique-brass text-[10px] uppercase tracking-[0.4em] inline-flex items-center gap-4 group"
+                                href="#">
+                                Full Journal <span
+                                    class="h-[1px] w-8 bg-antique-brass group-hover:w-16 transition-all duration-500"></span>
+                            </a>
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-col md:flex-row-reverse h-auto md:h-[80vh] bg-espresso overflow-hidden border-t border-antique-brass/20">
+                        <div class="w-full md:w-3/5">
+                            <img alt="Tempura"
+                                class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYCsmZYRYgfUZ_iDbiVF_hUJ1zjayTEZsSDB4_na-KiHlRyQG-pokElVg8e1iXXH5D2hUc_PSGSjcMStWsrXdy6KmJubrQYmSbBgmbpK1Pi6LD-MrW9ZOwLEBYQPgpDysRVsmwR7T_b1_NYvbOw8lchRVe3bmNZHlpQR8bCNLK2gegb1YE4Yud3j14dSfmrjkCrV9CCq-b_vreT3cSdCOKm0M71P8NbgGPlG9r4HPwTqVBz-ho6FJrGBzfoyp3QAhm19Il5qR2poA" />
+                        </div>
+                        <div class="w-full md:w-2/5 p-16 md:p-24 flex flex-col justify-center">
+                            <span class="text-ochre text-[10px] uppercase tracking-[0.4em] mb-4">Volume II:
+                                Maritimus</span>
+                            <h3 class="text-parchment text-4xl mb-6 italic">Crispy Minimalism</h3>
+                            <p class="font-sans text-sm text-parchment/60 leading-relaxed mb-8">
+                                The sound of a crunch is as important as the taste of the prawn. These tempura notes are
+                                inspired by Tokyo rain—quick, fleeting, and refreshingly light.
+                            </p>
+                            <a class="text-antique-brass text-[10px] uppercase tracking-[0.4em] inline-flex items-center gap-4 group"
+                                href="#">
+                                Full Journal <span
+                                    class="h-[1px] w-8 bg-antique-brass group-hover:w-16 transition-all duration-500"></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="full-bleed-section bg-espresso scroll-item py-32 text-center">
+                <div class="max-w-3xl mx-auto px-8">
+                    <div class="mb-12">
+                        <span class="material-symbols-outlined text-ochre text-4xl mb-6">auto_awesome</span>
+                        <h2
+                            class="text-4xl md:text-6xl text-parchment mb-8 leading-tight italic font-serif-title uppercase tracking-tighter">
+                            The table is set.<br />The chronicle continues.</h2>
+                        <p class="text-narrative !mx-auto font-sans text-base">Join us for an intimate exploration of
+                            these flavors at our New York studio, where the narrative becomes a shared experience.</p>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-6 justify-center mt-12">
+                        <button
+                            class="bg-ochre text-espresso px-16 py-5 uppercase tracking-[0.4em] text-[10px] font-bold hover:bg-parchment transition-all">Private
+                            Reservation</button>
+                        <button
+                            class="border border-antique-brass/40 text-parchment px-16 py-5 uppercase tracking-[0.4em] text-[10px] hover:border-ochre transition-all">Acquire
+                            Chronicle Print</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer class="bg-espresso text-parchment border-t border-antique-brass/10 py-20 px-8 md:px-16">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-16 items-center">
+                <div class="text-[10px] uppercase tracking-[0.5em] text-antique-brass">
+                    © 2024 Beejay T. Studio — All Stories Reserved.
+                </div>
+                <div class="flex justify-center gap-12">
+                    <a class="text-parchment/40 hover:text-ochre transition-colors text-[10px] uppercase tracking-[0.4em]"
+                        href="#">Instagram</a>
+                    <a class="text-parchment/40 hover:text-ochre transition-colors text-[10px] uppercase tracking-[0.4em]"
+                        href="#">Journal</a>
+                    <a class="text-parchment/40 hover:text-ochre transition-colors text-[10px] uppercase tracking-[0.4em]"
+                        href="#">Inquiry</a>
+                </div>
+                <div class="text-right">
+                    <div class="text-ochre italic font-serif-title text-xl mb-1">Hand-plated in New York</div>
+                    <div class="text-[9px] uppercase tracking-[0.3em] text-parchment/30">Artisanal Curation Vol. IV
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+</html>

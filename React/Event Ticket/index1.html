@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,700;0,800;1,800&amp;family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface": "#dee5ff",
+                        "error-container": "#a70138",
+                        "secondary-dim": "#58e7ab",
+                        "primary-dim": "#8455ef",
+                        "surface-tint": "#ba9eff",
+                        "on-surface-variant": "#a3aac4",
+                        "secondary": "#69f6b8",
+                        "on-error": "#490013",
+                        "primary-fixed": "#ae8dff",
+                        "on-primary-container": "#2b006e",
+                        "inverse-surface": "#faf8ff",
+                        "on-tertiary-fixed-variant": "#535b71",
+                        "on-error-container": "#ffb2b9",
+                        "on-tertiary": "#525a70",
+                        "on-tertiary-fixed": "#373f54",
+                        "tertiary": "#eef0ff",
+                        "primary": "#ba9eff",
+                        "surface-container-high": "#141f38",
+                        "error": "#ff6e84",
+                        "error-dim": "#d73357",
+                        "tertiary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#00452d",
+                        "surface-bright": "#1f2b49",
+                        "surface": "#060e20",
+                        "on-secondary-container": "#e1ffec",
+                        "tertiary-dim": "#ccd4ee",
+                        "surface-container-low": "#091328",
+                        "surface-container": "#0f1930",
+                        "on-secondary-fixed-variant": "#006544",
+                        "on-primary-fixed-variant": "#370086",
+                        "tertiary-fixed-dim": "#ccd4ee",
+                        "on-primary-fixed": "#000000",
+                        "surface-container-lowest": "#000000",
+                        "inverse-on-surface": "#4d556b",
+                        "on-tertiary-container": "#4a5167",
+                        "primary-container": "#ae8dff",
+                        "surface-dim": "#060e20",
+                        "on-background": "#dee5ff",
+                        "secondary-fixed": "#69f6b8",
+                        "surface-variant": "#192540",
+                        "inverse-primary": "#6e3bd7",
+                        "secondary-container": "#006c49",
+                        "surface-container-highest": "#192540",
+                        "on-secondary": "#005a3c",
+                        "outline-variant": "#40485d",
+                        "on-primary": "#39008c",
+                        "secondary-fixed-dim": "#58e7ab",
+                        "tertiary-container": "#dae2fd",
+                        "background": "#060e20",
+                        "primary-fixed-dim": "#a27cff",
+                        "outline": "#6d758c"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .glass-morphism {
+            backdrop-filter: blur(20px);
+            background-color: rgba(25, 37, 64, 0.6);
+        }
+
+        .gradient-primary {
+            background: linear-gradient(135deg, #ba9eff 0%, #8455ef 100%);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+    <!-- TopAppBar Shell -->
+    <header
+        class="bg-[#060e20] dark:bg-[#060e20] flex justify-between items-center px-6 py-4 w-full z-50 docked full-width top-0 sticky">
+        <div class="flex items-center gap-3">
+            <span
+                class="material-symbols-outlined text-[#8B5CF6] dark:text-[#ba9eff] text-2xl">confirmation_number</span>
+            <span
+                class="font-plus-jakarta-sans font-bold tracking-tight text-2xl font-extrabold tracking-tighter text-[#ba9eff] italic">VibeCheck</span>
+        </div>
+        <div
+            class="hidden md:flex items-center gap-8 font-label text-sm font-bold uppercase tracking-widest text-[#ba9eff]">
+            <a class="hover:bg-[#8B5CF6]/10 transition-colors px-3 py-1 rounded-lg" href="#">Explore</a>
+            <a class="text-slate-400 hover:bg-[#8B5CF6]/10 transition-colors px-3 py-1 rounded-lg" href="#">Search</a>
+            <a class="text-slate-400 hover:bg-[#8B5CF6]/10 transition-colors px-3 py-1 rounded-lg" href="#">Tickets</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <div
+                class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 ring-offset-2 ring-offset-background hover:scale-95 active:duration-150 cursor-pointer transition-transform">
+                <img class="w-full h-full object-cover" data-alt="User Profile Avatar"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2ik1Y6dyeCy2p3-OjFq_wdfbeicR1dypThsoGTiebvYwUwQtq3fl2fgUIn8oWY31jPkBFFdoGBnhNPEwPiULw0PIsaib8qfgng8A4Y7K-xF9GxWDcMk-xTOvCuuiP1ht7jcK80TmIv1A6gzEWNNZcKlF0KkrN5rABGFz6Ehi3YZ3IeAnjhznjWeOP6OTLmkZhtigTyJwL0CV4e_t0A878ClJda28zQTq-yCoGLVSIl-kjxMS6MKKIcmDEaqQNObhJnIkUej0LetQ" />
+            </div>
+        </div>
+    </header>
+    <main class="pb-24">
+        <!-- High-Impact Hero Section -->
+        <section class="relative w-full h-[618px] md:h-[751px] flex items-end overflow-hidden">
+            <div class="absolute inset-0">
+                <img class="w-full h-full object-cover"
+                    data-alt="Massive electronic music festival stage with neon lights"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsGuKurSOTMu3Duzn2E6_7VLbmW6jW9QGoowqYmicLSo2SeILxjJ5CU-LxPRA3kSv96GieHDeX3rIbe88_TY7UEKnvQPSlTZmR2Wl0bQl5qS-AFmpjC-NgLYmI-1PtoL5DzhYULs_nAswrQK8pfnKpzRAULwUJUhFYpSRilbJ0o-EGq7DgM-GU4pECW5lTGGRXtN9RMT00n2GOW-NA5Iu9r2vDfAUpq6p-VBWn-sPda5ko-44esZ_GvCZbnzsFWYq88IbPOjGMPSM" />
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent opacity-60">
+                </div>
+            </div>
+            <div class="relative z-10 px-6 md:px-12 pb-16 max-w-5xl">
+                <div
+                    class="inline-flex items-center px-3 py-1 rounded-full bg-secondary text-on-secondary text-[11px] font-bold uppercase tracking-widest mb-6 gap-2">
+                    <span class="material-symbols-outlined text-sm"
+                        style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+                    Trending Now
+                </div>
+                <h1
+                    class="font-headline text-5xl md:text-8xl font-extrabold tracking-tighter text-on-surface mb-4 leading-tight">
+                    Neon Pulse <br /><span class="text-primary italic">2024</span></h1>
+                <p class="text-on-surface-variant text-lg md:text-xl max-w-xl mb-8 font-medium">Experience the world's
+                    premier electronic gathering. Tickets are moving fast.</p>
+                <div class="flex flex-wrap gap-4">
+                    <button
+                        class="gradient-primary text-on-primary-fixed px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:shadow-[0_0_20px_rgba(186,158,255,0.3)] transition-all active:scale-95">
+                        Get Tickets
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                    <button
+                        class="bg-surface-variant/40 backdrop-blur-xl text-on-surface px-8 py-4 rounded-xl font-bold border border-outline-variant/20 hover:bg-surface-variant/60 transition-all active:scale-95">
+                        View Details
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- Search and Filter Tray -->
+        <section class="px-6 -mt-8 relative z-20">
+            <div class="max-w-4xl mx-auto glass-morphism p-4 rounded-2xl shadow-2xl border border-outline-variant/10">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                        <input
+                            class="w-full bg-surface-container-highest text-on-surface border-none rounded-xl pl-12 py-4 focus:ring-2 focus:ring-primary/50 placeholder:text-slate-500 font-medium"
+                            placeholder="Find your next vibe" type="text" />
+                    </div>
+                    <div class="flex gap-4">
+                        <button
+                            class="flex items-center gap-2 bg-surface-container-highest text-on-surface px-6 py-4 rounded-xl font-bold border-b-2 border-transparent focus:border-primary-dim transition-all">
+                            <span class="material-symbols-outlined">calendar_month</span>
+                            Date
+                        </button>
+                        <button
+                            class="flex items-center gap-2 bg-surface-container-highest text-on-surface px-6 py-4 rounded-xl font-bold border-b-2 border-transparent focus:border-primary-dim transition-all">
+                            <span class="material-symbols-outlined">tune</span>
+                            Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Horizontal Categories -->
+        <section class="mt-16 overflow-hidden">
+            <div class="px-6 mb-6 flex justify-between items-end">
+                <h2 class="font-headline text-3xl font-extrabold tracking-tight">Explore Categories</h2>
+                <a class="text-primary font-bold text-sm flex items-center gap-1 hover:underline" href="#">See all
+                    categories</a>
+            </div>
+            <div class="flex gap-4 overflow-x-auto no-scrollbar px-6 pb-4">
+                <div class="flex-shrink-0 group cursor-pointer">
+                    <div class="w-48 h-28 rounded-2xl overflow-hidden relative mb-2">
+                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            data-alt="Concert stage lights category"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbvCXv0kdJLEk_xvNTlPN7Acd6x0nbG3qTW95cFX2Fls3lHFBu-O36oQ7RrAfybJhCH0zev3qzpeMJOdqrekXbdZ569OcGJhS9YyMgSxAEGHTwyRahQn6Oartq6E5GTd0B5SSRsZALcJ2z5e5WBe5Wefkv6Pch0buX6gnituquoWwviJB76_QiE9nzOW7ZMQIfNRKiNk_C6eqcOWcuqQBulDJmst8rkn0p1vMFnTiIxkVpUoB9ckil2G2ccxehBqM6IRKMcQmCVWQ" />
+                        <div class="absolute inset-0 bg-primary/20 mix-blend-overlay"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                            <span class="text-white font-bold">Concerts</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 group cursor-pointer">
+                    <div class="w-48 h-28 rounded-2xl overflow-hidden relative mb-2">
+                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            data-alt="Stadium sports event category"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE1poAgtVUG0ccGhT3DBbl9SnLs7SVyrehY0aQMBySJPbguHXy6BuOqkSv7A3OdWRznG1Ea_ux-0igNudz0y9w2TI0pCCvan9JZvuq3M0nYGp2m0hYaDE5FxLUk7ZVykBT77iV5uk-IWSD_QiFB165yvC17546R2hb3WDbwLUmaSW_wdQ1i_J9NMwi8Rcg-Ti9OzBcTzBuBB2_i4apXC-qESyeTm5Uzx8sv48bIgyge5sXrb42J-jKp2hqVsCZ845haOAp-aHeENA" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                            <span class="text-white font-bold">Sports</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 group cursor-pointer">
+                    <div class="w-48 h-28 rounded-2xl overflow-hidden relative mb-2">
+                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            data-alt="Theater stage curtain category"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF5ovnq8zWwPgIP2A7Qk8_FV8MGwSWzFoqNRJy3qoEuUb44SD0ELtw3jfWKbFsmtu2slcsG1I5hwJHARQe3FpnEFUrtMe3lVoaSrQ2YqzVvTyL-aBDo0sPcnFD6RQlFvx5nNaqdfyz0BU-i8JtfuHGvssA5VIP_TCxD9ByXq-tukRpHCsPaaujq42xjn7-dCDybJ7S9_gLYxmsnyp6uCVnh0pj5fvHi8j5KN4kPu19wfXf2V8sUFxaFl1n3uk4WWQqfsINeRxfEk4" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                            <span class="text-white font-bold">Theater</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 group cursor-pointer">
+                    <div class="w-48 h-28 rounded-2xl overflow-hidden relative mb-2">
+                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            data-alt="Nightclub dance floor category"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_c7CkwNapyUrGySbwYIpOERL2fmsodWPe3D-ZcHQ34WJaSYkmfmw-JmCQLE9dCqrwNYem1VJHVsXZB5tJpA5BjIM0NwVuXh-pVspTzivVgd7qcjyIWVIcpC61nkhTYB535OGijTW7Ul-aOS4CBd89WTmZGa_pM5Q2BbYNMgzJLKuwq5W38o68JegECDAdWyp8Xd1n-1LiY9sV4YqxXRM36fCTPTR44KIq-4PDybEN2yw1mpg141iUlhIllkHIMoH-arrm5ztgzXQ" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                            <span class="text-white font-bold">Nightlife</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 group cursor-pointer">
+                    <div class="w-48 h-28 rounded-2xl overflow-hidden relative mb-2">
+                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            data-alt="Art gallery exhibition category"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw2cCu6n6N5xy2_PgaesKCOy3Cf0eNpZb6R-4ANUnTJ2quF_YlnA05jr7L0dOj7L3f94FCpxintzOebWx1hno1No_YJNtgy1kU_RRrIayPT6PUB3RYr4Px-f6-kBq6mrQpA887SJgY6g7M0XeFoTh_v5_ZcGbFiWLa_EHwNL8Xp-IzrIsCSiD-Zp-N4c7H-ULU6ezYB_v1nyGUjtsMbpkMxEI39VxYxezwNpD-K8A_KSYaJtMGjnBohi_2CdNQrvOfO-lKh7vpZY8" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                            <span class="text-white font-bold">Arts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- For You Section (Grid) -->
+        <section class="mt-16 px-6">
+            <div class="mb-8 flex flex-col md:flex-row md:items-center gap-2">
+                <h2 class="font-headline text-3xl font-extrabold tracking-tight">For You</h2>
+                <p class="text-on-surface-variant text-sm font-medium opacity-70">Personalized based on your vibe</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Event Card 1 -->
+                <div
+                    class="bg-surface-container-low rounded-[1.5rem] overflow-hidden group hover:bg-surface-container-high transition-colors duration-300">
+                    <div class="h-64 relative overflow-hidden">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            data-alt="DJ spinning at a rooftop party"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpNYudWmXUDOIFR5JgGxzg_z5d8gq5lSZbDB5GPUKuUvKMMnZN8POCeyJ9ZQfcRGwhgk5YuYkqTOiiWNgwM7Jdm3CdaSMbLZ4AfF-0iPCmq2YpKECEw85w3Sw0gCy7BA_PWBIu52KZ5jqOOaMiQZn_6iCQwtIKTnelnYfncbZI18KcyFItHcU1sakj5h0X-zI5MI1-_xx_VD6J0oFXNkaNS7pXW2TNiWKfIbygZ8lGGmc18-uyCmqBbX6KECziwyhytimkeTr1Gxg" />
+                        <div
+                            class="absolute top-4 right-4 bg-secondary text-on-secondary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest z-10">
+                            Selling Fast
+                        </div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent">
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3
+                                class="text-xl font-bold text-on-surface font-headline leading-tight group-hover:text-primary transition-colors">
+                                Midnight Sessions: House &amp; Soul</h3>
+                            <button class="text-on-surface-variant hover:text-primary transition-colors"><span
+                                    class="material-symbols-outlined">favorite</span></button>
+                        </div>
+                        <div class="flex flex-col gap-3 mb-6 text-sm text-on-surface-variant">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">calendar_today</span>
+                                Friday, Oct 24 • 10:00 PM
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">location_on</span>
+                                The Warehouse, Brooklyn
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-extrabold text-on-surface">From $45.00</span>
+                            <button
+                                class="bg-surface-variant/60 text-primary px-4 py-2 rounded-xl font-bold text-sm hover:bg-primary hover:text-on-primary transition-all">Select</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Event Card 2 -->
+                <div
+                    class="bg-surface-container-low rounded-[1.5rem] overflow-hidden group hover:bg-surface-container-high transition-colors duration-300">
+                    <div class="h-64 relative overflow-hidden">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            data-alt="Jazz singer performing in a dim club"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2gK_KeXu9CUAr5qWRFNbOu54XHEP-adIvOCXmwM14sEQQmNXL4jEx4tjjAspkY2wIX0bE2r8WRNNf8_LpZb5AeqrK2TRbOCGjEPvjZXm1hUOL0-P89nY0V670MR1dfLtWE1Ka5dpFXpXi-RNUkF2UfOYiOO8DxwUUSZ_tcAIH-fXNoNg_E2DoMpmHJ7zco1aX5BNeNNXLpeRgNdSj8I3eeh7oysEJ3c5AW5NpXIw8GyS4M9WLOuUfO7RM-t72aU7YQ_TlY2EGHms" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent">
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3
+                                class="text-xl font-bold text-on-surface font-headline leading-tight group-hover:text-primary transition-colors">
+                                Blue Note Jazz Residency</h3>
+                            <button class="text-on-surface-variant hover:text-primary transition-colors"><span
+                                    class="material-symbols-outlined">favorite</span></button>
+                        </div>
+                        <div class="flex flex-col gap-3 mb-6 text-sm text-on-surface-variant">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">calendar_today</span>
+                                Sunday, Oct 26 • 7:30 PM
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">location_on</span>
+                                Downtown Jazz Lounge
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-extrabold text-on-surface">$28.00</span>
+                            <button
+                                class="bg-surface-variant/60 text-primary px-4 py-2 rounded-xl font-bold text-sm hover:bg-primary hover:text-on-primary transition-all">Select</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Event Card 3 -->
+                <div
+                    class="bg-surface-container-low rounded-[1.5rem] overflow-hidden group hover:bg-surface-container-high transition-colors duration-300">
+                    <div class="h-64 relative overflow-hidden">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            data-alt="Indie rock band in a small venue"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEi22FqcCnd495ve1VfTu7BTYnZIxZIdLInYzgkaWjf2G_oAhtrFjjGmWPSXWNuaGnD8pUDOjDfhCXxgAzNTUFiKuR_yJ9iy6MZaOzKg3_mMAIS0eLzj1rMT6AEnDvSh6N4hXzqHIcNK04bVAHuA7v4Q0gBCw5OAJD4S3ARnimtlaXmOFf8tmamd_4dD76395rzYyRqxLA1EP2Ty8q_SDshIgpxoxw7EKLqitR5yOr_ZmieYkwFb9x2g2hU_J5lIRsgYOHEw5idDA" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent">
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3
+                                class="text-xl font-bold text-on-surface font-headline leading-tight group-hover:text-primary transition-colors">
+                                Echo &amp; The Vibe Tour</h3>
+                            <button class="text-on-surface-variant hover:text-primary transition-colors"><span
+                                    class="material-symbols-outlined">favorite</span></button>
+                        </div>
+                        <div class="flex flex-col gap-3 mb-6 text-sm text-on-surface-variant">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">calendar_today</span>
+                                Wed, Oct 29 • 8:00 PM
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">location_on</span>
+                                Sonic Hall, Manhattan
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-extrabold text-on-surface">From $62.00</span>
+                            <button
+                                class="bg-surface-variant/60 text-primary px-4 py-2 rounded-xl font-bold text-sm hover:bg-primary hover:text-on-primary transition-all">Select</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Trending Section (Bento Inspired List) -->
+        <section class="mt-20 px-6">
+            <h2 class="font-headline text-3xl font-extrabold tracking-tight mb-8">Trending events in your area</h2>
+            <div class="space-y-4">
+                <div
+                    class="flex items-center gap-6 p-4 rounded-2xl bg-surface-container-low hover:bg-surface-container-high transition-colors group cursor-pointer">
+                    <span class="text-3xl font-black text-outline/30 font-headline italic min-w-[3rem]">01</span>
+                    <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                        <img class="w-full h-full object-cover" data-alt="Modern pop concert visuals"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCawbd-mxKWLE5VIQPf2tLgmkMOL7oGPTObq7GYjRGuYpFxcUJdJJqU2D3FKVDMNpDoyb_-pgccPyojRlZBI_jwHcoUxRFQTzMDYqJ7o_7nc3HdTLl9CWNMB9WQrj_NfEAXrg9yvFwCQUIqHHtXXjNsDydNW72iiborUZn92C16Z6UZY_ES6b66BxnqtaCZJKk6MqKoyed-GzBkosjjCPQDD1eBz0EORsXEE4Z5ixYopV20g74pTdpFTct1R52tkOkXlvckXxcRMf0" />
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-on-surface group-hover:text-primary">Stellar Pop World Tour</h4>
+                        <p class="text-sm text-on-surface-variant">Oct 31 • Madison Square Garden</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-black text-on-surface">Sold Out</p>
+                        <p class="text-[10px] text-secondary font-bold uppercase tracking-widest">Resale available</p>
+                    </div>
+                </div>
+                <div
+                    class="flex items-center gap-6 p-4 rounded-2xl bg-surface-container-low hover:bg-surface-container-high transition-colors group cursor-pointer">
+                    <span class="text-3xl font-black text-outline/30 font-headline italic min-w-[3rem]">02</span>
+                    <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                        <img class="w-full h-full object-cover" data-alt="Soccer match stadium atmosphere"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBs5aGuTu5uMUQQ0eKSIV_RFivyVaD4bStwvB-y1TGUGVW89kNcFsSFyrqFEyHlhr6I0y6A4ewkUqMMQJMSSag3FXz6svcyA5TiR2YV3Z_ps3g3pM-OWllKIQ-JsdQ8HqYKCLBo8lVly8oyz0Gnj0LdYSLXwhi8CdLaKFeCzPgEQYT4nBSSHLCg6wbe72ZVNwMqikWfHDHcg-8lo-YmC2QjzKmHqLmCuanCn-p-RqxI0wUiWNRhy7Ds1n2-te0Se50nBbme2pH8wF8" />
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-on-surface group-hover:text-primary">City FC vs United</h4>
+                        <p class="text-sm text-on-surface-variant">Nov 02 • East Park Stadium</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-black text-on-surface">$120+</p>
+                        <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Last few
+                            seats</p>
+                    </div>
+                </div>
+                <div
+                    class="flex items-center gap-6 p-4 rounded-2xl bg-surface-container-low hover:bg-surface-container-high transition-colors group cursor-pointer">
+                    <span class="text-3xl font-black text-outline/30 font-headline italic min-w-[3rem]">03</span>
+                    <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                        <img class="w-full h-full object-cover" data-alt="Comedy club stage and mic"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDeLYJsxV7ix3WSkG_uOE6-jooDKPXCAc0hPklrgySZF8VW8PbwTDG5rmFsblL7CdmJXSlz1sGehD_1lX-ZQ-2Y2G9Tg1rIgp-BM1JEQk-pWFdbcKyaKXdO_GaTypwlEHzOdGam5s5hNcc_ywFhzBAf3-La5B72EznHGErwcAAg3g-EcZPteqPZ5gAWY48qqkcQMY6rVw-Fk2UJzHsTj5D-hMVVn9x5_HWz1Z3o0tBPQu3NSQLJmHohormoC2lT2nfm1alJHMkzlc" />
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-on-surface group-hover:text-primary">Underground Comedy Night</h4>
+                        <p class="text-sm text-on-surface-variant">Tomorrow • Laugh Attic</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-black text-on-surface">$15.00</p>
+                        <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">General Entry
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- BottomNavBar Shell -->
+    <nav
+        class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-2 bg-[#060e20]/60 dark:bg-[#060e20]/60 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0px_-10px_30px_rgba(0,0,0,0.5)] md:hidden">
+        <a class="flex flex-col items-center justify-center text-[#ba9eff] bg-[#8B5CF6]/20 rounded-xl px-4 py-2 transition-all tap-highlight-transparent active:scale-90 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+            <span class="font-inter text-[11px] font-bold uppercase tracking-widest mt-1">Explore</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-slate-500 py-2 hover:text-[#ba9eff] transition-all tap-highlight-transparent active:scale-90 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined">search</span>
+            <span class="font-inter text-[11px] font-bold uppercase tracking-widest mt-1">Search</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-slate-500 py-2 hover:text-[#ba9eff] transition-all tap-highlight-transparent active:scale-90 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined">confirmation_number</span>
+            <span class="font-inter text-[11px] font-bold uppercase tracking-widest mt-1">Tickets</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-slate-500 py-2 hover:text-[#ba9eff] transition-all tap-highlight-transparent active:scale-90 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined">person</span>
+            <span class="font-inter text-[11px] font-bold uppercase tracking-widest mt-1">Profile</span>
+        </a>
+    </nav>
+</body>
+
+</html>

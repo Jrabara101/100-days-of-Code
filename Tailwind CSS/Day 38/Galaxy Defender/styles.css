@@ -1,0 +1,64 @@
+:root {
+    --retro-purple: #2d0a3d;
+    --retro-dark: #1a0524;
+    --retro-orange: #ff9d00;
+    --retro-yellow: #ffeb00;
+    --retro-magenta: #ff00ff;
+    --retro-cyan: #00ffff;
+    --panel-bg: #0d0211;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--retro-dark);
+    font-family: 'Press Start 2P', cursive;
+}
+
+canvas {
+    display: block;
+    image-rendering: pixelated;
+}
+
+.arcade-panel-border {
+    border-left: 6px double var(--retro-magenta);
+    background-color: var(--panel-bg);
+    box-shadow: -4px 0 15px rgba(255, 0, 255, 0.3);
+}
+
+.retro-text-shadow {
+    text-shadow: 2px 2px 0px #000;
+}
+
+.scanlines {
+    background: linear-gradient(to bottom,
+            rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.25) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+}
+
+.material-symbols-outlined {
+    font-size: 24px;
+    vertical-align: middle;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 0, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.neon-border-cyan {
+    border: 2px solid var(--retro-cyan);
+    box-shadow: 0 0 10px var(--retro-cyan);
+}
+
+.neon-text-magenta {
+    color: var(--retro-magenta);
+    text-shadow: 0 0 5px var(--retro-magenta);
+}

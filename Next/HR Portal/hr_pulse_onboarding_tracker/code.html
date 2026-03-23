@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HR Pulse - Onboarding Tracker</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2463eb",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                        "success": "#10b981",
+                        "warning": "#f59e0b",
+                        "danger": "#ef4444",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">pulse_alert</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">HR Pulse</h1>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary text-white font-medium" href="#">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span>Onboarding</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">group_add</span>
+<span>Recruitment</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Time Off</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">contacts</span>
+<span>Directory</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 px-3 py-2">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="HR Manager Profile Picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRI8IGibDbxGjZrGaXXkjYMVqa07u3fzJ-BIv81y9wG6xkKAhbPNlJCmSMeVPfzQIHdZ_FJfNZKE2qjyX8C-Q05VcHCGZViwFO2hefxiYO8MolbLb2t1sTsfSZxIhCNU5eb2NRk7TPXSW3QMNIK8PU1MjyEg7iLOEx_1Z_Ug5vg_5O9qI1LLCSvUtrWKP-v3boYp5dXmCHRHfiP7mI4BXX4M6BivZJJBi_BIAImg8zM-ie6o_um8B-16lW9kXhORw8YNSutYNeXBRV"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold truncate">Marcus Webb</p>
+<p class="text-xs text-slate-500 truncate">HR Manager</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Wrapper -->
+<div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+<!-- Top Bar -->
+<header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-8 z-10">
+<div class="flex-1 max-w-xl">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm" placeholder="Search new hires, tasks, or documents..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all">
+<span class="material-symbols-outlined text-lg">add</span>
+<span>New Hire</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<!-- Content Area -->
+<main class="flex-1 overflow-y-auto p-8 flex gap-8">
+<!-- Left Column: Stats & Table -->
+<div class="flex-1 space-y-8 min-w-0">
+<!-- Key Stats -->
+<div class="grid grid-cols-3 gap-6">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400">Incoming Hires</p>
+<div class="flex items-end justify-between mt-2">
+<h3 class="text-3xl font-bold">12</h3>
+<span class="text-primary bg-primary/10 px-2 py-1 rounded text-xs font-bold">+2 this month</span>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400">Starting This Week</p>
+<div class="flex items-end justify-between mt-2">
+<h3 class="text-3xl font-bold">4</h3>
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-300 overflow-hidden"><img data-alt="Candidate 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5UIrEo7VaqQhdQ4RBTHUGbz94sTe3oGti2e15vmAprbVAgWlUDVVGiArATPCsyTsTSLF1pB5J9d5LnwyyhXOVMiFsqQGWtibX7xFtmKO6SZEY3eCtelJ4pMJwz8LOtedMDEh9nxjhYNix3lz_VOOd0dclBdOUzC7UpJCFRhLLOpK-pX3nXjK4PkkQiQY6_Jln3Ctmbk6-RayWjZt84zNd_aIpTuoFmQPzIUBA1l3ax39FnbK4yly0IWGg-Q9gKTVvHA5tIv3zWLL2"/></div>
+<div class="size-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-300 overflow-hidden"><img data-alt="Candidate 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE0y8Id7fCsK3Gz5omxswcvFFmhSF31BB4YiXrCWN_OQxGx09Ee0vIfPbTOELIyMSaNKOroKrfGanuQ4RfGkCL3vvBT6Pdpo3gDMkQStxzOGP_2DS9lcmWisQLPW3XCe616ZHGxpmzBCmbYAJbcKy7uqlJg6LvFhp2gXxOC-zgBMk2Zjv6fi4OsSKg7tSgBMKlWMe0a9wBbMDznwtxTk8s-X8xZMCofG3nAQqC3k0Mw3E3CEqKYF_hbHswMMxORUTR6Run-v0dNzYp"/></div>
+<div class="size-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-300 overflow-hidden"><img data-alt="Candidate 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDNasGE8b2SxNmL67mV_PUoHgYVq915IRk2_HksytnlpXe_7l4T9vWgNWCGiirfS7nB3dsxbvdov49bPE22YkDgYPZ3cvaVk0zAuVMuS2SgX7E_ZXNLGEY-pYdM7tR1jcfseG4IiXhixPFYlcEuZ4ShX_Bv1UYwSqtbNUrxZHGQoSldHx4SZTQjiZR_r-dvyfXNTCLrQppYt8IT54pmEI_X7mBMiAzcUnCoMZHmndX7i2JpCEUblZ0JTgwmvweCnnfZFSVhhQvr2O4"/></div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400">Missing Paperwork</p>
+<div class="flex items-end justify-between mt-2">
+<h3 class="text-3xl font-bold text-danger">2</h3>
+<span class="material-symbols-outlined text-danger">priority_high</span>
+</div>
+</div>
+</div>
+<!-- All Hires Table -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<h2 class="font-bold text-lg">All Hires Readiness</h2>
+<button class="text-sm text-primary font-medium hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+<th class="px-6 py-4">Name</th>
+<th class="px-6 py-4">Start Date</th>
+<th class="px-6 py-4">Role</th>
+<th class="px-6 py-4">Manager</th>
+<th class="px-6 py-4">Buddy</th>
+<th class="px-6 py-4">Readiness</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 overflow-hidden"><img data-alt="Alex Johnson" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5KWsbaWLOubpZCAHGw35HTtXkfvviKlKTJnLmJcYquFstElTTW1WmP5fIlVEigRalA4x_lVWKqIY9Lv6j7MnkSSHNQtb5-VpZgDfJH1bmwMb9Ax70Ynev_2WVJMMYBhe8KzrJO2EwualOJ7pyFbg9B4Q2FkiPk1nl-sikUCauBTjet7OBvf0anmKroRf9DrOt8Zh90ivF_bm-_BjWmdK5xfuwDpyMFMarj8ZYt8WPeLRLDZshlm7azAugQ5k4mmScVyYTHlQ4Ukc9"/></div>
+<span class="font-medium">Alex Johnson</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Oct 24, 2023</td>
+<td class="px-6 py-4 text-sm text-slate-500">Software Engineer</td>
+<td class="px-6 py-4 text-sm">Mark S.</td>
+<td class="px-6 py-4 text-sm">Jane D.</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3 min-w-[120px]">
+<div class="flex-1 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 85%"></div>
+</div>
+<span class="text-xs font-bold w-8 text-right">85%</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 overflow-hidden"><img data-alt="Sarah Williams" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEIOXn-OryC8HCCCWIY2hWadYXLsES1jkemx6fg53wP1NHFlT351Xb6MOE3Yi5QaV5GwtvE3GAriAUjzBBJhVESzo2PuIJjNU2jHYm3zbC-SYHUZO3BnMTYaozafIyw8vRIJwMMDY-yiyFhLevyZ6DG5TGbRwHgiligcPRyWwEiob9IOh_VKJBJCCzC6GLTl2o-USQn0AmUhTMNyHwVpTqTAxFLwmNz7pPU7TQMvCOlcqZnjHLcX34MoF6p_Yxdb9gAK8U9JJQPS4c"/></div>
+<span class="font-medium">Sarah Williams</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Oct 26, 2023</td>
+<td class="px-6 py-4 text-sm text-slate-500">Product Designer</td>
+<td class="px-6 py-4 text-sm">Emily R.</td>
+<td class="px-6 py-4 text-sm">Tom H.</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3 min-w-[120px]">
+<div class="flex-1 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-warning h-full rounded-full" style="width: 40%"></div>
+</div>
+<span class="text-xs font-bold w-8 text-right">40%</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 overflow-hidden"><img data-alt="Michael Chen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFfALe6G7hJiAsE-ZnixOJi-x7U6-x3MeUA21RQdYikKivQEltkVawtGmeeUuNAsyQyS0T1ZHS67crbm9lRlG_fhv_hdtmAECvbe-bAud4pbCOUibXWU9roZRRUHDl99eY7r6JGD6Y9lUgBy7nmOYZagV80UbtaYZL5UQUUmFQKa9ZCGb4qLGjEDkeUgTKVDplSKbPGxV4jfkn5bZ79oXzKHWHrt3x7GuGB_M4KSUwogeWSAY36tPlvR0kwE4TpFMAsPi8QLLYd-5u"/></div>
+<span class="font-medium">Michael Chen</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Oct 30, 2023</td>
+<td class="px-6 py-4 text-sm text-slate-500">Data Analyst</td>
+<td class="px-6 py-4 text-sm">Robert K.</td>
+<td class="px-6 py-4 text-sm">Lucy W.</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3 min-w-[120px]">
+<div class="flex-1 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-success h-full rounded-full" style="width: 100%"></div>
+</div>
+<span class="text-xs font-bold w-8 text-right text-success">100%</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 overflow-hidden"><img data-alt="Elena Rodriguez" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCTIstBO5XOGmzFJkhXntl3FTB0OAirUUIV_X3pZs-nrC8N4zZsT8IoiU2URnGKe5OO_pD4rw0H_Js_oOnhUIKX3gciQpbbJ8XRU-AD0zpqEWFGjx5eukOsBs8rliQBZliTcawH4tMgjOUMRYrmnum4F6Kb163ZLZVee7DBWem1Jol-39b8Zl5-PDFvM9-KhweXH_yJ0yIgmGynBM5aTXk1bHlolSgsRPdbkj6nxtPUChpZGPY7ZSZafaivS53x37vSkJf2pilOXGi"/></div>
+<span class="font-medium">Elena Rodriguez</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Nov 02, 2023</td>
+<td class="px-6 py-4 text-sm text-slate-500">HR Specialist</td>
+<td class="px-6 py-4 text-sm">Sarah P.</td>
+<td class="px-6 py-4 text-sm">David G.</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3 min-w-[120px]">
+<div class="flex-1 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 60%"></div>
+</div>
+<span class="text-xs font-bold w-8 text-right">60%</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Column: Need Attention Sidebar -->
+<aside class="w-80 flex-shrink-0 space-y-6">
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-full">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<h2 class="font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-warning">priority_high</span>
+                                Need Attention
+                            </h2>
+<span class="bg-danger text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">5</span>
+</div>
+<div class="flex-1 p-4 space-y-3 overflow-y-auto">
+<!-- Task Item -->
+<div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 group hover:border-primary/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3">
+<div class="mt-0.5 size-4 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center group-hover:border-primary">
+<div class="size-2 rounded-full bg-primary opacity-0 group-hover:opacity-100"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium leading-tight">Order Laptop for Alex</p>
+<p class="text-xs text-slate-500 mt-1 italic">Due today</p>
+</div>
+</div>
+</div>
+<!-- Task Item -->
+<div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 group hover:border-primary/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3">
+<div class="mt-0.5 size-4 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center group-hover:border-primary">
+<div class="size-2 rounded-full bg-primary opacity-0 group-hover:opacity-100"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium leading-tight">Finalize Contract for Sarah</p>
+<p class="text-xs text-slate-500 mt-1 italic">Missing signature</p>
+</div>
+</div>
+</div>
+<!-- Task Item -->
+<div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 group hover:border-primary/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3">
+<div class="mt-0.5 size-4 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center group-hover:border-primary">
+<div class="size-2 rounded-full bg-primary opacity-0 group-hover:opacity-100"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium leading-tight">Assign Buddy for Michael</p>
+<p class="text-xs text-slate-500 mt-1 italic">Pending confirmation</p>
+</div>
+</div>
+</div>
+<!-- Task Item -->
+<div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 group hover:border-primary/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3">
+<div class="mt-0.5 size-4 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center group-hover:border-primary">
+<div class="size-2 rounded-full bg-primary opacity-0 group-hover:opacity-100"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium leading-tight">IT Access for Elena</p>
+<p class="text-xs text-slate-500 mt-1 italic">Ticket #8842</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<button class="w-full py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span>See all tasks</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</aside>
+</main>
+</div>
+</div>
+</body></html>

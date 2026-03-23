@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#2463eb",
+                "background-light": "#f6f6f8",
+                "background-dark": "#111621",
+              },
+              fontFamily: {
+                "display": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="flex min-h-screen">
+<!-- Sidebar -->
+<aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col fixed h-full">
+<div class="p-6 flex items-center gap-3">
+<div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">pulse_alert</span>
+</div>
+<div>
+<h1 class="text-base font-bold leading-none">HR Pulse</h1>
+<p class="text-xs text-slate-500 mt-1">Employee Portal</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-sm font-medium">Home</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">checklist</span>
+<span class="text-sm font-medium">Tasks</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Team</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-sm font-medium">Company Handbook</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<img class="size-8 rounded-full border border-slate-200 shadow-sm" data-alt="Alex's profile portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvncl6YTR_k0CRJ-JTAhjamnuKcCOONfk5vH2V2IaeOTI9gvINMC9HILOGYYcG-i8TlIBG7jgaPLLeIrjYr5IwzjDHHGfPgmTP7wQprBJMt9qu8tL32A6NS9RYPTUF2_dCMCT9yww9bYAaY94quBieGru8PCjQhxMwacc1yDK3G50XDMuuFmQQItF0MXEPbwDMmQRLv8BRaEiguV3aPsQiycvmRdEX-R2-ntFU9Ke0EqZMuLKfImkzq2VA5K4oFq92BCyZY6xENSbP"/>
+<div class="overflow-hidden">
+<p class="text-sm font-medium truncate">Alex Johnson</p>
+<p class="text-xs text-slate-500 truncate">Software Engineer</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 ml-64">
+<!-- Top Bar -->
+<header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-10">
+<h2 class="text-lg font-semibold">Welcome to HR Pulse, Alex!</h2>
+<div class="flex items-center gap-4">
+<button class="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</button>
+<button class="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-xl">help</span>
+</button>
+</div>
+</header>
+<div class="p-8 max-w-6xl mx-auto space-y-8">
+<!-- Hero Header -->
+<section class="bg-white dark:bg-slate-900 rounded-xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex flex-col md:flex-row items-center gap-8">
+<div class="relative">
+<div class="size-32 rounded-full border-4 border-primary/20 p-1">
+<img class="size-full rounded-full object-cover" data-alt="Large profile photo of Alex" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5WFHl2jWBpCPoDixqNmfm2CyLPCXowb2ZtxMc7qt60p53Sbg3FX1olJqQiVHGpWp8XzrfqghF5DBx3rIwMj9pffU_j_9nzZX2B0UHYSmTn-4Ikon5cQr5zMtJwzkK7MRH6V5ae7yu42mal5FkyOQJ07kc2PRtqEb_ov65ZRcrUZ1tB8vWHUCnTzFDv7gLi5DNYLa79oN44wJYG91Fs24WzLES6_oPCGE5E0tftsF1w22USrgSVM5y2KlXtRHbCatyenw_7AH8Oa8d"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-primary text-white size-10 rounded-full flex items-center justify-center border-4 border-white dark:border-slate-900">
+<span class="material-symbols-outlined">celebration</span>
+</div>
+</div>
+<div class="flex-1 text-center md:text-left space-y-3">
+<h1 class="text-3xl font-bold tracking-tight">Your first day is Oct 1st!</h1>
+<p class="text-slate-500 text-lg">We're absolutely excited to have you join the team. Let's get you ready for your journey!</p>
+<div class="pt-4 max-w-md">
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-semibold text-primary">Onboarding Progress</span>
+<span class="text-sm font-bold text-slate-700 dark:text-slate-300">35% Completed</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3">
+<div class="bg-primary h-3 rounded-full" style="width: 35%;"></div>
+</div>
+</div>
+</div>
+<div class="hidden lg:block">
+<button class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-primary/20">
+                            Complete Next Task
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Checklist Sections -->
+<div class="lg:col-span-2 space-y-6">
+<h3 class="text-xl font-bold">Onboarding Checklist</h3>
+<div class="grid gap-6">
+<!-- Card 1: Essential Paperwork -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/30 transition-all group">
+<div class="flex items-start gap-4">
+<div class="size-12 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-2xl">description</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-bold text-lg">Essential Paperwork</h4>
+<span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700">Urgent</span>
+</div>
+<ul class="mt-4 space-y-3">
+<li class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="text-sm line-through decoration-slate-400">Sign Employment Contract</span>
+</li>
+<li class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-slate-300">radio_button_unchecked</span>
+<span class="text-sm">Submit Tax Information &amp; ID</span>
+</li>
+<li class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-slate-300">radio_button_unchecked</span>
+<span class="text-sm">Upload Direct Deposit Details</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Card 2: Hardware & Software -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/30 transition-all">
+<div class="flex items-start gap-4">
+<div class="size-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-2xl">laptop_mac</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-lg">Hardware &amp; Software</h4>
+<ul class="mt-4 space-y-3">
+<li class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="text-sm line-through decoration-slate-400">Company Email Setup</span>
+</li>
+<li class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-slate-300">radio_button_unchecked</span>
+<span class="text-sm">Submit Laptop Request Form</span>
+</li>
+<li class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-slate-300">radio_button_unchecked</span>
+<span class="text-sm">VPN &amp; Security Suite Installation</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Card 3: Meet the Team -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/30 transition-all">
+<div class="flex items-start gap-4">
+<div class="size-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-2xl">groups</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-lg">Meet the Team</h4>
+<ul class="mt-4 space-y-3">
+<li class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-slate-300">radio_button_unchecked</span>
+<span class="text-sm">Team Intro Video Call</span>
+</li>
+<li class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-slate-300">radio_button_unchecked</span>
+<span class="text-sm">Coffee Chat with Onboarding Buddy</span>
+</li>
+<li class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-slate-300">radio_button_unchecked</span>
+<span class="text-sm">Review Team OKRs &amp; Goals</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 'Who to Ask' Widget -->
+<div class="space-y-6">
+<h3 class="text-xl font-bold">Who to Ask</h3>
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="p-6 space-y-6">
+<!-- Buddy -->
+<div class="flex items-center gap-4">
+<img class="size-14 rounded-full object-cover border-2 border-primary/10" data-alt="Portrait of Sarah, HR Onboarding Buddy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdlT0mIlT5y0RMLPAWMd5BqD8JW7tKewY2dCg02OEHBJ-_LndaUkWNXm_9LsAtKmw71D_EbnQZlNNS8yPm2CKOvUrlSAXVViviCqDhn2hrzTuoXwce7nLCUVf4-U4tPKgtmDGWBEMs5T0D6Ohvh3BaUOaHf3TgwpqPA2ghmf42VAJ0P2xxYuDtmxQFl-uxccSC0d0LN-QuCYhOcOqEjUXw9mIjoK2N6usrqyfVvS0qSO-LpRYFmbQ4MOKeVvuFZe3vkHQfxTcVQAH9"/>
+<div class="flex-1">
+<p class="text-xs font-bold text-primary uppercase tracking-wider">HR Buddy</p>
+<p class="font-bold text-base">Sarah Miller</p>
+<a class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-primary transition-colors mt-1" href="#">
+<span class="material-symbols-outlined text-sm">chat_bubble</span>
+                                        Message on Slack
+                                    </a>
+</div>
+</div>
+<div class="border-t border-slate-100 dark:border-slate-800"></div>
+<!-- Manager -->
+<div class="flex items-center gap-4">
+<img class="size-14 rounded-full object-cover border-2 border-primary/10" data-alt="Portrait of David, Engineering Manager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw6WyyZVTSbZMPBe8Rwv8hZGkhlD6uW2XPgQ7hNlost-uurQAp1hKcW22TSVDx51FaGPDZt6gfX2VNlwk9p4Zn3oQWuSMr8J9iMxbSgWdt_nnAFd4m66m-cWQ8FEkeUb2ZMx4hY6V95ED5r0ioByBczp0GSfWNjytHHijHzbvE7DyGZGqrjGcO08h7f7fy5UMq7SE1yFNEX_CPU6HYOpicdhKMK-skqhpefFxQzb9Dir41_2DifQhs0S2Lu-Y_PxVTi3L0AUAJhUua"/>
+<div class="flex-1">
+<p class="text-xs font-bold text-primary uppercase tracking-wider">Manager</p>
+<p class="font-bold text-base">David Chen</p>
+<a class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-primary transition-colors mt-1" href="#">
+<span class="material-symbols-outlined text-sm">chat_bubble</span>
+                                        Message on Slack
+                                    </a>
+</div>
+</div>
+</div>
+<div class="bg-slate-50 dark:bg-slate-800/50 p-4 text-center">
+<p class="text-xs text-slate-500">Need help with something else? Check the <a class="text-primary hover:underline" href="#">Knowledge Base</a></p>
+</div>
+</div>
+<!-- Company Quote/Welcome Note -->
+<div class="bg-primary/5 dark:bg-primary/10 p-6 rounded-xl border border-primary/20">
+<span class="material-symbols-outlined text-primary mb-2">format_quote</span>
+<p class="text-slate-700 dark:text-slate-300 italic text-sm leading-relaxed">
+                            "We believe that great work starts with a great environment. We can't wait to see the amazing things you'll build here!"
+                        </p>
+<p class="text-xs font-bold mt-4 text-slate-900 dark:text-slate-100">— The Pulse Leadership Team</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
