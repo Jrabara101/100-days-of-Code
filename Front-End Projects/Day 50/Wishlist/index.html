@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Minimalist Oak Chair | The Atelier</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed": "#000000",
+                        "on-error": "#fff7f6",
+                        "inverse-surface": "#0c0f0f",
+                        "surface-container-high": "#e4e9ea",
+                        "secondary-fixed": "#e4e2e2",
+                        "secondary-fixed-dim": "#d5d4d4",
+                        "on-surface": "#2d3435",
+                        "primary-dim": "#535252",
+                        "outline": "#757c7d",
+                        "on-tertiary": "#fff7f6",
+                        "tertiary-dim": "#a90032",
+                        "tertiary-fixed-dim": "#ea3858",
+                        "on-tertiary-container": "#100001",
+                        "surface-container-highest": "#dde4e5",
+                        "surface-container-low": "#f2f4f4",
+                        "on-primary-fixed": "#403f3f",
+                        "on-primary": "#faf7f6",
+                        "surface-container": "#ebeeef",
+                        "on-secondary": "#faf8f8",
+                        "on-background": "#2d3435",
+                        "primary-fixed": "#e5e2e1",
+                        "surface-tint": "#5f5e5e",
+                        "inverse-on-surface": "#9c9d9d",
+                        "surface-variant": "#dde4e5",
+                        "error": "#9f403d",
+                        "primary-container": "#e5e2e1",
+                        "background": "#f9f9f9",
+                        "tertiary-container": "#fc4563",
+                        "tertiary": "#bd0c3b",
+                        "inverse-primary": "#ffffff",
+                        "on-secondary-container": "#515252",
+                        "outline-variant": "#acb3b4",
+                        "surface": "#f9f9f9",
+                        "primary-fixed-dim": "#d6d4d3",
+                        "on-tertiary-fixed-variant": "#340009",
+                        "secondary": "#5f5f5f",
+                        "secondary-container": "#e4e2e2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#525151",
+                        "tertiary-fixed": "#fc4563",
+                        "error-dim": "#4e0309",
+                        "surface-bright": "#f9f9f9",
+                        "surface-dim": "#d3dbdd",
+                        "on-secondary-fixed": "#3f3f3f",
+                        "on-surface-variant": "#596061",
+                        "on-primary-fixed-variant": "#5c5b5b",
+                        "primary": "#5f5e5e",
+                        "error-container": "#fe8983",
+                        "on-secondary-fixed-variant": "#5b5b5b",
+                        "on-error-container": "#752121",
+                        "secondary-dim": "#535353"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body selection:bg-tertiary-container selection:text-on-tertiary-container">
+    <!-- Top Navigation Bar (Shared Component) -->
+    <header
+        class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl fixed top-0 w-full z-50 shadow-[0_20px_40px_rgba(45,52,53,0.06)]">
+        <nav class="flex justify-between items-center px-8 h-20 w-full">
+            <div class="text-xl font-bold tracking-tighter text-zinc-800 dark:text-zinc-100 font-headline">The Atelier
+            </div>
+            <div class="hidden md:flex items-center space-x-12 font-inter tracking-tight">
+                <a class="text-zinc-900 dark:text-white font-semibold border-b border-zinc-900 dark:border-white transition-colors"
+                    href="#">Shop</a>
+                <a class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                    href="#">Collections</a>
+                <a class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                    href="#">About</a>
+            </div>
+            <div class="flex items-center space-x-6 text-zinc-700 dark:text-zinc-300">
+                <button
+                    class="hover:text-zinc-900 dark:hover:text-white transition-colors transform active:scale-95 duration-200">
+                    <span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+                </button>
+                <button
+                    class="hover:text-zinc-900 dark:hover:text-white transition-colors transform active:scale-95 duration-200">
+                    <span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+    <main class="pt-24 pb-32 max-w-7xl mx-auto px-6 lg:px-12">
+        <!-- Wishlist Notification Banner -->
+        <div class="mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div class="bg-surface-container-low px-6 py-4 rounded-lg flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-tertiary filled-icon"
+                        style="font-variation-settings: 'FILL' 1;">favorite</span>
+                    <span class="text-on-surface-variant text-sm font-medium">Item added to your wishlist.</span>
+                </div>
+                <a class="text-primary font-bold text-sm tracking-tight border-b border-primary/20 hover:border-primary transition-all uppercase"
+                    href="#">View Wishlist</a>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            <!-- Hero Product Gallery (Editorial Offset Pattern) -->
+            <div class="lg:col-span-7 grid grid-cols-1 gap-8">
+                <div class="relative group overflow-hidden rounded-xl bg-surface-container-low">
+                    <!-- Price Drop Badge -->
+                    <div
+                        class="absolute top-6 left-6 z-10 bg-tertiary text-on-tertiary px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-xl">
+                        Price Drop
+                    </div>
+                    <img alt="Minimalist Oak Chair"
+                        class="w-full aspect-[4/5] object-cover transition-transform duration-700 group-hover:scale-105"
+                        data-alt="Minimalist oak wooden chair in a sunlit room"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwGGzHYPl2kxiVvghqP_XdpJkFFTwr_vvMkIwbdSv2ES7IP9Qa35or07tV6v-pZt0psItjaew4RHXcEG8vp5bxqC1ftAimf4fYXR8fNT7u5woVMBix5XcdPWxGGn1PSl4e15Gosth00nI2s7WhjB5xM6SnbOwwxoRUIrPbY6N6AkyGp79xhHld59jL6nhganll1M_0i81sQPasZWcAe20HYFV8_tlea0Ax-lz2kYWDr5jT7RK57F_aCV0vWMF422gQ8eplzOwMXOY" />
+                </div>
+                <!-- Asymmetric secondary image -->
+                <div class="grid grid-cols-2 gap-8">
+                    <div class="rounded-xl overflow-hidden bg-surface-container-low mt-8">
+                        <img alt="Detail of oak wood" class="w-full aspect-square object-cover"
+                            data-alt="Close up detail of smooth light oak wood grain"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCusHHWhb9BvBQ08LV2zeqOuGlls-s1_v1BayjO60YnI9VJPq6i4aO1yDqUECRf0BD9IDTbIu97fvb8nIDph3N7zMn14TfT_TdfssZFiL08NGKno--63Zw-oLSujqOO2VQ0rccntmotEyIH8FR_QC-3SUirFCPDDkuz92sXTLnVJC5rX030lL5V-0j2sshyaEkfp01QlDS6IQUnnO0-VMzUPAjtj2EopRFXqzakRrfpz7VxBvbYcd8ZODrpV7LraMeLyZYVRWlMmKU" />
+                    </div>
+                    <div class="rounded-xl overflow-hidden bg-surface-container-low">
+                        <img alt="Chair in setting" class="w-full aspect-[3/4] object-cover"
+                            data-alt="Minimalist chair placed in a modern living room"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8JcGF0Q43r_CYInAO67K7EXeVuq_L4GBgFibq1Au9qTFKUHBBcAD34OTrrtQR-GFAgMONZI5EsnjQ_Zz8MWBM9LYzw5F-S0dN1cDDuVRr3MnbwsSiqOgsWhgXMjov7I1xlkZLN4eFvhdNmjNg8N8GBHOFuKcGZ4YcjZ0tm8csZhQ8gkqGDXfPFXOjS7AgXbie6rB4IwbLCU-SgoEOv9XexwmJaqH1bw0DmywLMdr8Jc_uDHNLF-WUC5RZGrgKq7nQMyo7UIww82k" />
+                    </div>
+                </div>
+            </div>
+            <!-- Product Details Sidebar -->
+            <div class="lg:col-span-5 sticky top-32">
+                <div class="flex flex-col gap-10">
+                    <div class="space-y-4">
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-outline">Seating
+                                Collection</span>
+                            <h1
+                                class="text-4xl lg:text-5xl font-extrabold tracking-tighter text-on-surface leading-tight">
+                                Minimalist Oak Chair</h1>
+                        </div>
+                        <div class="flex items-baseline gap-4">
+                            <span class="text-2xl font-semibold text-on-surface">$345.00</span>
+                            <span class="text-lg text-outline line-through">$420.00</span>
+                        </div>
+                    </div>
+                    <div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+                        <p class="text-on-surface-variant leading-relaxed font-body text-lg">
+                            Crafted from sustainably sourced white oak, this piece embodies the intersection of
+                            Scandinavian functionality and Japanese minimalism. A timeless silhouette for the modern
+                            sanctuary.
+                        </p>
+                        <div class="space-y-4">
+                            <div
+                                class="flex items-center gap-3 text-xs font-bold text-outline tracking-wider uppercase">
+                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                In Stock &amp; Ready to Ship
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <button
+                            class="w-full bg-primary text-on-primary py-5 rounded-lg font-bold tracking-tight text-lg shadow-lg hover:bg-primary-dim active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-3">
+                            <span class="material-symbols-outlined">shopping_bag</span>
+                            Add to Cart
+                        </button>
+                        <button
+                            class="w-full bg-surface-container-high text-primary py-5 rounded-lg font-bold tracking-tight text-lg hover:bg-surface-container-highest active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-3 group">
+                            <span class="material-symbols-outlined text-tertiary filled-icon"
+                                style="font-variation-settings: 'FILL' 1;">favorite</span>
+                            Add to Wishlist
+                        </button>
+                    </div>
+                    <!-- Details Accordion Section -->
+                    <div class="border-t border-outline-variant/20 pt-8 space-y-6">
+                        <div class="flex justify-between items-center group cursor-pointer">
+                            <span class="text-xs font-bold tracking-widest uppercase">Specifications</span>
+                            <span
+                                class="material-symbols-outlined text-sm group-hover:translate-y-0.5 transition-transform">expand_more</span>
+                        </div>
+                        <div class="flex justify-between items-center group cursor-pointer">
+                            <span class="text-xs font-bold tracking-widest uppercase">Shipping &amp; Returns</span>
+                            <span
+                                class="material-symbols-outlined text-sm group-hover:translate-y-0.5 transition-transform">expand_more</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Recommended Items Section -->
+        <section class="mt-32">
+            <div class="flex flex-col gap-12">
+                <div class="flex items-end justify-between">
+                    <div class="space-y-2">
+                        <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-outline">Complete the
+                            look</span>
+                        <h2 class="text-3xl font-extrabold tracking-tighter">Recommended For You</h2>
+                    </div>
+                    <a class="text-xs font-bold uppercase tracking-widest border-b-2 border-primary/10 hover:border-primary transition-all pb-1"
+                        href="#">Shop All</a>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Recommended Card 1 -->
+                    <div class="group cursor-pointer">
+                        <div class="relative aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+                            <img alt="Ceramic Vase"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                data-alt="Handcrafted minimalist tall ceramic vase"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUyU4D6gIbr35q62SqfaNoq_E3jA9de7YfNB56GJXoh_l8dt2aF-sSMxQ_YMq1yGtrVfLTILgeyyC77goMGhm_Z2iazrEDAToMCilbnscKt0lcfhHO1CUSE4M9-A7vlrA1NqjYdapIP8xsg_NGXcMTG7oEP7i9_YuOG_IVlUfDz28OE0OYAtjndN7fguB8f42vx75fVpyi-b36yRSFNz-E5oIUEs1BB-EqnPIUHbPBqYgHWJxAL5NSwHSxKx8O7okUvJb5DN7LJ_o" />
+                            <button
+                                class="absolute bottom-4 right-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+                                <span class="material-symbols-outlined text-on-surface text-lg">add</span>
+                            </button>
+                        </div>
+                        <h3 class="font-bold tracking-tight text-on-surface">Artisan Ceramic Vase</h3>
+                        <p class="text-on-surface-variant text-sm mt-1">$120.00</p>
+                    </div>
+                    <!-- Recommended Card 2 (Offset) -->
+                    <div class="group cursor-pointer lg:mt-12">
+                        <div class="relative aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+                            <img alt="Wool Rug"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                data-alt="Cream colored textured wool rug"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl9X0ieyAw5lWz_kg3Ej4DAa2rsJYd04MBtpsdW_4PBf4WQhhRhxmhZg2RyKRXDBqR0xfvIjkCq8H7ke56IaJBRKGzxS3CI_I7XJVFNalxIgpyEnID-barfEUK570JdJZfnZYBP2rerJ1P2tvWddKsB_D8OdzJ4dRoX01vcRO3yRuYcpn-4_3bzmINjyr1ejboBHLS0Ub7oZSXd5z7cHqR0QwI0e0SgP6o2JZO0ALMco7K68cFOjC8Xl25NvzFGE8fgJAjDegDy7I" />
+                            <button
+                                class="absolute bottom-4 right-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+                                <span class="material-symbols-outlined text-on-surface text-lg">add</span>
+                            </button>
+                        </div>
+                        <h3 class="font-bold tracking-tight text-on-surface">Textured Wool Rug</h3>
+                        <p class="text-on-surface-variant text-sm mt-1">$450.00</p>
+                    </div>
+                    <!-- Recommended Card 3 -->
+                    <div class="group cursor-pointer">
+                        <div class="relative aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+                            <img alt="Pendant Light"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                data-alt="Modern brass and glass pendant light"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiZaOb8RBmCd3zUPsOrKokJnPys8mrQu0KXRqDKs4xvZD7r9yR0ktXv395G-CRSDhDLn6jT-g328FS7TJAtcLPnDgfikLcpJ2kuXkjLsNkvoU87I4gFLdzfhyF-Xwp8m207N1WVDH1YVm39xO3paN3hNPRnlIFHenfj7RXgac_EZnSEWU6T_JxJmcdFoJUKbtd96Q7mHOvRfSvkUZeqtehZBIcDbrWYFef_fnhz59w8PFVU_u9WW5uGFqGLGsItS6N3ye5Xg5ZcZY" />
+                            <button
+                                class="absolute bottom-4 right-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+                                <span class="material-symbols-outlined text-on-surface text-lg">add</span>
+                            </button>
+                        </div>
+                        <h3 class="font-bold tracking-tight text-on-surface">Brass Pendant Light</h3>
+                        <p class="text-on-surface-variant text-sm mt-1">$215.00</p>
+                    </div>
+                    <!-- Recommended Card 4 (Offset) -->
+                    <div class="group cursor-pointer lg:mt-12">
+                        <div class="relative aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+                            <img alt="Floor Lamp"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                data-alt="Sleek black floor lamp with adjustable arm"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW7-vzffJe_hRZC1GaxFftVj6Yi4k8YBov6qG4HDvjzeY8BmWRMmRwV5LxohAzMHOSF3vRQmVfjQYjoi60VBmbnhluUfSVWjtOjRqwDTyUwRH60cMgv7HLltlSGvLifftbUjt0jLgHos2OzRFz3UEguzSjIjhmOysj6wBWrakbKRVcQcmQlMA8u9poZTreUO4emaC36vSo-R1-J3olTF8LGLCW4Ldtc9urj_4Be2TOwa9MMOKaEpLzFuwr08qZs9uhjLhYghLLGBo" />
+                            <button
+                                class="absolute bottom-4 right-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+                                <span class="material-symbols-outlined text-on-surface text-lg">add</span>
+                            </button>
+                        </div>
+                        <h3 class="font-bold tracking-tight text-on-surface">Architectural Floor Lamp</h3>
+                        <p class="text-on-surface-variant text-sm mt-1">$380.00</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Bottom Navigation Bar (Mobile only) -->
+    <nav
+        class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center h-16 pb-safe bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-800 z-50">
+        <a class="flex flex-col items-center justify-center text-rose-700 dark:text-rose-500 active:scale-90 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="home"
+                style="font-variation-settings: 'FILL' 1;">home</span>
+            <span class="text-[10px] uppercase tracking-widest font-medium">Home</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 active:scale-90 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="search">search</span>
+            <span class="text-[10px] uppercase tracking-widest font-medium">Search</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 active:scale-90 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+            <span class="text-[10px] uppercase tracking-widest font-medium">Wishlist</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 active:scale-90 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined" data-icon="person">person</span>
+            <span class="text-[10px] uppercase tracking-widest font-medium">Profile</span>
+        </a>
+    </nav>
+</body>
+
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Inter:wght@300;400;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface-variant": "#424843",
+                        "primary-fixed-dim": "#b4ccbb",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f1f1ef",
+                        "surface-container-low": "#f4f3f1",
+                        "surface": "#faf9f7",
+                        "background": "#faf9f7",
+                        "primary-fixed": "#d0e9d6",
+                        "on-surface": "#1a1c1b",
+                        "surface-container-high": "#e9e8e6",
+                        "surface-tint": "#4d6355",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#b4ccbb",
+                        "secondary": "#5f5e5e",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#7e2a27",
+                        "on-primary-fixed": "#0a2014",
+                        "tertiary": "#370003",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#e4e2e1",
+                        "on-tertiary-fixed": "#410004",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "outline": "#737973",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e3e2e0",
+                        "inverse-surface": "#2f3130",
+                        "tertiary-fixed": "#ffdad7",
+                        "outline-variant": "#c2c8c2",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "surface-container": "#efeeec",
+                        "on-primary-fixed-variant": "#364c3e",
+                        "surface-dim": "#dadad8",
+                        "surface-bright": "#faf9f7",
+                        "on-secondary-container": "#656464",
+                        "primary": "#051a0f",
+                        "surface-container-highest": "#e3e2e0",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#1a2f23",
+                        "on-secondary-fixed": "#1b1c1c",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#e4e2e1",
+                        "on-tertiary-container": "#dd736c",
+                        "on-secondary-fixed-variant": "#474747",
+                        "on-primary-container": "#809787",
+                        "tertiary-container": "#570e0e",
+                        "on-background": "#1a1c1b"
+                    },
+                    fontFamily: {
+                        "headline": ["Newsreader", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .font-serif {
+            font-family: 'Newsreader', serif;
+        }
+
+        .font-sans {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body selection:bg-primary-fixed-dim selection:text-primary">
+    <!-- Top Navigation Bar -->
+    <header
+        class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4 md:px-12 bg-white/80 dark:bg-stone-950/80 backdrop-blur-md border-b border-stone-200/10 dark:border-stone-800/10">
+        <div class="text-2xl font-black font-serif tracking-tighter text-emerald-950 dark:text-emerald-400">
+            ARCHITECTURAL EDITORIAL</div>
+        <nav class="hidden md:flex items-center gap-8">
+            <a class="text-stone-500 dark:text-stone-400 font-medium hover:text-stone-900 dark:hover:text-stone-100 transition-colors text-sm uppercase tracking-widest"
+                href="#">CULTURE</a>
+            <a class="text-stone-500 dark:text-stone-400 font-medium hover:text-stone-900 dark:hover:text-stone-100 transition-colors text-sm uppercase tracking-widest"
+                href="#">ESTATE</a>
+            <a class="text-stone-500 dark:text-stone-400 font-medium hover:text-stone-900 dark:hover:text-stone-100 transition-colors text-sm uppercase tracking-widest"
+                href="#">OPINION</a>
+            <a class="text-emerald-900 dark:text-emerald-400 font-bold border-b-2 border-emerald-900 dark:border-emerald-400 pb-1 text-sm uppercase tracking-widest"
+                href="#">STYLE</a>
+            <a class="text-stone-500 dark:text-stone-400 font-medium hover:text-stone-900 dark:hover:text-stone-100 transition-colors text-sm uppercase tracking-widest"
+                href="#">LIVING</a>
+        </nav>
+        <div class="flex items-center gap-6">
+            <button class="material-symbols-outlined text-on-surface hover:opacity-80 transition-opacity"
+                data-icon="search">search</button>
+            <button class="material-symbols-outlined text-on-surface hover:opacity-80 transition-opacity"
+                data-icon="menu">menu</button>
+        </div>
+    </header>
+    <main class="pt-20">
+        <!-- Hero Multimedia Section -->
+        <section class="relative w-full h-[921px] overflow-hidden flex items-end">
+            <div class="absolute inset-0 z-0">
+                <img alt="Minimalist Modern Architecture" class="w-full h-full object-cover grayscale-[0.2]"
+                    data-alt="Cinematic wide shot of a brutalist concrete villa at dusk with soft interior lights reflecting on a still pool surface"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4WUNl675FiYqP5PiR48mKFthhx_RjULFGMmeZpA4HNzhHsQwOP47YrDBEDQcUsCTC8d7UO3MfyWsT0AUMiT7NAMPHZH5RFZSt4RIfw6HXNfOs_fbYGg54ohInG9cVcXdHVeMAwRHzcGej8dt-VWwd5b3alUd72jq_088JGZGVWuS3BO3t-a-4JJXB2BBI_Hv9GD0ZJ-qVgLEeMyS5GNfvzJG0kh5v2B4Llia4ZWRtT9eR3YjQ8SOmpIq4h_m2WL4VNeq_gGfmCP0_" />
+                <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent"></div>
+            </div>
+            <div
+                class="relative z-10 w-full max-w-screen-2xl mx-auto px-6 md:px-24 pb-24 md:pb-32 grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+                <div class="md:col-span-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <span
+                            class="bg-tertiary text-on-tertiary px-3 py-1 font-label text-[10px] font-extrabold tracking-[0.2em] uppercase">FEATURED
+                            FILM</span>
+                        <span class="text-white/60 font-label text-[10px] tracking-widest uppercase">14 MINUTES</span>
+                    </div>
+                    <h1
+                        class="text-white font-serif text-5xl md:text-8xl leading-[0.9] tracking-tighter mb-8 max-w-4xl">
+                        The Weight of Silence: Brutalism in the Highlands
+                    </h1>
+                    <div class="flex items-center gap-6">
+                        <button
+                            class="group flex items-center gap-3 bg-primary text-on-primary px-8 py-4 font-label text-xs font-bold tracking-widest transition-all hover:bg-primary-container">
+                            <span class="material-symbols-outlined !text-xl" data-icon="play_arrow"
+                                style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                            WATCH THE FILM
+                        </button>
+                        <button
+                            class="group flex items-center gap-3 border border-white/30 text-white px-8 py-4 font-label text-xs font-bold tracking-widest transition-all hover:bg-white/10">
+                            EXPLORE GALLERY
+                        </button>
+                    </div>
+                </div>
+                <div class="hidden md:block md:col-span-4 text-white/80 border-l border-white/20 pl-8 pb-4">
+                    <p class="font-body text-lg leading-relaxed italic font-light mb-4">
+                        "An architectural odyssey through the fog-drenched peaks of the north, where concrete meets
+                        granite in a silent dialogue."
+                    </p>
+                    <p class="font-label text-[10px] tracking-widest uppercase font-bold text-white">Directed by Elias
+                        Thorne</p>
+                </div>
+            </div>
+        </section>
+        <!-- Supporting Multimedia Grid -->
+        <section class="bg-surface py-24 px-6 md:px-12">
+            <div class="max-w-screen-2xl mx-auto">
+                <div class="flex justify-between items-end mb-16 border-b border-outline-variant/20 pb-8">
+                    <div>
+                        <span
+                            class="font-label text-xs font-extrabold tracking-[0.2em] text-primary uppercase block mb-4">MULTIMEDIA
+                            SERIES</span>
+                        <h2 class="font-serif text-4xl md:text-5xl text-on-surface">Digital Photo Essays</h2>
+                    </div>
+                    <a class="font-label text-xs font-bold tracking-widest text-primary hover:underline transition-all"
+                        href="#">VIEW ALL SERIES</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-0">
+                    <!-- Photo Story 01 -->
+                    <div
+                        class="group relative overflow-hidden bg-surface-container-low p-8 border-r border-outline-variant/10">
+                        <div class="aspect-[4/5] overflow-hidden mb-8 relative">
+                            <img alt="Urban Skyline Detail"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                data-alt="High contrast black and white architectural detail of a glass skyscraper reflecting sunlight with sharp geometry"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVOOVmiDQ-689Dva1CeIQuPJDr2crOoY1WMw_yPBbIRwo5t5UQ6b5K39I-MBnkTTlgiNF7v990ueUX9_0AvuVMNMYAQIL7AjLezcIjFPXt05uDZ4MjcOeexLC8A950NxIefpF3VCIq2jaYAlTxqM3cFG-curoWtUaThLgaf9LJvfbmuChxk_-4LoqwbX_wlU2U0DzVsEk0wHS0pv4ZMcbheu7klRYAQa4yCtHjUAkiYQf5MoEboSIF6uAC4eSixsG4gRLXpqSqCYMY" />
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur p-2">
+                                <span class="material-symbols-outlined text-primary"
+                                    data-icon="photo_library">photo_library</span>
+                            </div>
+                        </div>
+                        <span
+                            class="font-label text-[10px] font-bold tracking-[0.2em] text-tertiary uppercase block mb-3">01
+                            / VOID &amp; VOLUME</span>
+                        <h3 class="font-serif text-2xl text-on-surface mb-4 group-hover:text-primary transition-colors">
+                            Interiors of the Unseen City</h3>
+                        <p class="font-body text-sm text-on-surface-variant leading-relaxed mb-6">A 24-frame exploration
+                            of hidden courtyards in Tokyo's financial district.</p>
+                        <div class="w-12 h-[1px] bg-primary group-hover:w-full transition-all duration-500"></div>
+                    </div>
+                    <!-- Photo Story 02 -->
+                    <div
+                        class="group relative overflow-hidden bg-surface-container p-8 border-r border-outline-variant/10">
+                        <div class="aspect-[4/5] overflow-hidden mb-8 relative">
+                            <img alt="Modern Staircase"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                data-alt="Abstract spiral staircase in white marble with soft natural light creating rhythmic shadows"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCBGt5RS6IPPwVeAwNrpgEmBQtCwZY-TZT4U62CAZUKnCyaDn2YAAttqJXslRRLRdpiKp7w3bG62g7zkyqtQnQ79RTG_f4s5hUb6KC1QJx8icAd5SFvdvJN0GcnUrL-d-5NFaRQ3w_mRYZ6l3A2NRwLjIbI5xK1SW79UafM6yrDhUHUKTWUwVJyZHxe9TVeYnP4N6aNSegmubHkoSlfw3-hgw7PGEhROK3w3XPHKYRaWRp7XiHdmDj4kjHBnJ9KL8dkv3BHKAZek7d" />
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur p-2">
+                                <span class="material-symbols-outlined text-primary"
+                                    data-icon="videocam">videocam</span>
+                            </div>
+                        </div>
+                        <span
+                            class="font-label text-[10px] font-bold tracking-[0.2em] text-tertiary uppercase block mb-3">02
+                            / KINETIC FLOW</span>
+                        <h3 class="font-serif text-2xl text-on-surface mb-4 group-hover:text-primary transition-colors">
+                            The Rhythms of Zaha Hadid</h3>
+                        <p class="font-body text-sm text-on-surface-variant leading-relaxed mb-6">Documenting the fluid
+                            dynamics and parametric beauty of modern facades.</p>
+                        <div class="w-12 h-[1px] bg-primary group-hover:w-full transition-all duration-500"></div>
+                    </div>
+                    <!-- Photo Story 03 -->
+                    <div class="group relative overflow-hidden bg-surface-container-high p-8">
+                        <div class="aspect-[4/5] overflow-hidden mb-8 relative">
+                            <img alt="Contemporary Office Space"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                data-alt="Minimalist luxury office interior with dark wood textures, warm lighting and large windows overlooking a misty forest"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPEzY3vRcDqHqk6AAbrpTvVrXduBLeEKMv-So3LGEWrlOgMhQT7rnnMJvlL0v7IJZHtIoErO-iJw9Ms3NhUN9kx9RwngvFYuQ8K1XmI4sjdrcXes0z5iv8hp-XDqV1zvzHEJNM2ShC20nXM2O_RnRdeMRM8I-eysK36_aT5FsgbVcx-HyHaXH24Qme-BTGvbzQdCWw6bXoXhh5z7EJQjL1ud8_kDIj-UwYStokRsOCH3hLnxDdUApNy66YRQn3Vhn993yMQD8PjScU" />
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur p-2">
+                                <span class="material-symbols-outlined text-primary"
+                                    data-icon="photo_library">photo_library</span>
+                            </div>
+                        </div>
+                        <span
+                            class="font-label text-[10px] font-bold tracking-[0.2em] text-tertiary uppercase block mb-3">03
+                            / TACTILE NORM</span>
+                        <h3 class="font-serif text-2xl text-on-surface mb-4 group-hover:text-primary transition-colors">
+                            The Return of the Handcrafted</h3>
+                        <p class="font-body text-sm text-on-surface-variant leading-relaxed mb-6">Why high-end
+                            architecture is returning to traditional wood and clay materials.</p>
+                        <div class="w-12 h-[1px] bg-primary group-hover:w-full transition-all duration-500"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Curated Quote / Interactive Overlay Section -->
+        <section class="relative w-full py-32 bg-primary-container overflow-hidden">
+            <div class="absolute top-0 right-0 w-1/2 h-full opacity-20">
+                <img alt="Architectural Blueprint" class="w-full h-full object-cover"
+                    data-alt="Detailed close-up of an architectural technical drawing with thin white lines on a dark background"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJVz2ZCtEK-FdGswse8A2zj-Lnib1mfCDfqAQTwxeCOny7p6512oyuTZ3XTmEQjbL4Os2t59DeOIc0xKpFaDQ4TSvECtwUFRVM75IbrGDvG4BB_7yJG71cn-0ZRWtIFItpdU8eGDC9c7L4Hvq6OJg9jBrPFNSdkKbf4g2B_9QrJ6Rn7bcuW9N0P6SfTBsQTReNlBq_5MQ4BMHYYPNBDRseEDOYQCfmfypJ3trAIzbKSgHHKhPNkcfrKQaLqlI4X5EFSVKXOQ7nbL3M" />
+            </div>
+            <div class="max-w-screen-2xl mx-auto px-6 md:px-24 relative z-10">
+                <div class="md:w-2/3">
+                    <span class="material-symbols-outlined text-on-primary-container text-6xl mb-8"
+                        data-icon="format_quote">format_quote</span>
+                    <blockquote
+                        class="font-serif text-3xl md:text-5xl text-white leading-tight mb-12 italic font-extralight">
+                        "Architecture is the learned game, correct and magnificent, of forms assembled in the light."
+                    </blockquote>
+                    <p class="font-label text-sm tracking-[0.3em] font-bold text-on-primary-container">LE CORBUSIER /
+                        1923</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="bg-stone-100 dark:bg-stone-900 w-full border-t-0 py-24">
+        <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-12 max-w-screen-2xl mx-auto px-8">
+            <div class="md:col-span-1">
+                <span class="text-3xl font-serif font-bold text-stone-900 dark:text-stone-100 mb-8 block">ARCHITECTURAL
+                    EDITORIAL</span>
+                <p
+                    class="font-sans text-xs uppercase tracking-widest text-stone-600 dark:text-stone-400 leading-relaxed">
+                    © 2024 THE ARCHITECTURAL EDITORIAL. ALL RIGHTS RESERVED. PRINTED DIGITALLY.
+                </p>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="font-label text-xs font-extrabold tracking-widest text-primary uppercase mb-4">EDITION</h4>
+                <a class="font-sans text-sm uppercase tracking-widest text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:translate-x-1"
+                    href="#">About</a>
+                <a class="font-sans text-sm uppercase tracking-widest text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:translate-x-1"
+                    href="#">Archives</a>
+                <a class="font-sans text-sm uppercase tracking-widest text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:translate-x-1"
+                    href="#">Subscribe</a>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="font-label text-xs font-extrabold tracking-widest text-primary uppercase mb-4">MASTHEAD</h4>
+                <a class="font-sans text-sm uppercase tracking-widest text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:translate-x-1"
+                    href="#">Contributors</a>
+                <a class="font-sans text-sm uppercase tracking-widest text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:translate-x-1"
+                    href="#">Editorial Policy</a>
+                <a class="font-sans text-sm uppercase tracking-widest text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:translate-x-1"
+                    href="#">Advertising</a>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="font-label text-xs font-extrabold tracking-widest text-primary uppercase mb-4">LEGAL</h4>
+                <a class="font-sans text-sm uppercase tracking-widest text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:translate-x-1"
+                    href="#">Privacy</a>
+                <a class="font-sans text-sm uppercase tracking-widest text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:translate-x-1"
+                    href="#">Terms</a>
+                <div class="mt-4 flex gap-4">
+                    <span class="material-symbols-outlined text-stone-400" data-icon="language">language</span>
+                    <span class="material-symbols-outlined text-stone-400" data-icon="share">share</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
