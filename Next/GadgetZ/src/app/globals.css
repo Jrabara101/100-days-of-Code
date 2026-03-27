@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-gadget-dark: #0a0f1e;
+  --color-gadget-surface: #111827;
+  --color-gadget-surface-2: #1a2336;
+  --color-gadget-border: #1f2937;
+  --color-gadget-cyan: #00d4ff;
+  --color-gadget-cyan-dark: #00a8cc;
+  --color-gadget-indigo: #6366f1;
+  --color-gadget-violet: #8b5cf6;
+  --color-gadget-amber: #f59e0b;
+  --color-gadget-green: #10b981;
+  --color-gadget-muted: #9ca3af;
+  --color-gadget-text: #f9fafb;
+
+  /* Fonts */
+  --font-montserrat: var(--font-montserrat-var), "Montserrat", sans-serif;
+  --font-inter: var(--font-inter-var), "Inter", sans-serif;
+
+  /* Animations */
+  --animate-fade-in: fade-in 0.5s ease-out forwards;
+  --animate-slide-up: slide-up 0.6s ease-out forwards;
+  --animate-float: float 4s ease-in-out infinite;
+  --animate-marquee: marquee 22s linear infinite;
+  --animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-16px); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0%); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+}
+
+/* Custom utilities */
+@utility glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+@utility glow-cyan-lg {
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.4), 0 0 80px rgba(0, 212, 255, 0.15);
+}
+
+@utility glow-indigo {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+@utility text-gradient-cyan {
+  background: linear-gradient(135deg, #00d4ff, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility text-gradient-amber {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility border-gradient {
+  border: 1px solid transparent;
+  background: linear-gradient(#111827, #111827) padding-box,
+    linear-gradient(135deg, #00d4ff, #6366f1) border-box;
+}
+
+@utility bg-grid {
+  background-image: linear-gradient(
+      rgba(0, 212, 255, 0.04) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0a0f1e;
+  color: #f9fafb;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #111827;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 255, 0.27);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
