@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minimal Blog Card</title>
     <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
 </head>
 <body>
 
     <article class="card">
         
         <figure class="card-image">
-            <img src="https://images.unsplash.com/photo-1499750310159-5b5f22693851?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Laptop on a wooden desk with coffee">
+            <img src="workspace.png" alt="Sleek minimalist workspace">
         </figure>
 
         <div class="card-content">
@@ -19,10 +20,14 @@
             <h2 class="card-title">
                 <a href="#">Designing a Minimalist Workspace</a>
             </h2>
-            <p class="excerpt">
+            <p class="excerpt" id="excerpt-text">
                 How to clear the clutter and focus on what truly matters in your daily workflow.
             </p>
-            <a href="#" class="read-more">Read Article &rarr;</a>
+            <div class="card-actions">
+                <button class="action-btn" id="like-btn" onclick="toggleLike()">🤍 <span id="like-count">12</span></button>
+                <button class="action-btn" id="share-btn" onclick="shareArticle()">🔗 Share</button>
+            </div>
+            <a href="#" class="read-more" id="read-more-link" onclick="readMore(event)">Read Article &rarr;</a>
         </div>
 
     </article>

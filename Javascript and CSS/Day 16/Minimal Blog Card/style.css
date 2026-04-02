@@ -88,8 +88,40 @@ body {
 }
 
 /* Focus: Accessibility outline */
-a:focus {
+a:focus, button:focus {
     outline: 2px solid #0066cc;
     outline-offset: 2px;
     border-radius: 2px;
 }
+
+/* 6. ACTION BUTTONS */
+.card-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.action-btn {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.action-btn:hover {
+    background: #f4f4f9;
+    color: #333;
+}
+
+.action-btn.liked {
+    color: #e63946;
+    border-color: #e63946;
+    background-color: #ffe6e6;
+}
