@@ -68,3 +68,34 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## Deploy to Cloudflare Pages
+
+This app is configured for Cloudflare Pages with:
+
+- Build command: `npm run build`
+- Build output directory: `build`
+
+### Option 1: Git integration (recommended)
+
+1. Push this folder to a GitHub/GitLab repository.
+2. In Cloudflare Dashboard, go to **Workers & Pages** > **Create** > **Pages** > **Connect to Git**.
+3. Set:
+   - Framework preset: `Create React App` (or `None`)
+   - Build command: `npm run build`
+   - Build output directory: `build`
+   - Root directory (if monorepo): `Front-End Projects/Day 20/Memory Game`
+4. Deploy.
+
+### Option 2: Direct upload with Wrangler
+
+1. Login:
+   - `npx wrangler login`
+2. Create project (first time only):
+   - `npm run cf:project:create`
+3. Deploy production:
+   - `npm run deploy:cf`
+4. Deploy preview:
+   - `npm run deploy:cf:preview`
+
+Your production URL will be `https://<your-project-name>.pages.dev`.

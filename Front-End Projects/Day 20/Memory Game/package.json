@@ -15,6 +15,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "cf:project:create": "npx wrangler pages project create",
+    "deploy:cf": "npm run build && npx wrangler pages deploy build",
+    "deploy:cf:preview": "npm run build && npx wrangler pages deploy build --branch=preview",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
