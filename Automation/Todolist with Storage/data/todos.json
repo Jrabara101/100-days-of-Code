@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "title": "Complete PHP Project",
+        "description": "Finish the CLI app implementation",
+        "status": "completed",
+        "created_at": "2026-04-11 09:03:54",
+        "updated_at": "2026-04-11 09:06:08"
+    },
+    {
+        "id": 2,
+        "title": "Verified App",
+        "description": "All systems normal",
+        "status": "completed",
+        "created_at": "2026-04-11 09:03:54",
+        "updated_at": "2026-04-11 09:08:09"
+    },
+    {
+        "id": 3,
+        "title": "Write documentation",
+        "description": "Explain architectural choices",
+        "status": "completed",
+        "created_at": "2026-04-11 09:07:49",
+        "updated_at": "2026-04-11 09:08:16"
+    }
+]

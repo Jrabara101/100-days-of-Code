@@ -1,0 +1,17 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Musical note icon -->
+  <path fill="#ff0000" d="M320 64c0-17.7-14.3-32-32-32s-32 14.3-32 32v240.3c-9.6-5.5-20.8-8.3-32-8.3c-35.3 0-64 21.5-64 48s28.7 48 64 48s64-21.5 64-48V155.4l96-32V336.3c-9.6-5.5-20.8-8.3-32-8.3c-35.3 0-64 21.5-64 48s28.7 48 64 48s64-21.5 64-48V64H320z"/>
+  
+  <!-- Sound waves decoration -->
+  <circle cx="120" cy="200" r="8" fill="#ff0000" opacity="0.6"/>
+  <circle cx="120" cy="240" r="12" fill="#ff0000" opacity="0.7"/>
+  <circle cx="120" cy="280" r="10" fill="#ff0000" opacity="0.5"/>
+  <circle cx="120" cy="320" r="6" fill="#ff0000" opacity="0.4"/>
+  
+  <circle cx="80" cy="220" r="6" fill="#ff0000" opacity="0.4"/>
+  <circle cx="80" cy="260" r="8" fill="#ff0000" opacity="0.5"/>
+  <circle cx="80" cy="300" r="10" fill="#ff0000" opacity="0.6"/>
+  
+  <circle cx="40" cy="240" r="4" fill="#ff0000" opacity="0.3"/>
+  <circle cx="40" cy="280" r="6" fill="#ff0000" opacity="0.4"/>
+</svg>
