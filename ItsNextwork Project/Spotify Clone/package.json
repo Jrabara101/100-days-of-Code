@@ -5,8 +5,10 @@
   "type": "module",
   "author": "NextWork",
   "scripts": {
-    "dev": "vite",
-    "dev:full": "concurrently \"npm run server:dev\" \"npm run dev\" --names \"server,client\" --prefix-colors \"blue,green\"",
+    "dev": "concurrently \"npm run server:dev\" \"npm run dev:client\" --names \"server,client\" --prefix-colors \"blue,green\"",
+    "dev:demo": "vite",
+    "dev:client": "vite",
+    "dev:full": "npm run dev",
     "server": "node server/index.js",
     "server:dev": "nodemon server/index.js",
     "build": "tsc && vite build",

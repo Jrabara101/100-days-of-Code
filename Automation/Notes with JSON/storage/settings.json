@@ -1,0 +1,8 @@
+{
+    "app_name": "Premium Notes CLI",
+    "pagination": 10,
+    "confirm_delete": true,
+    "backup_before_delete": true,
+    "prevent_duplicate_titles": false,
+    "theme": "dark"
+}
