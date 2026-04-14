@@ -7,6 +7,8 @@ import { ProductCard } from './ProductCard';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+import { mockProducts } from '@/data/mockProducts';
+
 gsap.registerPlugin(ScrollTrigger);
 
 export const ProductCarousel = () => {
@@ -16,19 +18,10 @@ export const ProductCarousel = () => {
     // Initialize Inventory Listener
     useInventory();
 
-    // Fetch Products
+    // Fetch Products (Simulated for Static Export)
     useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                // Connect to Mock ML API
-                const res = await fetch('http://localhost:3001/api/recommendations');
-                const data = await res.json();
-                setProducts(data);
-            } catch (err) {
-                console.error('Failed to fetch recommendations:', err);
-            }
-        };
-        fetchProducts();
+        const sorted = [...mockProducts].sort((a, b) => b.confidence - a.confidence);
+        setProducts(sorted);
     }, [setProducts]);
 
     // GSAP Animations

@@ -4,6 +4,7 @@ import { useSearchMusicQuery } from '@/services/SpotifyAPI';
 import { ITrack } from '@/types';
 import { useTheme } from '@/context/themeContext';
 import { useGlobalContext } from '@/context/globalContext';
+import { useAudioPlayerContext } from '@/context/audioPlayerContext';
 import { getMockData, shouldUseMockData } from '@/data/mockMusicData';
 import { performEnhancedSearch } from '@/utils/searchAlgorithm';
 
@@ -41,6 +42,7 @@ export const useCommandPalette = ({
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const { showSidebar, setShowSidebar } = useGlobalContext();
+  const { playTrack } = useAudioPlayerContext();
 
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -266,6 +268,10 @@ export const useCommandPalette = ({
     // Execute action based on item type
     if (item.type === 'command' && item.action) {
       item.action();
+    }
+    if (item.type === 'track') {
+      const selectedTrack = item.data as ITrack;
+      playTrack(selectedTrack, [selectedTrack]);
     }
     // Note: Detail page navigation removed - tracks/albums/artists only display on home page
 

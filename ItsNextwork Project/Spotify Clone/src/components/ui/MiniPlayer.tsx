@@ -12,7 +12,8 @@ import {
   FiHeart,
   FiMoreHorizontal,
   FiMinimize2,
-  FiMaximize2
+  FiMaximize2,
+  FiX
 } from 'react-icons/fi';
 import { ITrack } from '@/types';
 import { getImageUrl, cn } from '@/utils';
@@ -32,6 +33,7 @@ interface MiniPlayerProps {
   onToggleShuffle?: () => void;
   onToggleRepeat?: () => void;
   onToggleFavorite?: () => void;
+  isFavorite?: boolean;
   onClose?: () => void;
   isMinimized?: boolean;
   onToggleMinimize?: () => void;
@@ -53,24 +55,26 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
   onToggleShuffle,
   onToggleRepeat,
   onToggleFavorite,
+  isFavorite = false,
+  onClose,
   isMinimized = false,
   onToggleMinimize,
   className
 }) => {
   const [isMuted, setIsMuted] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [localProgress, setLocalProgress] = useState(progress);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
 
   const progressRef = useRef<HTMLDivElement>(null);
 
-  // Update local progress when prop changes (but not while dragging)
+  // Keep visual progress in sync with player state
   useEffect(() => {
-    if (!isDragging) {
-      setLocalProgress(progress);
-    }
-  }, [progress, isDragging]);
+    setLocalProgress(progress);
+  }, [progress]);
+
+  useEffect(() => {
+    setIsMuted(volume === 0);
+  }, [volume]);
 
   if (!currentTrack) return null;
 
@@ -91,8 +95,12 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
   };
 
   const handleFavoriteClick = () => {
-    setIsFavorite(!isFavorite);
     onToggleFavorite?.();
+  };
+
+  const handleVolumeChange = (value: number) => {
+    setIsMuted(value === 0);
+    onVolumeChange?.(value);
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -136,6 +144,14 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
             className="flex items-center justify-center w-6 h-6 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
           >
             <FiMaximize2 className="w-3 h-3" />
+          </Button>
+          <Button
+            onClick={onClose}
+            variant="ghost"
+            size="icon"
+            className="flex items-center justify-center w-6 h-6 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors duration-200"
+          >
+            <FiX className="w-3 h-3" />
           </Button>
         </div>
       </div>
@@ -306,17 +322,16 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
             {showVolumeSlider && (
               <div className="absolute bottom-full right-0 mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-2">
                 <div className="w-20 h-24 flex flex-col items-center">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">{volume}%</div>
-                  <div className="flex-1 w-1 bg-gray-200 dark:bg-gray-600 rounded-full relative">
-                    <div 
-                      className="w-full bg-blue-600 rounded-full absolute bottom-0"
-                      style={{ height: `${volume}%` }}
-                    />
-                    <div 
-                      className="absolute w-3 h-3 bg-blue-600 rounded-full -ml-1 cursor-pointer"
-                      style={{ bottom: `${volume}%`, marginBottom: '-6px' }}
-                    />
-                  </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">{volume}%</div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={volume}
+                    onChange={(e) => handleVolumeChange(Number(e.target.value))}
+                    className="w-20 accent-blue-600 cursor-pointer"
+                    aria-label="Volume"
+                  />
                 </div>
               </div>
             )}
@@ -329,6 +344,16 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
             className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
           >
             <FiMoreHorizontal className="w-4 h-4" />
+          </Button>
+
+          {/* Close */}
+          <Button
+            onClick={onClose}
+            variant="ghost"
+            size="icon"
+            className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors duration-200"
+          >
+            <FiX className="w-4 h-4" />
           </Button>
 
           {/* Minimize */}

@@ -3,6 +3,7 @@ import { Card, CardContent } from './card';
 import {
   FaClock
 } from 'react-icons/fa';
+import { FiPlay, FiPause, FiHeart } from 'react-icons/fi';
 import { ITrack } from '@/types';
 import { getImageUrl, cn } from '@/utils';
 
@@ -11,6 +12,8 @@ interface TrackCardProps {
   category: string;
   isPlaying?: boolean;
   onPlay?: (track: ITrack) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (track: ITrack) => void;
   variant?: 'compact' | 'detailed' | 'featured';
   className?: string;
 }
@@ -18,8 +21,10 @@ interface TrackCardProps {
 export const TrackCard: React.FC<TrackCardProps> = ({
   track,
   category: _category,
-  isPlaying: _isPlayingProp,
-  onPlay: _onPlayProp,
+  isPlaying = false,
+  onPlay,
+  isFavorite = false,
+  onToggleFavorite,
   variant = 'detailed',
   className
 }) => {
@@ -35,7 +40,15 @@ export const TrackCard: React.FC<TrackCardProps> = ({
     const seconds = Math.floor((ms % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
+  
+  const handlePlayClick = () => {
+    onPlay?.(track);
+  };
 
+  const handleFavoriteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onToggleFavorite?.(track);
+  };
 
   const cardHeight = variant === 'compact' ? 'h-52' : variant === 'featured' ? 'h-84' : 'h-80';
   const imageHeight = variant === 'compact' ? 160 : variant === 'featured' ? 240 : 200;
@@ -54,6 +67,7 @@ export const TrackCard: React.FC<TrackCardProps> = ({
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handlePlayClick}
     >
       {/* Main Content */}
       <div className="block relative h-full">
@@ -84,8 +98,45 @@ export const TrackCard: React.FC<TrackCardProps> = ({
           {/* Gradient overlay on hover */}
           <div className={cn(
             "absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 rounded-lg",
-            isHovered ? "opacity-100" : "opacity-0"
+            isHovered || isPlaying ? "opacity-100" : "opacity-0"
           )} />
+
+          {/* Favorite button */}
+          <button
+            type="button"
+            onClick={handleFavoriteClick}
+            className={cn(
+              "absolute top-2 right-2 w-8 h-8 rounded-full backdrop-blur-sm flex items-center justify-center transition-colors duration-200",
+              isFavorite
+                ? "bg-red-500/90 text-white"
+                : "bg-black/40 text-white hover:bg-black/55"
+            )}
+            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          >
+            <FiHeart className={cn("w-4 h-4", isFavorite && "fill-current")} />
+          </button>
+
+          {/* Play button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePlayClick();
+            }}
+            className={cn(
+              "absolute bottom-3 right-3 w-11 h-11 rounded-full bg-white text-black shadow-lg flex items-center justify-center transition-all duration-200",
+              isHovered || isPlaying ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+            )}
+            aria-label={isPlaying ? "Pause track" : "Play track"}
+          >
+            {isPlaying ? <FiPause className="w-5 h-5" /> : <FiPlay className="w-5 h-5 ml-0.5" />}
+          </button>
+
+          {isPlaying && (
+            <span className="absolute left-2 bottom-2 px-2 py-1 text-[10px] font-semibold uppercase rounded-full bg-green-500 text-white">
+              Playing
+            </span>
+          )}
         </div>
 
         {/* Track information */}

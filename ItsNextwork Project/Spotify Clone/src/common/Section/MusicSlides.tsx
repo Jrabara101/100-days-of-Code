@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import { TrackCard } from "@/components/ui/TrackCard";
 import { ITrack } from "@/types";
+import { useAudioPlayerContext } from "@/context/audioPlayerContext";
 
 interface MusicSlidesProps {
   tracks: ITrack[];
@@ -11,25 +12,37 @@ interface MusicSlidesProps {
 }
 
 const MusicSlides: FC<MusicSlidesProps> = ({ tracks, category, useModernCards: _useModernCards = true }) => {
-  const handlePlay = (track: ITrack) => {
-    console.log('🎵 Track clicked (audio player removed):', track.name || track.title);
-    // Audio player functionality removed - this is now just a visual music browser
-  };
+  const {
+    currentTrack,
+    isPlaying,
+    playTrack,
+    toggleTrackFavorite,
+    isTrackFavorite,
+  } = useAudioPlayerContext();
 
+  const currentTrackId = currentTrack ? (currentTrack.spotify_id || currentTrack.id) : "";
+
+  const handlePlay = (track: ITrack) => {
+    playTrack(track, tracks);
+  };
 
   return (
     <Swiper slidesPerView="auto" spaceBetween={15} className="mySwiper">
       {tracks.map((track) => {
+        const trackId = track.spotify_id || track.id;
+
         return (
           <SwiperSlide
-            key={track.id}
+            key={trackId}
             className="flex mt-1 flex-col xs:gap-[14px] gap-2 max-w-[170px] rounded-lg"
           >
             <TrackCard
               track={track}
               category={category}
-              isPlaying={false}
+              isPlaying={isPlaying && currentTrackId === trackId}
+              isFavorite={isTrackFavorite(trackId)}
               onPlay={handlePlay}
+              onToggleFavorite={toggleTrackFavorite}
               variant="detailed"
             />
           </SwiperSlide>

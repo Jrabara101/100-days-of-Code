@@ -1,6 +1,7 @@
 import { FC, useState } from "react";
 import { TrackCard } from "@/components/ui/TrackCard";
 import { ITrack } from "@/types";
+import { useAudioPlayerContext } from "@/context/audioPlayerContext";
 
 interface MusicGridProps {
   tracks: ITrack[];
@@ -15,53 +16,63 @@ interface MusicGridProps {
 const MusicGrid: FC<MusicGridProps> = ({
   tracks,
   category,
-  initialDisplayCount = 18, // Show 3 rows initially (6 columns * 3 rows)
-  loadMoreCount = 18, // Load 3 more rows each time
+  initialDisplayCount = 18,
+  loadMoreCount = 18,
   onLoadMore,
   isLoadingMore = false,
   hasMoreContent = false
 }) => {
   const [visibleCount, setVisibleCount] = useState(initialDisplayCount);
+  const {
+    currentTrack,
+    isPlaying,
+    playTrack,
+    toggleTrackFavorite,
+    isTrackFavorite,
+  } = useAudioPlayerContext();
+
+  const currentTrackId = currentTrack ? (currentTrack.spotify_id || currentTrack.id) : "";
 
   const handlePlay = (track: ITrack) => {
-    console.log('🎵 Track clicked (audio player removed):', track.name || track.title);
-    // Audio player functionality removed - this is now just a visual music browser
+    playTrack(track, tracks);
   };
 
   const handleLoadMoreClick = () => {
     if (tracks.length > visibleCount) {
-      // Show more of existing tracks first
-      setVisibleCount(prev => Math.min(prev + loadMoreCount, tracks.length));
+      setVisibleCount((prev) => Math.min(prev + loadMoreCount, tracks.length));
     } else if (onLoadMore && hasMoreContent) {
-      // Load new tracks from API
       onLoadMore();
-      setVisibleCount(prev => prev + loadMoreCount);
+      setVisibleCount((prev) => prev + loadMoreCount);
     }
   };
 
   const displayedTracks = tracks.slice(0, visibleCount);
   const showLoadMoreButton =
-    (tracks.length > visibleCount) || // More existing tracks to show
-    (hasMoreContent && !isLoadingMore); // Or more content available from API
+    tracks.length > visibleCount ||
+    (hasMoreContent && !isLoadingMore);
 
   return (
     <div className="w-full">
-      {/* Grid container */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-6">
-        {displayedTracks.map((track) => (
-          <div key={track.id} className="flex flex-col">
-            <TrackCard
-              track={track}
-              category={category}
-              isPlaying={false}
-              onPlay={handlePlay}
-              variant="detailed"
-            />
-          </div>
-        ))}
+        {displayedTracks.map((track) => {
+          const trackId = track.spotify_id || track.id;
+
+          return (
+            <div key={trackId} className="flex flex-col">
+              <TrackCard
+                track={track}
+                category={category}
+                isPlaying={isPlaying && currentTrackId === trackId}
+                isFavorite={isTrackFavorite(trackId)}
+                onPlay={handlePlay}
+                onToggleFavorite={toggleTrackFavorite}
+                variant="detailed"
+              />
+            </div>
+          );
+        })}
       </div>
 
-      {/* Load More Button */}
       {showLoadMoreButton && (
         <div className="flex justify-center">
           <button
@@ -81,7 +92,6 @@ const MusicGrid: FC<MusicGridProps> = ({
         </div>
       )}
 
-      {/* Loading indicator when fetching more content */}
       {isLoadingMore && !showLoadMoreButton && (
         <div className="flex justify-center py-4">
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">

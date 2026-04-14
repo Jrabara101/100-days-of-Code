@@ -10,7 +10,11 @@ interface AudioPlayerContextType {
   isShuffled: boolean;
   repeatMode: 'off' | 'one' | 'all';
   isMinimized: boolean;
-  playTrack: (track: ITrack) => void;
+  queue: ITrack[];
+  currentIndex: number;
+  favoriteTracks: ITrack[];
+  recentlyPlayed: ITrack[];
+  playTrack: (track: ITrack, queue?: ITrack[]) => void;
   togglePlay: () => void;
   skipNext: () => void;
   skipPrevious: () => void;
@@ -19,6 +23,9 @@ interface AudioPlayerContextType {
   toggleShuffle: () => void;
   toggleRepeat: () => void;
   toggleFavorite: () => void;
+  toggleTrackFavorite: (track: ITrack) => void;
+  isTrackFavorite: (trackId: string) => boolean;
+  clearRecentlyPlayed: () => void;
   toggleMinimize: () => void;
   closePlayer: () => void;
 }
