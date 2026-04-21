@@ -1,0 +1,6 @@
+﻿id,product,category,price,stock,available
+1,"Wireless Headphones",Electronics,89.99,120,1
+2,"Running Shoes",Sports,59.95,45,1
+3,"Coffee Maker",Kitchen,129,30,1
+4,"Yoga Mat",Sports,25,0,
+5,"Smart Watch",Electronics,199.99,75,1

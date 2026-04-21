@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "product": "Wireless Headphones",
+        "category": "Electronics",
+        "price": 89.99,
+        "stock": 120,
+        "available": true
+    },
+    {
+        "id": 2,
+        "product": "Running Shoes",
+        "category": "Sports",
+        "price": 59.95,
+        "stock": 45,
+        "available": true
+    },
+    {
+        "id": 3,
+        "product": "Coffee Maker",
+        "category": "Kitchen",
+        "price": 129.00,
+        "stock": 30,
+        "available": true
+    },
+    {
+        "id": 4,
+        "product": "Yoga Mat",
+        "category": "Sports",
+        "price": 25.00,
+        "stock": 0,
+        "available": false
+    },
+    {
+        "id": 5,
+        "product": "Smart Watch",
+        "category": "Electronics",
+        "price": 199.99,
+        "stock": 75,
+        "available": true
+    }
+]

@@ -1,0 +1,10 @@
+# Apache URL Rewriting for Birthday Reminder
+# Place this file in the PROJECT ROOT (not inside public/)
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Redirect all requests to public/index.php
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

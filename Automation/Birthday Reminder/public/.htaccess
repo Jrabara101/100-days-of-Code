@@ -1,0 +1,13 @@
+# Birthday Reminder — Public Directory
+# This file ensures direct access works cleanly from /public/
+
+<IfModule mod_rewrite.c>
+    Options -MultiViews
+    RewriteEngine On
+    RewriteBase /
+
+    # Route everything that isn't a real file to index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>

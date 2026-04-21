@@ -1,0 +1,38 @@
+[
+    {
+        "id": "tpl_demo0001",
+        "name": "Welcome Email",
+        "subject": "Welcome to {{company}}, {{name}}!",
+        "body": "Dear {{name}},\n\nWelcome to {{company}}! We're thrilled to have you join us as a {{role}}.\n\nYour registered email is {{email}}.\n\nHere's what you can expect in your first week:\n- A welcome kit delivered to your desk\n- Onboarding sessions with your team lead\n- Access to all company resources\n\nIf you have any questions, don't hesitate to reach out.\n\nBest regards,\n{{company}} HR Team",
+        "type": "text",
+        "created_at": "2026-04-17 09:00:00",
+        "updated_at": "2026-04-17 09:00:00"
+    },
+    {
+        "id": "tpl_demo0002",
+        "name": "Newsletter",
+        "subject": "{{company}} Monthly Update - Hello {{name}}!",
+        "body": "Hi {{name}},\n\nHere's your monthly update from {{company}}:\n\n📊 Key Highlights:\n- Revenue grew 15% this quarter\n- We launched 3 new features\n- Team expanded to 50+ members\n\n🎯 Upcoming Events:\n- Annual company retreat (June 15-17)\n- Product launch webinar (May 3)\n\n💡 Tips & Resources:\n- Check out our new knowledge base\n- Join our Slack community for quick support\n\nStay connected,\nThe {{company}} Team",
+        "type": "text",
+        "created_at": "2026-04-17 09:00:00",
+        "updated_at": "2026-04-17 09:00:00"
+    },
+    {
+        "id": "tpl_demo0003",
+        "name": "Meeting Invitation (HTML)",
+        "subject": "Meeting Invite: Discussion with {{name}}",
+        "body": "<h2>Meeting Invitation<\/h2>\n<p>Dear <strong>{{name}}<\/strong>,<\/p>\n<p>You are invited to a meeting to discuss upcoming projects at <strong>{{company}}<\/strong>.<\/p>\n<table border='1' cellpadding='8' style='border-collapse: collapse;'>\n<tr><td><strong>Date<\/strong><\/td><td>April 25, 2026<\/td><\/tr>\n<tr><td><strong>Time<\/strong><\/td><td>2:00 PM - 3:00 PM<\/td><\/tr>\n<tr><td><strong>Location<\/strong><\/td><td>Conference Room A \/ Virtual<\/td><\/tr>\n<tr><td><strong>Attendee<\/strong><\/td><td>{{name}} ({{role}})<\/td><\/tr>\n<\/table>\n<p>Please confirm your attendance by replying to this email at <a href='mailto:{{email}}'>{{email}}<\/a>.<\/p>\n<p>Regards,<br>{{company}} Admin<\/p>",
+        "type": "html",
+        "created_at": "2026-04-17 09:00:00",
+        "updated_at": "2026-04-17 09:00:00"
+    },
+    {
+        "id": "tpl_a62751db",
+        "name": "Johnrick Rabara",
+        "subject": "sfdfsdfs",
+        "body": "sdfsffd\nsf\nsfsdfsdfsfdsdfsfsdfdsfsdsfdsdfdsfsfdfsf",
+        "type": "html",
+        "created_at": "2026-04-17 01:58:39",
+        "updated_at": "2026-04-17 01:58:39"
+    }
+]

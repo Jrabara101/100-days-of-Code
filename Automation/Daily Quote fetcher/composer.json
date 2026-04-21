@@ -1,0 +1,38 @@
+{
+    "name": "daily-quote/fetcher",
+    "description": "Production-grade PHP 8.2 CLI tool to fetch and display daily quotes from a public API",
+    "type": "project",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daily Quote Fetcher",
+            "email": "dev@dailyquote.local"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "vlucas/phpdotenv": "^5.6",
+        "guzzlehttp/guzzle": "^7.9"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "DailyQuote\\": "src/"
+        }
+    },
+    "scripts": {
+        "fetch": "php bin/quote.php",
+        "fetch:save": "php bin/quote.php --save",
+        "fetch:html": "php bin/quote.php --save --html",
+        "fetch:all": "php bin/quote.php --save --json --html --verbose"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

@@ -1,0 +1,92 @@
+[
+    {
+        "name": "Alice Johnson",
+        "email": "alice@techcorp.com",
+        "company": "TechCorp",
+        "role": "Software Engineer"
+    },
+    {
+        "name": "Bob Smith",
+        "email": "bob@designhub.io",
+        "company": "DesignHub",
+        "role": "UI/UX Designer"
+    },
+    {
+        "name": "Charlie Brown",
+        "email": "charlie@marketpro.com",
+        "company": "MarketPro",
+        "role": "Marketing Manager"
+    },
+    {
+        "name": "Diana Prince",
+        "email": "diana@healthplus.org",
+        "company": "HealthPlus",
+        "role": "Project Lead"
+    },
+    {
+        "name": "Edward Norton",
+        "email": "edward@financeworld.net",
+        "company": "FinanceWorld",
+        "role": "Financial Analyst"
+    },
+    {
+        "name": "Fiona Davis",
+        "email": "fiona@edulearn.com",
+        "company": "EduLearn",
+        "role": "Content Writer"
+    },
+    {
+        "name": "George Wilson",
+        "email": "george@cloudbase.io",
+        "company": "CloudBase",
+        "role": "DevOps Engineer"
+    },
+    {
+        "name": "Hannah Lee",
+        "email": "hannah@creativelab.co",
+        "company": "CreativeLab",
+        "role": "Graphic Designer"
+    },
+    {
+        "name": "Ivan Petrov",
+        "email": "ivan@dataflow.tech",
+        "company": "DataFlow",
+        "role": "Data Scientist"
+    },
+    {
+        "name": "Julia Martinez",
+        "email": "julia@greenearth.org",
+        "company": "GreenEarth",
+        "role": "Sustainability Director"
+    },
+    {
+        "name": "Kevin O'Brien",
+        "email": "kevin@startupforge.com",
+        "company": "StartupForge",
+        "role": "Co-Founder"
+    },
+    {
+        "name": "Laura Chen",
+        "email": "laura.chen@intellisoft.com",
+        "company": "IntelliSoft",
+        "role": "QA Engineer"
+    },
+    {
+        "name": "Michael Torres",
+        "email": "mtorres@innovate.co",
+        "company": "Innovate Co.",
+        "role": "Product Manager"
+    },
+    {
+        "name": "Nina Patel",
+        "email": "nina@webvision.net",
+        "company": "WebVision",
+        "role": "Frontend Developer"
+    },
+    {
+        "name": "Oliver Grant",
+        "email": "oliver.g@logisticspro.com",
+        "company": "LogisticsPro",
+        "role": "Operations Manager"
+    }
+]
