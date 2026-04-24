@@ -1,0 +1,21 @@
+{
+    "name": "automation/weather-checker",
+    "description": "Philippines Weather Checker from API",
+    "type": "project",
+    "require": {
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.8",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Developer"
+        }
+    ],
+    "minimum-stability": "stable"
+}
