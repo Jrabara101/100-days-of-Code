@@ -1,0 +1,5 @@
+This directory is used to store URL check log files.
+
+Logs are automatically appended and named: url-checks.log
+
+Each session is separated by a dated header block.

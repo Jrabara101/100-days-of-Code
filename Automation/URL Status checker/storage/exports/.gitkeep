@@ -1,0 +1,5 @@
+This directory is used to store CSV export files.
+
+Each export is named with a timestamp: url-check-YYYY-MM-DD_HH-MM-SS.csv
+
+Files include UTF-8 BOM for Excel compatibility.

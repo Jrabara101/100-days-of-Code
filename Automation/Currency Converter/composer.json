@@ -1,0 +1,35 @@
+{
+    "name": "automation/currency-converter",
+    "description": "Professional PHP 8+ CLI Currency Converter with real-time exchange rates",
+    "type": "project",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Currency Converter CLI",
+            "email": "dev@currencyconverter.local"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "CurrencyConverter\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "scripts": {
+        "start": "@php index.php",
+        "convert": "@php index.php"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

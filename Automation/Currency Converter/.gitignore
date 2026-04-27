@@ -1,0 +1,21 @@
+# Git ignore rules for PHP Currency Converter CLI
+
+# Composer
+vendor/
+composer.lock
+
+# Environment secrets
+.env
+
+# Conversion history (optional — keep if you want to track history in git)
+storage/history.json
+
+# PHP logs
+*.log
+logs/
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

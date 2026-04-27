@@ -1,0 +1,209 @@
+
+================================================================================
+  URL STATUS CHECKER — Session Log
+  Date       : 2026-04-27 01:44:09
+  URLs Queued: 1
+  Timeout    : 10s
+  Retries    : 1
+================================================================================
+
+------------------------------------------------------------
+  URL        : https://www.google.com
+  Status     : 200
+  Meaning    : OK
+  Category   : Online
+  Resp. Time : 5088.44 ms
+  Redirected : No
+  Final URL  : https://www.google.com/
+  Checked At : 2026-04-27 01:44:09
+
+================================================================================
+  SUMMARY
+  Total Checked : 1
+  Online (2xx)  : 1
+  Redirecting   : 0
+  Client Error  : 0
+  Server Error  : 0
+  Invalid URL   : 0
+  Failed/Timeout: 0
+  Avg. Resp.    : 5088.44 ms
+================================================================================
+
+
+================================================================================
+  URL STATUS CHECKER — Session Log
+  Date       : 2026-04-27 01:44:21
+  URLs Queued: 15
+  Timeout    : 5s
+  Retries    : 1
+================================================================================
+
+------------------------------------------------------------
+  URL        : https://www.google.com
+  Status     : 200
+  Meaning    : OK
+  Category   : Online
+  Resp. Time : 1310.95 ms
+  Redirected : No
+  Final URL  : https://www.google.com/
+  Checked At : 2026-04-27 01:44:21
+
+------------------------------------------------------------
+  URL        : https://www.github.com
+  Status     : 200
+  Meaning    : OK
+  Category   : Online
+  Resp. Time : 3215.37 ms
+  Redirected : Yes (1x)
+  Final URL  : https://github.com/
+  Checked At : 2026-04-27 01:44:23
+
+------------------------------------------------------------
+  URL        : https://www.wikipedia.org
+  Status     : 200
+  Meaning    : OK
+  Category   : Online
+  Resp. Time : 291.03 ms
+  Redirected : No
+  Final URL  : https://www.wikipedia.org/
+  Checked At : 2026-04-27 01:44:26
+
+------------------------------------------------------------
+  URL        : https://www.php.net
+  Status     : 200
+  Meaning    : OK
+  Category   : Online
+  Resp. Time : 466.54 ms
+  Redirected : No
+  Final URL  : https://www.php.net/
+  Checked At : 2026-04-27 01:44:26
+
+------------------------------------------------------------
+  URL        : https://httpbin.org/status/200
+  Status     : N/A
+  Meaning    : Could not resolve host (DNS failure)
+  Category   : Timeout / Failed
+  Resp. Time : 144.7 ms
+  Redirected : No
+  Final URL  : https://httpbin.org/status/200
+  Error      : Could not resolve host (DNS failure)
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : http://www.google.com
+  Status     : 200
+  Meaning    : OK
+  Category   : Online
+  Resp. Time : 166.55 ms
+  Redirected : No
+  Final URL  : http://www.google.com/
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : https://httpbin.org/redirect/1
+  Status     : N/A
+  Meaning    : Could not resolve host (DNS failure)
+  Category   : Timeout / Failed
+  Resp. Time : 1.78 ms
+  Redirected : No
+  Final URL  : https://httpbin.org/redirect/1
+  Error      : Could not resolve host (DNS failure)
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : https://httpbin.org/status/404
+  Status     : N/A
+  Meaning    : Could not resolve host (DNS failure)
+  Category   : Timeout / Failed
+  Resp. Time : 1.85 ms
+  Redirected : No
+  Final URL  : https://httpbin.org/status/404
+  Error      : Could not resolve host (DNS failure)
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : https://httpbin.org/status/403
+  Status     : N/A
+  Meaning    : Could not resolve host (DNS failure)
+  Category   : Timeout / Failed
+  Resp. Time : 2.35 ms
+  Redirected : No
+  Final URL  : https://httpbin.org/status/403
+  Error      : Could not resolve host (DNS failure)
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : https://httpbin.org/status/500
+  Status     : N/A
+  Meaning    : Could not resolve host (DNS failure)
+  Category   : Timeout / Failed
+  Resp. Time : 1.83 ms
+  Redirected : No
+  Final URL  : https://httpbin.org/status/500
+  Error      : Could not resolve host (DNS failure)
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : https://httpbin.org/status/503
+  Status     : N/A
+  Meaning    : Could not resolve host (DNS failure)
+  Category   : Timeout / Failed
+  Resp. Time : 1.83 ms
+  Redirected : No
+  Final URL  : https://httpbin.org/status/503
+  Error      : Could not resolve host (DNS failure)
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : not-a-url
+  Status     : N/A
+  Meaning    : Invalid or malformed URL
+  Category   : Invalid URL
+  Resp. Time : N/A
+  Redirected : No
+  Error      : Invalid or malformed URL
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : ftp://unsupported-scheme.com
+  Status     : N/A
+  Meaning    : Invalid or malformed URL
+  Category   : Invalid URL
+  Resp. Time : N/A
+  Redirected : No
+  Error      : Invalid or malformed URL
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : just-some-text
+  Status     : N/A
+  Meaning    : Invalid or malformed URL
+  Category   : Invalid URL
+  Resp. Time : N/A
+  Redirected : No
+  Error      : Invalid or malformed URL
+  Checked At : 2026-04-27 01:44:27
+
+------------------------------------------------------------
+  URL        : https://httpbin.org/delay/2
+  Status     : N/A
+  Meaning    : Could not resolve host (DNS failure)
+  Category   : Timeout / Failed
+  Resp. Time : 1.65 ms
+  Redirected : No
+  Final URL  : https://httpbin.org/delay/2
+  Error      : Could not resolve host (DNS failure)
+  Checked At : 2026-04-27 01:44:27
+
+================================================================================
+  SUMMARY
+  Total Checked : 15
+  Online (2xx)  : 5
+  Redirecting   : 0
+  Client Error  : 0
+  Server Error  : 0
+  Invalid URL   : 3
+  Failed/Timeout: 7
+  Avg. Resp.    : 467.2 ms
+================================================================================
+

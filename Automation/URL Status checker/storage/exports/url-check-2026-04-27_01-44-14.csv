@@ -1,0 +1,2 @@
+﻿URL,Valid,"HTTP Status Code","Status Meaning",Category,"Response Time (ms)",Redirected,"Redirect Count","Final URL",Error,"Checked At"
+https://www.google.com,Yes,200,OK,Online,5088.44,No,0,https://www.google.com/,,"2026-04-27 01:44:09"

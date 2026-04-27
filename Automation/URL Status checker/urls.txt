@@ -1,0 +1,30 @@
+# URLs to check — one per line
+# Lines starting with # are treated as comments and will be skipped.
+# Blank lines are also skipped automatically.
+
+# ─── Working / Online URLs ────────────────────────────────────────
+https://www.google.com
+https://www.github.com
+https://www.wikipedia.org
+https://www.php.net
+https://httpbin.org/status/200
+
+# ─── Redirect URLs ───────────────────────────────────────────────
+http://www.google.com
+https://httpbin.org/redirect/1
+
+# ─── Client Errors ───────────────────────────────────────────────
+https://httpbin.org/status/404
+https://httpbin.org/status/403
+
+# ─── Server Errors ───────────────────────────────────────────────
+https://httpbin.org/status/500
+https://httpbin.org/status/503
+
+# ─── Invalid URLs (will fail validation) ─────────────────────────
+not-a-url
+ftp://unsupported-scheme.com
+just-some-text
+
+# ─── Slow / Potentially Timeout ──────────────────────────────────
+https://httpbin.org/delay/2
