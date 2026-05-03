@@ -1,0 +1,80 @@
+{
+    "total_entries": 601,
+    "error_entries": 43,
+    "top_ips": [
+        {
+            "ip": "10.0.0.4",
+            "count": 70,
+            "status": 200
+        },
+        {
+            "ip": "10.10.10.10",
+            "count": 68,
+            "status": 302
+        },
+        {
+            "ip": "172.16.0.12",
+            "count": 62,
+            "status": 200
+        },
+        {
+            "ip": "198.51.100.7",
+            "count": 62,
+            "status": 200
+        },
+        {
+            "ip": "54.23.111.8",
+            "count": 61,
+            "status": 429
+        },
+        {
+            "ip": "185.220.101.5",
+            "count": 59,
+            "status": 301
+        },
+        {
+            "ip": "192.168.0.1",
+            "count": 59,
+            "status": 200
+        },
+        {
+            "ip": "66.249.64.15",
+            "count": 57,
+            "status": 200
+        },
+        {
+            "ip": "203.0.113.42",
+            "count": 54,
+            "status": 200
+        },
+        {
+            "ip": "192.168.1.5",
+            "count": 48,
+            "status": 200
+        }
+    ],
+    "status_buckets": {
+        "2xx": 391,
+        "3xx": 54,
+        "4xx": 113,
+        "5xx": 43
+    },
+    "top_endpoints": {
+        "/api/v1/webhooks": 68,
+        "/static/style.css": 59,
+        "/": 55,
+        "/admin/dashboard": 54,
+        "/api/v1/search": 54,
+        "/api/v1/orders": 53,
+        "/api/v2/auth/login": 50,
+        "/api/v1/payments": 49,
+        "/static/app.js": 45,
+        "/api/v1/users": 43
+    },
+    "level_counts": {
+        "INFO": 391,
+        "WARN": 113,
+        "NOTICE": 54,
+        "ERROR": 43
+    }
+}

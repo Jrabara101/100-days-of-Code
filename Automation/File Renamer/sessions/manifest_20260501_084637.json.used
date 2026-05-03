@@ -1,0 +1,117 @@
+[
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\album_intro.flac",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_album_intro.flac",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\archive.zip",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_archive.zip",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\banner.png",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_banner.png",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\document.pdf",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_document.pdf",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\favourite_song.mp3",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_favourite_song.mp3",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\IMG_9820.jpg",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_IMG_9820.jpg",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\IMG_9821.jpg",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_IMG_9821.jpg",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\IMG_9822.jpg",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_IMG_9822.jpg",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\IMG_9823.jpg",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_IMG_9823.jpg",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\IMG_9824.jpg",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_IMG_9824.jpg",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\live_recording.ogg",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_live_recording.ogg",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\logo.png",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_logo.png",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\logo_DUPE.png",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_logo_DUPE.png",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\photo_scan.jpg",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_photo_scan.jpg",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\readme.txt",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_readme.txt",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\screenshot_001.png",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_screenshot_001.png",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\screenshot_002.png",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_screenshot_002.png",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\spreadsheet.xlsx",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_spreadsheet.xlsx",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\thumbnail.gif",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_thumbnail.gif",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\track01.mp3",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_track01.mp3",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\track02.mp3",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_track02.mp3",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\vacation_beach.jpg",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_vacation_beach.jpg",
+        "ts": 1777625197
+    },
+    {
+        "from": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\video_clip.mp4",
+        "to": "C:\\Users\\Admin\\100-days-of-Code\\Automation\\File Renamer\\test_assets\\2026-05-01_video_clip.mp4",
+        "ts": 1777625197
+    }
+]

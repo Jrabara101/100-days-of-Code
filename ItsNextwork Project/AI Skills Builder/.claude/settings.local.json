@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_paper-desktop_paper__write_html",
+      "mcp__plugin_paper-desktop_paper__get_screenshot",
+      "mcp__plugin_paper-desktop_paper__finish_working_on_nodes"
+    ]
+  }
+}

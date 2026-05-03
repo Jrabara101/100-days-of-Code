@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wrangler --version)",
+      "Bash(wrangler pages *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://day11-100days-of-code.pages.dev/counter-application/\")"
+    ]
+  }
+}

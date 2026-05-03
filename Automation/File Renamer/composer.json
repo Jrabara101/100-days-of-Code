@@ -1,0 +1,22 @@
+{
+    "name": "phlex/rename",
+    "description": "PhlexRename v2.0 — Senior-level PHP 8.x CLI File Renaming Automation Tool",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1",
+        "james-heinrich/getid3": "^1.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phlex\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "lint": "php -l phlex.php && find src -name '*.php' -exec php -l {} \\;"
+    }
+}
