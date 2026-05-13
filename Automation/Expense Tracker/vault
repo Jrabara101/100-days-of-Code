@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+// ─── Bootstrap ────────────────────────────────────────────────────────────────
+define('VAULT_ROOT',    __DIR__);
+define('VAULT_VERSION', '2.1.0');
+define('VAULT_START',   microtime(true));
+
+require_once VAULT_ROOT . '/src/bootstrap.php';
+
+use VaultCLI\Application;
+
+$app = new Application();
+$app->run($argv);

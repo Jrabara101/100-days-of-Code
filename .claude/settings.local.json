@@ -3,7 +3,19 @@
     "allow": [
       "Bash(wrangler --version)",
       "Bash(wrangler pages *)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://day11-100days-of-code.pages.dev/counter-application/\")"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://day11-100days-of-code.pages.dev/counter-application/\")",
+      "Bash(curl -s -o /dev/null -w \"landing:%{http_code}\\\\n\" \"https://day12-100days-of-code.pages.dev/\")",
+      "Bash(curl -s -o /dev/null -w \"clock:%{http_code}\\\\n\" \"https://day12-100days-of-code.pages.dev/digital-clock/\")",
+      "Bash(curl -s -o /dev/null -w \"stopwatch:%{http_code}\\\\n\" \"https://day12-100days-of-code.pages.dev/stopwatch/\")",
+      "Bash(curl -s -o /dev/null -w \"todo:%{http_code}\\\\n\" \"https://day12-100days-of-code.pages.dev/todo-app/\")",
+      "Bash(curl -s -o /dev/null -w \"landing:%{http_code}\\\\n\" \"https://day13-100days-of-code.pages.dev/\")",
+      "Bash(curl -s -o /dev/null -w \"age:%{http_code}\\\\n\" \"https://day13-100days-of-code.pages.dev/age-calculator/\")",
+      "Bash(curl -s -o /dev/null -w \"currency:%{http_code}\\\\n\" \"https://day13-100days-of-code.pages.dev/currency-calculator/\")",
+      "Bash(curl -s -o /dev/null -w \"percentage:%{http_code}\\\\n\" \"https://day13-100days-of-code.pages.dev/percentage-calculator/\")",
+      "Bash(curl -s -o /dev/null -w \"d13_rps:%{http_code}\\\\n\" \"https://day13-100days-of-code.pages.dev/rock-paper-scissor/\")",
+      "Bash(curl -s -o /dev/null -w \"d14_landing:%{http_code}\\\\n\" \"https://day14-100days-of-code.pages.dev/\")",
+      "Bash(curl -s -o /dev/null -w \"d14_color:%{http_code}\\\\n\" \"https://day14-100days-of-code.pages.dev/color-guessing-game/\")",
+      "Bash(curl -s -o /dev/null -w \"d14_length:%{http_code}\\\\n\" \"https://day14-100days-of-code.pages.dev/length-converter/\")"
     ]
   }
 }

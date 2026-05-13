@@ -1,0 +1,36 @@
+{
+    "invoice_number": "INV-2026-0091",
+    "date": "2026-05-07",
+    "currency": "USD",
+    "customer": {
+        "id": "CUST-8842",
+        "name": "Acme Corporation",
+        "address": "123 Business Rd\nTech City, TX 75001",
+        "email": "billing@acmecorp.com"
+    },
+    "items": [
+        {
+            "description": "Enterprise Architecture Consultation",
+            "quantity": 10,
+            "unit_price_cents": 15000
+        },
+        {
+            "description": "Backend API Development",
+            "quantity": 20,
+            "unit_price_cents": 10000
+        },
+        {
+            "description": "Frontend Dashboard UI",
+            "quantity": 15,
+            "unit_price_cents": 6000
+        },
+        {
+            "description": "Database Optimization",
+            "quantity": 5,
+            "unit_price_cents": 20000
+        }
+    ],
+    "discount_percent": 10,
+    "tax_type": "VAT",
+    "tax_percent": 12
+}

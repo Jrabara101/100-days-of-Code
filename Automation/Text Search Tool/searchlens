@@ -1,0 +1,115 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/src/SearchStrategyInterface.php';
+require_once __DIR__ . '/src/ExactMatchStrategy.php';
+require_once __DIR__ . '/src/RegexMatchStrategy.php';
+require_once __DIR__ . '/src/Config.php';
+require_once __DIR__ . '/src/ContextBuffer.php';
+require_once __DIR__ . '/src/DirectoryScanner.php';
+require_once __DIR__ . '/src/MatchEngine.php';
+require_once __DIR__ . '/src/CliRenderer.php';
+
+use SearchLens\Config;
+use SearchLens\ExactMatchStrategy;
+use SearchLens\RegexMatchStrategy;
+use SearchLens\DirectoryScanner;
+use SearchLens\MatchEngine;
+use SearchLens\CliRenderer;
+
+$startTime = microtime(true);
+
+// Basic Argument Parsing
+$options = getopt("iwhc:e:", ["regex", "exact", "ignore-case", "match-word", "context:", "help"]);
+
+if (isset($options['h']) || isset($options['help'])) {
+    echo "Usage: php searchlens [options] <query> [directory]\n";
+    echo "Options:\n";
+    echo "  --regex             Use PCRE regular expressions\n";
+    echo "  --exact             Use exact string match (default)\n";
+    echo "  -i, --ignore-case   Ignore case distinctions\n";
+    echo "  -w, --match-word    Match whole words only\n";
+    echo "  -c, --context=NUM   Print NUM lines of output context\n";
+    exit(0);
+}
+
+// Determine positional arguments (query and target)
+// Remove options from argv
+$args = [];
+for ($i = 1; $i < $argc; $i++) {
+    if ($argv[$i][0] !== '-' && !in_array($argv[$i - 1], ['-c', '--context', '-e'])) {
+        $args[] = $argv[$i];
+    }
+}
+
+$query = $args[0] ?? '';
+$targetDir = $args[1] ?? '.';
+
+if ($query === '') {
+    echo "Error: Query string required.\n";
+    exit(1);
+}
+
+$targetDir = realpath($targetDir);
+if ($targetDir === false || !is_dir($targetDir)) {
+    echo "Error: Invalid target directory.\n";
+    exit(1);
+}
+
+$isRegex = isset($options['regex']);
+$ignoreCase = isset($options['i']) || isset($options['ignore-case']);
+$matchWord = isset($options['w']) || isset($options['match-word']);
+$contextLines = (int)($options['c'] ?? $options['context'] ?? 0);
+
+$config = new Config(
+    targetDirectory: $targetDir,
+    query: $query,
+    isRegex: $isRegex,
+    ignoreCase: $ignoreCase,
+    matchWord: $matchWord,
+    contextLines: $contextLines
+);
+
+$strategy = $config->isRegex 
+    ? new RegexMatchStrategy($config->query, $config->ignoreCase)
+    : new ExactMatchStrategy($config->query, $config->ignoreCase, $config->matchWord);
+
+$scanner = new DirectoryScanner($config);
+$engine = new MatchEngine($strategy, $config);
+$renderer = new CliRenderer();
+
+$renderer->renderHeader($config);
+
+$totalScanned = 0;
+$filesWithMatches = 0;
+$totalMatches = 0;
+$allResults = [];
+
+foreach ($scanner->scan() as $file) {
+    $totalScanned++;
+    
+    // Update progress occasionally to reduce I/O overhead
+    if ($totalScanned % 100 === 0) {
+        $renderer->renderProgress($totalScanned);
+    }
+
+    $result = $engine->processFile($file);
+    if ($result !== null) {
+        $filesWithMatches++;
+        $totalMatches += count($result['matches']);
+        $allResults[] = $result;
+    }
+}
+
+// Final progress update
+$renderer->renderProgress($totalScanned);
+$renderer->renderMatchesHeader();
+
+foreach ($allResults as $res) {
+    $renderer->renderFileMatches($res);
+}
+
+$executionTime = microtime(true) - $startTime;
+$renderer->renderSummary($totalScanned, $filesWithMatches, $totalMatches, $executionTime);

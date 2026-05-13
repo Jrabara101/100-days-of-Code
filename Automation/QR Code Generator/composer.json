@@ -1,0 +1,15 @@
+{
+    "name": "matrixcli/qrcode",
+    "description": "Enterprise-Grade Offline QR Code Engine",
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "chillerlan/php-qrcode": "^5.0",
+        "ext-gd": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "MatrixCLI\\": "src/"
+        }
+    }
+}

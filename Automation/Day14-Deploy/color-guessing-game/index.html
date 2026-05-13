@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Color Guessing Game — Mobile Version</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="bg-slate-900 text-white antialiased">
+
+  <div class="min-h-screen flex flex-col items-center justify-start p-4 gap-4">
+
+    <header class="w-full max-w-3xl flex items-center justify-between mt-2">
+      <h1 class="text-2xl font-semibold">Color Guessing Game</h1>
+
+      <div id="ui-top" class="flex flex-col items-end text-right">
+        <div id="score" class="text-lg font-semibold">Score: 0</div>
+        <div class="flex items-center gap-2 mt-1">
+          <span id="target-text" class="text-sm">Target: --</span>
+          <div id="color-swatch" class="w-8 h-8 rounded border border-white"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Game container -->
+    <div id="game-wrap" class="relative w-full max-w-3xl aspect-video bg-black rounded shadow overflow-hidden">
+      <div id="three-container" class="absolute inset-0"></div>
+
+      <!-- Floating UI message -->
+      <div id="message"
+           class="absolute top-2 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded text-sm hidden">
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex gap-3">
+      <button id="new-round"
+              class="px-4 py-2 text-white rounded bg-indigo-600 hover:bg-indigo-500">
+        New Round
+      </button>
+
+      <button id="reset-score"
+              class="px-4 py-2 text-white rounded bg-rose-600 hover:bg-rose-500">
+        Reset Score
+      </button>
+    </div>
+
+    <p class="text-xs text-slate-500 max-w-xl text-center">
+      Fully mobile-friendly — UI uses plain HTML.
+    </p>
+
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+  <!-- Main App -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

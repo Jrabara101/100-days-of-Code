@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+    <style>
+        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; margin: 0; padding: 20px; font-size: 14px; }
+        .header { display: table; width: 100%; margin-bottom: 40px; }
+        .company-details { display: table-cell; width: 50%; }
+        .invoice-details { display: table-cell; width: 50%; text-align: right; }
+        h1 { margin: 0 0 10px 0; color: #1a202c; font-size: 32px; text-transform: uppercase; letter-spacing: 2px; }
+        .customer-section { margin-bottom: 40px; background-color: #f7fafc; padding: 20px; border-radius: 8px; }
+        .customer-section h3 { margin-top: 0; color: #4a5568; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        th { text-align: left; background-color: #edf2f7; color: #4a5568; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+        .totals { float: right; width: 40%; }
+        .totals table { border: none; }
+        .totals th, .totals td { border: none; padding: 8px 12px; }
+        .totals th { background: transparent; text-align: left; }
+        .totals td { text-align: right; }
+        .grand-total { font-weight: bold; font-size: 18px; color: #2d3748; border-top: 2px solid #cbd5e0 !important; }
+        .footer { clear: both; margin-top: 50px; text-align: center; color: #a0aec0; font-size: 12px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="company-details">
+            <h1>INVOICE</h1>
+            <strong>Acme Corporation</strong><br>
+            123 Business Rd, Tech City, TX 75001<br>
+            billing@acmecorp.com
+        </div>
+        <div class="invoice-details">
+            <strong>Invoice No:</strong> {{INVOICE_NUMBER}}<br>
+            <strong>Date:</strong> {{DATE}}
+        </div>
+    </div>
+
+    <div class="customer-section">
+        <h3>Billed To:</h3>
+        <strong>{{CUSTOMER_NAME}}</strong> (ID: {{CUSTOMER_ID}})<br>
+        {{CUSTOMER_ADDRESS}}<br>
+        Email: {{CUSTOMER_EMAIL}}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th style="text-align: right;">Qty</th>
+                <th style="text-align: right;">Unit Price</th>
+                <th style="text-align: right;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{LINE_ITEMS}}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <table>
+            <tr>
+                <th>Subtotal</th>
+                <td>{{SUBTOTAL}}</td>
+            </tr>
+            <tr>
+                <th>Discount ({{DISCOUNT_PERCENT}}%)</th>
+                <td>-{{DISCOUNT}}</td>
+            </tr>
+            <tr>
+                <th>Tax Base</th>
+                <td>{{TAX_BASE}}</td>
+            </tr>
+            <tr>
+                <th>{{TAX_TYPE}} ({{TAX_PERCENT}}%)</th>
+                <td>{{TAX}}</td>
+            </tr>
+            <tr>
+                <th class="grand-total">GRAND TOTAL</th>
+                <td class="grand-total">{{GRAND_TOTAL}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        Thank you for your business! Please make payment within 30 days.
+    </div>
+</body>
+</html>

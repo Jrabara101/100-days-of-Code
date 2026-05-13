@@ -1,0 +1,19 @@
+{
+    "name": "vaultcli/expense-engine",
+    "description": "Enterprise-Grade Personal Finance & Expense Engine",
+    "type": "project",
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "VaultCLI\\": "src/"
+        }
+    },
+    "scripts": {
+        "vault": "php vault"
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

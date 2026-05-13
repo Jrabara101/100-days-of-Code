@@ -1,0 +1,25 @@
+/* Ensures canvas fills container */
+#three-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* UI tweaks */
+#message {
+  transition: opacity 0.3s ease;
+}
+
+/* Mobile improvements */
+@media (max-width: 640px) {
+  #score {
+    font-size: 1rem;
+  }
+  #target-text {
+    font-size: 0.8rem;
+  }
+  #color-swatch {
+    width: 28px;
+    height: 28px;
+  }
+}

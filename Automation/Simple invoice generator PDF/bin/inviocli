@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+use InvioCLI\Domain\Calculators\FinancialEngine;
+use InvioCLI\Domain\Builders\InvoiceBuilder;
+use InvioCLI\Infrastructure\Renderers\DompdfRenderer;
+use InvioCLI\UI\CliDashboard;
+use InvioCLI\Console\GenerateInvoiceCommand;
+
+try {
+    $engine = new FinancialEngine();
+    $builder = new InvoiceBuilder($engine);
+    $renderer = new DompdfRenderer(__DIR__ . '/../templates/invoice.html');
+    $dashboard = new CliDashboard();
+
+    $command = new GenerateInvoiceCommand($builder, $renderer, $dashboard);
+    
+    // Remove the script name from args
+    $args = array_slice($argv, 1);
+    
+    $command->execute($args);
+
+} catch (Exception $e) {
+    echo "\n\033[31m\033[1m[ERROR]\033[0m " . $e->getMessage() . "\n";
+    exit(1);
+}

@@ -1,0 +1,62 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0; 
+}
+
+.stopwatch-container {
+    text-align: center;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.time-display {
+    font-size: 4em;
+    font-weight: 300;
+    margin-bottom: 30px;
+    color: #4CAF50; /* Green text for a sporty look */
+}
+
+.controls button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    min-width: 100px;
+}
+
+#startStopBtn {
+    background-color: #4CAF50; /* Green for Start */
+    color: white;
+}
+
+#startStopBtn.stop {
+    background-color: #f44336; /* Red for Stop */
+}
+
+#resetBtn {
+    background-color: #555555;
+    color: white;
+}
+
+.controls button:hover {
+    opacity: 0.9;
+}
+
+.controls button:active {
+    transform: scale(0.98);
+}

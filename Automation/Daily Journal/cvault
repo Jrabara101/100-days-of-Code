@@ -1,0 +1,93 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * ChronoVault — CLI Entry Point
+ *
+ * This is the executable entry point. It:
+ *   1. Validates the PHP environment
+ *   2. Registers the PSR-4 autoloader via Composer
+ *   3. Configures global PHP settings for a secure CLI context
+ *   4. Hands control to the Application bootstrap
+ *
+ * Run with:    php cvault
+ *              php cvault write
+ *              php cvault read #042
+ *              php cvault stats
+ *              php cvault list
+ *              php cvault help
+ */
+
+// ── Environment Guards ─────────────────────────────────────────────────────
+
+if (PHP_SAPI !== 'cli') {
+    fwrite(STDERR, "ChronoVault must be run from the command line.\n");
+    exit(1);
+}
+
+if (version_compare(PHP_VERSION, '8.2.0', '<')) {
+    fwrite(STDERR, "ChronoVault requires PHP 8.2 or higher. Current: " . PHP_VERSION . "\n");
+    exit(1);
+}
+
+if (!extension_loaded('sodium')) {
+    fwrite(STDERR, "ChronoVault requires ext-sodium. Install: apt install php8.2-sodium\n");
+    exit(1);
+}
+
+if (!extension_loaded('pdo_sqlite')) {
+    fwrite(STDERR, "ChronoVault requires ext-pdo_sqlite. Install: apt install php8.2-sqlite3\n");
+    exit(1);
+}
+
+// ── Autoloader ─────────────────────────────────────────────────────────────
+
+$autoloader = __DIR__ . '/vendor/autoload.php';
+
+if (!file_exists($autoloader)) {
+    fwrite(STDERR, "Composer autoloader not found. Run: composer install\n");
+    exit(1);
+}
+
+require $autoloader;
+
+// ── Global PHP Configuration ───────────────────────────────────────────────
+
+// Never display errors to stdout in a secure app — log them instead.
+// Users should not see raw stack traces that may contain sensitive paths.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL);
+
+// Set an appropriate memory limit for Argon2id key derivation.
+// INTERACTIVE memlimit is ~64 MB, so 128M provides comfortable headroom.
+ini_set('memory_limit', '128M');
+
+// Disable output buffering — ANSI escape codes must reach the terminal immediately.
+if (ob_get_level() > 0) {
+    ob_end_flush();
+}
+
+// ── Vault Directory ────────────────────────────────────────────────────────
+
+// The vault directory is adjacent to this entry point script.
+// You can override this with the CHRONOVAULT_DIR environment variable.
+$vaultDir = getenv('CHRONOVAULT_DIR') ?: __DIR__;
+
+// ── Run ────────────────────────────────────────────────────────────────────
+
+use ChronoVault\Bootstrap\Application;
+
+try {
+    $app      = new Application($vaultDir);
+    $exitCode = $app->run($argv);
+} catch (Throwable $e) {
+    // Top-level catch — prevents raw stack traces reaching the terminal.
+    // We intentionally do NOT print $e->getTrace() here.
+    fwrite(STDERR, "\n\e[38;2;255;90;90m  ✖ Fatal error: " . $e->getMessage() . "\e[0m\n\n");
+    exit(1);
+}
+
+exit($exitCode);

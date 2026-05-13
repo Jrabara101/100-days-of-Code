@@ -1,0 +1,20 @@
+{
+    "name": "chronovault/journal",
+    "description": "ChronoVault – Encrypted Terminal Journal & Mood Tracker",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "ext-sodium": "*",
+        "ext-pdo": "*",
+        "ext-pdo_sqlite": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "ChronoVault\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

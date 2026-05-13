@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Rock Paper Scissors</title>
+    <!-- Load Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            width: 90vw;
+            max-width: 800px;
+            height: 50vh;
+            min-height: 400px;
+            background-color: #161b22;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            margin-bottom: 20px;
+        }
+        canvas {
+            display: block;
+            border-radius: 12px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 10px;
+            justify-content: center;
+            flex-wrap: wrap; /* Added for responsive controls */
+        }
+        .choice-btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            min-width: 120px; /* Ensures buttons look good on desktop */
+        }
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #rock { border-color: #ff5757; background-color: #5a1e1e; color: #ff5757; }
+        #paper { border-color: #57a6ff; background-color: #1e3a5a; color: #57a6ff; }
+        #scissors { border-color: #ffc400; background-color: #5a471e; color: #ffc400; }
+        .choice-btn:not(:disabled):hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px;
+        }
+        #rock:not(:disabled):hover { box-shadow: 0 0 10px #ff5757; }
+        #paper:not(:disabled):hover { box-shadow: 0 0 10px #57a6ff; }
+        #scissors:not(:disabled):hover { box-shadow: 0 0 10px #ffc400; }
+
+        #status {
+            text-align: center;
+            font-size: 1.2rem;
+            min-height: 30px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        #score {
+            font-size: 1rem;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .controls {
+                gap: 10px;
+            }
+            .choice-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="text-2xl font-bold mb-4">Rock Paper Scissors (3D)</h1>
+
+    <div id="game-container">
+        <!-- Three.js renderer will append the canvas here -->
+    </div>
+
+    <div id="status">Make your choice to start!</div>
+    <div id="score">Player: 0 | Computer: 0</div>
+    
+    <!-- New LLM Commentary Display Area -->
+    <div id="commentary" class="mt-4 p-4 w-full max-w-xl bg-gray-700 text-gray-200 rounded-lg text-sm text-center hidden">
+        <!-- AI commentary will be inserted here -->
+    </div>
+
+    <div class="controls">
+        <button id="rock" class="choice-btn" onclick="playerChoice('rock')">Rock</button>
+        <button id="paper" class="choice-btn" onclick="playerChoice('paper')">Paper</button>
+        <button id="scissors" class="choice-btn" onclick="playerChoice('scissors')">Scissors</button>
+        <!-- LLM Feature Button -->
+        <button id="ai-commentary-btn" class="choice-btn text-white bg-green-700 hover:bg-green-600 disabled:bg-gray-700" onclick="getMatchCommentary(lastChoices.player, lastChoices.computer, lastWinner)" disabled>
+            ✨ AI Match Insight
+        </button>
+    </div>
+
+    <script>
+        // --- THREE.JS SETUP ---
+        let scene, camera, renderer;
+        let playerModel, computerModel;
+        let currentStatus = 'Make your choice to start!';
+        let score = { player: 0, computer: 0 };
+        const CHOICES = ['rock', 'paper', 'scissors'];
+
+        // --- GAME STATE VARIABLES ---
+        let gameActive = true;
+        let isAnimating = false;
+        let lastChoices = { player: '', computer: '' };
+        let lastWinner = ''; 
+
+        // Global constants for Gemini API
+        const GEMINI_API_MODEL = "gemini-2.5-flash-preview-09-2025";
+        const API_BASE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_API_MODEL}:generateContent`;
+        const apiKey = typeof __api_key !== 'undefined' ? __api_key : ""; 
+
+        // Configuration for the 3D models
+        const MODEL_CONFIG = {
+            rock: { color: 0x808080, geometry: new THREE.SphereGeometry(1.5, 32, 32) },
+            paper: { color: 0x57a6ff, geometry: new THREE.PlaneGeometry(3, 3) },
+            scissors: { color: 0xffc400, geometry: new THREE.BoxGeometry(0.5, 3, 0.5) }
+        };
+
+        /**
+         * Simple exponential backoff retry mechanism for API calls.
+         */
+        async function fetchWithRetry(url, options, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status === 429 && i < retries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    console.warn(`Request failed (attempt ${i + 1}/${retries}). Retrying...`);
+                }
+            }
+        }
+        
+        /**
+         * Initializes the Three.js scene, camera, and renderer.
+         */
+        function init() {
+            const container = document.getElementById('game-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x161b22);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+            camera.position.set(0, 0, 7);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 5); // soft white light
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+            directionalLight.position.set(0, 10, 5);
+            scene.add(directionalLight);
+
+            // Initialize empty placeholder models
+            playerModel = new THREE.Group();
+            computerModel = new THREE.Group();
+            
+            playerModel.position.x = -2.5;
+            computerModel.position.x = 2.5;
+
+            scene.add(playerModel);
+            scene.add(computerModel);
+
+            // Event listener for window resizing
+            window.addEventListener('resize', onWindowResize, false);
+            
+            // Initial placeholder status
+            updateStatus("Choose Rock, Paper, or Scissors!");
+            animate();
+        }
+
+        /**
+         * Handles window resize events to keep the canvas responsive.
+         */
+        function onWindowResize() {
+            const container = document.getElementById('game-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        /**
+         * Creates and returns the 3D mesh for a given choice.
+         * @param {string} choice - 'rock', 'paper', or 'scissors'.
+         * @returns {THREE.Mesh} The 3D model.
+         */
+        function createChoiceModel(choice) {
+            const config = MODEL_CONFIG[choice];
+            let mesh;
+            
+            if (choice === 'scissors') {
+                // Custom geometry for scissors (two intersecting boxes)
+                const material = new THREE.MeshPhongMaterial({ color: config.color, shininess: 80 });
+                
+                const box1 = new THREE.Mesh(config.geometry, material);
+                const box2 = new THREE.Mesh(config.geometry, material);
+                
+                box2.rotation.y = Math.PI / 2;
+                
+                mesh = new THREE.Group();
+                mesh.add(box1);
+                mesh.add(box2);
+                
+                mesh.name = choice;
+                return mesh;
+
+            } else {
+                // Simple geometry for rock and paper
+                const material = new THREE.MeshPhongMaterial({ color: config.color, shininess: 80 });
+                mesh = new THREE.Mesh(config.geometry, material);
+                mesh.name = choice;
+
+                if (choice === 'paper') {
+                    // Make paper vertical
+                    mesh.rotation.x = -Math.PI / 2;
+                }
+                return mesh;
+            }
+        }
+
+        /**
+         * Updates the 3D model in the scene for the given player/computer.
+         * @param {THREE.Group} targetGroup - The playerModel or computerModel group.
+         * @param {string} choice - 'rock', 'paper', or 'scissors'.
+         */
+        function setModel(targetGroup, choice) {
+            // Remove previous model
+            while (targetGroup.children.length > 0) {
+                targetGroup.remove(targetGroup.children[0]);
+            }
+            
+            const newModel = createChoiceModel(choice);
+            targetGroup.add(newModel);
+            
+            // Initial rotation for computer model (facing the player)
+            if (targetGroup === computerModel) {
+                targetGroup.rotation.y = Math.PI;
+            }
+        }
+
+        /**
+         * Uses the Gemini API to generate a witty commentary on the match result.
+         */
+        async function getMatchCommentary(playerChoice, computerChoice, winner) {
+            const commentaryDiv = document.getElementById('commentary');
+            const aiButton = document.getElementById('ai-commentary-btn');
+
+            // Show and set loading state
+            commentaryDiv.classList.remove('hidden');
+            commentaryDiv.innerHTML = `<span class="text-green-400">Loading AI Insight...</span>`;
+            aiButton.disabled = true;
+
+            const winnerText = winner === 'player' ? 'the Player' : winner === 'computer' ? 'the Computer' : 'a Draw';
+            
+            // System instruction for the model's persona
+            const systemPrompt = `You are a professional, witty, and concise sports commentator specializing in Rock Paper Scissors strategy. Your comment must be a single, short paragraph or two sentences maximum. Focus on the tactical reason for the outcome.`;
+            // User query providing the context
+            const userQuery = `Comment on a Rock Paper Scissors match result: Player chose ${playerChoice}, Computer chose ${computerChoice}, and the winner was ${winnerText}.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            try {
+                const url = `${API_BASE_URL}?key=${apiKey}`;
+                const response = await fetchWithRetry(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "AI insight failed to load.";
+                
+                commentaryDiv.innerHTML = `<span class="font-bold">Insight:</span> ${text}`;
+                aiButton.disabled = false;
+
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                commentaryDiv.innerHTML = `<span class="text-red-400">Error: Commentary service unavailable.</span>`;
+                aiButton.disabled = false;
+            }
+        }
+
+        // --- GAME LOGIC ---
+
+        /**
+         * Handles the player's choice and triggers the computer's choice.
+         * @param {string} playerSelection - The player's choice ('rock', 'paper', 'scissors').
+         */
+        function playerChoice(playerSelection) {
+            if (!gameActive || isAnimating) return;
+            isAnimating = true;
+            disableButtons(true);
+            
+            // Hide previous commentary and disable button until match ends
+            document.getElementById('commentary').classList.add('hidden');
+            document.getElementById('ai-commentary-btn').disabled = true;
+
+            const computerSelection = getComputerChoice();
+
+            // Set the models immediately
+            setModel(playerModel, playerSelection);
+            setModel(computerModel, computerSelection);
+            
+            // Store choices for post-match analysis
+            lastChoices.player = playerSelection;
+            lastChoices.computer = computerSelection;
+
+            // Animate the rotation and zoom for dramatic effect
+            animateMatch(playerSelection, computerSelection);
+        }
+
+        /**
+         * Selects a random choice for the computer.
+         * @returns {string} - The computer's choice.
+         */
+        function getComputerChoice() {
+            const randomIndex = Math.floor(Math.random() * CHOICES.length);
+            return CHOICES[randomIndex];
+        }
+
+        /**
+         * Determines the winner of the round.
+         * @param {string} p1 - Player 1 choice.
+         * @param {string} p2 - Player 2 choice (Computer).
+         * @returns {string} - 'player', 'computer', or 'draw'.
+         */
+        function checkWin(p1, p2) {
+            if (p1 === p2) return 'draw';
+            if (
+                (p1 === 'rock' && p2 === 'scissors') ||
+                (p1 === 'paper' && p2 === 'rock') ||
+                (p1 === 'scissors' && p2 === 'paper')
+            ) {
+                return 'player';
+            }
+            return 'computer';
+        }
+
+        /**
+         * Updates the status message and score display.
+         * @param {string} message - The main status message.
+         */
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+            document.getElementById('score').textContent = `Player: ${score.player} | Computer: ${score.computer}`;
+        }
+
+        /**
+         * Disables or enables the choice buttons.
+         * @param {boolean} disable - True to disable, false to enable.
+         */
+        function disableButtons(disable) {
+            document.getElementById('rock').disabled = disable;
+            document.getElementById('paper').disabled = disable;
+            document.getElementById('scissors').disabled = disable;
+        }
+
+        // --- ANIMATION AND RENDERING ---
+
+        let matchTime = 0;
+        const ANIMATION_DURATION = 120; // Frames
+
+        /**
+         * Animates the 3D objects during the match reveal.
+         * @param {string} playerChoiceName - The player's choice for win checking.
+         * @param {string} computerChoiceName - The computer's choice for win checking.
+         */
+        function animateMatch(playerChoiceName, computerChoiceName) {
+            matchTime = 0;
+            const playerModelChild = playerModel.children[0];
+            const computerModelChild = computerModel.children[0];
+            const aiButton = document.getElementById('ai-commentary-btn');
+            
+            function animateReveal() {
+                if (!isAnimating) return;
+
+                const t = matchTime / ANIMATION_DURATION;
+                
+                // Continuous Spin effect during reveal
+                playerModelChild.rotation.y += 0.1;
+                computerModelChild.rotation.y += 0.1;
+                
+                // Camera zoom (Zoom in for the reveal)
+                camera.position.z = 7 - 2 * Math.sin(t * Math.PI); 
+                
+                if (matchTime >= ANIMATION_DURATION) {
+                    isAnimating = false;
+                    camera.position.z = 7; // Reset zoom
+                    
+                    const winner = checkWin(playerChoiceName, computerChoiceName);
+                    lastWinner = winner; // Store winner
+                    let message;
+                    
+                    if (winner === 'player') {
+                        score.player++;
+                        message = 'YOU WIN! 🎉';
+                        // Add a celebratory effect (e.g., slight lift)
+                        playerModel.position.y = 0.5;
+                        computerModel.position.y = 0;
+                    } else if (winner === 'computer') {
+                        score.computer++;
+                        message = 'COMPUTER WINS! 🤖';
+                        computerModel.position.y = 0.5;
+                        playerModel.position.y = 0;
+                    } else {
+                        message = 'DRAW. 🤝';
+                        playerModel.position.y = 0;
+                        computerModel.position.y = 0;
+                    }
+
+                    updateStatus(`Player chose ${playerChoiceName.toUpperCase()} vs. Computer chose ${computerChoiceName.toUpperCase()}. ${message}`);
+                    disableButtons(false);
+                    // Enable the AI commentary button after the match ends
+                    aiButton.disabled = false;
+                    return; 
+                }
+
+                matchTime++;
+                requestAnimationFrame(animateReveal);
+            }
+            
+            requestAnimationFrame(animateReveal);
+        }
+
+        /**
+         * Main animation loop for continuous rendering.
+         */
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Continuous slight rotation for visual interest when idle
+            if (!isAnimating) {
+                if (playerModel.children[0]) {
+                    playerModel.children[0].rotation.y += 0.005;
+                }
+                if (computerModel.children[0]) {
+                    computerModel.children[0].rotation.y += 0.005;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // --- START GAME ---
+        window.onload = init;
+    </script>
+</body>
+</html>
