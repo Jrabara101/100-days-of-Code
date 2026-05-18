@@ -15,7 +15,15 @@
       "Bash(curl -s -o /dev/null -w \"d13_rps:%{http_code}\\\\n\" \"https://day13-100days-of-code.pages.dev/rock-paper-scissor/\")",
       "Bash(curl -s -o /dev/null -w \"d14_landing:%{http_code}\\\\n\" \"https://day14-100days-of-code.pages.dev/\")",
       "Bash(curl -s -o /dev/null -w \"d14_color:%{http_code}\\\\n\" \"https://day14-100days-of-code.pages.dev/color-guessing-game/\")",
-      "Bash(curl -s -o /dev/null -w \"d14_length:%{http_code}\\\\n\" \"https://day14-100days-of-code.pages.dev/length-converter/\")"
+      "Bash(curl -s -o /dev/null -w \"d14_length:%{http_code}\\\\n\" \"https://day14-100days-of-code.pages.dev/length-converter/\")",
+      "Bash(cp \"c:/Users/Admin/100-days-of-Code/Javascript and CSS/Day 16/Color Picker/index.html\" \"c:/Users/Admin/100-days-of-Code/Automation/Day16-Deploy/color-picker/index.html\" && cp \"c:/Users/Admin/100-days-of-Code/Javascript and CSS/Day 16/Image Slider/index.html\" \"c:/Users/Admin/100-days-of-Code/Automation/Day16-Deploy/image-slider/index.html\" && cp \"c:/Users/Admin/100-days-of-Code/Javascript and CSS/Day 16/Image Slider/image/\"* \"c:/Users/Admin/100-days-of-Code/Automation/Day16-Deploy/image-slider/image/\" && cp \"c:/Users/Admin/100-days-of-Code/Javascript and CSS/Day 16/Minimal Blog Card/index.html\" \"c:/Users/Admin/100-days-of-Code/Automation/Day16-Deploy/minimal-blog-card/index.html\" && cp \"c:/Users/Admin/100-days-of-Code/Javascript and CSS/Day 16/Minimal Blog Card/style.css\" \"c:/Users/Admin/100-days-of-Code/Automation/Day16-Deploy/minimal-blog-card/style.css\" && cp \"c:/Users/Admin/100-days-of-Code/Javascript and CSS/Day 16/Minimal Blog Card/app.js\" \"c:/Users/Admin/100-days-of-Code/Automation/Day16-Deploy/minimal-blog-card/app.js\" && cp \"c:/Users/Admin/100-days-of-Code/Javascript and CSS/Day 16/Minimal Blog Card/workspace.png\" \"c:/Users/Admin/100-days-of-Code/Automation/Day16-Deploy/minimal-blog-card/workspace.png\")",
+      "Bash(curl -s -o /dev/null -w \"landing:%{http_code}\\\\n\" \"https://day16-100days-of-code.pages.dev/\")",
+      "Bash(curl -s -o /dev/null -w \"color-picker:%{http_code}\\\\n\" \"https://day16-100days-of-code.pages.dev/color-picker/\")",
+      "Bash(curl -s -o /dev/null -w \"image-slider:%{http_code}\\\\n\" \"https://day16-100days-of-code.pages.dev/image-slider/\")",
+      "Bash(curl -s -o /dev/null -w \"blog-card:%{http_code}\\\\n\" \"https://day16-100days-of-code.pages.dev/minimal-blog-card/\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Admin\\100-days-of-Code\\Javascript and CSS\\Day 16\\Image Slider\\image"
     ]
   }
 }
