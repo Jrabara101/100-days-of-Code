@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanguard - The Entity-Component Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base typography and preventing default browser behaviors */
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Space Mono', monospace;
+            overflow: hidden;
+            /* Prevent scrolling */
+            background-color: #050505;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* CRT Glitch Keyframes */
+        @keyframes textGlitch {
+            0% {
+                text-shadow: 2px 0 red, -2px 0 cyan;
+            }
+
+            50% {
+                text-shadow: -2px 0 red, 2px 0 cyan;
+            }
+
+            100% {
+                text-shadow: 2px 0 red, -2px 0 cyan;
+            }
+        }
+
+        .glitch-text {
+            animation: textGlitch 0.2s infinite;
+        }
+
+        /* Scanline Overlay styling handled via Tailwind Arbitrary classes per prompt */
+
+        /* Threat Level Transitions */
+        #threat-overlay {
+            transition: opacity 0.5s ease-out;
+        }
+    </style>
+</head>
+
+<body class="w-screen h-screen flex flex-col items-center justify-center text-white">
+
+    <!-- The "Cathode Ray" Terminal Overlay -->
+    <div
+        class="relative w-full max-w-4xl h-[80vh] bg-black border border-gray-800 rounded-lg overflow-hidden shadow-[0_0_50px_rgba(34,211,238,0.1)]
+                after:absolute after:inset-0 after:bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] after:bg-[length:100%_4px] after:pointer-events-none">
+
+        <!-- Threat Level Container -->
+        <div id="game-container" class="absolute inset-0 bg-cyan-900/20 overflow-hidden">
+            <div id="threat-overlay" class="absolute inset-0 bg-red-900/40 opacity-0 pointer-events-none"></div>
+
+            <!-- Game Canvas Area (DOM Based) -->
+            <div id="engine-mount" class="relative w-full h-full">
+                <!-- Entities injected here -->
+            </div>
+        </div>
+
+        <!-- Start Sequence Screen -->
+        <div id="start-screen"
+            class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+            <h1 class="text-4xl font-bold text-cyan-400 mb-8 glitch-text uppercase tracking-widest">Vanguard Engine</h1>
+            <p class="text-gray-400 mb-8 text-center max-w-md">DOM-Accelerated Entity-Component System.<br>Use
+                LEFT/RIGHT arrows to move. SPACE to fire.</p>
+            <button id="btn-start"
+                class="px-8 py-3 bg-transparent border-2 border-cyan-400 text-cyan-400 font-bold uppercase tracking-wider hover:bg-cyan-400 hover:text-black transition-colors duration-200">
+                Click to Initialize Sequence
+            </button>
+        </div>
+
+        <!-- Pause Screen Overlay -->
+        <div id="pause-screen"
+            class="absolute inset-0 z-40 hidden flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+            <h2 class="text-3xl text-yellow-400 font-bold tracking-widest">SYSTEM PAUSED</h2>
+            <p class="text-gray-300 mt-2">Visibility Lost. Awaiting operator...</p>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen"
+            class="absolute inset-0 z-50 hidden flex-col items-center justify-center bg-black/90 backdrop-blur-md">
+            <h2 class="text-5xl text-red-500 font-bold glitch-text mb-4 tracking-widest">CRITICAL FAILURE</h2>
+            <p class="text-gray-300 mb-8">Wave Reached: <span id="final-wave" class="text-cyan-400">1</span></p>
+            <button id="btn-restart"
+                class="px-8 py-3 border-2 border-red-500 text-red-500 font-bold uppercase tracking-wider hover:bg-red-500 hover:text-black transition-colors duration-200">
+                Reboot System
+            </button>
+        </div>
+    </div>
+
+    <!-- The Authored Console Panel -->
+    <div
+        class="w-full max-w-4xl mt-4 px-6 py-4 bg-gray-200 rounded-b-lg border-t-4 border-gray-400 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+        <div class="flex space-x-8 text-black font-bold text-lg uppercase tracking-wide">
+            <div>Score: <span id="ui-score" class="text-cyan-700">00000</span></div>
+            <div>Wave: <span id="ui-wave" class="text-cyan-700">01</span></div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_red]"></div>
+            <span class="text-xs text-gray-500 uppercase tracking-widest font-bold">Engine Live</span>
+        </div>
+
+        <!-- E-Signature (Authored Constraint) -->
+        <div class="text-black bg-transparent text-sm font-bold opacity-70 border border-black/20 px-2 py-1">
+            Beejay T.
+        </div>
+    </div>
+
+    <script>
+        /**
+         * VANGUARD ENGINE CORE
+         * Architecture: DOM-Accelerated ECS
+         */
+
+        // --- 1. Global Configurations & State ---
+        const GAME_WIDTH = 800; // Reference internal coordinate space
+        const GAME_HEIGHT = 600;
+        let GAME_DOM_RECT = null;
+
+        const engineMount = document.getElementById('engine-mount');
+        const uiScore = document.getElementById('ui-score');
+        const uiWave = document.getElementById('ui-wave');
+        const threatOverlay = document.getElementById('threat-overlay');
+
+        const gameState = {
+            status: 'IDLE', // IDLE, PLAYING, PAUSED, OVER
+            score: 0,
+            wave: 1,
+            lastTime: 0,
+            accumulator: 0,
+            fixedTimeStep: 1000 / 60 // 16.6ms chunks
+        };
+
+        const inputState = {
+            left: false,
+            right: false,
+            space: false,
+            lastFiredTimestamp: 0,
+            fireRateThrottleMs: 150 // Adaptive Input Throttling
+        };
+
+        // Resize observer to map DOM coordinates to Engine coordinates
+        function updateDOMRect() {
+            GAME_DOM_RECT = engineMount.getBoundingClientRect();
+        }
+        window.addEventListener('resize', updateDOMRect);
+
+        // --- 2. Entities & Collections ---
+        // Pre-allocated Arrays for ECS
+        let aliens = [];
+        let player = null;
+
+        /**
+         * Base Entity representation
+         * DOM GPU Acceleration explicitly applied via translate3d
+         */
+        class Entity {
+            constructor(id, type, w, h, cssClasses) {
+                this.id = id;
+                this.type = type;
+                this.x = 0;
+                this.y = 0;
+                this.w = w;
+                this.h = h;
+                this.active = false;
+
+                // DOM Node instantiation
+                this.element = document.createElement('div');
+                this.element.className = `absolute top-0 left-0 ${cssClasses}`;
+                this.element.style.width = `${w}px`;
+                this.element.style.height = `${h}px`;
+                this.element.style.willChange = 'transform'; // Browser optimization hint
+
+                engineMount.appendChild(this.element);
+            }
+
+            setPosition(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+
+            render() {
+                if (!this.active) return;
+                // Senior Challenge: DOM GPU Acceleration
+                this.element.style.transform = `translate3d(${this.x}px, ${this.y}px, 0)`;
+            }
+
+            destroyDOM() {
+                if (this.element.parentNode) {
+                    this.element.parentNode.removeChild(this.element);
+                }
+            }
+        }
+
+        /**
+         * Senior Logic: Object Pooling
+         * Pre-allocates DOM nodes for projectiles to prevent memory leaks 
+         * and garbage collection stuttering during heavy gameplay.
+         */
+        class ProjectilePool {
+            constructor(poolSize, containerElement) {
+                this.pool = [];
+                this.container = containerElement;
+
+                // Pre-instantiate the pool
+                for (let i = 0; i < poolSize; i++) {
+                    const bullet = document.createElement('div');
+                    // Tailwind classes for the bullet aesthetic
+                    bullet.className = 'absolute top-0 left-0 w-1 h-5 bg-cyan-400 rounded-full shadow-[0_0_8px_#22d3ee] hidden';
+                    bullet.style.willChange = 'transform';
+                    this.container.appendChild(bullet);
+
+                    this.pool.push({
+                        id: `bullet-${i}`,
+                        type: 'bullet',
+                        element: bullet,
+                        active: false,
+                        x: 0,
+                        y: 0,
+                        w: 4,
+                        h: 20,
+                        speed: -15 // Moves UP
+                    });
+                }
+            }
+
+            fire(startX, startY) {
+                // Find the first inactive bullet in the pool
+                const projectile = this.pool.find(p => !p.active);
+
+                if (projectile) {
+                    projectile.active = true;
+                    // Center bullet on player ship
+                    projectile.x = startX;
+                    projectile.y = startY;
+
+                    // Remove 'hidden' class to render it
+                    projectile.element.classList.remove('hidden');
+                    // Initial paint
+                    projectile.element.style.transform = `translate3d(${projectile.x}px, ${projectile.y}px, 0)`;
+                }
+            }
+
+            update(dtRatio) {
+                // Only update bullets that are currently flying
+                this.pool.filter(p => p.active).forEach(p => {
+                    p.y += p.speed * dtRatio;
+                    p.element.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
+
+                    // Recycle the bullet if it goes off-screen
+                    if (p.y < -50) {
+                        this.recycle(p);
+                    }
+                });
+            }
+
+            recycle(projectile) {
+                projectile.active = false;
+                projectile.element.classList.add('hidden');
+                // Move offscreen defensively
+                projectile.element.style.transform = `translate3d(-100px, -100px, 0)`;
+            }
+        }
+
+        const bulletPool = new ProjectilePool(30, engineMount);
+
+        /**
+         * Senior Logic: Spatial Hashing for Collision
+         * Divides game bounds into cells to limit collision checks 
+         * to O(n) proximity rather than O(n^2) nested loops.
+         */
+        class SpatialHash {
+            constructor(cellSize) {
+                this.cellSize = cellSize;
+                this.cells = new Map();
+            }
+
+            clear() {
+                this.cells.clear();
+            }
+
+            _hash(x, y) {
+                const col = Math.floor(x / this.cellSize);
+                const row = Math.floor(y / this.cellSize);
+                return `${col},${row}`;
+            }
+
+            insert(entity) {
+                const key = this._hash(entity.x, entity.y);
+                if (!this.cells.has(key)) {
+                    this.cells.set(key, []);
+                }
+                this.cells.get(key).push(entity);
+            }
+
+            getNearby(entity) {
+                const col = Math.floor(entity.x / this.cellSize);
+                const row = Math.floor(entity.y / this.cellSize);
+                const result = [];
+
+                // Check entity's cell and 8 adjacent cells
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        const key = `${col + i},${row + j}`;
+                        if (this.cells.has(key)) {
+                            result.push(...this.cells.get(key));
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+
+        // Cell size approx the size of an alien + bullet gap
+        const spatialHash = new SpatialHash(60);
+
+        // Swarm Controller configuration
+        const swarmConfig = {
+            vx: 2,
+            vy: 0,
+            baseDrop: 30,
+            direction: 1 // 1 for right, -1 for left
+        };
+
+        function spawnWave(waveNum) {
+            // Clean up existing aliens from previous waves
+            aliens.forEach(a => a.destroyDOM());
+            aliens = [];
+
+            const rows = Math.min(5 + Math.floor(waveNum / 3), 8);
+            const cols = 10;
+            const startX = 50;
+            const startY = 40;
+            const spacingX = 60;
+            const spacingY = 50;
+
+            swarmConfig.vx = 2 + (waveNum * 0.4);
+            swarmConfig.direction = 1;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    // Create visual representation based on row
+                    let colorClass = 'bg-green-500';
+                    if (r < 2) colorClass = 'bg-fuchsia-500';
+                    else if (r < 4) colorClass = 'bg-yellow-400';
+
+                    const alien = new Entity(
+                        `alien-${r}-${c}`,
+                        'alien',
+                        30, 20,
+                        `${colorClass} rounded-sm shadow-[0_0_10px_currentColor] before:content-[''] before:absolute before:inset-[2px] before:bg-black before:opacity-30`
+                    );
+
+                    alien.setPosition(startX + (c * spacingX), startY + (r * spacingY));
+                    alien.active = true;
+                    alien.render(); // Force initial position applied immediately
+                    aliens.push(alien);
+                }
+            }
+        }
+
+        function updateAlienSwarm(dtRatio) {
+            let hitEdge = false;
+            let maxY = 0;
+
+            // Movement and Bounds checking
+            for (let i = 0; i < aliens.length; i++) {
+                const a = aliens[i];
+                if (!a.active) continue;
+
+                a.x += (swarmConfig.vx * swarmConfig.direction * dtRatio);
+
+                if (a.y > maxY) maxY = a.y;
+
+                // Engine width mapped bounds check
+                const containerWidth = GAME_DOM_RECT ? GAME_DOM_RECT.width : GAME_WIDTH;
+                if (a.x <= 10 || a.x + a.w >= containerWidth - 10) {
+                    hitEdge = true;
+                }
+            }
+
+            // Drop down if edge hit
+            if (hitEdge) {
+                swarmConfig.direction *= -1;
+                for (let i = 0; i < aliens.length; i++) {
+                    if (aliens[i].active) {
+                        aliens[i].y += swarmConfig.baseDrop;
+                        aliens[i].x += (swarmConfig.vx * swarmConfig.direction * dtRatio * 2); // Prevent sticking to wall
+                    }
+                }
+            }
+
+            // Threat Level UI Update
+            // Container height mapping
+            const containerHeight = GAME_DOM_RECT ? GAME_DOM_RECT.height : GAME_HEIGHT;
+            const safeZone = containerHeight * 0.4; // 40% down starts threat
+            const dangerZone = containerHeight * 0.8;
+
+            if (maxY > safeZone) {
+                // Calculate opacity 0 to 0.4 max
+                let threatIntensity = (maxY - safeZone) / (dangerZone - safeZone);
+                threatIntensity = Math.min(Math.max(threatIntensity, 0), 1) * 0.5; // Max 50% opacity of the red overlay
+                threatOverlay.style.opacity = threatIntensity.toString();
+            } else {
+                threatOverlay.style.opacity = '0';
+            }
+
+            // Render updates
+            aliens.forEach(a => a.render());
+
+            // Check Game Over condition
+            if (maxY > dangerZone) {
+                triggerGameOver();
+            }
+        }
+
+        /**
+         * Tactile Destruction: Visual Polish
+         * Glitch effect, pure white flash, scale expansion
+         */
+        function destroyAlien(alien) {
+            alien.active = false;
+
+            // Swap classes for explosion effect
+            const el = alien.element;
+
+            // Strip old classes and apply raw force transform properties
+            el.className = 'absolute top-0 left-0 bg-white rounded-full z-10';
+
+            // Allow CSS transition to grab onto the updated state
+            el.style.transition = 'all 150ms cubic-bezier(0.1, 0.9, 0.2, 1)';
+
+            // Force hardware execution of the scale and opacity simulation
+            requestAnimationFrame(() => {
+                el.style.transform = `translate3d(${alien.x - alien.w / 2}px, ${alien.y - alien.h / 2}px, 0) scale(2)`;
+                el.style.opacity = '0';
+
+                // Cleanup node post-animation
+                setTimeout(() => {
+                    alien.destroyDOM();
+                }, 160);
+            });
+
+            // Update UI State
+            gameState.score += 100 * gameState.wave;
+            uiScore.innerText = gameState.score.toString().padStart(5, '0');
+
+            // Check for wave clear
+            if (!aliens.some(a => a.active)) {
+                gameState.wave++;
+                uiWave.innerText = gameState.wave.toString().padStart(2, '0');
+                spawnWave(gameState.wave);
+            }
+        }
+
+        // AABB Collision utility
+        function checkCollision(r1, r2) {
+            return (
+                r1.x < r2.x + r2.w &&
+                r1.x + r1.w > r2.x &&
+                r1.y < r2.y + r2.h &&
+                r1.y + r1.h > r2.y
+            );
+        }
+
+        function runCollisionSystem() {
+            // 1. Populate Spatial Hash with Active Aliens
+            spatialHash.clear();
+            for (let i = 0; i < aliens.length; i++) {
+                if (aliens[i].active) {
+                    spatialHash.insert(aliens[i]);
+                }
+            }
+
+            // 2. Check Active Bullets against Spatial Hash
+            const activeBullets = bulletPool.pool.filter(p => p.active);
+            for (let b = 0; b < activeBullets.length; b++) {
+                const bullet = activeBullets[b];
+                const potentialCollisions = spatialHash.getNearby(bullet);
+
+                for (let a = 0; a < potentialCollisions.length; a++) {
+                    const alien = potentialCollisions[a];
+                    if (alien.active && checkCollision(bullet, alien)) {
+                        // Collision Confirmed
+                        bulletPool.recycle(bullet);
+                        destroyAlien(alien);
+                        break; // Bullet destroyed, stop checking this bullet
+                    }
+                }
+            }
+        }
+
+        function initializePlayer() {
+            if (player) player.destroyDOM();
+
+            // CSS stylized spaceship using Tailwind
+            player = new Entity(
+                'player',
+                'player',
+                40, 30,
+                'bg-cyan-400 [clip-path:polygon(50%_0%,0%_100%,100%_100%)] drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]'
+            );
+
+            updateDOMRect();
+            const startX = GAME_DOM_RECT ? (GAME_DOM_RECT.width / 2) - 20 : GAME_WIDTH / 2;
+            const startY = GAME_DOM_RECT ? GAME_DOM_RECT.height - 50 : GAME_HEIGHT - 50;
+
+            player.setPosition(startX, startY);
+            player.active = true;
+            player.render();
+        }
+
+        function updatePlayer(dtRatio) {
+            const speed = 7 * dtRatio;
+            const containerWidth = GAME_DOM_RECT ? GAME_DOM_RECT.width : GAME_WIDTH;
+
+            if (inputState.left) player.x -= speed;
+            if (inputState.right) player.x += speed;
+
+            // Bounds
+            if (player.x < 10) player.x = 10;
+            if (player.x > containerWidth - player.w - 10) player.x = containerWidth - player.w - 10;
+
+            player.render();
+
+            // Firing Logic with Adaptive Throttling
+            if (inputState.space) {
+                const now = performance.now();
+                if (now - inputState.lastFiredTimestamp > inputState.fireRateThrottleMs) {
+                    bulletPool.fire(player.x + (player.w / 2) - 2, player.y - 10);
+                    inputState.lastFiredTimestamp = now;
+                }
+            }
+        }
+
+        /**
+         * Fixed Time-Step Game Loop
+         * Ensures consistent physics calculations regardless of monitor refresh rate
+         */
+        function physicsUpdate(dt) {
+            // dt is relatively constant (~16.6ms) due to the accumulator loop
+            // We use a ratio base of 1.0 for 60fps base speeds
+            const dtRatio = dt / (1000 / 60);
+
+            updatePlayer(dtRatio);
+            bulletPool.update(dtRatio);
+            updateAlienSwarm(dtRatio);
+            runCollisionSystem();
+        }
+
+        function engineLoop(currentTime) {
+            if (gameState.status !== 'PLAYING') return;
+
+            requestAnimationFrame(engineLoop);
+
+            // Time delta calculation
+            let frameTime = currentTime - gameState.lastTime;
+            gameState.lastTime = currentTime;
+
+            // Prevent spiral of death if tab was backgrounded slightly
+            if (frameTime > 250) frameTime = 250;
+
+            gameState.accumulator += frameTime;
+
+            // Fixed step physics calculations
+            while (gameState.accumulator >= gameState.fixedTimeStep) {
+                physicsUpdate(gameState.fixedTimeStep);
+                gameState.accumulator -= gameState.fixedTimeStep;
+            }
+
+            // Rendering is already handled within the systems via .render() calls
+            // directly executing transform mutations.
+        }
+
+        // --- Input Handling ---
+        window.addEventListener('keydown', (e) => {
+            if (gameState.status !== 'PLAYING') return;
+            if (e.code === 'ArrowLeft') inputState.left = true;
+            if (e.code === 'ArrowRight') inputState.right = true;
+            if (e.code === 'Space') {
+                inputState.space = true;
+                e.preventDefault(); // Prevent page scrolling
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowLeft') inputState.left = false;
+            if (e.code === 'ArrowRight') inputState.right = false;
+            if (e.code === 'Space') inputState.space = false;
+        });
+
+        // Visibility API Pausing (Senior UX Checklist)
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden" && gameState.status === 'PLAYING') {
+                pauseEngine();
+            }
+        });
+
+        // Touch constraints handling for mobile playability
+        const gameContainer = document.getElementById('game-container');
+        gameContainer.addEventListener('touchstart', (e) => {
+            if (gameState.status !== 'PLAYING') return;
+            e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const containerMid = GAME_DOM_RECT ? GAME_DOM_RECT.left + (GAME_DOM_RECT.width / 2) : window.innerWidth / 2;
+
+            if (touchX < containerMid) inputState.left = true;
+            else inputState.right = true;
+
+            inputState.space = true; // Auto fire on touch
+        }, { passive: false });
+
+        gameContainer.addEventListener('touchend', (e) => {
+            inputState.left = false;
+            inputState.right = false;
+            inputState.space = false;
+        });
+
+        // --- Lifecycle Management ---
+        function startEngine() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('pause-screen').classList.add('hidden');
+
+            // Reset State
+            gameState.score = 0;
+            gameState.wave = 1;
+            uiScore.innerText = '00000';
+            uiWave.innerText = '01';
+            threatOverlay.style.opacity = '0';
+
+            updateDOMRect();
+            initializePlayer();
+            spawnWave(gameState.wave);
+
+            gameState.status = 'PLAYING';
+            gameState.lastTime = performance.now();
+            requestAnimationFrame(engineLoop);
+        }
+
+        function pauseEngine() {
+            gameState.status = 'PAUSED';
+            document.getElementById('pause-screen').classList.remove('hidden');
+            document.getElementById('pause-screen').classList.add('flex');
+        }
+
+        // Clicking pause screen resumes
+        document.getElementById('pause-screen').addEventListener('click', () => {
+            document.getElementById('pause-screen').classList.add('hidden');
+            document.getElementById('pause-screen').classList.remove('flex');
+            gameState.status = 'PLAYING';
+            gameState.lastTime = performance.now();
+            requestAnimationFrame(engineLoop);
+        });
+
+        function triggerGameOver() {
+            gameState.status = 'OVER';
+            document.getElementById('final-wave').innerText = gameState.wave;
+            const goScreen = document.getElementById('game-over-screen');
+            goScreen.classList.remove('hidden');
+            goScreen.classList.add('flex');
+        }
+
+        // --- A11y / Browser Policy Initializers ---
+        document.getElementById('btn-start').addEventListener('click', startEngine);
+        document.getElementById('btn-restart').addEventListener('click', startEngine);
+
+        // Final sanity update bounds on load
+        window.addEventListener('load', updateDOMRect);
+    </script>
+</body>
+
+</html>

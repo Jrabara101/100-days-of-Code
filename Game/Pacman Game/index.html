@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pac-Man Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
+    <style>
+        /* Custom styles for the game grid to ensure exact cell sizing */
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(28, 20px);
+            grid-template-rows: repeat(31, 20px);
+            background-color: black;
+            border: 4px solid #1e3a8a; /* Tailwind blue-900 */
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(30, 58, 138, 0.5);
+            margin: 0 auto; /* Center the board */
+        }
+
+        .cell {
+            width: 20px;
+            height: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Wall styling */
+        .wall {
+            background-color: #1e40af; /* Tailwind blue-800 */
+            border-radius: 4px;
+            /* Optional: Add borders to make walls look connected, complex logic needed for perfect joins */
+        }
+
+        /* Dot styling */
+        .dot {
+            width: 6px;
+            height: 6px;
+            background-color: #fcd34d; /* Tailwind amber-300 */
+            border-radius: 50%;
+        }
+
+        /* Power Pellet styling */
+        .power-pellet {
+            width: 12px;
+            height: 12px;
+            background-color: #fcd34d;
+            border-radius: 50%;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        /* Pac-Man styling using CSS shapes */
+        .pacman {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fbbf24; /* Tailwind amber-400 */
+            position: relative;
+            transition: transform 0.1s;
+        }
+        
+        /* Pacman mouth animation */
+        .pacman::before, .pacman::after {
+            content: '';
+            position: absolute;
+            background: black;
+            width: 50%;
+            height: 50%;
+            border-radius: 100% 0 0 0;
+            top: 0;
+            left: 0;
+            transform-origin: bottom right;
+            animation: chomp 0.3s infinite alternate;
+        }
+        
+        .pacman::after {
+            border-radius: 0 0 0 100%;
+            top: 50%;
+            transform-origin: top right;
+            animation: chomp-bottom 0.3s infinite alternate;
+        }
+        
+        @keyframes chomp {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-45deg); }
+        }
+        
+        @keyframes chomp-bottom {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(45deg); }
+        }
+
+        /* Ghost styling using inline SVG for better scalability */
+        .ghost {
+            width: 18px;
+            height: 18px;
+            position: relative;
+            transition: transform 0.2s linear;
+        }
+        
+        /* Scared ghost styling */
+        .ghost.scared svg path.body {
+             fill: #1e3a8a; /* Dark blue */
+        }
+        .ghost.scared svg path.eye-white {
+             fill: #fbbf24; /* Amber eyes */
+        }
+        .ghost.scared svg circle.pupil {
+             fill: #1e3a8a; /* Dark blue pupils */
+        }
+
+        /* Game Over overlay */
+        #message-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            z-index: 10;
+        }
+
+        /* Mobile controls */
+        #mobile-controls {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            #mobile-controls {
+                display: grid;
+            }
+            #game-board {
+                /* Scale down board on smaller screens if necessary, though 28x20 = 560px is usually okay */
+                transform: scale(0.8);
+                transform-origin: top center;
+            }
+            .main-container {
+                padding-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans overflow-hidden h-screen flex flex-col items-center justify-center">
+
+<div class="main-container flex flex-col items-center w-full max-w-2xl px-4 relative">
+    
+    <!-- Header: Score and Lives -->
+    <div class="w-full flex justify-between items-center mb-4 px-4 sm:px-12 max-w-[560px]">
+        <div class="text-2xl font-bold text-amber-400 font-mono tracking-widest">
+            SCORE: <span id="score">0</span>
+        </div>
+        <div class="flex gap-2" id="lives-container">
+            <!-- Lives will be injected here -->
+        </div>
+    </div>
+
+    <!-- Game Board Container -->
+    <div class="relative inline-block">
+        <div id="game-board"></div>
+        
+        <!-- Overlay Message (Game Over / You Win) -->
+        <div id="message-overlay" class="absolute top-0 left-0 w-full h-full bg-black/80 flex flex-col justify-center items-center rounded-lg backdrop-blur-sm z-20">
+            <h2 id="message-title" class="text-4xl font-bold text-red-500 mb-4 animate-pulse">GAME OVER</h2>
+            <p class="text-xl mb-6">Final Score: <span id="final-score" class="text-amber-400 font-bold">0</span></p>
+            <button id="restart-btn" class="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-gray-900 font-bold rounded shadow-lg transition-transform hover:scale-105 active:scale-95">
+                Play Again
+            </button>
+        </div>
+    </div>
+
+    <!-- AI Commentator Box -->
+    <div class="w-full max-w-[560px] mt-4 p-4 bg-gray-900 rounded-lg border border-amber-500/50 shadow-[0_0_15px_rgba(251,191,36,0.15)] relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-50"></div>
+        <div class="text-xs text-amber-500 font-mono font-bold mb-2 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> LIVE COMMENTARY
+        </div>
+        <div id="ai-commentary-text" class="text-sm md:text-base font-mono text-cyan-300 min-h-[48px] leading-relaxed">
+            Waiting for the match to begin...
+        </div>
+    </div>
+
+    <!-- Mobile Controls (D-Pad) -->
+    <div id="mobile-controls" class="grid-cols-3 gap-2 mt-6 max-w-[200px] w-full mx-auto select-none">
+        <div></div>
+        <button class="mobile-btn p-4 bg-gray-800 rounded-lg shadow border border-gray-700 active:bg-gray-700 flex justify-center items-center touch-manipulation" data-dir="ArrowUp">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+        </button>
+        <div></div>
+        
+        <button class="mobile-btn p-4 bg-gray-800 rounded-lg shadow border border-gray-700 active:bg-gray-700 flex justify-center items-center touch-manipulation" data-dir="ArrowLeft">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button class="mobile-btn p-4 bg-gray-800 rounded-lg shadow border border-gray-700 active:bg-gray-700 flex justify-center items-center touch-manipulation" data-dir="ArrowDown">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <button class="mobile-btn p-4 bg-gray-800 rounded-lg shadow border border-gray-700 active:bg-gray-700 flex justify-center items-center touch-manipulation" data-dir="ArrowRight">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // --- Constants & Game Configuration ---
+    const width = 28; // Standard Pac-Man board width
+    const grid = document.querySelector('#game-board');
+    const scoreDisplay = document.getElementById('score');
+    const overlay = document.getElementById('message-overlay');
+    const messageTitle = document.getElementById('message-title');
+    const finalScoreDisplay = document.getElementById('final-score');
+    const livesContainer = document.getElementById('lives-container');
+    const restartBtn = document.getElementById('restart-btn');
+
+    let squares = [];
+    let score = 0;
+    let lives = 3;
+    let gameLoopInterval;
+    let ghostFrightenedTimer;
+    let isGameOver = false;
+    let isCommenting = false; // Prevents API spam while typing
+
+    // Movement mappings
+    const directions = {
+        'ArrowUp': -width,
+        'ArrowDown': width,
+        'ArrowLeft': -1,
+        'ArrowRight': 1
+    };
+
+    // Rotation degrees for Pac-Man facing
+    const rotations = {
+        'ArrowUp': -90,
+        'ArrowDown': 90,
+        'ArrowLeft': 180,
+        'ArrowRight': 0
+    };
+
+    // --- The Map Layout ---
+    // 0 = pac-dot
+    // 1 = wall
+    // 2 = ghost lair
+    // 3 = power pellet
+    // 4 = empty
+    const layout = [
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,
+        1,3,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,3,1,
+        1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,
+        1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,
+        1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1,
+        1,1,1,1,1,1,0,1,1,1,1,1,4,1,1,4,1,1,1,1,1,0,1,1,1,1,1,1,
+        4,4,4,4,4,1,0,1,1,1,1,1,4,1,1,4,1,1,1,1,1,0,1,4,4,4,4,4,
+        4,4,4,4,4,1,0,1,1,4,4,4,4,4,4,4,4,4,4,1,1,0,1,4,4,4,4,4,
+        1,1,1,1,1,1,0,1,1,4,1,1,1,2,2,1,1,1,4,1,1,0,1,1,1,1,1,1,
+        4,4,4,4,4,4,0,4,4,4,1,2,2,2,2,2,2,1,4,4,4,0,4,4,4,4,4,4,
+        1,1,1,1,1,1,0,1,1,4,1,2,2,2,2,2,2,1,4,1,1,0,1,1,1,1,1,1,
+        4,4,4,4,4,1,0,1,1,4,1,1,1,1,1,1,1,1,4,1,1,0,1,4,4,4,4,4,
+        4,4,4,4,4,1,0,1,1,4,4,4,4,4,4,4,4,4,4,1,1,0,1,4,4,4,4,4,
+        1,1,1,1,1,1,0,1,1,4,1,1,1,1,1,1,1,1,4,1,1,0,1,1,1,1,1,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,
+        1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,
+        1,3,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,3,1,
+        1,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1,
+        1,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1,
+        1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1,
+        1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,
+        1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+    ];
+
+    // --- Board Generation ---
+    function createBoard() {
+        grid.innerHTML = '';
+        squares = [];
+        for (let i = 0; i < layout.length; i++) {
+            const square = document.createElement('div');
+            square.classList.add('cell');
+            grid.appendChild(square);
+            squares.push(square);
+
+            // Add layout elements
+            if (layout[i] === 0) {
+                squares[i].classList.add('pac-dot');
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                squares[i].appendChild(dot);
+            } else if (layout[i] === 1) {
+                squares[i].classList.add('wall');
+            } else if (layout[i] === 2) {
+                squares[i].classList.add('ghost-lair');
+            } else if (layout[i] === 3) {
+                squares[i].classList.add('power-pellet');
+                const pellet = document.createElement('div');
+                pellet.classList.add('power-pellet');
+                squares[i].appendChild(pellet);
+            }
+        }
+    }
+
+    function updateLivesDisplay() {
+        livesContainer.innerHTML = '';
+        for (let i = 0; i < lives; i++) {
+            const lifeIcon = document.createElement('div');
+            lifeIcon.className = 'w-5 h-5 rounded-full bg-amber-400 relative overflow-hidden';
+            // Mini pacman shape
+            lifeIcon.innerHTML = `
+                <div class="absolute w-1/2 h-1/2 bg-gray-900 top-0 left-0" style="border-radius: 100% 0 0 0; transform-origin: bottom right; transform: rotate(-30deg);"></div>
+                <div class="absolute w-1/2 h-1/2 bg-gray-900 top-1/2 left-0" style="border-radius: 0 0 0 100%; transform-origin: top right; transform: rotate(30deg);"></div>
+            `;
+            livesContainer.appendChild(lifeIcon);
+        }
+    }
+
+    // --- Pac-Man ---
+    let pacmanCurrentIndex = 490; // Starting position
+    let pacmanCurrentDir = 'ArrowLeft';
+    let pacmanNextDir = 'ArrowLeft';
+    let pacmanElement = null;
+
+    function renderPacman() {
+        if (pacmanElement) {
+            pacmanElement.remove();
+        }
+        pacmanElement = document.createElement('div');
+        pacmanElement.classList.add('pacman');
+        pacmanElement.style.transform = `rotate(${rotations[pacmanCurrentDir] || 0}deg)`;
+        squares[pacmanCurrentIndex].appendChild(pacmanElement);
+        squares[pacmanCurrentIndex].classList.add('pacman-cell');
+    }
+
+    function movePacman() {
+        if (isGameOver) return;
+
+        squares[pacmanCurrentIndex].classList.remove('pacman-cell');
+        if (pacmanElement) {
+            pacmanElement.remove();
+        }
+
+        // Try to move in next requested direction first
+        let nextPotentialIndex = pacmanCurrentIndex + directions[pacmanNextDir];
+        
+        // Handle Tunnel wrap-around
+        if (pacmanCurrentIndex === 392 && pacmanNextDir === 'ArrowLeft') nextPotentialIndex = 419;
+        if (pacmanCurrentIndex === 419 && pacmanNextDir === 'ArrowRight') nextPotentialIndex = 392;
+
+        if (
+            !squares[nextPotentialIndex].classList.contains('wall') &&
+            !squares[nextPotentialIndex].classList.contains('ghost-lair')
+        ) {
+            pacmanCurrentIndex = nextPotentialIndex;
+            pacmanCurrentDir = pacmanNextDir; // Commit to the turn
+        } else {
+            // If can't turn, try continuing straight
+            let forwardIndex = pacmanCurrentIndex + directions[pacmanCurrentDir];
+            
+            // Handle Tunnel wrap-around (straight)
+            if (pacmanCurrentIndex === 392 && pacmanCurrentDir === 'ArrowLeft') forwardIndex = 419;
+            if (pacmanCurrentIndex === 419 && pacmanCurrentDir === 'ArrowRight') forwardIndex = 392;
+
+            if (
+                !squares[forwardIndex].classList.contains('wall') &&
+                !squares[forwardIndex].classList.contains('ghost-lair')
+            ) {
+                pacmanCurrentIndex = forwardIndex;
+            }
+        }
+
+        renderPacman();
+        pacDotEaten();
+        powerPelletEaten();
+        checkForGameOver();
+        checkForWin();
+    }
+
+    // --- Interactions ---
+    function pacDotEaten() {
+        if (squares[pacmanCurrentIndex].classList.contains('pac-dot')) {
+            score += 10;
+            scoreDisplay.innerHTML = score;
+            squares[pacmanCurrentIndex].classList.remove('pac-dot');
+            // Remove the visual dot child
+            const dot = squares[pacmanCurrentIndex].querySelector('.dot');
+            if (dot) dot.remove();
+        }
+    }
+
+    function powerPelletEaten() {
+        if (squares[pacmanCurrentIndex].classList.contains('power-pellet')) {
+            score += 50;
+            scoreDisplay.innerHTML = score;
+            ghosts.forEach(ghost => ghost.isScared = true);
+            
+            // Reset scared timer if pellet eaten while already scared
+            if (ghostFrightenedTimer) clearTimeout(ghostFrightenedTimer);
+            
+            ghostFrightenedTimer = setTimeout(unScareGhosts, 10000);
+            
+            squares[pacmanCurrentIndex].classList.remove('power-pellet');
+            // Remove the visual pellet child
+            const pellet = squares[pacmanCurrentIndex].querySelector('.power-pellet');
+            if (pellet) pellet.remove();
+
+            // Trigger AI Commentary
+            triggerCommentary(`Pac-Man just ate a Power Pellet! Score is ${score}. The ghosts are vulnerable!`);
+        }
+    }
+
+    function unScareGhosts() {
+        ghosts.forEach(ghost => ghost.isScared = false);
+    }
+
+    // --- Ghosts ---
+    class Ghost {
+        constructor(className, startIndex, speed, color) {
+            this.className = className;
+            this.startIndex = startIndex;
+            this.speed = speed;
+            this.color = color; // Tailwind color string or hex
+            this.currentIndex = startIndex;
+            this.isScared = false;
+            this.timerId = NaN;
+            this.element = null;
+        }
+
+        render() {
+            if (this.element) this.element.remove();
+            
+            this.element = document.createElement('div');
+            this.element.classList.add('ghost', this.className);
+            if (this.isScared) this.element.classList.add('scared');
+
+            // Determine body color based on scared state
+            const bodyColor = this.isScared ? '#1e3a8a' : this.color;
+            const eyeColor = this.isScared ? '#fbbf24' : 'white';
+            const pupilColor = this.isScared ? '#1e3a8a' : 'blue';
+
+            // SVG for scalable ghost rendering
+            this.element.innerHTML = `
+                <svg viewBox="0 0 24 24" width="100%" height="100%">
+                    <path class="body" d="M12 2C6.48 2 2 6.48 2 12V22L4.5 19L7 22L9.5 19L12 22L14.5 19L17 22L19.5 19L22 22V12C22 6.48 17.52 2 12 2Z" fill="${bodyColor}"/>
+                    <path class="eye-white" d="M8 10C8 11.1 7.1 12 6 12C4.9 12 4 11.1 4 10C4 8.9 4.9 8 6 8C7.1 8 8 8.9 8 10ZM18 8C16.9 8 16 8.9 16 10C16 11.1 16.9 12 18 12C19.1 12 20 11.1 20 10C20 8.9 19.1 8 18 8Z" fill="${eyeColor}"/>
+                    <circle class="pupil" cx="6" cy="10" r="1" fill="${pupilColor}"/>
+                    <circle class="pupil" cx="18" cy="10" r="1" fill="${pupilColor}"/>
+                </svg>
+            `;
+            squares[this.currentIndex].appendChild(this.element);
+            squares[this.currentIndex].classList.add('ghost-cell', this.className);
+        }
+
+        remove() {
+            if (this.element) this.element.remove();
+            squares[this.currentIndex].classList.remove('ghost-cell', this.className, 'scared-ghost');
+        }
+
+        move() {
+            if (isGameOver) return;
+
+            // Simple random AI for now
+            const availableDirections = Object.values(directions).filter(dir => {
+                const nextCell = squares[this.currentIndex + dir];
+                return nextCell && !nextCell.classList.contains('wall') && !nextCell.classList.contains('ghost-cell');
+            });
+
+            if (availableDirections.length > 0) {
+                // Prevent reversing direction if possible
+                let validDirections = availableDirections;
+                
+                // Very basic pathing: choose random available direction
+                const direction = validDirections[Math.floor(Math.random() * validDirections.length)];
+                
+                this.remove();
+                this.currentIndex += direction;
+                this.render();
+            }
+            
+            checkForGameOver();
+        }
+    }
+
+    const ghosts = [
+        new Ghost('blinky', 348, 250, '#ef4444'), // Red
+        new Ghost('pinky', 376, 400, '#f472b6'), // Pink
+        new Ghost('inky', 351, 300, '#38bdf8'),  // Cyan
+        new Ghost('clyde', 379, 500, '#f97316')  // Orange
+    ];
+
+    // --- Game Logic ---
+    function checkForGameOver() {
+        if (squares[pacmanCurrentIndex].classList.contains('ghost-cell')) {
+            // Find which ghost hit us
+            const hitGhost = ghosts.find(g => g.currentIndex === pacmanCurrentIndex);
+            
+            if (hitGhost && hitGhost.isScared) {
+                // Pac-Man eats Ghost
+                score += 200;
+                scoreDisplay.innerHTML = score;
+                hitGhost.remove();
+                hitGhost.currentIndex = hitGhost.startIndex;
+                hitGhost.isScared = false;
+                hitGhost.render();
+                
+                triggerCommentary(`Unbelievable! Pac-Man just devoured ${hitGhost.className.toUpperCase()}! What a play!`);
+            } else if (hitGhost && !hitGhost.isScared) {
+                // Ghost eats Pac-Man
+                handleDeath();
+            }
+        }
+    }
+
+    function handleDeath() {
+        lives--;
+        updateLivesDisplay();
+        
+        triggerCommentary(`Ouch! Pac-Man was caught. Only ${lives} lives remaining!`);
+
+        // Stop current loops
+        clearInterval(gameLoopInterval);
+        ghosts.forEach(ghost => clearInterval(ghost.timerId));
+
+        if (lives <= 0) {
+            endGame(false);
+        } else {
+            // Reset positions after a short delay
+            setTimeout(() => {
+                resetPositions();
+                startGameLoop();
+            }, 1000);
+        }
+    }
+
+    function checkForWin() {
+        if (score >= 2740) { // Max score roughly calculated based on dots + pellets
+            endGame(true);
+        }
+    }
+
+    function endGame(win) {
+        isGameOver = true;
+        clearInterval(gameLoopInterval);
+        ghosts.forEach(ghost => clearInterval(ghost.timerId));
+        
+        messageTitle.innerText = win ? 'YOU WIN!' : 'GAME OVER';
+        messageTitle.className = win ? 'text-4xl font-bold text-green-400 mb-4 animate-bounce' : 'text-4xl font-bold text-red-500 mb-4 animate-pulse';
+        finalScoreDisplay.innerText = score;
+        overlay.style.display = 'flex';
+
+        triggerCommentary(win ? `A spectacular victory! Pac-Man cleared the board with ${score} points!` : `Game Over! The ghosts proved too much. Final score: ${score}.`);
+    }
+
+    function resetPositions() {
+        if (pacmanElement) pacmanElement.remove();
+        squares[pacmanCurrentIndex].classList.remove('pacman-cell');
+        pacmanCurrentIndex = 490;
+        pacmanCurrentDir = 'ArrowLeft';
+        pacmanNextDir = 'ArrowLeft';
+        renderPacman();
+
+        ghosts.forEach(ghost => {
+            ghost.remove();
+            ghost.currentIndex = ghost.startIndex;
+            ghost.render();
+        });
+    }
+
+    // --- Input Handling ---
+    function handleInput(key) {
+        if (isGameOver) return;
+        if (directions.hasOwnProperty(key)) {
+            pacmanNextDir = key;
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        handleInput(e.code);
+        // Prevent default scrolling for arrow keys
+        if(['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.code) > -1) {
+            e.preventDefault();
+        }
+    });
+
+    // Mobile Controls
+    const mobileBtns = document.querySelectorAll('.mobile-btn');
+    mobileBtns.forEach(btn => {
+        // Handle both touch and mouse for mobile testing on desktop
+        ['touchstart', 'mousedown'].forEach(evt => {
+            btn.addEventListener(evt, (e) => {
+                e.preventDefault(); // Stop double-firing or weird highlights
+                handleInput(btn.getAttribute('data-dir'));
+            });
+        });
+    });
+
+    restartBtn.addEventListener('click', initGame);
+
+    // --- Main Loop ---
+    function startGameLoop() {
+        isGameOver = false;
+        // Pacman speed loop
+        gameLoopInterval = setInterval(movePacman, 200);
+        
+        // Ghost speed loops
+        ghosts.forEach(ghost => {
+            ghost.timerId = setInterval(() => ghost.move(), ghost.speed);
+        });
+    }
+
+    function initGame() {
+        score = 0;
+        lives = 3;
+        scoreDisplay.innerHTML = score;
+        overlay.style.display = 'none';
+        isGameOver = false;
+        
+        if(ghostFrightenedTimer) clearTimeout(ghostFrightenedTimer);
+        
+        createBoard();
+        updateLivesDisplay();
+        resetPositions();
+        
+        // Start loops
+        clearInterval(gameLoopInterval);
+        ghosts.forEach(ghost => clearInterval(ghost.timerId));
+        startGameLoop();
+
+        triggerCommentary("A new game begins! Pac-Man enters the maze. Let the chomping commence!");
+    }
+
+    // --- Gemini API Commentator Integration ---
+    let lastCommentaryTime = 0;
+    const COMMENTARY_COOLDOWN_MS = 8000; // 8 seconds between calls to stay under rate limit
+
+    async function triggerCommentary(eventContext, retryDelay = 0) {
+        const now = Date.now();
+        if (isCommenting || (now - lastCommentaryTime) < COMMENTARY_COOLDOWN_MS) return;
+        isCommenting = true;
+        lastCommentaryTime = now;
+
+        const commentaryElement = document.getElementById('ai-commentary-text');
+        commentaryElement.innerHTML = '<span class="text-amber-500/70 animate-pulse">Analyzing play...</span>';
+
+        const systemPrompt = "You are an energetic, retro-arcade esports commentator for a Pac-Man game. Keep your commentary strictly to 1 short sentence. Be witty, sometimes snarky, and react directly to the event provided.";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+        const payload = {
+            contents: [{ parts: [{ text: eventContext }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] }
+        };
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            // Rate limited — retry once after 10 seconds
+            if (response.status === 429) {
+                commentaryElement.innerHTML = "<em>Announcer catching their breath...</em>";
+                isCommenting = false;
+                setTimeout(() => triggerCommentary(eventContext), 10000);
+                return;
+            }
+
+            const result = await response.json();
+
+            if (result.candidates && result.candidates[0].content) {
+                const text = result.candidates[0].content.parts[0].text;
+
+                // Typewriter effect
+                commentaryElement.innerHTML = '';
+                let i = 0;
+                const typeWriter = setInterval(() => {
+                    commentaryElement.innerHTML += text.charAt(i);
+                    i++;
+                    if (i >= text.length) {
+                        clearInterval(typeWriter);
+                        isCommenting = false;
+                    }
+                }, 30);
+            } else {
+                commentaryElement.innerHTML = "<em>Static on the comms...</em>";
+                isCommenting = false;
+            }
+        } catch (e) {
+            console.error("Gemini API Error:", e);
+            commentaryElement.innerHTML = "<em>Connection to announcer lost.</em>";
+            isCommenting = false;
+        }
+    }
+
+    // Start everything when DOM is ready
+    window.onload = initGame;
+
+</script>
+</body>
+</html>
