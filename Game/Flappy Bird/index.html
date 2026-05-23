@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeonFlap // Cyber Arcade</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Modern CSS layout with neon theme */
+        :root {
+            --bg-color: #08090f;
+            --panel-color: #121420;
+            --neon-blue: #00f0ff;
+            --neon-pink: #ff007f;
+            --neon-green: #39ff14;
+            --neon-yellow: #ffe600;
+            --text-color: #f0f2f5;
+            --text-muted: #8c94b5;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.06) 0%, transparent 40%);
+        }
+
+        .arcade-cabinet {
+            display: flex;
+            flex-direction: row;
+            background: var(--panel-color);
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 
+                0 0 35px rgba(0, 240, 255, 0.12),
+                inset 0 0 20px rgba(0, 240, 255, 0.04);
+            padding: 24px;
+            gap: 24px;
+            align-items: stretch;
+            max-width: 95vw;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        /* Ambient glowing trim */
+        .arcade-cabinet::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink), var(--neon-blue));
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0.3;
+            filter: blur(5px);
+        }
+
+        /* Screen Wrapper */
+        .screen-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+            border: 2px solid #202438;
+            width: 400px;
+            height: 600px;
+            background: #000;
+        }
+
+        /* CRT Scanline and Flicker Overlay */
+        .crt-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+            background-size: 100% 4px;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.2;
+            transition: opacity 0.3s;
+        }
+
+        .crt-flicker {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 16, 16, 0.08);
+            opacity: 0;
+            z-index: 11;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.07; }
+            50% { opacity: 0.12; }
+            100% { opacity: 0.07; }
+        }
+
+        /* Panel details */
+        .side-panel {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .logo-area {
+            text-align: center;
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.08);
+            padding-bottom: 16px;
+        }
+
+        .logo-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            color: var(--neon-pink);
+            text-shadow: 
+                0 0 5px var(--neon-pink),
+                0 0 15px rgba(255, 0, 127, 0.5);
+            margin: 0 0 8px 0;
+            animation: logo-glow 2.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes logo-glow {
+            from {
+                text-shadow: 0 0 5px var(--neon-pink), 0 0 10px var(--neon-pink);
+            }
+            to {
+                text-shadow: 0 0 8px var(--neon-pink), 0 0 20px var(--neon-pink), 0 0 4px var(--neon-blue);
+            }
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+        }
+
+        .controls-section {
+            margin: 16px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .control-group-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin: 0 0 8px 0;
+            font-weight: 600;
+        }
+
+        .btn-toggle {
+            background: #181b2a;
+            border: 1px solid #2e3454;
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-toggle:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            background: #1f233a;
+        }
+
+        .btn-toggle.active {
+            background: rgba(0, 240, 255, 0.08);
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.15);
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #475072;
+            transition: background 0.2s;
+        }
+
+        .btn-toggle.active .indicator {
+            background: var(--neon-blue);
+            box-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        /* Difficulty select styling */
+        .diff-selector {
+            display: flex;
+            gap: 6px;
+        }
+
+        .diff-btn {
+            flex: 1;
+            background: #181b2a;
+            border: 1px solid #2e3454;
+            color: var(--text-muted);
+            padding: 6px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .diff-btn:hover {
+            color: #fff;
+            border-color: var(--neon-pink);
+        }
+
+        .diff-btn.active {
+            background: rgba(255, 0, 127, 0.12);
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+            box-shadow: 0 0 8px rgba(255, 0, 127, 0.25);
+        }
+
+        /* Info card */
+        .info-card {
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .key-badge {
+            background: #25283e;
+            border: 1px solid #41476e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #fff;
+            font-size: 10px;
+        }
+
+        .footer-note {
+            font-size: 10px;
+            text-align: center;
+            color: #4b5066;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 12px;
+        }
+
+        /* Responsive styling */
+        @media (max-width: 768px) {
+            .arcade-cabinet {
+                flex-direction: column;
+                align-items: center;
+                padding: 16px;
+            }
+            .side-panel {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+    </style>
+    <!-- Phaser 3 via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+</head>
+<body>
+
+<div class="arcade-cabinet">
+    <!-- Game Screen Container -->
+    <div class="screen-container">
+        <div class="crt-overlay" id="crtOverlay"></div>
+        <div class="crt-flicker" id="crtFlicker"></div>
+        <div id="gameDiv"></div>
+    </div>
+
+    <!-- Side Control Panel -->
+    <div class="side-panel">
+        <div class="logo-area">
+            <h1 class="logo-title">NEON FLAP</h1>
+            <p class="logo-subtitle">Cyber Arcade</p>
+        </div>
+
+        <div class="controls-section">
+            <!-- Sound Toggle -->
+            <div class="control-group">
+                <p class="control-group-title">Audio Output</p>
+                <button class="btn-toggle active" id="btnSound">
+                    <span>Sound Synth</span>
+                    <div class="indicator"></div>
+                </button>
+            </div>
+
+            <!-- CRT Scanlines Toggle -->
+            <div class="control-group">
+                <p class="control-group-title">Display Settings</p>
+                <button class="btn-toggle active" id="btnCRT">
+                    <span>CRT Filter</span>
+                    <div class="indicator"></div>
+                </button>
+            </div>
+
+            <!-- Difficulty Settings -->
+            <div class="control-group">
+                <p class="control-group-title">Difficulty Presets</p>
+                <div class="diff-selector">
+                    <button class="diff-btn" data-diff="casual">Casual</button>
+                    <button class="diff-btn active" data-diff="arcade">Arcade</button>
+                    <button class="diff-btn" data-diff="hardcore">Hardcore</button>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="control-group">
+                <p class="control-group-title">How To Play</p>
+                <div class="info-card">
+                    <div><span class="key-badge">SPACE</span> or <span class="key-badge">CLICK</span> to flap.</div>
+                    <div>Avoid neon security pipes.</div>
+                    <div>Score is recorded on passing a pipe.</div>
+                    <div>Difficulty increases at score checkpoints!</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Senior Architected System v1.0.0
+        </div>
+    </div>
+</div>
+
+<script>
+// --- AUDIO SYNTHESIS ENGINE (Web Audio API) ---
+class SoundSynth {
+    constructor() {
+        this.ctx = null;
+        this.muted = false;
+    }
+    
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+    
+    playFlap() {
+        if (this.muted) return;
+        try {
+            this.init();
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.type = 'triangle';
+            const now = this.ctx.currentTime;
+            osc.frequency.setValueAtTime(160, now);
+            osc.frequency.exponentialRampToValueAtTime(360, now + 0.12);
+            
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+            
+            osc.start(now);
+            osc.stop(now + 0.12);
+        } catch (e) {
+            console.error('Audio synth error:', e);
+        }
+    }
+
+    playPoint() {
+        if (this.muted) return;
+        try {
+            this.init();
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.type = 'sine';
+            const now = this.ctx.currentTime;
+            // High double pick tone
+            osc.frequency.setValueAtTime(587.33, now); // D5
+            osc.frequency.setValueAtTime(587.33, now + 0.06);
+            osc.frequency.setValueAtTime(880.00, now + 0.06); // A5
+            
+            gain.gain.setValueAtTime(0.07, now);
+            gain.gain.setValueAtTime(0.07, now + 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.005, now + 0.2);
+            
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    
+    playHit() {
+        if (this.muted) return;
+        try {
+            this.init();
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.type = 'sawtooth';
+            const now = this.ctx.currentTime;
+            osc.frequency.setValueAtTime(240, now);
+            osc.frequency.linearRampToValueAtTime(30, now + 0.25);
+            
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            
+            osc.start(now);
+            osc.stop(now + 0.25);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    
+    playFall() {
+        if (this.muted) return;
+        try {
+            this.init();
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.type = 'sawtooth';
+            const now = this.ctx.currentTime;
+            osc.frequency.setValueAtTime(280, now);
+            osc.frequency.linearRampToValueAtTime(50, now + 0.45);
+            
+            gain.gain.setValueAtTime(0.16, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+            
+            osc.start(now);
+            osc.stop(now + 0.45);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    playGameOver() {
+        if (this.muted) return;
+        try {
+            this.init();
+            const now = this.ctx.currentTime;
+            
+            const playTone = (freq, start, duration) => {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, start);
+                
+                gain.gain.setValueAtTime(0.1, start);
+                gain.gain.exponentialRampToValueAtTime(0.005, start + duration);
+                
+                osc.start(start);
+                osc.stop(start + duration);
+            };
+            
+            // Retro melancholy chord
+            playTone(392.00, now, 0.2);       // G4
+            playTone(349.23, now + 0.18, 0.2); // F4
+            playTone(311.13, now + 0.36, 0.2); // Eb4
+            playTone(261.63, now + 0.54, 0.4); // C4
+        } catch (e) {
+            console.error(e);
+        }
+    }
+}
+
+const synth = new SoundSynth();
+
+// --- GAME CONFIGURATIONS ---
+const DIFFICULTY_SETTINGS = {
+    casual: {
+        gravity: 950,
+        flapStrength: -330,
+        pipeSpeed: 160,
+        pipeInterval: 1750,
+        gapSize: 165,
+        bobbingChance: 0.0
+    },
+    arcade: {
+        gravity: 1250,
+        flapStrength: -400,
+        pipeSpeed: 210,
+        pipeInterval: 1400,
+        gapSize: 140,
+        bobbingChance: 0.3
+    },
+    hardcore: {
+        gravity: 1500,
+        flapStrength: -460,
+        pipeSpeed: 260,
+        pipeInterval: 1100,
+        gapSize: 120,
+        bobbingChance: 0.6
+    }
+};
+
+let currentDifficulty = 'arcade';
+
+// --- PHASER SCENES ---
+
+// 1. BOOT SCENE: Generates all custom procedural textures
+class BootScene extends Phaser.Scene {
+    constructor() {
+        super('BootScene');
+    }
+
+    preload() {
+        // A. Sky Background (Deep Cyber Gradient)
+        let bgGraphics = this.make.graphics({ add: false });
+        bgGraphics.fillGradientStyle(0x060713, 0x060713, 0x160e28, 0x160e28, 1);
+        bgGraphics.fillRect(0, 0, 400, 600);
+        bgGraphics.generateTexture('sky', 400, 600);
+
+        // B. Clouds Texture (Soft, tileable)
+        let cloudsGraphics = this.make.graphics({ add: false });
+        cloudsGraphics.fillStyle(0xffffff, 0.08);
+        cloudsGraphics.fillCircle(40, 30, 25);
+        cloudsGraphics.fillCircle(65, 25, 30);
+        cloudsGraphics.fillCircle(90, 35, 20);
+        cloudsGraphics.fillStyle(0xffffff, 0.05);
+        cloudsGraphics.fillCircle(150, 40, 20);
+        cloudsGraphics.fillCircle(175, 35, 25);
+        cloudsGraphics.fillCircle(195, 45, 18);
+        cloudsGraphics.generateTexture('clouds', 240, 80);
+
+        // C. City Skyline Silhouette (Cyberpunk, tileable)
+        let cityGraphics = this.make.graphics({ add: false });
+        cityGraphics.fillStyle(0x0a0b1a, 1);
+        
+        const buildings = [
+            { x: 10, w: 40, h: 90 },
+            { x: 55, w: 30, h: 65 },
+            { x: 90, w: 48, h: 110 },
+            { x: 145, w: 32, h: 55 },
+            { x: 180, w: 44, h: 130 },
+            { x: 230, w: 36, h: 80 },
+            { x: 270, w: 50, h: 100 },
+            { x: 325, w: 28, h: 70 },
+            { x: 360, w: 44, h: 120 }
+        ];
+        
+        buildings.forEach(b => {
+            cityGraphics.fillRect(b.x, 200 - b.h, b.w, b.h);
+            
+            // Neon glowing windows inside buildings
+            cityGraphics.fillStyle(Phaser.Math.RND.pick([0x00f0ff, 0xff007f, 0xffe600]), 0.45);
+            const cols = Math.floor(b.w / 10);
+            const rows = Math.floor(b.h / 15);
+            for (let c = 1; c < cols; c++) {
+                for (let r = 1; r < rows; r++) {
+                    if (Phaser.Math.RND.frac() > 0.4) {
+                        cityGraphics.fillRect(b.x + c * 8, 200 - b.h + r * 12, 3, 4);
+                    }
+                }
+            }
+            
+            // Radio tower tip blinking light
+            if (b.h > 95) {
+                cityGraphics.lineStyle(1.5, 0x0a0b1a, 1);
+                cityGraphics.lineBetween(b.x + b.w/2, 200 - b.h, b.x + b.w/2, 200 - b.h - 12);
+                cityGraphics.fillStyle(0xff0055, 0.8);
+                cityGraphics.fillCircle(b.x + b.w/2, 200 - b.h - 12, 2);
+            }
+            cityGraphics.fillStyle(0x0a0b1a, 1); // reset fill
+        });
+        cityGraphics.generateTexture('city', 410, 200);
+
+        // D. Grid Ground (Futuristic Synthwave neon grid)
+        let groundGraphics = this.make.graphics({ add: false });
+        groundGraphics.fillStyle(0x090a14, 1);
+        groundGraphics.fillRect(0, 0, 400, 80);
+        
+        // Neon top rim
+        groundGraphics.fillStyle(0xff007f, 1);
+        groundGraphics.fillRect(0, 0, 400, 3);
+        groundGraphics.fillStyle(0xff007f, 0.4);
+        groundGraphics.fillRect(0, 0, 400, 6);
+        
+        // Grid perspective lines
+        groundGraphics.lineStyle(1.5, 0x00f0ff, 0.5);
+        const lineY = [3, 10, 20, 35, 55, 80];
+        lineY.forEach(ly => groundGraphics.lineBetween(0, ly, 400, ly));
+        for (let i = -10; i <= 20; i++) {
+            groundGraphics.lineBetween(i * 30 + 10, 3, i * 45 - 20, 80);
+        }
+        groundGraphics.generateTexture('ground', 400, 80);
+
+        // E. Cute Neon Bird Body
+        let birdBodyGraphics = this.make.graphics({ add: false });
+        birdBodyGraphics.fillGradientStyle(0xffe600, 0xffe600, 0xff3c00, 0xff3c00, 1);
+        birdBodyGraphics.fillCircle(15, 15, 12);
+        
+        // Wing socket indent / white belly
+        birdBodyGraphics.fillStyle(0xffffff, 0.8);
+        birdBodyGraphics.slice(15, 15, 12, Phaser.Math.DegToRad(40), Phaser.Math.DegToRad(140), false);
+        birdBodyGraphics.fillPath();
+
+        // Eye
+        birdBodyGraphics.fillStyle(0xffffff, 1);
+        birdBodyGraphics.fillCircle(21, 10, 4.5);
+        birdBodyGraphics.fillStyle(0x05060b, 1);
+        birdBodyGraphics.fillCircle(22, 10, 2.5);
+        birdBodyGraphics.fillStyle(0xffffff, 1);
+        birdBodyGraphics.fillCircle(23.5, 8.5, 0.8);
+        
+        // Beak
+        birdBodyGraphics.fillStyle(0xff7700, 1);
+        birdBodyGraphics.fillTriangle(25, 11, 35, 15, 25, 19);
+        
+        birdBodyGraphics.generateTexture('bird_body', 36, 30);
+
+        // F. Bird Wing (drawn separately to flap dynamically)
+        let wingGraphics = this.make.graphics({ add: false });
+        wingGraphics.fillGradientStyle(0xff007f, 0xff007f, 0x8a2be2, 0x8a2be2, 1);
+        wingGraphics.fillEllipse(10, 8, 8, 5.5);
+        wingGraphics.lineStyle(1.2, 0xffffff, 0.6);
+        wingGraphics.strokeEllipse(10, 8, 8, 5.5);
+        wingGraphics.generateTexture('bird_wing', 20, 16);
+
+        // G. Cyber Metallic Pipes (Width: 50, Height: 600)
+        const w = 50;
+        const h = 600;
+        const bodyW = 42;
+        const bodyOffset = 4;
+        
+        // Top Pipe
+        let topPipeGraphics = this.make.graphics({ add: false });
+        for (let x = bodyOffset; x < bodyOffset + bodyW; x++) {
+            let pct = (x - bodyOffset) / bodyW;
+            let color;
+            if (pct < 0.25) {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#0d3b1f'),
+                    Phaser.Display.Color.HexStringToColor('#39ff14'),
+                    100, (pct / 0.25) * 100
+                ).color;
+            } else if (pct < 0.6) {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#39ff14'),
+                    Phaser.Display.Color.HexStringToColor('#1b7e3e'),
+                    100, ((pct - 0.25) / 0.35) * 100
+                ).color;
+            } else {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#1b7e3e'),
+                    Phaser.Display.Color.HexStringToColor('#051d0e'),
+                    100, ((pct - 0.6) / 0.4) * 100
+                ).color;
+            }
+            topPipeGraphics.fillStyle(color, 1);
+            topPipeGraphics.fillRect(x, 0, 1, h - 30);
+        }
+        // Top Pipe Cap (bottom 30px)
+        for (let x = 0; x < w; x++) {
+            let pct = x / w;
+            let color;
+            if (pct < 0.25) {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#0d3b1f'),
+                    Phaser.Display.Color.HexStringToColor('#39ff14'),
+                    100, (pct / 0.25) * 100
+                ).color;
+            } else if (pct < 0.6) {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#39ff14'),
+                    Phaser.Display.Color.HexStringToColor('#1b7e3e'),
+                    100, ((pct - 0.25) / 0.35) * 100
+                ).color;
+            } else {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#1b7e3e'),
+                    Phaser.Display.Color.HexStringToColor('#051d0e'),
+                    100, ((pct - 0.6) / 0.4) * 100
+                ).color;
+            }
+            topPipeGraphics.fillStyle(color, 1);
+            topPipeGraphics.fillRect(x, h - 30, 1, 30);
+        }
+        // Safety light stripe (magenta)
+        topPipeGraphics.fillStyle(0xff007f, 1);
+        topPipeGraphics.fillRect(0, h - 20, w, 5);
+        topPipeGraphics.fillStyle(0xff007f, 0.4);
+        topPipeGraphics.fillRect(0, h - 23, w, 11);
+        topPipeGraphics.generateTexture('pipe_top', w, h);
+
+        // Bottom Pipe
+        let bottomPipeGraphics = this.make.graphics({ add: false });
+        for (let x = bodyOffset; x < bodyOffset + bodyW; x++) {
+            let pct = (x - bodyOffset) / bodyW;
+            let color;
+            if (pct < 0.25) {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#0d3b1f'),
+                    Phaser.Display.Color.HexStringToColor('#39ff14'),
+                    100, (pct / 0.25) * 100
+                ).color;
+            } else if (pct < 0.6) {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#39ff14'),
+                    Phaser.Display.Color.HexStringToColor('#1b7e3e'),
+                    100, ((pct - 0.25) / 0.35) * 100
+                ).color;
+            } else {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#1b7e3e'),
+                    Phaser.Display.Color.HexStringToColor('#051d0e'),
+                    100, ((pct - 0.6) / 0.4) * 100
+                ).color;
+            }
+            bottomPipeGraphics.fillStyle(color, 1);
+            bottomPipeGraphics.fillRect(x, 30, 1, h - 30);
+        }
+        // Bottom Pipe Cap (top 30px)
+        for (let x = 0; x < w; x++) {
+            let pct = x / w;
+            let color;
+            if (pct < 0.25) {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#0d3b1f'),
+                    Phaser.Display.Color.HexStringToColor('#39ff14'),
+                    100, (pct / 0.25) * 100
+                ).color;
+            } else if (pct < 0.6) {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#39ff14'),
+                    Phaser.Display.Color.HexStringToColor('#1b7e3e'),
+                    100, ((pct - 0.25) / 0.35) * 100
+                ).color;
+            } else {
+                color = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.HexStringToColor('#1b7e3e'),
+                    Phaser.Display.Color.HexStringToColor('#051d0e'),
+                    100, ((pct - 0.6) / 0.4) * 100
+                ).color;
+            }
+            bottomPipeGraphics.fillStyle(color, 1);
+            bottomPipeGraphics.fillRect(x, 0, 1, 30);
+        }
+        // Safety light stripe (magenta)
+        bottomPipeGraphics.fillStyle(0xff007f, 1);
+        bottomPipeGraphics.fillRect(0, 10, w, 5);
+        bottomPipeGraphics.fillStyle(0xff007f, 0.4);
+        bottomPipeGraphics.fillRect(0, 7, w, 11);
+        bottomPipeGraphics.generateTexture('pipe_bottom', w, h);
+
+        // H. Particles
+        let featherGraphics = this.make.graphics({ add: false });
+        featherGraphics.fillStyle(0xffe600, 0.85);
+        featherGraphics.fillEllipse(4, 3, 4, 2);
+        featherGraphics.generateTexture('feather', 8, 6);
+
+        let trailGraphics = this.make.graphics({ add: false });
+        trailGraphics.fillStyle(0x00f0ff, 0.55);
+        trailGraphics.fillCircle(4, 4, 4);
+        trailGraphics.generateTexture('trail', 8, 8);
+    }
+
+    create() {
+        this.scene.start('MenuScene');
+    }
+}
+
+// 2. MENU SCENE: Title screen with retro hover animations
+class MenuScene extends Phaser.Scene {
+    constructor() {
+        super('MenuScene');
+    }
+
+    create() {
+        // Parallax environment layers
+        this.sky = this.add.image(200, 300, 'sky');
+        this.clouds = this.add.tileSprite(200, 120, 400, 80, 'clouds');
+        this.city = this.add.tileSprite(200, 420, 400, 200, 'city');
+        this.ground = this.add.tileSprite(200, 560, 400, 80, 'ground');
+        this.ground.setDepth(10);
+
+        // Floating Title Bird
+        this.birdContainer = this.add.container(100, 280);
+        this.bird = this.add.sprite(0, 0, 'bird_body');
+        this.wing = this.add.sprite(-6, 2, 'bird_wing');
+        this.birdContainer.add([this.bird, this.wing]);
+        
+        // Floating Bird Tween
+        this.tweens.add({
+            targets: this.birdContainer,
+            y: 310,
+            duration: 900,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Wing flap tween
+        this.tweens.add({
+            targets: this.wing,
+            angle: -30,
+            duration: 150,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Quad.easeInOut'
+        });
+
+        // Glowing Title Logo text
+        this.titleText = this.add.text(200, 150, 'NEON\nFLAP', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '38px',
+            fill: '#ff007f',
+            align: 'center',
+            lineSpacing: 10
+        }).setOrigin(0.5);
+        this.titleText.setShadow(0, 0, '12px', '#ff007f', true, true);
+
+        // Start Info Text
+        this.infoText = this.add.text(200, 460, 'PRESS SPACE\nOR CLICK TO JUMP', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '11px',
+            fill: '#00f0ff',
+            align: 'center',
+            lineSpacing: 8
+        }).setOrigin(0.5);
+        
+        // Flashing animation
+        this.tweens.add({
+            targets: this.infoText,
+            alpha: 0.2,
+            duration: 700,
+            yoyo: true,
+            repeat: -1
+        });
+
+        // High Score display
+        const best = localStorage.getItem('neonflap_highscore') || 0;
+        this.bestText = this.add.text(200, 515, `HIGH SCORE: ${best}`, {
+            fontFamily: '"Outfit"',
+            fontSize: '18px',
+            fontStyle: 'bold',
+            fill: '#ffe600'
+        }).setOrigin(0.5);
+
+        // Bind Start input
+        this.input.on('pointerdown', this.startGame, this);
+        this.input.keyboard.on('keydown-SPACE', this.startGame, this);
+    }
+
+    update(time, delta) {
+        // Slow background scrolling
+        this.clouds.tilePositionX += 0.05;
+        this.city.tilePositionX += 0.15;
+        this.ground.tilePositionX += 0.6;
+    }
+
+    startGame() {
+        this.input.off('pointerdown', this.startGame, this);
+        this.input.keyboard.off('keydown-SPACE', this.startGame, this);
+        
+        // Play flap start audio
+        synth.playFlap();
+
+        // White transition flash
+        this.cameras.main.flash(200, 255, 255, 255);
+        this.time.delayedCall(150, () => {
+            this.scene.start('PlayScene');
+        });
+    }
+}
+
+// 3. PLAY SCENE: The core game loop with Object Pooling & Juice
+class PlayScene extends Phaser.Scene {
+    constructor() {
+        super('PlayScene');
+    }
+
+    create() {
+        // Load settings based on difficulty selector
+        this.diffConfig = DIFFICULTY_SETTINGS[currentDifficulty];
+        this.scrollSpeed = this.diffConfig.pipeSpeed;
+
+        // Environment setup
+        this.sky = this.add.image(200, 300, 'sky');
+        this.clouds = this.add.tileSprite(200, 120, 400, 80, 'clouds');
+        this.city = this.add.tileSprite(200, 420, 400, 200, 'city');
+        this.ground = this.add.tileSprite(200, 560, 400, 80, 'ground');
+        this.ground.setDepth(10);
+
+        // Physics Ground bounding box using Zone to prevent Phaser 3.60.0 staticBody bug
+        let groundTriggerZone = this.add.zone(200, 520, 400, 10);
+        this.physics.add.existing(groundTriggerZone, true);
+        this.groundTrigger = groundTriggerZone;
+
+        // Particle Emitter: Flap Feathers
+        this.featherEmitter = this.add.particles(0, 0, 'feather', {
+            lifespan: 550,
+            speedX: { min: -180, max: -40 },
+            speedY: { min: -100, max: 80 },
+            scale: { start: 1.2, end: 0.1 },
+            rotate: { start: 0, end: 360 },
+            gravityY: 300,
+            emitting: false
+        });
+        this.featherEmitter.setDepth(9);
+
+        // Physics Sprite: Bird Body
+        this.bird = this.physics.add.sprite(100, 250, 'bird_body');
+        this.bird.setGravityY(this.diffConfig.gravity);
+        this.bird.setDepth(8);
+        
+        // Wing overlay child
+        this.wing = this.add.sprite(this.bird.x - 6, this.bird.y + 2, 'bird_wing');
+        this.wing.setDepth(9);
+        this.wingFlapAngle = 0;
+
+        // Particle Emitter: Engine glow trail
+        this.trailEmitter = this.add.particles(0, 0, 'trail', {
+            lifespan: 350,
+            speedX: { min: -90, max: -20 },
+            speedY: { min: -10, max: 10 },
+            scale: { start: 0.8, end: 0 },
+            alpha: { start: 0.6, end: 0 },
+            frequency: 35,
+            emitting: true
+        });
+        this.trailEmitter.setDepth(7);
+        this.trailEmitter.startFollow(this.bird, -12, 4);
+
+        // Pipes Physics Group (Object Pooling)
+        this.pipes = this.physics.add.group();
+        
+        // Pre-fill pool with 12 inactive pipes to completely avoid GC spikes
+        for (let i = 0; i < 12; i++) {
+            let pipe = this.pipes.create(0, 0, 'pipe_top');
+            pipe.setActive(false);
+            pipe.setVisible(false);
+            pipe.body.enable = false;
+        }
+
+        // Gameplay state
+        this.score = 0;
+        this.isGameOver = false;
+        this.isGameOverLaunched = false;
+
+        // Score display with bounce Pop
+        this.scoreText = this.add.text(200, 60, '0', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '44px',
+            fill: '#fff'
+        }).setOrigin(0.5);
+        this.scoreText.setDepth(15);
+        this.scoreText.setShadow(0, 4, 'rgba(0,0,0,0.5)', 4);
+
+        // Bind Input
+        this.input.on('pointerdown', this.flap, this);
+        this.input.keyboard.on('keydown-SPACE', this.flap, this);
+
+        // Spawn timer
+        this.pipeTimer = this.time.addEvent({
+            delay: this.diffConfig.pipeInterval,
+            callback: this.spawnPipes,
+            callbackScope: this,
+            loop: true
+        });
+
+        // Trigger first pipe spawn slightly earlier
+        this.time.delayedCall(400, () => {
+            if (!this.isGameOver) this.spawnPipes();
+        });
+
+        // Colliders
+        this.physics.add.collider(this.bird, this.pipes, this.hitObstacle, null, this);
+    }
+
+    update(time, delta) {
+        if (this.isGameOver) return;
+
+        // Parallax scroll math based on delta time (framerate-independent)
+        const frameSec = delta / 1000;
+        const scrollDist = this.scrollSpeed * frameSec;
+        
+        this.clouds.tilePositionX += scrollDist * 0.08;
+        this.city.tilePositionX += scrollDist * 0.22;
+        this.ground.tilePositionX += scrollDist;
+
+        // Update wing overlay placement and bobbing
+        this.wing.x = this.bird.x - 6;
+        this.wing.y = this.bird.y + 2;
+        this.wing.angle = this.bird.angle + this.wingFlapAngle;
+
+        // Snappy velocity-based tilt
+        // Clamps angle between -28 deg (pointing up on jump) and +75 deg (diving nose-first down)
+        const tilt = Phaser.Math.Clamp(this.bird.body.velocity.y / 7.5, -28, 75);
+        this.bird.setAngle(tilt);
+
+        // Check bounds & ceiling crash
+        if (this.bird.y < -15) {
+            this.hitObstacle();
+        }
+
+        // Check ground boundary
+        if (this.bird.y >= 505) { // Bird radius is 15. Ground is at 520.
+            this.bird.y = 505;
+            this.bird.body.velocity.y = 0;
+            this.bird.body.allowGravity = false;
+            this.triggerDeath();
+        }
+
+        // Handle Active Pipes updating & recycling
+        this.pipes.getChildren().forEach(pipe => {
+            if (pipe.active) {
+                // Bobbing waving pipes effect
+                if (pipe.bobbing) {
+                    pipe.y = pipe.baseY + Math.sin((time / 300) + pipe.bobOffset) * 35;
+                }
+
+                // If pipe is off screen, recycle it
+                if (pipe.x < -60) {
+                    pipe.setActive(false);
+                    pipe.setVisible(false);
+                    pipe.body.enable = false;
+                    pipe.setVelocity(0, 0);
+                } else {
+                    // Check scoring trigger (passing bird)
+                    if (pipe.pipeType === 'top' && !pipe.scored && this.bird.x > pipe.x) {
+                        pipe.scored = true;
+                        this.scorePoint(pipe.x);
+                    }
+                }
+            }
+        });
+    }
+
+    flap() {
+        if (this.isGameOver) return;
+
+        this.bird.setVelocityY(this.diffConfig.flapStrength);
+        synth.playFlap();
+
+        // 1. Feather burst particles
+        this.featherEmitter.emitParticleAt(this.bird.x - 8, this.bird.y + 6, 4);
+
+        // 2. Juiced Flap Wing animation
+        this.tweens.add({
+            targets: this,
+            wingFlapAngle: -40,
+            duration: 70,
+            yoyo: true,
+            repeat: 1,
+            ease: 'Quad.easeInOut',
+            onComplete: () => { this.wingFlapAngle = 0; }
+        });
+
+        // 3. Squish & stretch scale tween
+        this.tweens.add({
+            targets: this.bird,
+            scaleX: 0.75,
+            scaleY: 1.25,
+            duration: 90,
+            yoyo: true,
+            ease: 'Quad.easeOut'
+        });
+    }
+
+    spawnPipes() {
+        if (this.isGameOver) return;
+
+        // Gap calculations
+        const minGapY = 140;
+        const maxGapY = 380;
+        const gapPosition = Phaser.Math.Between(minGapY, maxGapY);
+        const gapSize = this.diffConfig.gapSize;
+
+        // Top Pipe spawn
+        const topPipeY = gapPosition - gapSize / 2;
+        let topPipe = this.getRecycledPipe(450, topPipeY, 'pipe_top', 'top');
+
+        // Bottom Pipe spawn
+        const bottomPipeY = gapPosition + gapSize / 2;
+        let bottomPipe = this.getRecycledPipe(450, bottomPipeY, 'pipe_bottom', 'bottom');
+
+        // Check for bobbing difficulty feature (score based or chance preset)
+        const canBob = (this.score > 3 && Phaser.Math.RND.frac() < this.diffConfig.bobbingChance);
+        if (canBob) {
+            const randomOffset = Phaser.Math.RND.angle();
+            
+            topPipe.bobbing = true;
+            topPipe.baseY = topPipeY;
+            topPipe.bobOffset = randomOffset;
+            
+            bottomPipe.bobbing = true;
+            bottomPipe.baseY = bottomPipeY;
+            bottomPipe.bobOffset = randomOffset;
+        }
+    }
+
+    getRecycledPipe(x, y, texture, type) {
+        // Find first dead sprite in group
+        let pipe = this.pipes.getFirstDead(false);
+        
+        if (!pipe) {
+            // Create new sprite if pool exhausted
+            pipe = this.pipes.create(x, y, texture);
+        } else {
+            // Re-activate and reset position
+            pipe.setTexture(texture);
+            pipe.setPosition(x, y);
+            pipe.setActive(true);
+            pipe.setVisible(true);
+            pipe.body.enable = true;
+        }
+
+        pipe.pipeType = type;
+        pipe.scored = false;
+        pipe.bobbing = false;
+
+        // Set alignment origins
+        if (type === 'top') {
+            pipe.setOrigin(0.5, 1);
+        } else {
+            pipe.setOrigin(0.5, 0);
+        }
+
+        // Set physics velocities
+        pipe.body.allowGravity = false;
+        pipe.body.immovable = true;
+        pipe.setVelocityX(-this.scrollSpeed);
+
+        return pipe;
+    }
+
+    scorePoint(pipeX) {
+        this.score++;
+        this.scoreText.setText(this.score);
+        synth.playPoint();
+
+        // 1. Text scale bounce tween
+        this.tweens.add({
+            targets: this.scoreText,
+            scale: { from: 1.5, to: 1 },
+            duration: 250,
+            ease: 'Bounce.easeOut'
+        });
+
+        // 2. Rising "+1" float text
+        let floatText = this.add.text(pipeX, 220, '+1', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '14px',
+            fill: '#39ff14'
+        }).setOrigin(0.5);
+        floatText.setShadow(0, 0, '5px', '#39ff14', true, true);
+        
+        this.tweens.add({
+            targets: floatText,
+            y: 150,
+            alpha: 0,
+            duration: 650,
+            ease: 'Linear',
+            onComplete: () => floatText.destroy()
+        });
+    }
+
+    hitObstacle() {
+        if (this.isGameOver) return;
+        this.isGameOver = true;
+
+        synth.playHit();
+
+        // Halt background & terrain scrolling
+        this.scrollSpeed = 0;
+        this.pipes.setVelocityX(0);
+
+        // Turn bird red & squish flat on impact
+        this.bird.setTint(0xff2222);
+        this.tweens.add({
+            targets: this.bird,
+            scaleX: 1.35,
+            scaleY: 0.65,
+            duration: 100,
+            ease: 'Bounce.easeOut'
+        });
+
+        // Camera impact flash and violent shake
+        this.cameras.main.flash(250, 255, 255, 255);
+        this.cameras.main.shake(250, 0.015);
+
+        // Turn off bird trail emitter
+        this.trailEmitter.stop();
+
+        // Turn off jump controls
+        this.input.off('pointerdown');
+        this.input.keyboard.off('keydown-SPACE');
+
+        // Sad falling down SFX
+        this.time.delayedCall(160, () => {
+            synth.playFall();
+        });
+
+        // IMMEDIATELY stop game and launch Game Over overlay after 450ms impact animation
+        this.time.delayedCall(450, () => {
+            this.launchGameOver();
+        });
+    }
+
+    triggerDeath() {
+        if (this.isGameOver) {
+            // Already hit, now launch Game Over overlay (if not launched yet)
+            this.launchGameOver();
+            return;
+        }
+
+        // Died directly by landing on ground
+        this.isGameOver = true;
+        synth.playHit();
+        this.scrollSpeed = 0;
+        this.pipes.setVelocityX(0);
+        this.trailEmitter.stop();
+        this.input.off('pointerdown');
+        this.input.keyboard.off('keydown-SPACE');
+        this.cameras.main.flash(200, 255, 0, 0, 0.2); // Red impact flash
+        
+        this.launchGameOver();
+    }
+
+    launchGameOver() {
+        // Prevent double launching
+        if (this.isGameOverLaunched) return;
+        this.isGameOverLaunched = true;
+
+        // Cancel spawned timer
+        this.pipeTimer.remove();
+
+        // Pause play scene elements
+        this.physics.pause();
+        
+        // Launch overlay score screen scene
+        this.scene.pause();
+        this.scene.launch('GameOverScene', { score: this.score });
+    }
+}
+
+// 4. GAME OVER SCENE: Shows scoreboard panel overlay with shiny medals
+class GameOverScene extends Phaser.Scene {
+    constructor() {
+        super('GameOverScene');
+    }
+
+    create(data) {
+        this.score = data.score;
+
+        // Dark dim backdrop overlay
+        this.add.rectangle(200, 300, 400, 600, 0x000000, 0.65);
+
+        // Retrieve best score
+        const oldBest = parseInt(localStorage.getItem('neonflap_highscore') || 0);
+        let newRecord = false;
+        
+        if (this.score > oldBest) {
+            localStorage.setItem('neonflap_highscore', this.score);
+            newRecord = true;
+        }
+        
+        const best = Math.max(this.score, oldBest);
+
+        // Draw HUD board container
+        this.boardContainer = this.add.container(200, 700); // Slide in from bottom
+
+        let panelGlow = this.add.graphics();
+        panelGlow.lineStyle(5, 0x00f0ff, 0.2);
+        panelGlow.strokeRoundedRect(-163, -133, 326, 256, 16);
+        
+        let panel = this.add.graphics();
+        panel.fillStyle(0x131526, 0.96);
+        panel.lineStyle(2.5, 0x00f0ff, 1);
+        panel.fillRoundedRect(-160, -130, 320, 250, 14);
+        panel.strokeRoundedRect(-160, -130, 320, 250, 14);
+
+        this.boardContainer.add([panelGlow, panel]);
+
+        // "YOU LOSE" header text
+        let header = this.add.text(0, -90, 'YOU LOSE', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '26px',
+            fill: '#ff007f'
+        }).setOrigin(0.5);
+        header.setShadow(0, 0, '10px', '#ff007f', true, true);
+        this.boardContainer.add(header);
+
+        // Score Label
+        let scoreLabel = this.add.text(45, -30, 'SCORE', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '11px',
+            fill: '#8c94b5'
+        }).setOrigin(0.5);
+        let scoreVal = this.add.text(45, 0, this.score, {
+            fontFamily: '"Outfit"',
+            fontSize: '32px',
+            fontStyle: 'bold',
+            fill: '#fff'
+        }).setOrigin(0.5);
+
+        // Best Score Label
+        let bestLabel = this.add.text(45, 45, 'BEST', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '11px',
+            fill: '#8c94b5'
+        }).setOrigin(0.5);
+        let bestVal = this.add.text(45, 75, best, {
+            fontFamily: '"Outfit"',
+            fontSize: '32px',
+            fontStyle: 'bold',
+            fill: '#ffe600'
+        }).setOrigin(0.5);
+
+        this.boardContainer.add([scoreLabel, scoreVal, bestLabel, bestVal]);
+
+        // New high score tag
+        if (newRecord) {
+            let recordTag = this.add.text(105, 75, 'NEW', {
+                fontFamily: '"Press Start 2P"',
+                fontSize: '8px',
+                fill: '#ff007f',
+                backgroundColor: 'rgba(255,0,127,0.15)',
+                padding: { x: 5, y: 3 }
+            }).setOrigin(0.5);
+            recordTag.setShadow(0, 0, '3px', '#ff007f', true, true);
+            this.boardContainer.add(recordTag);
+        }
+
+        // Medal slots
+        let medalLabel = this.add.text(-80, -30, 'MEDAL', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '11px',
+            fill: '#8c94b5'
+        }).setOrigin(0.5);
+        this.boardContainer.add(medalLabel);
+
+        // Generate shiny Medal Graphics object
+        let medalGraphics = this.add.graphics();
+        medalGraphics.setPosition(-80, 25);
+        this.boardContainer.add(medalGraphics);
+
+        this.drawMedal(medalGraphics, this.score);
+
+        // Slide scoreboard in
+        this.tweens.add({
+            targets: this.boardContainer,
+            y: 280,
+            duration: 550,
+            ease: 'Back.easeOut'
+        });
+
+        // Flashy restart instruction
+        this.restartText = this.add.text(200, 480, 'PRESS SPACE / CLICK TO TRY AGAIN', {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '10px',
+            fill: '#00f0ff'
+        }).setOrigin(0.5);
+        this.restartText.setAlpha(0);
+        this.restartText.setShadow(0, 0, '4px', '#00f0ff', true, true);
+
+        // Wait slightly before showing instruction
+        this.time.delayedCall(700, () => {
+            this.tweens.add({
+                targets: this.restartText,
+                alpha: 1,
+                duration: 250
+            });
+            this.tweens.add({
+                targets: this.restartText,
+                alpha: 0.3,
+                duration: 600,
+                yoyo: true,
+                repeat: -1
+            });
+
+            // Bind triggers
+            this.input.on('pointerdown', this.restartGame, this);
+            this.input.keyboard.on('keydown-SPACE', this.restartGame, this);
+        });
+
+        // Play end audio melody
+        synth.playGameOver();
+    }
+
+    drawMedal(graphics, score) {
+        // Draw medal ribbon (neon pink ribbon background)
+        graphics.fillStyle(0xff007f, 0.7);
+        graphics.fillTriangle(-8, -25, 0, 5, 8, -25);
+        graphics.fillStyle(0x00f0ff, 0.7);
+        graphics.fillTriangle(-4, -25, 0, 5, 4, -25);
+
+        // Base empty frame
+        graphics.fillStyle(0x23263a, 1);
+        graphics.lineStyle(1.5, 0x41476e, 1);
+        graphics.fillCircle(0, 5, 23);
+        graphics.strokeCircle(0, 5, 23);
+
+        let color1, color2, name = "";
+        
+        if (score >= 40) {
+            color1 = 0x00f0ff; // Cyber/Platinum Cyan
+            color2 = 0xffffff;
+            name = "PLAT";
+        } else if (score >= 25) {
+            color1 = 0xffd700; // Gold
+            color2 = 0xffa500;
+            name = "GOLD";
+        } else if (score >= 12) {
+            color1 = 0xc0c0c0; // Silver
+            color2 = 0x808080;
+            name = "SLVR";
+        } else if (score >= 5) {
+            color1 = 0xcd7f32; // Bronze
+            color2 = 0x8b4513;
+            name = "BRNZ";
+        }
+
+        if (name !== "") {
+            // Draw gradient metallic fill
+            graphics.fillGradientStyle(color1, color1, color2, color2, 1);
+            graphics.fillCircle(0, 5, 20);
+            graphics.lineStyle(1.5, 0xffffff, 0.7);
+            graphics.strokeCircle(0, 5, 20);
+
+            // Inner star shape / shiny center
+            graphics.fillStyle(0xffffff, 0.9);
+            graphics.fillCircle(0, 5, 4);
+            graphics.fillStyle(color1, 1);
+            graphics.fillCircle(-2, 3, 2); // gloss reflection dot
+        }
+    }
+
+    restartGame() {
+        this.input.off('pointerdown', this.restartGame, this);
+        this.input.keyboard.off('keydown-SPACE', this.restartGame, this);
+
+        // Restart PlayScene
+        this.scene.stop('GameOverScene');
+        this.scene.stop('PlayScene');
+        this.scene.start('PlayScene');
+    }
+}
+
+// --- INITIALIZE PHASER GAME ---
+const config = {
+    type: Phaser.AUTO,
+    width: 400,
+    height: 600,
+    parent: 'gameDiv',
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: false
+        }
+    },
+    scene: [BootScene, MenuScene, PlayScene, GameOverScene]
+};
+
+const game = new Phaser.Game(config);
+
+// --- INTERACTIVE DOM HANDLERS ---
+document.addEventListener('DOMContentLoaded', () => {
+    const btnSound = document.getElementById('btnSound');
+    const btnCRT = document.getElementById('btnCRT');
+    const crtOverlay = document.getElementById('crtOverlay');
+    const crtFlicker = document.getElementById('crtFlicker');
+    const diffBtns = document.querySelectorAll('.diff-btn');
+
+    // Web Audio requires context resumed on gesture
+    const resumeAudioContext = () => {
+        synth.init();
+        document.removeEventListener('click', resumeAudioContext);
+        document.removeEventListener('keydown', resumeAudioContext);
+    };
+    document.addEventListener('click', resumeAudioContext);
+    document.addEventListener('keydown', resumeAudioContext);
+
+    // Audio output toggling
+    btnSound.addEventListener('click', () => {
+        synth.muted = !synth.muted;
+        btnSound.classList.toggle('active', !synth.muted);
+    });
+
+    // CRT styling filter toggling
+    btnCRT.addEventListener('click', () => {
+        const active = btnCRT.classList.toggle('active');
+        if (active) {
+            crtOverlay.style.opacity = '0.2';
+            crtFlicker.style.display = 'block';
+        } else {
+            crtOverlay.style.opacity = '0';
+            crtFlicker.style.display = 'none';
+        }
+    });
+    
+    // Trigger initial CRT setup
+    crtFlicker.style.display = 'block';
+
+    // Difficulty Settings click bindings
+    diffBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            diffBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Set current difficulty globally
+            currentDifficulty = btn.dataset.diff;
+            
+            // Play a small synthesizer test sound to confirm click
+            synth.playFlap();
+        });
+    });
+});
+</script>
+
+</body>
+</html>

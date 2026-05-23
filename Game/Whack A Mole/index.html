@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-a-Tech // Senior Dev Simulator</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --primary: #14b8a6;
+            --primary-glow: rgba(20, 184, 166, 0.4);
+            --secondary: #a855f7;
+            --accent: #f59e0b;
+            --dark-blue: #0f172a;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --border-glow: rgba(168, 85, 247, 0.3);
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(20, 184, 166, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+            font-family: var(--font-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            color: #f1f5f9;
+        }
+
+        #game-container {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(168, 85, 247, 0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            width: 600px;
+            height: 800px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background-color: #0f172a;
+        }
+
+        /* Glassmorphic Overlays */
+        .overlay-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        .overlay-layer.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        h1 {
+            font-size: 38px;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            margin: 0 0 20px 0;
+            color: #94a3b8;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        /* Filter Controls */
+        .filter-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #0b0f19;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Tech Badges Grid */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-height: 280px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            margin-bottom: 20px;
+        }
+
+        /* Customize Scrollbar */
+        .tech-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .tech-grid::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+        .tech-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+        .tech-grid::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Tag Styling */
+        .tech-tag {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 6px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tech-tag input[type="checkbox"] {
+            display: none;
+        }
+
+        .tech-tag:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Active Tag Style */
+        .tech-tag.checked {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(168, 85, 247, 0.15));
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(20, 184, 166, 0.1);
+        }
+
+        .tech-tag.checked::before {
+            content: "✓ ";
+            margin-right: 4px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Game Options Controls */
+        .settings-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .settings-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .settings-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+        }
+
+        .settings-select {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f1f5f9;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .settings-select:focus {
+            border-color: var(--primary);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #0f172a;
+            border: none;
+            padding: 16px 36px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3), 0 0 0 0 rgba(20, 184, 166, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.45);
+        }
+
+        .action-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(168, 85, 247, 0.2);
+        }
+
+        /* Score Summary Overlays */
+        .score-title {
+            color: var(--accent);
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-family: var(--font-mono);
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .stat-name {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        /* High Scores Leaderboard */
+        .leaderboard-title {
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            margin: 15px 0 10px 0;
+            width: 100%;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 5px;
+        }
+
+        .leaderboard {
+            width: 100%;
+            margin-bottom: 30px;
+            border-collapse: collapse;
+        }
+
+        .leaderboard td {
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+
+        .leaderboard tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .leaderboard tr:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard tr.current-score {
+            background: rgba(20, 184, 166, 0.15);
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .rank-col {
+            width: 40px;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .score-col {
+            text-align: right;
+            font-family: var(--font-mono);
+        }
+
+        /* Sound Control in Web UI */
+        .sound-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 15;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Phaser Parent Canvas alignment */
+        canvas {
+            display: block;
+        }
+    </style>
+    <!-- Phaser Library -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- Sound Toggle -->
+    <div id="sound-btn" class="sound-toggle-btn" title="Toggle Sound">🔊</div>
+
+    <!-- PRE-GAME SETUP MENU OVERLAY -->
+    <div id="menu-overlay" class="overlay-layer">
+        <h1>Whack-a-Tech</h1>
+        <div class="subtitle">A senior developer game-feel experiment. Squash bugs!</div>
+        
+        <!-- Category Filters -->
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="none">None</button>
+            <button class="filter-btn" data-filter="frontend">Frontend / Mobile</button>
+            <button class="filter-btn" data-filter="backend">Web / Backend</button>
+            <button class="filter-btn" data-filter="systems">Systems / Core</button>
+        </div>
+
+        <!-- Scrollable Checkboxes -->
+        <div class="tech-grid" id="tech-grid"></div>
+
+        <!-- Settings Options -->
+        <div class="settings-row">
+            <div class="settings-col">
+                <span class="settings-label">Difficulty</span>
+                <select id="diff-select" class="settings-select">
+                    <option value="easy">Easy (Intern)</option>
+                    <option value="medium" selected>Medium (Mid-level)</option>
+                    <option value="hard">Hard (Senior)</option>
+                </select>
+            </div>
+            <div class="settings-col">
+                <span class="settings-label">Timer</span>
+                <select id="time-select" class="settings-select">
+                    <option value="30">30 Seconds</option>
+                    <option value="60" selected>60 Seconds</option>
+                    <option value="90">90 Seconds</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="start-btn" class="action-btn">Start Debugging</button>
+    </div>
+
+    <!-- POST-GAME SUMMARY OVERLAY -->
+    <div id="score-overlay" class="overlay-layer hidden">
+        <h1 style="background: linear-gradient(135deg, var(--accent), #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Sprint Retrospective</h1>
+        <div class="score-title" id="dev-rating">Senior Dev Status Achieved!</div>
+
+        <!-- Performance Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div id="final-score" class="stat-val">0</div>
+                <div class="stat-name">Total XP Score</div>
+            </div>
+            <div class="stat-card">
+                <div id="final-accuracy" class="stat-val">0%</div>
+                <div class="stat-name">Hit Accuracy</div>
+            </div>
+            <div class="stat-card">
+                <div id="final-combo" class="stat-val">0</div>
+                <div class="stat-name">Max Combo</div>
+            </div>
+            <div class="stat-card">
+                <div id="final-bugs" class="stat-val">0</div>
+                <div class="stat-name">Bugs Squashed</div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-title">Local Hall of Fame</div>
+        <table class="leaderboard" id="leaderboard-table">
+            <!-- Populated via Javascript -->
+        </table>
+
+        <button id="restart-btn" class="action-btn">Start Next Sprint</button>
+    </div>
+</div>
+
+<script>
+// Synthesiser retro audio effect generator using Web Audio API
+class AudioSynth {
+    constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.masterVolume = null;
+    }
+
+    init() {
+        if (this.ctx) return;
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterVolume = this.ctx.createGain();
+        this.masterVolume.gain.setValueAtTime(0.3, this.ctx.currentTime); // moderate volume
+        this.masterVolume.connect(this.ctx.destination);
+    }
+
+    toggleMute() {
+        this.muted = !this.muted;
+        const soundBtn = document.getElementById('sound-btn');
+        if (this.muted) {
+            soundBtn.textContent = '🔇';
+            if (this.masterVolume) this.masterVolume.gain.setValueAtTime(0, this.ctx.currentTime);
+        } else {
+            soundBtn.textContent = '🔊';
+            if (this.masterVolume) this.masterVolume.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        }
+        return this.muted;
+    }
+
+    playPop() {
+        if (this.muted || !this.ctx) return;
+        this.init();
+        
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.1);
+
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+        osc.connect(gain);
+        gain.connect(this.masterVolume);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+    }
+
+    playHit() {
+        if (this.muted || !this.ctx) return;
+        this.init();
+
+        // Synthesize a nice impact clap/zap
+        let now = this.ctx.currentTime;
+        
+        // Sine wave click
+        let osc = this.ctx.createOscillator();
+        let oscGain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+        oscGain.gain.setValueAtTime(0.3, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        
+        osc.connect(oscGain);
+        oscGain.connect(this.masterVolume);
+        osc.start();
+        osc.stop(now + 0.16);
+
+        // White Noise burst
+        let bufferSize = this.ctx.sampleRate * 0.1;
+        let buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        let data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        
+        let noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        
+        let noiseFilter = this.ctx.createBiquadFilter();
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.value = 1000;
+        
+        let noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.2, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(this.masterVolume);
+        
+        noise.start();
+        noise.stop(now + 0.1);
+    }
+
+    playMiss() {
+        if (this.muted || !this.ctx) return;
+        this.init();
+
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.2);
+
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.masterVolume);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.22);
+    }
+
+    playCombo(combo) {
+        if (this.muted || !this.ctx) return;
+        this.init();
+
+        let now = this.ctx.currentTime;
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        // Rise pitch with combo level
+        let basePitch = 400 + (combo * 50);
+        osc.frequency.setValueAtTime(basePitch, now);
+        osc.frequency.setValueAtTime(basePitch * 1.5, now + 0.06);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+        osc.connect(gain);
+        gain.connect(this.masterVolume);
+
+        osc.start();
+        osc.stop(now + 0.16);
+    }
+
+    playFanfare() {
+        if (this.muted || !this.ctx) return;
+        this.init();
+
+        let now = this.ctx.currentTime;
+        let notes = [261.63, 329.63, 392.00, 523.25]; // C, E, G, C arpeggio
+        notes.forEach((freq, idx) => {
+            let osc = this.ctx.createOscillator();
+            let gain = this.ctx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + (idx * 0.12));
+            
+            gain.gain.setValueAtTime(0.1, now + (idx * 0.12));
+            gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.12) + 0.35);
+            
+            osc.connect(gain);
+            gain.connect(this.masterVolume);
+            
+            osc.start(now + (idx * 0.12));
+            osc.stop(now + (idx * 0.12) + 0.4);
+        });
+    }
+}
+
+const synth = new AudioSynth();
+document.getElementById('sound-btn').addEventListener('click', (e) => {
+    synth.init();
+    synth.toggleMute();
+    e.stopPropagation();
+});
+
+// The 26 required programming languages and frameworks
+const allTech = [
+    { name: "PHP", category: "backend" },
+    { name: "Laravel", category: "backend" },
+    { name: "JavaScript", category: "frontend" },
+    { name: "Python", category: "backend" },
+    { name: "Flask", category: "backend" },
+    { name: "Django", category: "backend" },
+    { name: "Java", category: "backend" },
+    { name: "Spring", category: "backend" },
+    { name: "C++", category: "systems" },
+    { name: "C#", category: "systems" },
+    { name: "Ruby", category: "backend" },
+    { name: "Rails", category: "backend" },
+    { name: "Go", category: "systems" },
+    { name: "Rust", category: "systems" },
+    { name: "TypeScript", category: "frontend" },
+    { name: "Swift", category: "frontend" },
+    { name: "Kotlin", category: "frontend" },
+    { name: "Scala", category: "systems" },
+    { name: "Perl", category: "systems" },
+    { name: "Haskell", category: "systems" },
+    { name: "Lua", category: "systems" },
+    { name: "Dart", restriction: "frontend", category: "frontend" },
+    { name: "Flutter", category: "frontend" },
+    { name: "React", category: "frontend" },
+    { name: "Vue", category: "frontend" },
+    { name: "Angular", category: "frontend" }
+];
+
+// POPULATE HTML GRID
+const gridElement = document.getElementById('tech-grid');
+allTech.forEach(tech => {
+    let label = document.createElement('label');
+    label.className = "tech-tag checked";
+    label.dataset.category = tech.category;
+    label.innerHTML = `<input type="checkbox" value="${tech.name}" checked> ${tech.name}`;
+    
+    // Toggle checked visual state when user clicks
+    label.addEventListener('change', () => {
+        if (label.querySelector('input').checked) {
+            label.classList.add('checked');
+        } else {
+            label.classList.remove('checked');
+        }
+    });
+    
+    gridElement.appendChild(label);
+});
+
+// Category Filter click handling
+const filterButtons = document.querySelectorAll('.filter-btn');
+filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const filter = btn.dataset.filter;
+        const checkboxes = gridElement.querySelectorAll('label');
+        
+        checkboxes.forEach(label => {
+            const input = label.querySelector('input');
+            if (filter === 'all') {
+                input.checked = true;
+                label.classList.add('checked');
+            } else if (filter === 'none') {
+                input.checked = false;
+                label.classList.remove('checked');
+            } else {
+                if (label.dataset.category === filter) {
+                    input.checked = true;
+                    label.classList.add('checked');
+                } else {
+                    input.checked = false;
+                    label.classList.remove('checked');
+                }
+            }
+        });
+    });
+});
+
+// PHASER GAME SCENE
+class WhackScene extends Phaser.Scene {
+    constructor() {
+        super('PlayGame');
+    }
+
+    init(data) {
+        this.selectedTech = data.selectedTech;
+        this.difficulty = data.difficulty;
+        this.totalDuration = data.duration;
+        
+        // Speed parameters based on difficulty
+        this.speeds = {
+            easy: { delay: 1100, minPop: 1000, maxPop: 1800, upTime: 250, downTime: 200 },
+            medium: { delay: 850, minPop: 800, maxPop: 1400, upTime: 180, downTime: 140 },
+            hard: { delay: 600, minPop: 500, maxPop: 950, upTime: 120, downTime: 100 }
+        };
+        
+        this.activeSpeed = this.speeds[this.difficulty] || this.speeds.medium;
+    }
+
+    create() {
+        this.score = 0;
+        this.holes = [];
+        this.timeLeft = this.totalDuration;
+        
+        // Accuracy trackers
+        this.totalClicks = 0;
+        this.successfulWhacks = 0;
+        this.bugsMissed = 0;
+        
+        // Combo trackers
+        this.combo = 0;
+        this.maxCombo = 0;
+        this.comboTimer = null;
+
+        // Custom Graphics Background
+        this.drawBackground();
+
+        // HUD Setup
+        this.add.text(300, 38, 'SQUASH THE BUGS', { 
+            fontFamily: 'Outfit', 
+            fontSize: '28px', 
+            fontWeight: '800', 
+            fill: '#f1f5f9' 
+        }).setOrigin(0.5);
+
+        // Glassmorphic top bar look using Phaser graphics
+        let hudBg = this.add.graphics();
+        hudBg.fillStyle(0x0f172a, 0.85);
+        hudBg.fillRoundedRect(30, 70, 540, 50, 10);
+        hudBg.lineStyle(1, 0xffffff, 0.08);
+        hudBg.strokeRoundedRect(30, 70, 540, 50, 10);
+
+        this.scoreText = this.add.text(60, 95, 'SCORE: 0 XP', { 
+            fontFamily: 'Fira Code', 
+            fontSize: '16px', 
+            fontWeight: '700', 
+            fill: '#14b8a6' 
+        }).setOrigin(0, 0.5);
+
+        this.timerText = this.add.text(300, 95, 'TIME: ' + this.timeLeft + 's', { 
+            fontFamily: 'Fira Code', 
+            fontSize: '16px', 
+            fontWeight: '700', 
+            fill: '#cbd5e1' 
+        }).setOrigin(0.5, 0.5);
+
+        this.comboText = this.add.text(540, 95, 'COMBO: x1', { 
+            fontFamily: 'Fira Code', 
+            fontSize: '16px', 
+            fontWeight: '700', 
+            fill: '#a855f7' 
+        }).setOrigin(1, 0.5);
+
+        // Build 3x3 Grid of Holes
+        const startX = 130;
+        const startY = 220;
+        const spacingX = 170;
+        const spacingY = 175;
+
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                let x = startX + (col * spacingX);
+                let y = startY + (row * spacingY);
+
+                // Draw server/shelf frame underneath the hole
+                this.drawHoleFrame(x, y);
+
+                // Create hole ellipse (dark depth)
+                let holeBg = this.add.ellipse(x, y + 42, 120, 36, 0x090d16);
+                let holeBorder = this.add.ellipse(x, y + 42, 120, 36);
+                holeBorder.setStrokeStyle(2, 0xa855f7, 0.3);
+
+                // Create masking shape so moles vanish when going inside/below hole
+                let maskShape = this.make.graphics();
+                maskShape.fillStyle(0xffffff);
+                maskShape.fillRect(x - 70, y - 110, 140, 150); // Visible space above hole
+                let mask = maskShape.createGeometryMask();
+
+                // Create the Mole Card Container
+                let moleContainer = this.add.container(x, y + 60); // Hidden starting position
+                moleContainer.setMask(mask);
+                moleContainer.isUp = false;
+                
+                // Mole visual graphics (Retro Terminal Card)
+                let windowGraphics = this.add.graphics();
+                
+                // Terminal window body
+                windowGraphics.fillStyle(0x1e293b, 1); // slate-800
+                windowGraphics.fillRoundedRect(-55, -45, 110, 90, 8);
+                windowGraphics.lineStyle(1.5, 0x14b8a6, 1); // glowing borders
+                windowGraphics.strokeRoundedRect(-55, -45, 110, 90, 8);
+
+                // Terminal title bar
+                windowGraphics.fillStyle(0x0f172a, 1); // slate-900
+                windowGraphics.fillRoundedRect(-55, -45, 110, 24, { tl: 8, tr: 8, bl: 0, br: 0 });
+                windowGraphics.lineStyle(1, 0x14b8a6, 0.4);
+                windowGraphics.strokeLineShape(new Phaser.Geom.Line(-55, -21, 55, -21));
+
+                // Three macOS style colored dots
+                windowGraphics.fillStyle(0xef4444, 1); // red
+                windowGraphics.fillCircle(-42, -33, 4);
+                windowGraphics.fillStyle(0xeab308, 1); // yellow
+                windowGraphics.fillCircle(-32, -33, 4);
+                windowGraphics.fillStyle(0x22c55e, 1); // green
+                windowGraphics.fillCircle(-22, -33, 4);
+
+                // Tech Text Label
+                let techLabel = this.add.text(0, 15, '???', { 
+                    fontFamily: 'Fira Code',
+                    fontSize: '13px', 
+                    fontStyle: 'bold', 
+                    fill: '#14b8a6' 
+                }).setOrigin(0.5);
+
+                moleContainer.add([windowGraphics, techLabel]);
+                
+                // Make clickable
+                moleContainer.setSize(110, 90);
+                moleContainer.setInteractive(new Phaser.Geom.Rectangle(-55, -45, 110, 90), Phaser.Geom.Rectangle.Contains);
+                
+                // Pointer cursor change on hover
+                moleContainer.on('pointerover', () => {
+                    this.sys.canvas.style.cursor = 'pointer';
+                });
+                moleContainer.on('pointerout', () => {
+                    this.sys.canvas.style.cursor = 'default';
+                });
+
+                moleContainer.on('pointerdown', (pointer) => {
+                    this.whack(moleContainer, x, y, pointer);
+                });
+
+                this.holes.push({ x: x, y: y, container: moleContainer, textObj: techLabel });
+            }
+        }
+
+        // Click detection on empty background to break combo
+        this.input.on('pointerdown', (pointer, gameObjects) => {
+            if (gameObjects.length === 0) {
+                // Clicked background - miss!
+                this.totalClicks++;
+                this.resetCombo();
+            }
+        });
+
+        // Generate text textures for particle effects
+        this.createBinaryTextures();
+
+        // Binary code particle emitter config
+        this.binaryEmitter = this.add.particles(0, 0, 'bin_0', {
+            lifespan: 600,
+            speed: { min: 100, max: 220 },
+            scale: { start: 1, end: 0.2 },
+            alpha: { start: 1, end: 0 },
+            rotate: { start: 0, end: 360 },
+            gravityY: 450,
+            emitting: false
+        });
+
+        // Game timers
+        this.spawnEvent = this.time.addEvent({
+            delay: this.activeSpeed.delay,
+            callback: this.spawnMole,
+            callbackScope: this,
+            loop: true
+        });
+
+        // Game timer countdown tick
+        this.countdownEvent = this.time.addEvent({
+            delay: 1000,
+            callback: this.tickTimer,
+            callbackScope: this,
+            loop: true
+        });
+    }
+
+    createBinaryTextures() {
+        // Build dynamic graphics text for particles so we don't need external sprite sheets
+        const symbols = ['0', '1', ';', '{', '}', '<', '>', '!'];
+        symbols.forEach((symbol, i) => {
+            let rt = this.add.renderTexture(0, 0, 18, 18);
+            let text = this.make.text({ 
+                text: symbol, 
+                style: { fontFamily: 'Fira Code', fontSize: '14px', fill: '#14b8a6', fontWeight: 'bold' } 
+            }, false);
+            rt.draw(text, 1, 1);
+            rt.saveTexture('bin_' + i);
+        });
+    }
+
+    drawBackground() {
+        let bg = this.add.graphics();
+        // Dark grid background simulation
+        bg.fillStyle(0x0b111e, 1);
+        bg.fillRect(0, 0, 600, 800);
+        
+        bg.lineStyle(1, 0x1e293b, 0.3);
+        const gridGap = 40;
+        for (let x = 0; x < 600; x += gridGap) {
+            bg.strokeLineShape(new Phaser.Geom.Line(x, 0, x, 800));
+        }
+        for (let y = 0; y < 800; y += gridGap) {
+            bg.strokeLineShape(new Phaser.Geom.Line(0, y, 600, y));
+        }
+        
+        // Large stylized circuit accents in background
+        bg.lineStyle(2, 0xa855f7, 0.08);
+        bg.beginPath();
+        bg.moveTo(100, 150);
+        bg.lineTo(100, 450);
+        bg.lineTo(250, 450);
+        bg.strokePath();
+        bg.fillStyle(0xa855f7, 0.08);
+        bg.fillCircle(250, 450, 6);
+        
+        bg.beginPath();
+        bg.moveTo(500, 650);
+        bg.lineTo(500, 350);
+        bg.lineTo(400, 350);
+        bg.strokePath();
+        bg.fillCircle(400, 350, 6);
+    }
+
+    drawHoleFrame(x, y) {
+        let frame = this.add.graphics();
+        // Server rack platform shelf representation
+        frame.fillStyle(0x1e293b, 0.4);
+        frame.fillRoundedRect(x - 70, y + 36, 140, 20, 4);
+        frame.lineStyle(1.5, 0x334155, 0.5);
+        frame.strokeRoundedRect(x - 70, y + 36, 140, 20, 4);
+    }
+
+    spawnMole() {
+        let availableHoles = this.holes.filter(h => !h.container.isUp);
+        if (availableHoles.length === 0) return; 
+
+        let targetHole = Phaser.Utils.Array.GetRandom(availableHoles);
+        let mole = targetHole.container;
+        
+        mole.isUp = true;
+        
+        // Pick a random selected technology from menu list
+        let techName = Phaser.Utils.Array.GetRandom(this.selectedTech);
+        targetHole.textObj.setText(techName);
+
+        // Reset scale and graphic highlights before pop-up
+        mole.scaleY = 1;
+        mole.scaleX = 1;
+        mole.y = targetHole.y + 60;
+
+        // Play pop sound
+        synth.playPop();
+
+        // Tween: snappy pop up
+        this.tweens.add({
+            targets: mole,
+            y: targetHole.y - 12, // Pops up above frame
+            duration: this.activeSpeed.upTime,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+                // Wait for player to hit, then retract automatically
+                let autoRetractDelay = Phaser.Math.Between(this.activeSpeed.minPop, this.activeSpeed.maxPop);
+                mole.retractTimer = this.time.delayedCall(autoRetractDelay, () => {
+                    if (mole.isUp) {
+                        this.bugsMissed++;
+                        this.resetCombo();
+                        synth.playMiss();
+                        this.hideMole(mole, targetHole.y);
+                    }
+                });
+            }
+        });
+    }
+
+    hideMole(mole, baseY) {
+        this.tweens.add({
+            targets: mole,
+            y: baseY + 60, // Slides back inside hole
+            duration: this.activeSpeed.downTime,
+            ease: 'Sine.easeIn',
+            onComplete: () => { mole.isUp = false; }
+        });
+    }
+
+    whack(mole, hX, hY, pointer) {
+        if (!mole.isUp) return;
+
+        this.totalClicks++;
+        this.successfulWhacks++;
+        mole.isUp = false; // block double clicks
+
+        // Cancel pending auto retraction
+        if (mole.retractTimer) {
+            mole.retractTimer.destroy();
+        }
+
+        // Combo system math
+        this.combo++;
+        if (this.combo > this.maxCombo) {
+            this.maxCombo = this.combo;
+        }
+
+        // Combo reward audio and multiply score calculations
+        if (this.combo > 1) {
+            synth.playCombo(this.combo);
+        } else {
+            synth.playHit();
+        }
+
+        const scoreBase = 10;
+        const pointsGained = scoreBase * this.combo;
+        this.score += pointsGained;
+        
+        // Update HUD
+        this.scoreText.setText(`SCORE: ${this.score} XP`);
+        this.comboText.setText(`COMBO: x${this.combo}`);
+        
+        if (this.combo >= 5) {
+            this.comboText.setTint(0xf59e0b); // golden look
+        } else {
+            this.comboText.clearTint();
+        }
+
+        // Score HUD flash green effect
+        this.scoreText.setTint(0x14b8a6);
+        this.time.delayedCall(150, () => this.scoreText.clearTint());
+
+        // Particle binary spark explosion (color fits tech)
+        const randTex = 'bin_' + Phaser.Math.Between(0, 7);
+        this.binaryEmitter.setTexture(randTex);
+        this.binaryEmitter.emitParticleAt(hX, hY - 10, Phaser.Math.Between(8, 14));
+
+        // Floating popup score text
+        let floatText = this.add.text(hX, hY - 25, `+${pointsGained}`, {
+            fontFamily: 'Fira Code',
+            fontSize: '18px',
+            fontWeight: '700',
+            fill: this.combo >= 3 ? '#a855f7' : '#14b8a6'
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: floatText,
+            y: floatText.y - 45,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => floatText.destroy()
+        });
+
+        // Smash/Squash Card Tween
+        this.tweens.add({
+            targets: mole,
+            scaleY: 0.15,
+            scaleX: 1.35,
+            y: hY + 30,
+            duration: 80,
+            yoyo: false,
+            onComplete: () => {
+                mole.scaleY = 1;
+                mole.scaleX = 1;
+                mole.y = hY + 60; // force fully hidden
+            }
+        });
+
+        // Camera impact shake
+        this.cameras.main.shake(100, 0.006);
+    }
+
+    resetCombo() {
+        this.combo = 0;
+        this.comboText.setText('COMBO: x1');
+        this.comboText.clearTint();
+    }
+
+    tickTimer() {
+        this.timeLeft--;
+        this.timerText.setText('TIME: ' + this.timeLeft + 's');
+
+        if (this.timeLeft <= 10) {
+            this.timerText.setTint(0xef4444); // red alert
+        }
+
+        if (this.timeLeft <= 0) {
+            this.endGame();
+        }
+    }
+
+    endGame() {
+        this.spawnEvent.destroy();
+        this.countdownEvent.destroy();
+        synth.playFanfare();
+        
+        this.sys.canvas.style.cursor = 'default';
+
+        // Wait a brief split second for animations to settle
+        this.time.delayedCall(400, () => {
+            gameInstance.destroy(true);
+            showSprintSummary(this.score, this.successfulWhacks, this.totalClicks, this.maxCombo);
+        });
+    }
+}
+
+// Global game instance reference
+let gameInstance = null;
+
+// GATHER DATA AND BOOT PHASER GAME
+document.getElementById('start-btn').addEventListener('click', () => {
+    // Collect checked checkboxes
+    let checkboxes = document.querySelectorAll('.tech-tag input[type="checkbox"]:checked');
+    let selected = Array.from(checkboxes).map(cb => cb.value);
+
+    if (selected.length < 3) {
+        alert("Please select at least 3 technologies to start your debugging sprint!");
+        return;
+    }
+
+    // Hide pre-game UI panel
+    document.getElementById('menu-overlay').classList.add('hidden');
+
+    const difficulty = document.getElementById('diff-select').value;
+    const duration = parseInt(document.getElementById('time-select').value);
+
+    // Phaser Game Config
+    const config = {
+        type: Phaser.AUTO,
+        parent: 'game-container',
+        width: 600,
+        height: 800,
+        backgroundColor: '#0b111e',
+        scene: WhackScene
+    };
+
+    synth.init(); // Init Web Audio Context on button click interaction
+    gameInstance = new Phaser.Game(config);
+    
+    gameInstance.events.once('ready', () => {
+        gameInstance.scene.start('PlayGame', { 
+            selectedTech: selected,
+            difficulty: difficulty,
+            duration: duration
+        });
+    });
+});
+
+// SPRINT RETRO SUMMARY OVERLAY
+function showSprintSummary(score, squashed, clicks, maxCombo) {
+    const accuracy = clicks > 0 ? Math.round((squashed / clicks) * 100) : 0;
+    
+    // Set UI values
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-accuracy').textContent = accuracy + '%';
+    document.getElementById('final-combo').textContent = maxCombo;
+    document.getElementById('final-bugs').textContent = squashed;
+
+    // Dev Quality evaluation text
+    let rating = "Intern Developer";
+    let color = "#ef4444";
+    if (score >= 800) {
+        rating = "Principal Systems Architect";
+        color = "#eab308";
+    } else if (score >= 450) {
+        rating = "Senior Dev (Bugs Squashed!)";
+        color = "#14b8a6";
+    } else if (score >= 200) {
+        rating = "Mid-Level Software Engineer";
+        color = "#a855f7";
+    }
+
+    const devRating = document.getElementById('dev-rating');
+    devRating.textContent = rating;
+    devRating.style.color = color;
+
+    // Leaderboard logic
+    saveHighScore(score, rating, accuracy);
+    populateLeaderboard(score);
+
+    // Show panel
+    document.getElementById('score-overlay').classList.remove('hidden');
+}
+
+// Persist highscore rankings locally
+function saveHighScore(score, title, accuracy) {
+    let scores = JSON.parse(localStorage.getItem('whack_tech_leaderboard')) || [];
+    const dateStr = new Date().toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
+    scores.push({ score, title, accuracy, date: dateStr });
+    
+    // Sort high to low
+    scores.sort((a, b) => b.score - a.score);
+    
+    // Keep top 5
+    scores = scores.slice(0, 5);
+    localStorage.setItem('whack_tech_leaderboard', JSON.stringify(scores));
+}
+
+function populateLeaderboard(currentScore) {
+    const scores = JSON.parse(localStorage.getItem('whack_tech_leaderboard')) || [];
+    const table = document.getElementById('leaderboard-table');
+    table.innerHTML = '';
+
+    if (scores.length === 0) {
+        table.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b;">No high scores yet!</td></tr>`;
+        return;
+    }
+
+    scores.forEach((entry, idx) => {
+        const tr = document.createElement('tr');
+        // highlight entry if it matches the score just obtained
+        if (entry.score === currentScore) {
+            tr.className = 'current-score';
+        }
+        
+        tr.innerHTML = `
+            <td class="rank-col">#${idx + 1}</td>
+            <td style="font-weight: 600;">${entry.title}</td>
+            <td style="color: #64748b; font-size: 12px;">${entry.date} (${entry.accuracy}%)</td>
+            <td class="score-col">${entry.score} XP</td>
+        `;
+        table.appendChild(tr);
+    });
+}
+
+// Restart buttons returns to pre-game menu settings
+document.getElementById('restart-btn').addEventListener('click', () => {
+    document.getElementById('score-overlay').classList.add('hidden');
+    document.getElementById('menu-overlay').classList.remove('hidden');
+});
+</script>
+
+</body>
+</html>
