@@ -15,6 +15,13 @@ export class GameScene extends Phaser.Scene {
   private timerText!: Phaser.GameObjects.Text;
   private gameTimer!: Phaser.Time.TimerEvent;
 
+  private cards: CardObject[] = [];
+
+  private readonly GRID_START_X = 200;
+  private readonly GRID_START_Y = 200;
+  private readonly SPACING_X = 130;
+  private readonly SPACING_Y = 160;
+
   constructor() {
     super('GameScene');
   }
@@ -36,10 +43,11 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < deck.length; i++) {
       const row = Math.floor(i / 4);
       const col = i % 4;
-      const x = 200 + col * 130;
-      const y = 200 + row * 160;
+      const x = this.GRID_START_X + col * this.SPACING_X;
+      const y = this.GRID_START_Y + row * this.SPACING_Y;
       
-      this.createCard(x, y, deck[i]);
+      const cardObj = this.createCard(x, y, deck[i]);
+      this.cards.push(cardObj);
     }
 
     this.movesText = this.add.text(20, 20, 'Moves: 0', {
@@ -87,7 +95,44 @@ export class GameScene extends Phaser.Scene {
     container.setData('cardData', data);
     container.setData('isFlipped', false);
 
-    return { container, front, text, back, icon };
+    const cardObj = { container, front, text, back, icon };
+    container.on('pointerdown', () => this.handleCardClick(cardObj));
+
+    return cardObj;
+  }
+
+  private handleCardClick(cardObj: CardObject) {
+    if (this.isLocked || cardObj.container.getData('isFlipped') || this.isGameOver) return;
+
+    cardObj.container.setData('isFlipped', true);
+
+    // 2.5D Flip Phase 1: Scale to 0
+    this.tweens.add({
+      targets: cardObj.container,
+      scaleX: 0,
+      duration: 150,
+      onComplete: () => {
+        // Swap visibility
+        cardObj.back.setVisible(false);
+        cardObj.icon.setVisible(false);
+        cardObj.front.setVisible(true);
+        cardObj.text.setVisible(true);
+
+        // 2.5D Flip Phase 2: Scale back to 1
+        this.tweens.add({
+          targets: cardObj.container,
+          scaleX: 1,
+          duration: 150,
+          onComplete: () => {
+            this.evaluateState(cardObj);
+          }
+        });
+      }
+    });
+  }
+
+  private evaluateState(card: CardObject) {
+    this.firstCard = card;
   }
 
   private shuffle<T>(array: T[]): T[] {
