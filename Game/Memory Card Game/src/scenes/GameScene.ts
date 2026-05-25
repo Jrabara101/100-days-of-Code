@@ -20,6 +20,81 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    // Logic will go here in next tasks
+    const cardTypes: CardData[] = [
+      { lang: 'JS', color: 0xf1c40f, textColor: '#000' },
+      { lang: 'PY', color: 0x3498db, textColor: '#fff' },
+      { lang: 'C++', color: 0x2980b9, textColor: '#fff' },
+      { lang: 'RUST', color: 0xe67e22, textColor: '#fff' },
+      { lang: 'GO', color: 0x00cec9, textColor: '#fff' },
+      { lang: 'SWIFT', color: 0xe74c3c, textColor: '#fff' },
+      { lang: 'JAVA', color: 0xd35400, textColor: '#fff' },
+      { lang: 'RUBY', color: 0xc0392b, textColor: '#fff' }
+    ];
+
+    const deck = this.shuffle([...cardTypes, ...cardTypes]);
+
+    for (let i = 0; i < deck.length; i++) {
+      const row = Math.floor(i / 4);
+      const col = i % 4;
+      const x = 200 + col * 130;
+      const y = 200 + row * 160;
+      
+      this.createCard(x, y, deck[i]);
+    }
+
+    this.movesText = this.add.text(20, 20, 'Moves: 0', {
+      fontSize: '24px',
+      color: '#2F3542'
+    });
+
+    this.timerText = this.add.text(20, 50, 'Time: 45s', {
+      fontSize: '24px',
+      color: '#2F3542'
+    });
+  }
+
+  private createCard(x: number, y: number, data: CardData): CardObject {
+    const container = this.add.container(x, y);
+
+    const back = this.add.graphics();
+    back.fillStyle(0xDCDDE1, 1);
+    back.fillRoundedRect(-60, -75, 120, 150, 10);
+    container.add(back);
+
+    const icon = this.add.text(0, 0, '</>', {
+      fontSize: '32px',
+      color: '#A4B0BE',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    container.add(icon);
+
+    const front = this.add.graphics();
+    front.fillStyle(data.color, 1);
+    front.fillRoundedRect(-60, -75, 120, 150, 10);
+    front.setVisible(false);
+    container.add(front);
+
+    const text = this.add.text(0, 0, data.lang, {
+      fontSize: '28px',
+      color: data.textColor,
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    text.setVisible(false);
+    container.add(text);
+
+    container.setSize(120, 150);
+    container.setInteractive();
+    container.setData('cardData', data);
+    container.setData('isFlipped', false);
+
+    return { container, front, text, back, icon };
+  }
+
+  private shuffle<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   }
 }
