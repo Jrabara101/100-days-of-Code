@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Production / Build
+dist/
+
+# Superpowers/Local tools
+.superpowers/
+
+# Local env files
+.env
+.env*.local
+
+# Logs
+*.log
