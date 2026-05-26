@@ -1,0 +1,39 @@
+<h2>Design Section 2: Gameplay Logic</h2>
+<p class="subtitle">State machines and animation-driven synchronization</p>
+
+<div class="mockup">
+  <div class="mockup-header">Card State Machine</div>
+  <div class="mockup-body">
+    <div style="display: flex; gap: 10px; align-items: center; justify-content: center;">
+      <div class="placeholder" style="width: 80px; height: 110px; display: flex; align-items: center; justify-content: center; background: #ecf0f1; border: 2px solid #bdc3c7;">BACK</div>
+      <span>→</span>
+      <div class="placeholder" style="width: 20px; height: 110px; background: #ecf0f1; border: 2px solid #bdc3c7;"></div>
+      <span>→</span>
+      <div class="placeholder" style="width: 80px; height: 110px; display: flex; align-items: center; justify-content: center; background: #3498db; color: white;">FRONT</div>
+    </div>
+    <p class="label" style="text-align: center;">2.5D Flip: scaleX(1) → scaleX(0) → Texture Swap → scaleX(1)</p>
+  </div>
+</div>
+
+<h3>Core Logic Specs</h3>
+<ul>
+  <li><strong>Input Guard:</strong> <code>if (isLocked || card.isFlipped) return;</code> — Strictly enforced in the pointer handler.</li>
+  <li><strong>Matching Algorithm:</strong>
+    <ol>
+      <li>Flip Card A → Set <code>firstCard</code>.</li>
+      <li>Flip Card B → Set <code>secondCard</code>, set <code>isLocked = true</code>.</li>
+      <li>Compare <code>cardData.id</code>.</li>
+      <li><strong>Match:</strong> Pulse animation, keep visible, increment <code>matchesFound</code>, <code>resetTurnState()</code>.</li>
+      <li><strong>Mismatch:</strong> Wait 1000ms, flip both back via tweens, <code>resetTurnState()</code>.</li>
+    </ol>
+  </li>
+  <li><strong>Clean Minimalist UI:</strong>
+    <ul>
+      <li>Background: <code>#F5F6FA</code> (Light gray/white).</li>
+      <li>Cards: White with thin colored borders and bold sans-serif text.</li>
+      <li>Header: High-contrast dark text with a progress bar for the timer.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>How does this gameplay logic and visual style look to you?</strong></p>

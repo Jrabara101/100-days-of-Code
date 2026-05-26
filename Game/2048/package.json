@@ -1,0 +1,17 @@
+{
+  "name": "dom-2048-staff",
+  "version": "1.0.0",
+  "description": "Staff Architected 2048 DOM game with Undo stack and retro audio synthesis.",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx -y http-server -p 8123 -c-1"
+  },
+  "keywords": [
+    "2048",
+    "game",
+    "vanilla-js"
+  ],
+  "author": "Staff AI Architect",
+  "license": "MIT",
+  "dependencies": {}
+}

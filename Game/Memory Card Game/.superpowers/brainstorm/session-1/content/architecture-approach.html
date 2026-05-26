@@ -1,0 +1,44 @@
+<h2>Architectural Approach</h2>
+<p class="subtitle">How should we structure the code for future "Skill Expansion"?</p>
+
+<div class="options">
+  <div class="option" data-choice="scene-centric" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Scene-Centric (Monolithic Scene)</h3>
+      <p>All logic stays inside the Phaser Scene. Easier to follow but gets messy as you add features.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="component-driven" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Component-Driven (Recommended)</h3>
+      <p>Separate classes for <code>Card</code>, <code>Grid</code>, and <code>ScoreManager</code>. Clean, testable, and easy to expand.</p>
+    </div>
+  </div>
+</div>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">Scene-Centric Structure</div>
+    <div class="mockup-body">
+      <ul style="list-style: none; padding: 0;">
+        <li style="color: #2ecc71;">✓ Fast to implement</li>
+        <li style="color: #2ecc71;">✓ Simple data flow</li>
+        <li style="color: #e74c3c;">✗ Hard to reuse components</li>
+        <li style="color: #e74c3c;">✗ Large files (500+ lines)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">Component-Driven Structure</div>
+    <div class="mockup-body">
+      <ul style="list-style: none; padding: 0;">
+        <li style="color: #2ecc71;">✓ Senior Engineering Standard</li>
+        <li style="color: #2ecc71;">✓ Unit testable components</li>
+        <li style="color: #2ecc71;">✓ Easy to add new game modes</li>
+        <li style="color: #e74c3c;">✗ Slightly more boilerplate</li>
+      </ul>
+    </div>
+  </div>
+</div>

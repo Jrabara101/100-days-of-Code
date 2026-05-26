@@ -1,0 +1,31 @@
+<h2>Design Section 1: Project Structure</h2>
+<p class="subtitle">A modern Vite + TypeScript setup with focused Scene logic</p>
+
+<div class="mockup">
+  <div class="mockup-header">File Structure</div>
+  <div class="mockup-body">
+    <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #dee2e6;">
+memory-card-game/
+├── src/
+│   ├── main.ts            <span style="color: #6c757d;">// Game config and initialization</span>
+│   ├── style.css          <span style="color: #6c757d;">// Clean minimalist global styles</span>
+│   ├── scenes/
+│   │   └── GameScene.ts   <span style="color: #6c757d;">// Main game logic (Scene-Centric)</span>
+│   └── types/
+│       └── index.ts       <span style="color: #6c757d;">// TypeScript interfaces</span>
+├── public/                <span style="color: #6c757d;">// Static assets (if needed)</span>
+├── index.html             <span style="color: #6c757d;">// Entry point</span>
+├── package.json
+└── tsconfig.json
+    </pre>
+  </div>
+</div>
+
+<h3>High-Level Architecture</h3>
+<ul>
+  <li><strong>State Management:</strong> Uses a <code>GameState</code> enum (IDLE, LOCKED, MATCHED) to handle input locking.</li>
+  <li><strong>Timer System:</strong> Internal Phaser Clock (TimeEvent) for the 45s countdown.</li>
+  <li><strong>Grid Logic:</strong> 4x4 coordinate calculation in a single loop during <code>create()</code>.</li>
+</ul>
+
+<p><strong>Does this structure look right to you so far?</strong></p>

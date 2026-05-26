@@ -114,7 +114,7 @@ body {
 .digital-signature {
     font-family: 'Dancing Script', cursive; /* I'll add this font */
     font-size: 1.5rem;
-    color: black;
+    color: var(--primary);
     background: transparent;
 }
 

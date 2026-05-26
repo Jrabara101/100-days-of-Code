@@ -1,0 +1,84 @@
+<h2>Select Grid Complexity</h2>
+<p class="subtitle">Should we stick to a fixed 4x4 grid or support multiple difficulty levels?</p>
+
+<div class="options">
+  <div class="option" data-choice="fixed" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Fixed 4x4 Grid</h3>
+      <p>Classic 8 pairs, consistent layout (Original implementation)</p>
+    </div>
+  </div>
+  <div class="option" data-choice="progressive" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Progressive Difficulty</h3>
+      <p>Multiple levels: Easy (4x4), Medium (6x4), and Hard (6x6)</p>
+    </div>
+  </div>
+  <div class="option" data-choice="dynamic" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Dynamic Grid</h3>
+      <p>Automatically scales based on screen size or user preference</p>
+    </div>
+  </div>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Grid Comparison</div>
+  <div class="mockup-body">
+    <div style="display: flex; gap: 20px; justify-content: space-around; text-align: center;">
+      <div>
+        <div style="display: grid; grid-template-columns: repeat(4, 20px); gap: 4px; background: #34495e; padding: 10px; border-radius: 4px;">
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+        </div>
+        <p class="label">4x4 (16 cards)</p>
+      </div>
+      <div>
+        <div style="display: grid; grid-template-columns: repeat(6, 20px); gap: 4px; background: #34495e; padding: 10px; border-radius: 4px;">
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+          <div style="width: 20px; height: 20px; background: #2c3e50;"></div>
+        </div>
+        <p class="label">6x4 (24 cards)</p>
+      </div>
+    </div>
+  </div>
+</div>
