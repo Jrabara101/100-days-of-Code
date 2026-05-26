@@ -132,7 +132,95 @@ export class GameScene extends Phaser.Scene {
   }
 
   private evaluateState(card: CardObject) {
-    this.firstCard = card;
+    if (!this.firstCard) {
+      this.firstCard = card;
+      return;
+    }
+
+    this.secondCard = card;
+    this.isLocked = true;
+    this.moves++;
+    this.movesText.setText(`Moves: ${this.moves}`);
+
+    const firstData = this.firstCard.container.getData('cardData') as CardData;
+    const secondData = this.secondCard.container.getData('cardData') as CardData;
+
+    if (firstData.lang === secondData.lang) {
+      this.handleMatch();
+    } else {
+      this.handleMismatch();
+    }
+  }
+
+  private handleMatch() {
+    this.tweens.add({
+      targets: [this.firstCard!.container, this.secondCard!.container],
+      scale: 1.1,
+      duration: 100,
+      yoyo: true,
+      onComplete: () => {
+        this.matchesFound++;
+        this.resetTurnState();
+
+        if (this.matchesFound === this.totalPairs) {
+          this.gameWon();
+        }
+      }
+    });
+  }
+
+  private handleMismatch() {
+    this.time.delayedCall(1000, () => {
+      if (this.firstCard && this.secondCard) {
+        this.flipBack(this.firstCard);
+        this.flipBack(this.secondCard, () => {
+          this.resetTurnState();
+        });
+      }
+    });
+  }
+
+  private flipBack(cardObj: CardObject, onComplete?: () => void) {
+    this.tweens.add({
+      targets: cardObj.container,
+      scaleX: 0,
+      duration: 150,
+      onComplete: () => {
+        cardObj.back.setVisible(true);
+        cardObj.icon.setVisible(true);
+        cardObj.front.setVisible(false);
+        cardObj.text.setVisible(false);
+
+        this.tweens.add({
+          targets: cardObj.container,
+          scaleX: 1,
+          duration: 150,
+          onComplete: () => {
+            cardObj.container.setData('isFlipped', false);
+            if (onComplete) onComplete();
+          }
+        });
+      }
+    });
+  }
+
+  private resetTurnState() {
+    this.firstCard = null;
+    this.secondCard = null;
+    this.isLocked = false;
+  }
+
+  private gameWon() {
+    this.isGameOver = true;
+    const { width, height } = this.scale;
+    
+    this.add.text(width / 2, height / 2, 'VICTORY!', {
+      fontSize: '64px',
+      color: '#2F3542',
+      fontStyle: 'bold',
+      backgroundColor: '#FFFFFFCC',
+      padding: { x: 20, y: 10 }
+    }).setOrigin(0.5).setDepth(100);
   }
 
   private shuffle<T>(array: T[]): T[] {
