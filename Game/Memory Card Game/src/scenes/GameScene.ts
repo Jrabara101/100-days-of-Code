@@ -8,8 +8,7 @@ export class GameScene extends Phaser.Scene {
   private isGameOver: boolean = false;
   private moves: number = 0;
   private matchesFound: number = 0;
-  private totalPairs: number = 8;
-  private timeRemaining: number = 45;
+  private timeRemaining: number = 0;
 
   private movesText!: Phaser.GameObjects.Text;
   private timerText!: Phaser.GameObjects.Text;
@@ -18,6 +17,8 @@ export class GameScene extends Phaser.Scene {
 
   private cards: CardObject[] = [];
 
+  private readonly INITIAL_TIME = 45;
+  private readonly TOTAL_PAIRS = 8;
   private readonly GRID_START_X = 200;
   private readonly GRID_START_Y = 200;
   private readonly SPACING_X = 130;
@@ -25,6 +26,17 @@ export class GameScene extends Phaser.Scene {
 
   constructor() {
     super('GameScene');
+  }
+
+  init() {
+    this.firstCard = null;
+    this.secondCard = null;
+    this.isLocked = false;
+    this.isGameOver = false;
+    this.moves = 0;
+    this.matchesFound = 0;
+    this.timeRemaining = this.INITIAL_TIME;
+    this.cards = [];
   }
 
   create() {
@@ -56,7 +68,7 @@ export class GameScene extends Phaser.Scene {
       color: '#2C3E50'
     });
 
-    this.timerText = this.add.text(20, 50, 'Time: 45s', {
+    this.timerText = this.add.text(20, 50, `Time: ${this.INITIAL_TIME}s`, {
       fontSize: '24px',
       color: '#2C3E50'
     });
@@ -90,7 +102,7 @@ export class GameScene extends Phaser.Scene {
     const height = 10;
     const x = 20;
     const y = 90;
-    const progress = Math.max(0, this.timeRemaining / 45);
+    const progress = Math.max(0, this.timeRemaining / this.INITIAL_TIME);
 
     // Background
     this.progressBar.fillStyle(0xdcdde1, 1);
@@ -208,7 +220,7 @@ export class GameScene extends Phaser.Scene {
         this.matchesFound++;
         this.resetTurnState();
 
-        if (this.matchesFound === this.totalPairs) {
+        if (this.matchesFound === this.TOTAL_PAIRS) {
           this.gameWon();
         }
       }
@@ -275,7 +287,7 @@ export class GameScene extends Phaser.Scene {
       fontSize: '32px',
       color: '#ffffff',
       fontStyle: 'bold',
-      fontFamily: 'monospace'
+      fontFamily: 'Arial, sans-serif'
     }).setOrigin(0.5);
     overlay.add(title);
 
@@ -288,7 +300,8 @@ export class GameScene extends Phaser.Scene {
     const btnText = this.add.text(0, 0, 'REBOOT SYSTEM', {
       fontSize: '20px',
       color: '#ffffff',
-      fontStyle: 'bold'
+      fontStyle: 'bold',
+      fontFamily: 'Arial, sans-serif'
     }).setOrigin(0.5);
     btn.add(btnText);
 
