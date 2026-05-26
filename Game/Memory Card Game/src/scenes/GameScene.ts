@@ -14,6 +14,7 @@ export class GameScene extends Phaser.Scene {
   private movesText!: Phaser.GameObjects.Text;
   private timerText!: Phaser.GameObjects.Text;
   private gameTimer!: Phaser.Time.TimerEvent;
+  private progressBar!: Phaser.GameObjects.Graphics;
 
   private cards: CardObject[] = [];
 
@@ -52,13 +53,58 @@ export class GameScene extends Phaser.Scene {
 
     this.movesText = this.add.text(20, 20, 'Moves: 0', {
       fontSize: '24px',
-      color: '#2F3542'
+      color: '#2C3E50'
     });
 
     this.timerText = this.add.text(20, 50, 'Time: 45s', {
       fontSize: '24px',
-      color: '#2F3542'
+      color: '#2C3E50'
     });
+
+    this.progressBar = this.add.graphics();
+    this.updateProgressBar();
+
+    this.gameTimer = this.time.addEvent({
+      delay: 1000,
+      callback: this.tickTimer,
+      callbackScope: this,
+      loop: true
+    });
+  }
+
+  private tickTimer() {
+    if (this.isGameOver) return;
+
+    this.timeRemaining--;
+    this.timerText.setText(`Time: ${this.timeRemaining}s`);
+    this.updateProgressBar();
+
+    if (this.timeRemaining <= 0) {
+      this.triggerGameOver();
+    }
+  }
+
+  private updateProgressBar() {
+    this.progressBar.clear();
+    const width = 400;
+    const height = 10;
+    const x = 20;
+    const y = 90;
+    const progress = Math.max(0, this.timeRemaining / 45);
+
+    // Background
+    this.progressBar.fillStyle(0xdcdde1, 1);
+    this.progressBar.fillRect(x, y, width, height);
+
+    // Progress
+    this.progressBar.fillStyle(0x2c3e50, 1);
+    this.progressBar.fillRect(x, y, width * progress, height);
+  }
+
+  private triggerGameOver() {
+    this.isGameOver = true;
+    if (this.gameTimer) this.gameTimer.remove();
+    this.showOverlay("TIME OUT - SYSTEM FAILURE", 0xe74c3c);
   }
 
   private createCard(x: number, y: number, data: CardData): CardObject {
@@ -212,15 +258,50 @@ export class GameScene extends Phaser.Scene {
 
   private gameWon() {
     this.isGameOver = true;
+    if (this.gameTimer) this.gameTimer.remove();
+    this.showOverlay("SUCCESS - SYSTEM OVERRIDE COMPLETE", 0x27ae60);
+  }
+
+  private showOverlay(message: string, color: number) {
     const { width, height } = this.scale;
-    
-    this.add.text(width / 2, height / 2, 'VICTORY!', {
-      fontSize: '64px',
-      color: '#2F3542',
+    const overlay = this.add.container(0, 0).setDepth(1000);
+
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.85);
+    bg.fillRect(0, 0, width, height);
+    overlay.add(bg);
+
+    const title = this.add.text(width / 2, height / 2 - 40, message, {
+      fontSize: '32px',
+      color: '#ffffff',
       fontStyle: 'bold',
-      backgroundColor: '#FFFFFFCC',
-      padding: { x: 20, y: 10 }
-    }).setOrigin(0.5).setDepth(100);
+      fontFamily: 'monospace'
+    }).setOrigin(0.5);
+    overlay.add(title);
+
+    const btn = this.add.container(width / 2, height / 2 + 60);
+    const btnBg = this.add.graphics();
+    btnBg.fillStyle(color, 1);
+    btnBg.fillRoundedRect(-120, -25, 240, 50, 5);
+    btn.add(btnBg);
+
+    const btnText = this.add.text(0, 0, 'REBOOT SYSTEM', {
+      fontSize: '20px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    btn.add(btnText);
+
+    btn.setSize(240, 50);
+    btn.setInteractive({ useHandCursor: true });
+    btn.on('pointerdown', () => {
+      this.scene.restart();
+    });
+
+    btn.on('pointerover', () => btn.setScale(1.05));
+    btn.on('pointerout', () => btn.setScale(1));
+    
+    overlay.add(btn);
   }
 
   private shuffle<T>(array: T[]): T[] {
