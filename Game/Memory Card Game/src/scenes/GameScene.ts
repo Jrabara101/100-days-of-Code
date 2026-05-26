@@ -162,7 +162,13 @@ export class GameScene extends Phaser.Scene {
   private handleCardClick(cardObj: CardObject) {
     if (this.isLocked || cardObj.container.getData('isFlipped') || this.isGameOver) return;
 
+    // Set isFlipped immediately
     cardObj.container.setData('isFlipped', true);
+
+    // If this is the second card, lock input immediately
+    if (this.firstCard) {
+      this.isLocked = true;
+    }
 
     // 2.5D Flip Phase 1: Scale to 0
     this.tweens.add({
