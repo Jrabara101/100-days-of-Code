@@ -1,0 +1,14 @@
+{
+    "meta": {
+        "generator": "DailyQuoteFetcher/1.0",
+        "generated": "2026-04-21T01:07:09+00:00",
+        "schema": "1.0"
+    },
+    "quote": {
+        "quote": "Your heart is the size of an ocean. Go find yourself in its hidden depths.",
+        "author": "Rumi",
+        "source": "ZenQuotes API",
+        "fetched_at": "2026-04-21T01:07:09+00:00",
+        "date": "2026-04-21"
+    }
+}

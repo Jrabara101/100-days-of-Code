@@ -1,24 +1,8 @@
-# ChronoVault — Git Ignore
-
-# Vault data (NEVER commit the vault)
-vault.db
-vault.db-wal
-vault.db-shm
-.vault.salt
-
-# Composer vendor directory
-/vendor/
-
-# Temporary editor files
-cvault_*.md
-*.tmp
-
-# OS artifacts
+node_modules/
+vendor/
+.env
 .DS_Store
-Thumbs.db
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+dist/
+build/
+__pycache__/
+*.log

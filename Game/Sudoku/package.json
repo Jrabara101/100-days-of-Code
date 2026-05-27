@@ -1,0 +1,22 @@
+{
+  "name": "sudoku",
+  "version": "1.0.0",
+  "description": "A premium mobile Sudoku puzzle game — packaged for Android via Capacitor.",
+  "main": "game.js",
+  "author": "Jrabara101",
+  "license": "ISC",
+  "scripts": {
+    "build": "xcopy /Y index.html www\\ && xcopy /Y style.css www\\ && xcopy /Y game.js www\\",
+    "sync": "npm run build && npx cap sync android",
+    "open": "npx cap open android",
+    "deploy": "npm run sync && npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.2"
+  }
+}
+

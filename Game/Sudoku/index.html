@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- CRITICAL: Locks zoom, handles device notches/punch-holes -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="description" content="A premium Sudoku puzzle game with three difficulty levels, pencil marks, undo, and a live timer. Fully playable offline." />
+  <meta name="theme-color" content="#0f0f1a" />
+  <!-- Android PWA / Capacitor splash -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Sudoku</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══ CONFETTI CANVAS (win state) ══ -->
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- ══ HEADER ══ -->
+  <header class="app-header">
+    <h1 class="app-title">
+      <span class="title-icon">⬛</span>
+      Sudoku
+    </h1>
+    <div class="header-controls">
+      <button id="btn-new-game" class="icon-btn" title="New Game" aria-label="New Game">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+      </button>
+      <button id="btn-undo" class="icon-btn" title="Undo" aria-label="Undo last move">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ STATS BAR ══ -->
+  <div class="stats-bar" role="status" aria-live="polite">
+    <div class="stat-item">
+      <span class="stat-label">TIME</span>
+      <span class="stat-value" id="timer">0:00</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">MISTAKES</span>
+      <span class="stat-value" id="mistake-count">0 / 3</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">DIFFICULTY</span>
+      <span class="stat-value" id="difficulty-label">Medium</span>
+    </div>
+  </div>
+
+  <!-- ══ MAIN GAME AREA ══ -->
+  <main class="game-area">
+
+    <!-- 9×9 Sudoku Grid -->
+    <div class="grid-wrapper">
+      <div id="sudoku-grid" class="sudoku-grid" role="grid" aria-label="Sudoku puzzle grid">
+        <!-- 81 cells injected by JS -->
+      </div>
+    </div>
+
+    <!-- Number Pad -->
+    <div class="numpad-section">
+      <div class="numpad" role="group" aria-label="Number input pad">
+        <button class="num-btn" id="num-1" data-num="1" aria-label="Enter 1">1</button>
+        <button class="num-btn" id="num-2" data-num="2" aria-label="Enter 2">2</button>
+        <button class="num-btn" id="num-3" data-num="3" aria-label="Enter 3">3</button>
+        <button class="num-btn" id="num-4" data-num="4" aria-label="Enter 4">4</button>
+        <button class="num-btn" id="num-5" data-num="5" aria-label="Enter 5">5</button>
+        <button class="num-btn" id="num-6" data-num="6" aria-label="Enter 6">6</button>
+        <button class="num-btn" id="num-7" data-num="7" aria-label="Enter 7">7</button>
+        <button class="num-btn" id="num-8" data-num="8" aria-label="Enter 8">8</button>
+        <button class="num-btn" id="num-9" data-num="9" aria-label="Enter 9">9</button>
+      </div>
+
+      <!-- Action Row -->
+      <div class="action-row">
+        <button class="action-btn" id="btn-erase" aria-label="Erase selected cell">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+          </svg>
+          Erase
+        </button>
+        <button class="action-btn" id="btn-pencil" aria-label="Toggle pencil mark mode" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+          </svg>
+          Notes
+        </button>
+        <button class="action-btn" id="btn-hint" aria-label="Get a hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          Hint
+        </button>
+      </div>
+    </div>
+
+    <!-- Difficulty Selector -->
+    <div class="difficulty-row" role="group" aria-label="Select difficulty">
+      <button class="diff-btn" id="diff-easy"   data-diff="easy"   aria-pressed="false">Easy</button>
+      <button class="diff-btn active" id="diff-medium" data-diff="medium" aria-pressed="true">Medium</button>
+      <button class="diff-btn" id="diff-hard"   data-diff="hard"   aria-pressed="false">Hard</button>
+    </div>
+
+  </main>
+
+  <!-- ══ WIN OVERLAY ══ -->
+  <div id="win-overlay" class="win-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="win-title">
+    <div class="win-card">
+      <div class="win-emoji">🎉</div>
+      <h2 id="win-title" class="win-title">Puzzle Solved!</h2>
+      <p class="win-time">Completed in <strong id="win-time-value">—</strong></p>
+      <p class="win-mistakes">Mistakes: <strong id="win-mistakes-value">0</strong></p>
+      <button id="btn-play-again" class="play-again-btn">Play Again</button>
+    </div>
+  </div>
+
+  <!-- ══ GAME OVER OVERLAY ══ -->
+  <div id="gameover-overlay" class="win-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="gameover-title">
+    <div class="win-card gameover-card">
+      <div class="win-emoji">💀</div>
+      <h2 id="gameover-title" class="win-title">Game Over</h2>
+      <p class="win-time">Too many mistakes!</p>
+      <button id="btn-try-again" class="play-again-btn">Try Again</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

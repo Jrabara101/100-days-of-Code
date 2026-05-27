@@ -1,0 +1,23 @@
+{
+  "appId": "com.jrabara.sudoku",
+  "appName": "Sudoku",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": true,
+      "style": "DARK",
+      "backgroundColor": "#0f0f1a"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}

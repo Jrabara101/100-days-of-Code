@@ -1,0 +1,19 @@
+{
+    "location": {
+        "name": "Manila",
+        "region": "National Capital Region",
+        "country": "Philippines"
+    },
+    "current": {
+        "temp_c": 32.5,
+        "feelslike_c": 38.0,
+        "condition": {
+            "text": "Partly cloudy",
+            "icon": "//cdn.weatherapi.com/weather/64x64/day/116.png"
+        },
+        "humidity": 65,
+        "wind_kph": 15.1,
+        "wind_dir": "NE",
+        "last_updated": "2026-04-23 09:00"
+    }
+}

@@ -1,25 +1,8 @@
-# Daily Quote Fetcher — .gitignore
-
-# Composer
+node_modules/
 vendor/
-composer.lock
-
-# Environment
 .env
-
-# Storage outputs (keep structure, not data)
-storage/logs/*.log
-storage/output/*.txt
-storage/output/*.json
-storage/html/*.html
-
-# OS artifacts
 .DS_Store
-Thumbs.db
-desktop.ini
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+dist/
+build/
+__pycache__/
+*.log

@@ -1,0 +1,12 @@
+[
+    {
+        "id": 1,
+        "from": "USD",
+        "to": "PHP",
+        "amount": 100,
+        "converted": 6051,
+        "rate": 60.51,
+        "date": "2026-04-24",
+        "converted_at": "2026-04-24 01:23 AM"
+    }
+]
