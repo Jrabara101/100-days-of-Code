@@ -20,7 +20,9 @@
       "Bash(curl -s -o /dev/null -w \"landing:%{http_code}\\\\n\" \"https://day16-100days-of-code.pages.dev/\")",
       "Bash(curl -s -o /dev/null -w \"color-picker:%{http_code}\\\\n\" \"https://day16-100days-of-code.pages.dev/color-picker/\")",
       "Bash(curl -s -o /dev/null -w \"image-slider:%{http_code}\\\\n\" \"https://day16-100days-of-code.pages.dev/image-slider/\")",
-      "Bash(curl -s -o /dev/null -w \"blog-card:%{http_code}\\\\n\" \"https://day16-100days-of-code.pages.dev/minimal-blog-card/\")"
+      "Bash(curl -s -o /dev/null -w \"blog-card:%{http_code}\\\\n\" \"https://day16-100days-of-code.pages.dev/minimal-blog-card/\")",
+      "Bash(Get-ChildItem \"c:\\\\Users\\\\Admin\\\\100-days-of-Code\\\\Game\\\\Tower Defense\" -Recurse)",
+      "Bash(Select-Object FullName)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Admin\\100-days-of-Code\\Javascript and CSS\\Day 16\\Image Slider\\image"

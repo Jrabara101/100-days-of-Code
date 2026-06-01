@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tech Slice — Language Puzzle</title>
+    <style>
+        :root {
+            --puzzle-bg: url('https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg');
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background-color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: white;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 320px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            color: #38bdf8;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .moves {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+
+        /* Language Picker */
+        .picker {
+            display: flex;
+            gap: 10px;
+            width: 320px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #475569 #1e293b;
+        }
+
+        .picker::-webkit-scrollbar { height: 6px; }
+        .picker::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 4px; }
+
+        .picker img {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s, transform 0.2s;
+            background: white;
+            border-radius: 4px;
+            padding: 2px;
+            border: 2px solid transparent;
+        }
+
+        .picker img:hover { opacity: 0.8; transform: scale(1.1); }
+        .picker img.active { opacity: 1; border-color: #38bdf8; transform: scale(1.1); }
+
+        /* Board */
+        .board {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            background: #1e293b;
+            border: 4px solid #334155;
+            border-radius: 6px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* Tiles */
+        .tile {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            background-image: var(--puzzle-bg);
+            background-size: 320px 320px;
+            background-repeat: no-repeat;
+            background-color: #ffffff;
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15), inset 0 0 12px rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+            will-change: transform;
+        }
+
+        /* Number overlay — solves the "solid color" UX trap */
+        .tile::after {
+            content: attr(data-val);
+            position: absolute;
+            top: 4px;
+            left: 6px;
+            font-size: 13px;
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.75);
+            background: rgba(255, 255, 255, 0.85);
+            padding: 1px 5px;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+
+        .tile.empty { display: none; }
+
+        /* Win Overlay */
+        .win-message {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+        }
+
+        .win-message.visible { opacity: 1; pointer-events: auto; }
+
+        .win-message h2 {
+            color: #38bdf8;
+            font-size: 36px;
+            margin: 0 0 6px 0;
+            letter-spacing: 2px;
+        }
+
+        .win-message p {
+            color: #94a3b8;
+            margin: 0 0 20px 0;
+            font-size: 14px;
+        }
+
+        .win-message button {
+            padding: 10px 28px;
+            font-size: 15px;
+            font-weight: bold;
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .win-message button:hover { background: #7dd3fc; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Tech Slice</h1>
+        <div class="moves" id="move-counter">Moves: 0</div>
+        <div class="picker" id="picker"></div>
+    </div>
+
+    <div class="board" id="board">
+        <div class="win-message" id="win-message">
+            <h2>COMPILED!</h2>
+            <p id="win-detail"></p>
+            <button onclick="game.init()">Play Again</button>
+        </div>
+    </div>
+
+<script>
+const languages = [
+    { name: 'JavaScript', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg' },
+    { name: 'Python',     url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg' },
+    { name: 'C++',        url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cplusplus/cplusplus-original.svg' },
+    { name: 'Java',       url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg' },
+    { name: 'C#',         url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/csharp/csharp-original.svg' },
+    { name: 'TypeScript', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg' },
+    { name: 'PHP',        url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg' },
+    { name: 'Go',         url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg' },
+    { name: 'Rust',       url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg' },
+    { name: 'Swift',      url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg' },
+    { name: 'Kotlin',     url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kotlin/kotlin-original.svg' },
+    { name: 'Ruby',       url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/ruby/ruby-original.svg' },
+    { name: 'HTML5',      url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg' },
+    { name: 'CSS3',       url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg' },
+    { name: 'React',      url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg' },
+];
+
+class LanguageSlidingPuzzle {
+    constructor(size = 4) {
+        this.size = size;
+        this.tileSize = 80;
+        this.boardEl = document.getElementById('board');
+        this.moveCounterEl = document.getElementById('move-counter');
+        this.winMessageEl = document.getElementById('win-message');
+        this.winDetailEl = document.getElementById('win-detail');
+        this.pickerEl = document.getElementById('picker');
+
+        this.buildPicker();
+        this.init();
+    }
+
+    buildPicker() {
+        languages.forEach((lang, idx) => {
+            const img = document.createElement('img');
+            img.src = lang.url;
+            img.title = lang.name;
+            img.alt = lang.name;
+            if (idx === 0) img.classList.add('active');
+
+            img.addEventListener('click', () => {
+                document.querySelectorAll('.picker img').forEach(el => el.classList.remove('active'));
+                img.classList.add('active');
+                document.documentElement.style.setProperty('--puzzle-bg', `url('${lang.url}')`);
+                this.init();
+            });
+
+            this.pickerEl.appendChild(img);
+        });
+    }
+
+    init() {
+        this.state = [];
+        this.tiles = [];
+        this.moves = 0;
+        this.isLocked = false;
+        this.winMessageEl.classList.remove('visible');
+        this.updateMoves();
+
+        const total = this.size * this.size;
+        for (let i = 0; i < total - 1; i++) this.state.push(i + 1);
+        this.state.push(0);
+
+        this.buildDOM();
+        this.shuffleBoard();
+    }
+
+    buildDOM() {
+        this.boardEl.querySelectorAll('.tile').forEach(t => t.remove());
+
+        this.state.forEach(val => {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+
+            if (val === 0) {
+                tile.classList.add('empty');
+            } else {
+                tile.setAttribute('data-val', val);
+
+                const correctRow = Math.floor((val - 1) / this.size);
+                const correctCol = (val - 1) % this.size;
+                tile.style.backgroundPosition = `-${correctCol * this.tileSize}px -${correctRow * this.tileSize}px`;
+
+                tile.addEventListener('click', () => this.handleTileClick(val));
+            }
+
+            this.tiles[val] = tile;
+            this.boardEl.appendChild(tile);
+        });
+    }
+
+    shuffleBoard() {
+        this.isLocked = true;
+        let emptyIdx = this.state.indexOf(0);
+
+        for (let i = 0; i < 200; i++) {
+            const neighbors = this.getValidNeighbors(emptyIdx);
+            const pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+            [this.state[emptyIdx], this.state[pick]] = [this.state[pick], this.state[emptyIdx]];
+            emptyIdx = pick;
+        }
+
+        this.isLocked = false;
+        this.render();
+    }
+
+    getValidNeighbors(idx) {
+        const neighbors = [];
+        const row = Math.floor(idx / this.size);
+        const col = idx % this.size;
+
+        if (row > 0)              neighbors.push(idx - this.size);
+        if (row < this.size - 1) neighbors.push(idx + this.size);
+        if (col > 0)              neighbors.push(idx - 1);
+        if (col < this.size - 1) neighbors.push(idx + 1);
+
+        return neighbors;
+    }
+
+    handleTileClick(val) {
+        if (this.isLocked) return;
+
+        const tileIdx = this.state.indexOf(val);
+        const emptyIdx = this.state.indexOf(0);
+
+        if (!this.getValidNeighbors(emptyIdx).includes(tileIdx)) return;
+
+        [this.state[emptyIdx], this.state[tileIdx]] = [this.state[tileIdx], this.state[emptyIdx]];
+        this.moves++;
+        this.updateMoves();
+        this.render();
+        this.checkWin();
+    }
+
+    render() {
+        this.state.forEach((val, idx) => {
+            if (val === 0) return;
+            const row = Math.floor(idx / this.size);
+            const col = idx % this.size;
+            this.tiles[val].style.transform = `translate(${col * this.tileSize}px, ${row * this.tileSize}px)`;
+        });
+    }
+
+    updateMoves() {
+        this.moveCounterEl.textContent = `Moves: ${this.moves}`;
+    }
+
+    checkWin() {
+        const won = this.state.every((val, idx) =>
+            idx === this.state.length - 1 ? val === 0 : val === idx + 1
+        );
+
+        if (won) {
+            this.isLocked = true;
+            this.winDetailEl.textContent = `Solved in ${this.moves} move${this.moves !== 1 ? 's' : ''}`;
+            setTimeout(() => this.winMessageEl.classList.add('visible'), 300);
+        }
+    }
+}
+
+const game = new LanguageSlidingPuzzle();
+</script>
+
+</body>
+</html>
