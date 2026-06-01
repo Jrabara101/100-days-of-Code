@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fluid Sort Pro - Staff Architected Color Sort</title>
+    
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Theme Colors */
+            --bg-gradient: radial-gradient(circle at 50% 50%, #151829 0%, #090a12 100%);
+            --surface: rgba(26, 29, 50, 0.6);
+            --surface-hover: rgba(36, 40, 68, 0.8);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            
+            /* Liquid Colors Mapping */
+            --color-1: #ff4757; /* Coral Red */
+            --color-2: #1e90ff; /* Neon Blue */
+            --color-3: #2ed573; /* Emerald Green */
+            --color-4: #ffa502; /* Bright Gold */
+            --color-5: #9b59b6; /* Vibrant Purple */
+            --color-6: #ec4899; /* Hot Pink */
+            --color-7: #1abc9c; /* Teal */
+            --color-8: #e67e22; /* Orange */
+            
+            /* Layout variables */
+            --tube-capacity: 4;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 10px;
+        }
+
+        /* Ambient background glow */
+        .ambient-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        header {
+            text-align: center;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            margin: 0 0 4px 0;
+            font-size: 32px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #1d4ed8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.3));
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        /* Stats Panel */
+        .stats-panel {
+            display: flex;
+            justify-content: space-between;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 10px 20px;
+            margin: 15px 0;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #93c5fd;
+        }
+
+        /* Difficulty tabs styling */
+        .difficulty-container {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 4px;
+            margin: 0 auto 15px auto;
+            max-width: 320px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .diff-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .diff-btn.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Controls Section */
+        .control-bar {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+            z-index: 10;
+        }
+
+        .icon-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .icon-btn:active {
+            transform: translateY(0);
+        }
+
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* Game Board Area */
+        .board-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 700px;
+            z-index: 5;
+            position: relative;
+        }
+
+        /* The rack of test tubes */
+        .rack {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            padding: 30px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            position: relative;
+            width: 100%;
+        }
+
+        /* Test Tube Container */
+        .tube-wrapper {
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .tube {
+            width: 54px;
+            height: 190px;
+            border: 3px solid rgba(255, 255, 255, 0.15);
+            border-bottom-left-radius: 27px;
+            border-bottom-right-radius: 27px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.08) 100%);
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column-reverse;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 2px 5px rgba(255,255,255,0.05);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+            transform-origin: 50% 0%; /* Rotate from the mouth/top center */
+        }
+
+        /* Tube Mouth Rim */
+        .tube::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        /* Glass tube vertical highlight gloss */
+        .tube::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 4px;
+            width: 4px;
+            height: 90%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Selected State */
+        .tube.selected {
+            transform: translateY(-20px);
+            z-index: 15;
+        }
+
+        /* Liquid Segments inside the Tube */
+        .liquid {
+            width: 100%;
+            flex: 0 0 calc(100% / var(--tube-capacity));
+            box-sizing: border-box;
+            position: relative;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            transition: height 0.4s ease, opacity 0.4s ease;
+        }
+
+        /* Fluid Shading Overlay */
+        .liquid::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 30%, rgba(0, 0, 0, 0.15) 100%);
+            pointer-events: none;
+        }
+
+        /* Fluid Surface Wave Gloss */
+        .liquid::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.25);
+            pointer-events: none;
+        }
+
+        /* Liquid Color Variables Mapping */
+        .liquid[data-color="1"] { background-color: var(--color-1); box-shadow: inset 0 0 12px rgba(255,71,87,0.4); }
+        .liquid[data-color="2"] { background-color: var(--color-2); box-shadow: inset 0 0 12px rgba(30,144,255,0.4); }
+        .liquid[data-color="3"] { background-color: var(--color-3); box-shadow: inset 0 0 12px rgba(46,213,115,0.4); }
+        .liquid[data-color="4"] { background-color: var(--color-4); box-shadow: inset 0 0 12px rgba(255,165,2,0.4); }
+        .liquid[data-color="5"] { background-color: var(--color-5); box-shadow: inset 0 0 12px rgba(155,89,182,0.4); }
+        .liquid[data-color="6"] { background-color: var(--color-6); box-shadow: inset 0 0 12px rgba(236,72,153,0.4); }
+        .liquid[data-color="7"] { background-color: var(--color-7); box-shadow: inset 0 0 12px rgba(26,188,156,0.4); }
+        .liquid[data-color="8"] { background-color: var(--color-8); box-shadow: inset 0 0 12px rgba(230,126,34,0.4); }
+
+        /* Liquid Shake/Wiggle animation on error */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .tube.shake {
+            animation: shake 0.35s ease-in-out;
+        }
+
+        /* Dynamic Pouring Stream Element */
+        .pour-stream {
+            position: absolute;
+            width: 8px;
+            border-radius: 4px;
+            z-index: 50;
+            pointer-events: none;
+            transform-origin: 50% 0%;
+            transition: height 0.2s ease-in;
+            box-shadow: 0 0 8px currentColor;
+        }
+        .pour-stream[data-color="1"] { color: var(--color-1); }
+        .pour-stream[data-color="2"] { color: var(--color-2); }
+        .pour-stream[data-color="3"] { color: var(--color-3); }
+        .pour-stream[data-color="4"] { color: var(--color-4); }
+        .pour-stream[data-color="5"] { color: var(--color-5); }
+        .pour-stream[data-color="6"] { color: var(--color-6); }
+        .pour-stream[data-color="7"] { color: var(--color-7); }
+        .pour-stream[data-color="8"] { color: var(--color-8); }
+
+        /* Footer Info */
+        footer {
+            z-index: 10;
+            text-align: center;
+        }
+        .hint {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Win Screen & Confetti Canvas Overlay */
+        #confetti-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 90;
+            pointer-events: none;
+        }
+
+        .win-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 11, 20, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .win-screen.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .win-box {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.1);
+            border-radius: 28px;
+            padding: 40px;
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(16px);
+        }
+
+        .win-screen.visible .win-box {
+            transform: scale(1);
+        }
+
+        .win-box h2 {
+            font-size: 38px;
+            margin: 0 0 10px 0;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .win-desc {
+            color: var(--text-muted);
+            margin: 0 0 25px 0;
+            font-size: 15px;
+        }
+
+        .win-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .win-stat-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 16px;
+        }
+
+        .win-stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .win-stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        .win-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(29, 78, 216, 0.4);
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .win-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(29, 78, 216, 0.5);
+        }
+
+        .win-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Sound Mute Button toggle state visualization */
+        .icon-btn.muted svg {
+            color: #ef4444;
+        }
+        
+        /* Mobile layout adaptations */
+        @media (max-width: 480px) {
+            h1 { font-size: 26px; }
+            .rack { padding: 15px; gap: 12px; }
+            .tube { width: 44px; height: 160px; }
+            .stats-panel { padding: 8px 12px; margin: 10px 0; }
+            .stat-value { font-size: 14px; }
+            .icon-btn { padding: 8px 12px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <header>
+        <h1>Fluid Sort Pro</h1>
+        <p class="subtitle">Pour matching colors until every tube contains only a single color</p>
+        
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <div class="stat-item">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level-display">1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Moves</div>
+                <div class="stat-value" id="moves-display">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Time</div>
+                <div class="stat-value" id="timer-display">00:00</div>
+            </div>
+        </div>
+
+        <!-- Difficulty Settings Selector -->
+        <div class="difficulty-container">
+            <button class="diff-btn active" data-difficulty="easy">Easy (3 Cols)</button>
+            <button class="diff-btn" data-difficulty="medium">Medium (5 Cols)</button>
+            <button class="diff-btn" data-difficulty="hard">Hard (7 Cols)</button>
+        </div>
+    </header>
+
+    <!-- Controls Bar -->
+    <div class="control-bar">
+        <button class="icon-btn" id="new-game-btn" title="Generate New Level">
+            <svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 0 1-7 7c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.9 0 3.62.76 4.9 2H14v2h5V4h-2v2.24A8.91 8.91 0 0 0 12 3a9 9 0 0 0-9 9 9 9 0 0 0 9 9 9 9 0 0 0 9-9h-2z"/></svg>
+            New Game
+        </button>
+        <button class="icon-btn" id="restart-btn" title="Restart Current Level">
+            <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+            Restart
+        </button>
+        <button class="icon-btn" id="undo-btn" title="Undo Last Move">
+            <svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+            Undo
+        </button>
+        <button class="icon-btn" id="sound-btn" title="Toggle Sound">
+            <svg id="volume-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        </button>
+    </div>
+
+    <!-- The Play Field -->
+    <div class="board-container">
+        <div class="rack" id="rack"></div>
+    </div>
+
+    <footer>
+        <p class="hint">Tap a tube to lift matching colors, then tap another tube to pour.</p>
+    </footer>
+
+    <!-- Interactive Canvas Overlay for Victory Confetti particles -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Win Screen Modal -->
+    <div class="win-screen" id="win-screen">
+        <div class="win-box">
+            <h2>LEVEL SOLVED!</h2>
+            <p class="win-desc">Perfect color sort logic and stacking architecture.</p>
+            
+            <div class="win-stats">
+                <div class="win-stat-card">
+                    <div class="win-stat-label">Moves Used</div>
+                    <div class="win-stat-value" id="win-moves">0</div>
+                </div>
+                <div class="win-stat-card">
+                    <div class="win-stat-label">Time Taken</div>
+                    <div class="win-stat-value" id="win-time">00:00</div>
+                </div>
+            </div>
+
+            <button class="win-btn" id="next-level-btn">PLAY NEXT LEVEL</button>
+        </div>
+    </div>
+
+<script>
+// --- WEB AUDIO API SYNTHESIZER ---
+class SoundController {
+    constructor() {
+        this.audioCtx = null;
+        this.isMuted = false;
+    }
+
+    init() {
+        if (this.audioCtx) return;
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        const volumeIcon = document.getElementById('volume-icon');
+        const soundBtn = document.getElementById('sound-btn');
+        if (this.isMuted) {
+            soundBtn.classList.add('muted');
+            // Render Mute icon
+            volumeIcon.innerHTML = `<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>`;
+        } else {
+            soundBtn.classList.remove('muted');
+            // Render Volume icon
+            volumeIcon.innerHTML = `<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>`;
+        }
+    }
+
+    play(type) {
+        this.init();
+        if (!this.audioCtx || this.isMuted) return;
+
+        // Resume context if suspended
+        if (this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+
+        const ctx = this.audioCtx;
+        const now = ctx.currentTime;
+
+        if (type === 'select') {
+            // Warm marimba pluck
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(329.63, now); // E4
+            osc.frequency.exponentialRampToValueAtTime(164.81, now + 0.12);
+            
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.12);
+        } 
+        else if (type === 'pour') {
+            // Wet bubbling sound
+            let startTime = now;
+            for (let i = 0; i < 6; i++) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                
+                const freq = 200 + Math.random() * 100;
+                osc.frequency.setValueAtTime(freq, startTime);
+                osc.frequency.exponentialRampToValueAtTime(freq + 60, startTime + 0.08);
+                
+                gain.gain.setValueAtTime(0.12, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.08);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(startTime);
+                osc.stop(startTime + 0.08);
+                
+                startTime += 0.07;
+            }
+        } 
+        else if (type === 'error') {
+            // Short buzzer
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(95, now);
+            
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } 
+        else if (type === 'win') {
+            // Arpeggiated victory synth flourish
+            const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; // C major chord arpeggio
+            notes.forEach((freq, index) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                
+                const playTime = now + index * 0.08;
+                osc.frequency.setValueAtTime(freq, playTime);
+                
+                gain.gain.setValueAtTime(0.15, playTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, playTime + 0.35);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(playTime);
+                osc.stop(playTime + 0.35);
+            });
+        }
+        else if (type === 'undo') {
+            // Quick soft slide down
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(220, now);
+            osc.frequency.exponentialRampToValueAtTime(110, now + 0.18);
+            
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.18);
+        }
+    }
+}
+
+// --- CANVAS-BASED CONFETTI PARTICLE SYSTEM ---
+class ConfettiEffect {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.particles = [];
+        this.isActive = false;
+        this.colors = ['#ff4757', '#1e90ff', '#2ed573', '#ffa502', '#9b59b6', '#ec4899', '#1abc9c', '#e67e22'];
+        
+        window.addEventListener('resize', () => this.resizeCanvas());
+        this.resizeCanvas();
+    }
+    
+    resizeCanvas() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+    
+    start() {
+        this.isActive = true;
+        this.particles = [];
+        const particleCount = 140;
+        for (let i = 0; i < particleCount; i++) {
+            this.particles.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height - this.canvas.height - 20, // Start offscreen top
+                size: Math.random() * 8 + 6,
+                color: this.colors[Math.floor(Math.random() * this.colors.length)],
+                speedX: Math.random() * 4 - 2,
+                speedY: Math.random() * 4 + 4,
+                rotation: Math.random() * 360,
+                rotationSpeed: Math.random() * 6 - 3,
+                opacity: 1
+            });
+        }
+        this.animate();
+    }
+    
+    stop() {
+        this.isActive = false;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    
+    animate() {
+        if (!this.isActive) return;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        let allFinished = true;
+        this.particles.forEach(p => {
+            p.y += p.speedY;
+            p.x += p.speedX;
+            p.rotation += p.rotationSpeed;
+            
+            if (p.y < this.canvas.height) {
+                allFinished = false;
+            }
+            
+            this.ctx.save();
+            this.ctx.translate(p.x, p.y);
+            this.ctx.rotate(p.rotation * Math.PI / 180);
+            this.ctx.fillStyle = p.color;
+            this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            this.ctx.restore();
+        });
+        
+        if (allFinished) {
+            // Loop particles back to top to keep celebration running
+            this.particles.forEach(p => {
+                p.y = -20;
+                p.x = Math.random() * this.canvas.width;
+            });
+        }
+        
+        requestAnimationFrame(() => this.animate());
+    }
+}
+
+// --- COLOR SORT ENGINE & STATE TRANSITIONS ---
+class ColorSortPuzzle {
+    constructor() {
+        this.rackElement = document.getElementById('rack');
+        this.winScreen = document.getElementById('win-screen');
+        
+        // Element Bindings
+        this.levelDisplay = document.getElementById('level-display');
+        this.movesDisplay = document.getElementById('moves-display');
+        this.timerDisplay = document.getElementById('timer-display');
+        this.winMovesDisplay = document.getElementById('win-moves');
+        this.winTimeDisplay = document.getElementById('win-time');
+        
+        // Controllers
+        this.sound = new SoundController();
+        this.confetti = new ConfettiEffect(document.getElementById('confetti-canvas'));
+        
+        // Puzzle Settings
+        this.tubeCapacity = 4;
+        this.selectedTubeIndex = null;
+        this.isAnimating = false;
+        this.isWon = false;
+        
+        // Level stats & history
+        this.currentLevel = 1;
+        this.movesCount = 0;
+        this.secondsElapsed = 0;
+        this.timerInterval = null;
+        this.difficulty = 'easy'; // easy, medium, hard
+        this.tubesData = [];
+        this.initialTubesData = []; // Saved for level restarts
+        this.history = []; // Undo stack (holds JSON strings of states)
+
+        this.initEventListeners();
+        this.generateNewLevel();
+    }
+
+    initEventListeners() {
+        // Difficulty Tabs
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (this.isAnimating) return;
+                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.difficulty = btn.dataset.difficulty;
+                this.generateNewLevel();
+            });
+        });
+
+        // Controls
+        document.getElementById('new-game-btn').addEventListener('click', () => {
+            if (this.isAnimating) return;
+            this.sound.play('select');
+            this.generateNewLevel();
+        });
+
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            if (this.isAnimating) return;
+            this.sound.play('select');
+            this.restartLevel();
+        });
+
+        document.getElementById('undo-btn').addEventListener('click', () => {
+            if (this.isAnimating) return;
+            this.undoLastMove();
+        });
+
+        document.getElementById('sound-btn').addEventListener('click', () => {
+            this.sound.toggleMute();
+        });
+
+        document.getElementById('next-level-btn').addEventListener('click', () => {
+            this.currentLevel++;
+            this.winScreen.classList.remove('visible');
+            this.confetti.stop();
+            this.isWon = false;
+            this.generateNewLevel();
+        });
+
+        // Initialize Audio context on first screen tap anywhere
+        document.body.addEventListener('click', () => {
+            this.sound.init();
+        }, { once: true });
+    }
+
+    // --- SOLVABLE PUZZLE GENERATION (Reverse Scrambling) ---
+    generateNewLevel() {
+        let numColors = 3; // Easy
+        if (this.difficulty === 'medium') numColors = 5;
+        if (this.difficulty === 'hard') numColors = 7;
+
+        this.tubesData = this.generateSolvableLayout(numColors, this.tubeCapacity);
+        
+        // Deep copy starting layout for restarts
+        this.initialTubesData = JSON.parse(JSON.stringify(this.tubesData));
+        this.history = [];
+        this.movesCount = 0;
+        this.isWon = false;
+        
+        this.updateStats();
+        this.resetTimer();
+        this.startTimer();
+        this.renderRack();
+    }
+
+    generateSolvableLayout(numColors, capacity) {
+        // Initialize fully sorted target state
+        let tubes = [];
+        for (let i = 1; i <= numColors; i++) {
+            tubes.push(Array(capacity).fill(i));
+        }
+        // Add exactly 2 empty reserve tubes
+        for (let i = 0; i < 2; i++) {
+            tubes.push([]);
+        }
+
+        // Perform reverse-scrambling moves to mix
+        let attempts = 0;
+        let successfulMoves = 0;
+        const targetScrambles = numColors * 16; // Scales with difficulty
+        
+        while (successfulMoves < targetScrambles && attempts < 2000) {
+            attempts++;
+            // Choose source (B) and destination (A) tubes at random
+            let B_idx = Math.floor(Math.random() * tubes.length);
+            let A_idx = Math.floor(Math.random() * tubes.length);
+            if (B_idx === A_idx) continue;
+
+            let B = tubes[B_idx];
+            let A = tubes[A_idx];
+
+            if (B.length === 0) continue;
+
+            // Analyze B's top color group
+            let X = B[B.length - 1];
+            let numX = 0;
+            for (let i = B.length - 1; i >= 0; i--) {
+                if (B[i] === X) numX++;
+                else break;
+            }
+
+            // Constraints for a valid reverse-scramble move:
+            // 1. Destination A must have sufficient empty space
+            // 2. We can move K blocks of color X from B to A
+            // 3. Critically, to remain solvable forward, we cannot expose a different color
+            //    underneath X in Tube B unless B becomes completely empty.
+            //    Thus: (K < numX) OR (B.length === numX)
+            let maxK = Math.min(numX, capacity - A.length);
+            if (B.length !== numX) {
+                // If B contains other colors underneath X, we must leave at least one X in B
+                maxK = Math.min(maxK, numX - 1);
+            }
+
+            if (maxK <= 0) continue;
+
+            // Select random block transfer count K
+            let K = Math.floor(Math.random() * maxK) + 1;
+
+            // Execute the reverse transfer
+            for (let i = 0; i < K; i++) {
+                B.pop();
+                A.push(X);
+            }
+            successfulMoves++;
+        }
+        return tubes;
+    }
+
+    restartLevel() {
+        this.tubesData = JSON.parse(JSON.stringify(this.initialTubesData));
+        this.history = [];
+        this.movesCount = 0;
+        this.updateStats();
+        this.resetTimer();
+        this.startTimer();
+        this.renderRack();
+        if (this.selectedTubeIndex !== null) {
+            this.selectedTubeIndex = null;
+        }
+    }
+
+    undoLastMove() {
+        if (this.history.length === 0) {
+            this.sound.play('error');
+            return;
+        }
+        this.sound.play('undo');
+        this.tubesData = JSON.parse(this.history.pop());
+        this.movesCount++;
+        this.updateStats();
+        this.renderRack();
+        this.selectedTubeIndex = null;
+    }
+
+    // --- RENDER GAME DOM (Data-Driven) ---
+    renderRack() {
+        this.rackElement.innerHTML = '';
+        this.tubeElements = [];
+
+        this.tubesData.forEach((tubeContents, index) => {
+            let wrapper = document.createElement('div');
+            wrapper.className = 'tube-wrapper';
+
+            let tube = document.createElement('div');
+            tube.className = 'tube';
+            tube.dataset.index = index;
+            // Inject capacity as variable
+            tube.style.setProperty('--capacity', this.tubeCapacity);
+
+            // Render current stack colors (Bottom to Top)
+            tubeContents.forEach(colorID => {
+                let liquid = document.createElement('div');
+                liquid.className = 'liquid';
+                liquid.dataset.color = colorID;
+                tube.appendChild(liquid);
+            });
+
+            tube.addEventListener('click', () => this.handleTubeClick(index));
+            wrapper.appendChild(tube);
+            this.rackElement.appendChild(wrapper);
+            this.tubeElements.push(tube);
+        });
+    }
+
+    // --- CLICK POINTER STATE MACHINE ---
+    handleTubeClick(index) {
+        if (this.isAnimating || this.isWon) return;
+
+        // Scenario 1: No tube currently selected
+        if (this.selectedTubeIndex === null) {
+            // Check if source tube has contents to pour
+            if (this.tubesData[index].length > 0) {
+                this.selectedTubeIndex = index;
+                this.sound.play('select');
+                
+                // Highlight the selected tube with its top color glow
+                const tube = this.tubeElements[index];
+                tube.classList.add('selected');
+                
+                const topColor = this.tubesData[index][this.tubesData[index].length - 1];
+                tube.style.boxShadow = `0 15px 35px var(--accent-glow), 0 0 15px var(--color-${topColor})`;
+                tube.style.borderColor = `var(--color-${topColor})`;
+            } else {
+                // Empty tube click is invalid as source
+                this.shakeTube(index);
+            }
+        } 
+        // Scenario 2: Clicked same tube (Deselect)
+        else if (this.selectedTubeIndex === index) {
+            this.cancelSelection(index);
+            this.sound.play('select');
+        } 
+        // Scenario 3: Pouring into different destination tube
+        else {
+            this.tryPour(this.selectedTubeIndex, index);
+        }
+    }
+
+    cancelSelection(index) {
+        const tube = this.tubeElements[index];
+        if (tube) {
+            tube.classList.remove('selected');
+            tube.style.transform = '';
+            tube.style.boxShadow = '';
+            tube.style.borderColor = '';
+        }
+        this.selectedTubeIndex = null;
+    }
+
+    shakeTube(index) {
+        this.sound.play('error');
+        const tube = this.tubeElements[index];
+        tube.classList.add('shake');
+        setTimeout(() => tube.classList.remove('shake'), 350);
+    }
+
+    // --- POUR SYSTEM & CONTINUOUS TRANSFER MATH ---
+    tryPour(sourceIdx, destIdx) {
+        let sourceStack = this.tubesData[sourceIdx];
+        let destStack = this.tubesData[destIdx];
+
+        // Guard 1: Physical capacity verification
+        if (sourceStack.length === 0 || destStack.length >= this.tubeCapacity) {
+            this.cancelSelection(sourceIdx);
+            this.shakeTube(destIdx);
+            return;
+        }
+
+        let pourColor = sourceStack[sourceStack.length - 1];
+
+        // Guard 2: Top matching color validation
+        if (destStack.length > 0 && destStack[destStack.length - 1] !== pourColor) {
+            this.cancelSelection(sourceIdx);
+            this.shakeTube(destIdx);
+            return;
+        }
+
+        // Calculate consecutive identical blocks on top of source stack
+        let matchCount = 0;
+        for (let i = sourceStack.length - 1; i >= 0; i--) {
+            if (sourceStack[i] === pourColor) {
+                matchCount++;
+            } else {
+                break;
+            }
+        }
+
+        // Calculate destination room
+        let availableSpace = this.tubeCapacity - destStack.length;
+        let blocksToTransfer = Math.min(matchCount, availableSpace);
+
+        if (blocksToTransfer > 0) {
+            this.animateTransfer(sourceIdx, destIdx, blocksToTransfer, pourColor);
+        } else {
+            this.cancelSelection(sourceIdx);
+            this.shakeTube(destIdx);
+        }
+    }
+
+    // --- HIGH-FIDELITY POUR ANIMATION AND SVG-LIKE STREAM ---
+    animateTransfer(sourceIdx, destIdx, blocksToTransfer, colorID) {
+        this.isAnimating = true;
+        
+        // Save state history before executing modifications (for Undo)
+        this.history.push(JSON.stringify(this.tubesData));
+
+        const sourceTube = this.tubeElements[sourceIdx];
+        const destTube = this.tubeElements[destIdx];
+
+        const sourceRect = sourceTube.getBoundingClientRect();
+        const destRect = destTube.getBoundingClientRect();
+        const rackRect = this.rackElement.getBoundingClientRect();
+
+        // Remove selection highlights
+        sourceTube.classList.remove('selected');
+        sourceTube.style.boxShadow = '';
+        sourceTube.style.borderColor = '';
+
+        // Determine pour direction for rotation angle
+        const sourceCenterX = sourceRect.left + sourceRect.width / 2;
+        const destCenterX = destRect.left + destRect.width / 2;
+        const isPouringRight = destCenterX > sourceCenterX;
+        const tiltAngle = isPouringRight ? 75 : -75;
+
+        // Position source tube mouth right above target tube mouth
+        const dx = destCenterX - sourceCenterX + (isPouringRight ? -30 : 30);
+        const dy = destRect.top - sourceRect.top - 60;
+
+        // Animate source tube floating and tilting
+        sourceTube.style.zIndex = "100";
+        sourceTube.style.transform = `translate(${dx}px, ${dy}px) rotate(${tiltAngle}deg)`;
+
+        // Phase 1: Wait for tube tilt alignment
+        setTimeout(() => {
+            // Render the pouring stream element
+            const stream = document.createElement('div');
+            stream.className = 'pour-stream';
+            stream.dataset.color = colorID;
+
+            const streamWidth = 8;
+            const sLeft = destRect.left + destRect.width / 2 - streamWidth / 2 - rackRect.left;
+            const sTop = destRect.top - rackRect.top - 12;
+
+            // Height of stream extends to current liquid surface of destination tube
+            const destFilledCount = this.tubesData[destIdx].length;
+            const surfaceOffset = (1 - (destFilledCount / this.tubeCapacity)) * destRect.height;
+            const streamHeight = surfaceOffset + 12;
+
+            stream.style.left = `${sLeft}px`;
+            stream.style.top = `${sTop}px`;
+            stream.style.height = '0px';
+            this.rackElement.appendChild(stream);
+
+            // Trigger visual flow reflow
+            stream.getBoundingClientRect();
+            stream.style.height = `${streamHeight}px`;
+
+            this.sound.play('pour');
+
+            // Phase 2: Animate liquids shrinking in source and growing in destination
+            const sourceLiquids = Array.from(sourceTube.querySelectorAll('.liquid'));
+            for (let i = 0; i < blocksToTransfer; i++) {
+                const block = sourceLiquids[sourceLiquids.length - 1 - i];
+                if (block) {
+                    block.style.transition = "height 0.4s ease, opacity 0.4s ease";
+                    block.style.height = "0px";
+                    block.style.opacity = "0";
+                }
+            }
+
+            const tempDestBlocks = [];
+            for (let i = 0; i < blocksToTransfer; i++) {
+                const block = document.createElement('div');
+                block.className = 'liquid temp-block';
+                block.dataset.color = colorID;
+                block.style.height = "0px";
+                block.style.opacity = "0";
+                destTube.appendChild(block);
+                tempDestBlocks.push(block);
+            }
+
+            // Force rendering refresh
+            destTube.getBoundingClientRect();
+            tempDestBlocks.forEach(block => {
+                block.style.transition = "height 0.4s ease, opacity 0.4s ease";
+                block.style.height = `calc(100% / var(--capacity))`;
+                block.style.opacity = "1";
+            });
+
+            // Phase 3: Wait for pour transfer duration
+            setTimeout(() => {
+                // Fade out stream
+                stream.style.transition = "height 0.15s ease, opacity 0.15s ease";
+                stream.style.height = '0px';
+                stream.style.opacity = '0';
+
+                // Return source tube to rack
+                sourceTube.style.transform = '';
+
+                // Phase 4: Clean up stream and update backend state
+                setTimeout(() => {
+                    stream.remove();
+                    sourceTube.style.zIndex = '';
+
+                    // Adjust array data stacks
+                    for (let i = 0; i < blocksToTransfer; i++) {
+                        let block = this.tubesData[sourceIdx].pop();
+                        this.tubesData[destIdx].push(block);
+                    }
+
+                    this.selectedTubeIndex = null;
+                    this.isAnimating = false;
+                    this.movesCount++;
+                    
+                    this.updateStats();
+                    this.renderRack();
+                    this.checkWinCondition();
+                }, 300); // Wait for returning motion
+            }, 550); // Pouring time
+        }, 400); // Move to tilt time
+    }
+
+    // --- GAME STATS UPDATES ---
+    updateStats() {
+        this.levelDisplay.textContent = this.currentLevel;
+        this.movesDisplay.textContent = this.movesCount;
+    }
+
+    // --- TIMER SYSTEM ---
+    startTimer() {
+        this.stopTimer();
+        this.timerInterval = setInterval(() => {
+            this.secondsElapsed++;
+            this.timerDisplay.textContent = this.formatTime(this.secondsElapsed);
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    resetTimer() {
+        this.stopTimer();
+        this.secondsElapsed = 0;
+        this.timerDisplay.textContent = "00:00";
+    }
+
+    formatTime(seconds) {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    // --- PUZZLE SOLVED CHECK ---
+    checkWinCondition() {
+        let isSolved = true;
+
+        for (let i = 0; i < this.tubesData.length; i++) {
+            let tube = this.tubesData[i];
+            
+            // Empty tubes are valid solved components
+            if (tube.length === 0) continue;
+
+            // Non-empty tubes must be fully filled to capacity
+            if (tube.length !== this.tubeCapacity) {
+                isSolved = false;
+                break;
+            }
+
+            // All colors inside a filled tube must match perfectly
+            let baseColor = tube[0];
+            let isUniform = tube.every(color => color === baseColor);
+            
+            if (!isUniform) {
+                isSolved = false;
+                break;
+            }
+        }
+
+        if (isSolved) {
+            this.triggerWin();
+        }
+    }
+
+    triggerWin() {
+        this.isWon = true;
+        this.stopTimer();
+        
+        // Populate stats on modal
+        this.winMovesDisplay.textContent = this.movesCount;
+        this.winTimeDisplay.textContent = this.formatTime(this.secondsElapsed);
+        
+        // Show modal and start particle confetti
+        setTimeout(() => {
+            this.sound.play('win');
+            this.winScreen.classList.add('visible');
+            this.confetti.start();
+        }, 400);
+    }
+}
+
+// Instantiate the game
+const game = new ColorSortPuzzle();
+</script>
+
+</body>
+</html>
