@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>Mid-Century Teak Scramble</title>
+    
+    <!-- Premium Font Families -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700;900&family=Montserrat:wght@700;800&family=Space+Grotesk:wght@700&family=Courier+Prime&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0&display=swap" rel="stylesheet" />
+    
+    <!-- Retro Atomic SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23E1AD01%22 stroke=%22%235C3A21%22 stroke-width=%224%22/><ellipse cx=%2250%22 cy=%2250%22 rx=%2242%22 ry=%2214%22 fill=%22none%22 stroke=%22%2340E0D0%22 stroke-width=%224%22 transform=%22rotate(30 50 50)%22/><ellipse cx=%2250%22 cy=%2250%22 rx=%2242%22 ry=%2214%22 fill=%22none%22 stroke=%22%2340E0D0%22 stroke-width=%224%22 transform=%22rotate(-30 50 50)%22/></svg>">
+    
+    <style>
+        :root {
+            /* Mid-Century Modern Palette */
+            --teak-base: #8B5A2B;
+            --teak-dark: #5C3A21;
+            --teak-light: #A67345;
+            --turquoise: #40E0D0;
+            --turquoise-dark: #00CED1;
+            --mustard: #E1AD01;
+            --mustard-dark: #DAA520;
+            --off-white: #F5F5F0;
+            --shadow-deep: rgba(40, 20, 10, 0.45);
+            --shadow-crisp: rgba(0, 0, 0, 0.25);
+            --highlight: rgba(255, 255, 255, 0.15);
+            
+            /* Organic Friction Easing Curve */
+            --slide-snap: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0; 
+            background-color: #E8E5DF; 
+            /* Starburst dot wallpaper pattern */
+            background-image: 
+                radial-gradient(var(--turquoise) 1px, transparent 1px),
+                radial-gradient(var(--mustard) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            color: var(--teak-dark);
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            height: 100vh; 
+            overflow: hidden; 
+            font-family: 'Jost', 'Futura', sans-serif;
+        }
+
+        /* Ambient Glow behind board */
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(64, 224, 208, 0.12) 0%, rgba(225, 173, 1, 0.05) 50%, rgba(0,0,0,0) 70%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 440px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        h1 { 
+            margin: 0; 
+            font-size: 2.5rem; 
+            text-transform: uppercase; 
+            letter-spacing: 5px; 
+            color: var(--teak-dark); 
+            font-weight: 900;
+            text-shadow: 2px 2px 0px var(--off-white), 4px 4px 0px var(--turquoise);
+        }
+
+        /* Stats Container & Bubbles (Larger and Positioned Beside Each Other) */
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .stats-bubble-wrapper {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stats-bubble {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--teak-dark);
+            box-shadow: 
+                0 8px 16px var(--shadow-deep),
+                inset 0 3px 6px rgba(255,255,255,0.4),
+                inset 0 -3px 6px rgba(0,0,0,0.2);
+            border: 3px solid var(--off-white);
+            z-index: 3;
+            transition: transform 0.2s ease;
+        }
+
+        .score-bubble {
+            background: var(--mustard);
+            transform: rotate(10deg);
+        }
+        .score-bubble:hover {
+            transform: rotate(15deg) scale(1.05);
+        }
+
+        .level-bubble {
+            background: var(--turquoise);
+            transform: rotate(-10deg);
+        }
+        .level-bubble:hover {
+            transform: rotate(-15deg) scale(1.05);
+        }
+
+        .stats-bubble span:first-child { 
+            font-size: 0.75rem; 
+            font-weight: 900; 
+            letter-spacing: 1.5px; 
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+        .stats-bubble span:last-child { 
+            font-size: 1.35rem; 
+            font-weight: 900; 
+            line-height: 1;
+        }
+
+        .score-orbit {
+            position: absolute;
+            border: 2px solid var(--turquoise);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .score-orbit.orbit-1 {
+            width: 96px;
+            height: 32px;
+            transform: rotate(45deg);
+        }
+        .score-orbit.orbit-2 {
+            width: 96px;
+            height: 32px;
+            transform: rotate(-45deg);
+        }
+
+        /* Mute/Sound Toggle Switch */
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 42px;
+            height: 42px;
+            background: var(--teak-dark);
+            border: 3px solid var(--teak-light);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 6px 12px var(--shadow-deep);
+            z-index: 20;
+            color: var(--off-white);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .sound-toggle:hover {
+            background-color: var(--teak-base);
+        }
+        .sound-toggle:active {
+            transform: scale(0.95);
+        }
+        .sound-toggle svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+        .sound-toggle.muted {
+            color: var(--mustard);
+            border-color: var(--mustard-dark);
+        }
+
+        /* Full Grid Board Cabinet - Teak & Inlay */
+        .board-plate {
+            background: linear-gradient(135deg, var(--teak-base), var(--teak-dark)); 
+            padding: 20px;
+            border-radius: 16px; 
+            border: 4px solid var(--teak-light);
+            outline: 6px solid var(--teak-dark);
+            box-shadow: 
+                0 30px 60px var(--shadow-deep), 
+                inset 0 2px 10px rgba(255,255,255,0.15);
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Go/Chess 10x10 Grid Background */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(10, 40px);
+            grid-template-rows: repeat(10, 40px);
+            gap: 2px;
+            background-color: var(--teak-dark);
+            border: 4px solid var(--teak-dark);
+            border-radius: 6px;
+            padding: 2px;
+            position: relative;
+            box-shadow: inset 0 6px 15px rgba(0,0,0,0.6);
+        }
+
+        /* Grid cells styling */
+        .grid-cell {
+            width: 40px;
+            height: 40px;
+            border-radius: 2px;
+            position: relative;
+            box-shadow: 
+                inset 1px 1px 1px rgba(255,255,255,0.08), 
+                inset -1px -1px 1px rgba(0,0,0,0.15);
+            transition: background-color 0.2s;
+        }
+
+        /* Dashed target outlines inlaid inside specific cells */
+        .dashed-slot {
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            border: 2.5px dashed var(--turquoise);
+            border-radius: 6px;
+            z-index: 2;
+            pointer-events: none;
+            box-shadow: 
+                inset 2px 2px 4px rgba(0,0,0,0.5),
+                0.5px 0.5px 0px rgba(255,255,255,0.1);
+            background-color: rgba(92, 58, 33, 0.45);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .dashed-slot.drag-hover {
+            border-color: var(--mustard);
+            background-color: rgba(225, 173, 1, 0.15);
+        }
+
+        /* Inlaid Status/Clue Vacuum Tube Monitor */
+        .clue-panel {
+            width: 100%;
+            background: rgba(40, 20, 10, 0.45);
+            border: 2.5px solid var(--teak-dark);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            color: #ffb74d; /* Amber glow */
+            text-shadow: 0 0 4px rgba(255, 183, 77, 0.4);
+            text-align: center;
+            min-height: 52px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            font-family: inherit;
+            line-height: 1.35;
+        }
+
+        /* High-contrast Wooden Blocks */
+        .wood-tile {
+            position: absolute; 
+            left: 0;
+            top: 0;
+            width: 38px; 
+            height: 38px; 
+            background: var(--off-white);
+            border-radius: 4px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            font-size: 1.4rem; 
+            font-weight: 900; 
+            color: var(--teak-dark);
+            cursor: pointer; 
+            border: 2px solid var(--teak-dark);
+            
+            /* High-fidelity CSS physics shadows */
+            box-shadow: 
+                0 6px 0 var(--teak-dark),
+                0 10px 15px var(--shadow-deep);
+            
+            transition: transform 0.2s var(--slide-snap), box-shadow 0.2s;
+            z-index: 100;
+            touch-action: none;
+        }
+        
+        .wood-tile:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 
+                0 8px 0 var(--teak-dark),
+                0 12px 18px var(--shadow-deep);
+        }
+
+        .wood-tile.dragging {
+            z-index: 200;
+            transform: scale(1.15);
+            box-shadow: 
+                0 14px 0 var(--teak-dark),
+                0 20px 25px var(--shadow-deep);
+            transition: none; /* instant translation */
+        }
+        
+        .wood-tile.inlaid {
+            box-shadow: 
+                0 2px 0 var(--teak-dark),
+                0 4px 6px var(--shadow-deep);
+        }
+
+        .wood-tile.locked {
+            pointer-events: none;
+            background: var(--mustard);
+            color: var(--off-white);
+            border-color: var(--mustard-dark);
+            box-shadow: 
+                0 2px 0 var(--mustard-dark),
+                0 4px 6px rgba(0,0,0,0.25);
+        }
+
+        /* Controls 2x2 grid */
+        .controls { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr;
+            gap: 12px; 
+            width: 100%; 
+            margin-top: 5px;
+        }
+        
+        button {
+            border: 2px solid var(--teak-dark);
+            padding: 11px; 
+            font-size: 0.9rem; 
+            font-weight: 900; 
+            border-radius: 6px;
+            cursor: pointer; 
+            transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+            font-family: inherit; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px;
+        }
+        
+        button.btn-reset {
+            background: var(--mustard);
+            color: var(--teak-dark);
+            box-shadow: 0 5px 0 var(--mustard-dark);
+        }
+        button.btn-reset:hover { background: #F0C020; }
+        
+        button.btn-hint {
+            background: #a7ffeb;
+            color: var(--teak-dark);
+            box-shadow: 0 5px 0 #00bfa5;
+        }
+        button.btn-hint:hover { background: #c4fff2; }
+
+        button.btn-word-clue {
+            background: #e0f7fa;
+            color: var(--teak-dark);
+            box-shadow: 0 5px 0 #4dd0e1;
+        }
+        button.btn-word-clue:hover { background: #f2fdfe; }
+
+        button.btn-submit {
+            background: var(--turquoise); 
+            color: var(--teak-dark); 
+            box-shadow: 0 5px 0 var(--turquoise-dark);
+        }
+        button.btn-submit:hover { background: #5CE6D6; }
+
+        button:active { 
+            transform: translateY(5px); 
+            box-shadow: 0 0px 0 var(--teak-dark) !important; 
+        }
+
+        /* Letter Tray (Bottom Right) */
+        .rack-container {
+            position: fixed;
+            bottom: 25px;
+            right: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+            width: fit-content;
+        }
+        .rack-slots {
+            display: flex;
+            gap: 6px;
+            padding: 0 10px;
+            margin-bottom: 2px;
+        }
+        .rack-slot {
+            width: 38px;
+            height: 38px;
+            background: transparent;
+        }
+        .rack-shelf {
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(to bottom, var(--teak-base) 0%, var(--teak-dark) 100%);
+            border: 2.5px solid var(--teak-dark);
+            border-radius: 4px;
+            box-shadow: 
+                0 6px 10px var(--shadow-deep),
+                inset 0 1px 2px rgba(255,255,255,0.15);
+        }
+
+        /* How to Play Instructions Panel (Desktop Left Column) */
+        .instructions-panel {
+            background: rgba(245, 245, 240, 0.95);
+            border: 3.5px solid var(--teak-dark);
+            border-radius: 12px;
+            padding: 18px;
+            color: var(--teak-dark);
+            box-shadow: 
+                0 12px 24px var(--shadow-deep),
+                inset 0 1px 3px rgba(255,255,255,0.6);
+            width: 280px;
+            position: fixed;
+            left: 35px;
+            top: 140px;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+            box-sizing: border-box;
+        }
+
+        .instructions-panel h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--mustard);
+            padding-bottom: 6px;
+            color: var(--teak-dark);
+            text-shadow: 0.5px 0.5px 0px var(--off-white);
+        }
+
+        .instructions-panel ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .instructions-panel li {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .instructions-panel .step-num {
+            background: var(--mustard);
+            color: var(--teak-dark);
+            font-weight: 900;
+            font-size: 0.85rem;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1.5px solid var(--teak-dark);
+            box-shadow: 0 2px 0 var(--teak-dark);
+            box-sizing: border-box;
+        }
+
+        .instructions-panel li strong {
+            color: var(--teak-dark);
+        }
+
+        /* Wrap layout and enable scrolling for medium/small screens */
+        @media (max-width: 1100px) {
+            body {
+                overflow-y: auto;
+                height: auto;
+                min-height: 100vh;
+                padding: 24px 10px;
+            }
+            .instructions-panel {
+                position: static;
+                width: 100%;
+                max-width: 440px;
+                margin-top: 20px;
+            }
+        }
+
+        /* Victory Overlay */
+        .victory-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(40, 20, 10, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .victory-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .victory-box {
+            background: radial-gradient(circle, var(--teak-light) 0%, var(--teak-dark) 100%);
+            border: 5px solid var(--teak-dark);
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.8),
+                0 0 40px rgba(64,224,208,0.3);
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .victory-screen.active .victory-box {
+            transform: scale(1);
+        }
+        .victory-box h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-shadow: 
+                1px 1px 0px var(--turquoise),
+                2px 2px 0px var(--turquoise),
+                3px 3px 0px var(--teak-dark);
+        }
+        .victory-box p {
+            color: var(--off-white);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .victory-btn {
+            background: var(--turquoise);
+            color: var(--teak-dark);
+            border: 2px solid var(--teak-dark);
+            padding: 12px 24px;
+            font-size: 1.05rem;
+            font-weight: 900;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 var(--turquoise-dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .victory-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0px 0 var(--teak-dark);
+        }
+
+        /* Canvas Particle Layer */
+        #effects-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 90;
+            pointer-events: none;
+        }
+
+        /* Error Board shake */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px) rotate(-1deg); }
+            75% { transform: translateX(6px) rotate(1deg); }
+        }
+        .shake { 
+            animation: shake 0.15s ease-in-out 0s 2; 
+        }
+
+        /* Sequential letter bounce animation */
+        @keyframes bounce-tile {
+            0%, 100% {
+                top: 0;
+                box-shadow: 
+                    0 2px 0 var(--mustard-dark),
+                    0 4px 6px rgba(0,0,0,0.25);
+            }
+            50% {
+                top: -25px;
+                box-shadow: 
+                    0 15px 0 var(--mustard-dark),
+                    0 20px 25px var(--shadow-deep);
+            }
+        }
+        .bounce-active {
+            animation: bounce-tile 0.5s ease-in-out;
+        }
+
+        /* Category Modal backdrop */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(40, 20, 10, 0.85);
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1500;
+            backdrop-filter: blur(5px);
+        }
+        .modal-backdrop.active {
+            opacity: 1; pointer-events: auto;
+        }
+        .category-modal {
+            background: radial-gradient(circle, var(--teak-light) 0%, var(--teak-dark) 100%);
+            border: 5px solid var(--teak-dark);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-backdrop.active .category-modal {
+            transform: scale(1);
+        }
+        .category-modal h3 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--off-white);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 0px var(--turquoise), 2px 2px 0px var(--teak-dark);
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .category-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .category-grid::-webkit-scrollbar-thumb {
+            background: var(--teak-dark);
+            border-radius: 3px;
+        }
+        .category-btn {
+            background: var(--off-white);
+            color: var(--teak-dark);
+            border: 2px solid var(--teak-dark);
+            padding: 10px;
+            font-size: 1rem;
+            font-weight: 900;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 0 var(--teak-dark);
+            transition: all 0.1s;
+            font-family: inherit;
+        }
+        .category-btn:hover {
+            background: var(--mustard);
+            color: var(--teak-dark);
+        }
+        .category-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 var(--teak-dark);
+        }
+        .category-btn.current {
+            background: var(--turquoise);
+            border-color: var(--teak-dark);
+            box-shadow: 0 4px 0 var(--turquoise-dark);
+        }
+
+        /* Dynamic Mahogany Loading Screen Styles */
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #0f1415;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 2000;
+        }
+        .loading-screen.active {
+            opacity: 1; pointer-events: auto;
+        }
+
+        .loading-screen main {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .loading-screen .mahogany-frame {
+            width: 100%;
+            background-color: #5d4037;
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.05) 0px,
+                rgba(255, 255, 255, 0.05) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            border-radius: 16px;
+            border: 8px solid #3e2723;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+            padding: 36px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .loading-screen .frame-shadow {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.6);
+        }
+
+        .loading-screen .loading-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+            color: #4dd0e1;
+            text-shadow: 
+                0 1px 0 #00acc1,
+                0 2px 0 #0097a7,
+                0 3px 0 #00838f,
+                0 4px 0 #006064,
+                0 5px 10px rgba(0,0,0,0.4);
+        }
+
+        .loading-screen .tiles-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .loading-screen .loading-tile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 44px;
+            background-color: #8d6e63;
+            border-radius: 4px;
+            border-bottom: 4px solid rgba(0, 0, 0, 0.35);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.3);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #3e2723;
+        }
+
+        .loading-screen .orbit-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 24px;
+        }
+
+        .loading-screen .orbit-1 {
+            width: 80px; height: 80px;
+            border: 2.5px solid transparent;
+            border-top-color: #fbc02d;
+            border-radius: 50%;
+            position: absolute;
+            animation: orbitRotate 3s linear infinite;
+        }
+
+        .loading-screen .orbit-2 {
+            width: 66px; height: 66px;
+            top: 7px; left: 7px;
+            border: 2.5px solid transparent;
+            border-bottom-color: #4dd0e1;
+            border-radius: 50%;
+            position: absolute;
+            animation: orbitRotate 2s linear infinite reverse;
+        }
+
+        .loading-screen .orbit-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-screen .nucleus {
+            width: 14px;
+            height: 14px;
+            background-color: #fbc02d;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #fbc02d;
+        }
+
+        .loading-screen .progress-wrapper {
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .loading-screen .progress-track {
+            width: 100%;
+            height: 18px;
+            background-color: #3e2723;
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.25);
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.4), inset -1px -1px 2px rgba(255,255,255,0.1);
+        }
+
+        .loading-screen .progress-fill {
+            height: 100%;
+            background-color: #4dd0e1;
+            border-radius: 9999px;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 20px rgba(77,208,225,0.6);
+            animation: progressGlow 1.5s infinite;
+        }
+
+        .loading-screen .progress-info {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            color: #bcc9cb;
+            letter-spacing: 0.05em;
+        }
+        
+        .loading-screen .progress-info span:first-child {
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+
+        .loading-screen .progress-info span:last-child {
+            color: #6fecfe;
+            font-weight: 700;
+        }
+
+        .loading-screen .tip-container {
+            margin-top: 24px;
+            width: 100%;
+            max-width: 360px;
+            background-color: rgba(255,255,255,0.05);
+            backdrop-filter: blur(4px);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+            align-items: flex-start;
+        }
+
+        .loading-screen .tip-icon {
+            font-family: 'Material Symbols Outlined';
+            font-size: 1.5rem;
+            color: #fbc02d;
+            line-height: 1;
+        }
+
+        .loading-screen .tip-text {
+            margin: 0;
+            font-family: 'Courier Prime', Courier, monospace;
+            font-size: 0.75rem;
+            color: #bcc9cb;
+            line-height: 1.4;
+        }
+
+        @keyframes orbitRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes progressGlow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; filter: brightness(1.2); }
+        }
+
+        /* Loading Screen Tile animation */
+        @keyframes tileFlip {
+            0%, 100% { transform: translateY(0) rotateX(0); box-shadow: 0 6px 0 0 rgba(0,0,0,0.3); }
+            50% { transform: translateY(-8px) rotateX(8deg); box-shadow: 0 12px 16px 0 rgba(0,0,0,0.2); }
+        }
+
+        .loading-screen .tile-anim {
+            animation: tileFlip 2.2s infinite ease-in-out;
+        }
+
+        /* Responsive Layout adjustments */
+        @media (max-width: 520px) {
+            .header-container {
+                width: 92vw;
+                max-width: 440px;
+                margin-bottom: 10px;
+            }
+            h1 { font-size: 1.8rem; }
+            .board-plate {
+                padding: 10px;
+                outline-width: 3px;
+                width: 95vw;
+                max-width: 460px;
+            }
+            .grid-container {
+                grid-template-columns: repeat(10, min(36px, 8.5vw));
+                grid-template-rows: repeat(10, min(36px, 8.5vw));
+                gap: 1.5px;
+                padding: 1.5px;
+            }
+            .grid-cell, .dashed-slot {
+                width: 100%;
+                height: 100%;
+            }
+            .wood-tile {
+                box-shadow: 
+                    0 4px 0 var(--teak-dark),
+                    0 6px 10px var(--shadow-deep);
+            }
+            .wood-tile:hover {
+                transform: scale(1.05) translateY(-1px);
+                box-shadow: 
+                    0 5px 0 var(--teak-dark),
+                    0 8px 12px var(--shadow-deep);
+            }
+            .rack-container {
+                position: static;
+                margin-top: 20px;
+                align-items: center;
+                width: 100%;
+                max-width: 380px;
+            }
+            .rack-slots {
+                display: flex;
+                gap: 4px;
+                justify-content: center;
+                width: 100%;
+            }
+            .rack-slot {
+                width: min(36px, 8.5vw);
+                height: min(36px, 8.5vw);
+            }
+            /* Removed level-panel responsive overrides */
+            body {
+                overflow-y: auto;
+                padding: 12px 4px;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <!-- Mute/Sound Toggle Switch -->
+    <div class="sound-toggle" id="sound-toggle" onclick="game.toggleSound()" title="Toggle Sound">
+        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+    </div>
+
+    <!-- Header, Level & Score -->
+    <div class="header-container">
+        <div style="display: flex; flex-direction: column;">
+            <h1>Word Scramble</h1>
+            <button class="category-btn-tag" id="category-tag-btn" onclick="game.openCategoryModal()" onmousedown="this.style.transform='translateY(3px)'; this.style.boxShadow='0 0px 0 var(--turquoise-dark)'" onmouseup="this.style.transform=''; this.style.boxShadow='0 3px 0 var(--turquoise-dark)'" onmouseleave="this.style.transform=''; this.style.boxShadow='0 3px 0 var(--turquoise-dark)'" style="margin-top: 6px; font-size: 0.8rem; padding: 8px 12px; border-radius: 4px; border: 1.5px solid var(--teak-dark); background: var(--turquoise); color: var(--teak-dark); font-weight: 900; box-shadow: 0 3px 0 var(--turquoise-dark); width: fit-content; cursor: pointer; text-transform: uppercase; font-family: inherit; transition: transform 0.1s, box-shadow 0.1s;">Category: General</button>
+        </div>
+        <div class="stats-container">
+            <!-- Level Bubble Wrapper -->
+            <div class="stats-bubble-wrapper">
+                <div class="score-orbit orbit-1" style="border-color: var(--mustard);"></div>
+                <div class="score-orbit orbit-2" style="border-color: var(--mustard);"></div>
+                <div class="level-bubble stats-bubble" id="level-text">
+                    <span>LEVEL</span>
+                    <span id="level-val">1</span>
+                </div>
+            </div>
+            <!-- Score Bubble Wrapper -->
+            <div class="stats-bubble-wrapper">
+                <div class="score-orbit orbit-1"></div>
+                <div class="score-orbit orbit-2"></div>
+                <div class="score-bubble stats-bubble" id="score-text">
+                    <span>SCORE</span>
+                    <span id="score-val">000</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cabinet Board -->
+    <div class="board-plate" id="main-board">
+        <!-- 10x10 Grid -->
+        <div class="grid-container" id="board-grid"></div>
+
+        <!-- Amber Glowing Clue Panel -->
+        <div class="clue-panel">
+            <span id="clue-text">Need a definition? Click 'Word Hint'!</span>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn-reset" onclick="game.resetTray()">Reset</button>
+            <button class="btn-hint" onclick="game.giveLetterHint()">Hint</button>
+            <button class="btn-word-clue" onclick="game.showWordClue()">Word Hint</button>
+            <button class="btn-submit" onclick="game.verifySolution()">Submit</button>
+        </div>
+    </div>
+
+    <!-- Letter Tray Rack (Bottom-Right) -->
+    <div class="rack-container">
+        <div class="rack-slots" id="rack-slots"></div>
+        <div class="rack-shelf"></div>
+    </div>
+
+    <!-- How to Play Instructions Board (Visible to All) -->
+    <div class="instructions-panel">
+        <h3>How to Play</h3>
+        <ul>
+            <li>
+                <span class="step-num">1</span>
+                <div><strong>Solve the Scramble:</strong> Drag-and-drop or tap tiles to place them on the highlighted grid slots.</div>
+            </li>
+            <li>
+                <span class="step-num">2</span>
+                <div><strong>Get Hints:</strong> Click <em>Word Hint</em> for a definition, or <em>Hint</em> to lock a correct tile (costs 10 pts).</div>
+            </li>
+            <li>
+                <span class="step-num">3</span>
+                <div><strong>Submit:</strong> Complete the word and click <em>Submit</em> to clear the matrix and advance levels!</div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Canvas Particle overlay -->
+    <canvas id="effects-canvas"></canvas>
+
+    <!-- Victory screen overlay -->
+    <div class="victory-screen" id="victory-screen">
+        <div class="victory-box">
+            <h2>Spectacular!</h2>
+            <p>You have unscrambled the atomic matrix.</p>
+            <button class="victory-btn" onclick="game.nextLevel()">Next Scramble</button>
+        </div>
+    </div>
+
+    <!-- Category Selector Modal -->
+    <div class="modal-backdrop" id="category-modal-backdrop" onclick="game.closeCategoryModal(event)">
+        <div class="category-modal" onclick="event.stopPropagation()">
+            <h3>Select Category</h3>
+            <div class="category-grid">
+                <button class="category-btn current" id="cat-btn-general" onclick="game.switchCategory('general')">General</button>
+                <button class="category-btn" id="cat-btn-science" onclick="game.switchCategory('science')">Science</button>
+                <button class="category-btn" id="cat-btn-math" onclick="game.switchCategory('math')">Mathematics</button>
+                <button class="category-btn" id="cat-btn-history" onclick="game.switchCategory('history')">History</button>
+                <button class="category-btn" id="cat-btn-anime" onclick="game.switchCategory('anime')">Anime Series</button>
+                <button class="category-btn" id="cat-btn-technology" onclick="game.switchCategory('technology')">Technology</button>
+                <button class="category-btn" id="cat-btn-novel" onclick="game.switchCategory('novel')">Novels</button>
+                <button class="category-btn" id="cat-btn-filipino-movies" onclick="game.switchCategory('filipino-movies')">Filipino Movies</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mahogany Board Loading Screen Overlay -->
+    <div class="loading-screen" id="loading-screen">
+        <main>
+            <div class="mahogany-frame">
+                <div class="frame-shadow"></div>
+                
+                <h1 class="loading-title">WORD<br/>SCRAMBLE</h1>
+                
+                <div class="tiles-container">
+                    <div class="loading-tile tile-anim" style="animation-delay: 0s">L</div>
+                    <div class="loading-tile tile-anim" style="animation-delay: 0.1s">O</div>
+                    <div class="loading-tile tile-anim" style="animation-delay: 0.2s">A</div>
+                    <div class="loading-tile tile-anim" style="animation-delay: 0.3s">D</div>
+                    <div class="loading-tile tile-anim" style="animation-delay: 0.4s">I</div>
+                    <div class="loading-tile tile-anim" style="animation-delay: 0.5s">N</div>
+                    <div class="loading-tile tile-anim" style="animation-delay: 0.6s">G</div>
+                </div>
+
+                <div class="orbit-container">
+                    <div class="orbit-1"></div>
+                    <div class="orbit-2"></div>
+                    <div class="orbit-center">
+                        <div class="nucleus"></div>
+                    </div>
+                </div>
+
+                <div class="progress-wrapper">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="loading-progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span id="loading-status-text">Synchronizing...</span>
+                        <span id="loading-progress-percent">0%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tip-container">
+                <span class="tip-icon">lightbulb</span>
+                <p class="tip-text">
+                    DID YOU KNOW? <br/>
+                    Longer words grant bonus multipliers! Try to bridge multiple grid slots for massive score boosts.
+                </p>
+            </div>
+        </main>
+    </div>
+
+<script>
+// --- WEB AUDIO SYNTHESIZER ---
+class SoundController {
+    constructor() {
+        this.audioCtx = null;
+        this.isMuted = false;
+    }
+
+    init() {
+        if (this.audioCtx) return;
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        const toggle = document.getElementById('sound-toggle');
+        if (this.isMuted) {
+            toggle.classList.add('muted');
+            toggle.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>`;
+        } else {
+            toggle.classList.remove('muted');
+            toggle.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
+        }
+    }
+
+    play(type) {
+        this.init();
+        if (!this.audioCtx || this.isMuted) return;
+
+        if (this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+
+        const now = this.audioCtx.currentTime;
+
+        if (type === 'select') {
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
+            
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            
+            osc.connect(gain);
+            gain.connect(this.audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.08);
+        } 
+        else if (type === 'drop') {
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.exponentialRampToValueAtTime(60, now + 0.12);
+            
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            
+            osc.connect(gain);
+            gain.connect(this.audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.12);
+        }
+        else if (type === 'reset') {
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(250, now);
+            osc.frequency.exponentialRampToValueAtTime(120, now + 0.25);
+            
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+            
+            osc.connect(gain);
+            gain.connect(this.audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.25);
+        }
+        else if (type === 'error') {
+            const osc1 = this.audioCtx.createOscillator();
+            const osc2 = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            
+            osc1.type = 'sawtooth';
+            osc1.frequency.setValueAtTime(95, now);
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(97, now);
+            
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+            
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(this.audioCtx.destination);
+            
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + 0.25);
+            osc2.stop(now + 0.25);
+        }
+        else if (type === 'win') {
+            const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                osc.type = 'sine';
+                
+                const time = now + idx * 0.08;
+                osc.frequency.setValueAtTime(freq, time);
+                
+                gain.gain.setValueAtTime(0.15, time);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+                
+                osc.connect(gain);
+                gain.connect(this.audioCtx.destination);
+                
+                osc.start(time);
+                osc.stop(time + 0.4);
+            });
+        }
+    }
+}
+
+// --- CANVAS ATOMIC PARTICLES SYSTEM ---
+class ParticleSystem {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.particles = [];
+        this.active = false;
+        this.colors = ['#40E0D0', '#00CED1', '#E1AD01', '#DAA520', '#ffffff', '#F5F5F0'];
+
+        window.addEventListener('resize', () => this.resize());
+        this.resize();
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+
+    burst(x, y) {
+        this.active = true;
+        this.particles = [];
+        const count = 120;
+        
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = 3 + Math.random() * 8;
+            this.particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * velocity,
+                vy: Math.sin(angle) * velocity - 2,
+                size: 6 + Math.random() * 12,
+                color: this.colors[Math.floor(Math.random() * this.colors.length)],
+                alpha: 1,
+                decay: 0.015 + Math.random() * 0.015,
+                rotation: Math.random() * Math.PI,
+                rotationSpeed: (Math.random() - 0.5) * 0.1,
+                type: Math.random() > 0.4 ? 'atom' : 'dot'
+            });
+        }
+        this.animate();
+    }
+
+    stop() {
+        this.active = false;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    animate() {
+        if (!this.active) return;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        let alive = false;
+
+        this.particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.15;
+            p.alpha -= p.decay;
+            p.rotation += p.rotationSpeed;
+
+            if (p.alpha > 0) {
+                alive = true;
+                this.ctx.save();
+                this.ctx.translate(p.x, p.y);
+                this.ctx.rotate(p.rotation);
+                this.ctx.globalAlpha = p.alpha;
+
+                if (p.type === 'atom') {
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, p.size / 4, 0, Math.PI * 2);
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.fill();
+
+                    this.ctx.strokeStyle = p.color;
+                    this.ctx.lineWidth = 1.5;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(0, 0, p.size, p.size / 3, Math.PI / 4, 0, Math.PI * 2);
+                    this.ctx.stroke();
+
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(0, 0, p.size, p.size / 3, -Math.PI / 4, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                } else {
+                    this.ctx.beginPath();
+                    for (let j = 0; j < 4; j++) {
+                        this.ctx.rotate(Math.PI / 4);
+                        this.ctx.rect(-p.size / 2, -1, p.size, 2);
+                        this.ctx.rect(-1, -p.size / 2, 2, p.size);
+                    }
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.fill();
+                }
+                this.ctx.restore();
+            }
+        });
+
+        if (alive) {
+            requestAnimationFrame(() => this.animate());
+        }
+    }
+}
+
+// --- TEAK WORD SCRAMBLE ENGINE ---
+class TeakScrambleGame {
+    constructor() {
+        this.currentCategory = 'general';
+        this.dictionary = {
+            general: {
+                1: ["LINE", "WOOD", "TRAY", "GLOW", "TILE", "GAME", "PLAY", "ATOM"],
+                2: ["BOARD", "GRAIN", "SLOTS", "CHECK", "RESET", "VALVE", "RADIO"],
+                3: ["ENGINE", "MATRIX", "VECTOR", "CANVAS", "BUFFER", "KERNEL", "ROUTER"],
+                4: ["CABINET", "PARQUET", "SCRAMBLE", "DISPLAY", "SHADOWS", "INLAYS"],
+                5: ["AUTOMATA", "SKEUOMOR", "MIDCENTU", "MAHOGANY", "FLUIDITY"]
+            },
+            science: {
+                1: ["ATOM", "CELL", "GENE", "BOND", "ACID", "IONS", "WAVE", "LENS"],
+                2: ["FORCE", "ORGAN", "LIGHT", "SPACE", "VIRUS", "FOSSIL", "RADAR"],
+                3: ["NEURON", "PROTON", "OXYGEN", "PLASMA", "GRAVITY", "MUTATION"],
+                4: ["GENETICS", "MOLECULE", "ELEMENTS", "ELECTRON", "VELOCITY", "CATALYST"],
+                5: ["EVOLUTION", "CHEMISTRY", "ASTRONOMY", "TELESCOPE", "ORGANISMS"]
+            },
+            math: {
+                1: ["LINE", "CONE", "AREA", "MATH", "SINE", "ZERO", "ROOT", "PLOTS"],
+                2: ["ANGLE", "GRAPH", "RATIO", "PRIME", "LOGIC", "PROOF", "CURVE"],
+                3: ["ALGEBRA", "DECIMAL", "GRIDDED", "VECTORS", "RADIUS", "INTEGER"],
+                4: ["GEOMETRY", "CALCULUS", "FRACTION", "EQUATION", "DECIMALS", "THEOREM"],
+                5: ["STATISTICS", "EXPONENT", "POLYGONAL", "FRACTALISM", "ALGORITHMS"]
+            },
+            history: {
+                1: ["WARS", "KING", "ROME", "TSAR", "FORT", "CLAN", "FEUD", "HEIR"],
+                2: ["RUINS", "REIGN", "EMPIRE", "COLONY", "TREATY", "CASTE", "SIEGES"],
+                3: ["DYNASTY", "CRUSADE", "WARRIOR", "TEMPLAR", "KNIGHTS", "REVOLTS"],
+                4: ["MONARCHS", "COLONIAL", "CONQUEST", "PAPYRIAN", "VIKINGS", "HISTORY"],
+                5: ["REVOLUTION", "ARCHAEOLOG", "CIVILIZATIO", "PREHISTORIC", "FEUDALISMS"]
+            },
+            anime: {
+                1: ["GOKU", "LIMA", "NAMI", "LUFFY", "ZORO", "MONA", "ALUC", "PONY"],
+                2: ["BLEACH", "NARUTO", "CONAN", "KAGURA", "TAIGA", "BORUTO", "ASUNA"],
+                3: ["GINTAMA", "DORORO", "SAILOR", "MONSTER", "INUYASHA", "DEATHNOTE"],
+                4: ["CLAYMORE", "EVANGELI", "SHINGEKI", "ALCHEMIS", "PROMISED", "OVERLORD"],
+                5: ["FULLMETAL", "VILANDSA", "STEINSGAT", "PSYCHOPAS", "ONEPIECE"]
+            },
+            technology: {
+                1: ["CODE", "BYTE", "DATA", "CHIP", "DISK", "RAMS", "PORT", "TECH"],
+                2: ["ROUTER", "MODEM", "PROXY", "PIXEL", "CLOUD", "ARRAY", "LOGIC"],
+                3: ["DATABASE", "SOFTWARE", "HARDWARE", "NETWORK", "COMPILER", "INTERNET"],
+                4: ["SECURITY", "PROTOCOL", "FIREWALL", "MONITORS", "KEYBOARD", "SYSTEMS"],
+                5: ["ALGORITHM", "PROGRAMMIN", "PROCESSORS", "ENCRYPTIONS", "TELEPHONIC"]
+            },
+            novel: {
+                1: ["PLAY", "POEM", "TALE", "PAGE", "BOOK", "PLOT", "EPIC", "CAST"],
+                2: ["NOVEL", "DRAMA", "PROSE", "GENRE", "WRITE", "STORY", "FOLIO"],
+                3: ["DRACULA", "ODYSSEY", "HAMLET", "MACBETH", "GATSBY", "BELOVED"],
+                4: ["VOLTAIRE", "LITERARY", "CHAPTERS", "FICTIONAL", "TRAGEDIE", "ROMANCES"],
+                5: ["LITERATURE", "BIBLIOGRAP", "PLAYWRIGHT", "PUBLISHERS", "BIOGRAPHIE"]
+            },
+            "filipino-movies": {
+                1: ["METR", "GOYO", "OLIV", "BATA", "BALE", "AMIG", "KIMY", "MILO"],
+                2: ["HIMALA", "DEKADA", "METRO", "TANGIN", "KUBLIS", "BAGONG", "BUYBUST"],
+                3: ["HENERAL", "METROMAN", "ORAPRON", "HAPILAND", "SIGWAAN", "KAPAGAN"],
+                4: ["SEKLUZYO", "LUNASING", "MINSANAN", "SISTERAK", "ENTENGAN", "KAPATIDA"],
+                5: ["DEKADASETEN", "HIMALAANIS", "HENERALLUN", "TANGINGYAM", "GOYOHANGIN"]
+            }
+        };
+        
+        this.boardGrid = document.getElementById('board-grid');
+        this.rackSlotsContainer = document.getElementById('rack-slots');
+        this.scoreElement = document.getElementById('score-val');
+        this.levelElement = document.getElementById('level-val');
+        this.victoryScreen = document.getElementById('victory-screen');
+        this.mainBoard = document.getElementById('main-board');
+        
+        this.score = 0;
+        this.level = 1;
+        
+        this.sound = new SoundController();
+        this.particles = new ParticleSystem(document.getElementById('effects-canvas'));
+
+        // Initialize drag-and-drop trackers
+        this.activeDragTile = null;
+        this.dragOffset = { x: 0, y: 0 };
+        this.dragStartRect = null;
+        this.hoveredCell = null;
+        
+        this.buildCheckerboard();
+        this.registerGlobalEvents();
+        
+        // Trigger initial loader
+        this.runLoadingScreen(this.initLevel());
+    }
+
+    buildCheckerboard() {
+        this.boardGrid.innerHTML = '';
+        for (let r = 0; r < 10; r++) {
+            for (let c = 0; c < 10; c++) {
+                const cell = document.createElement('div');
+                const isLight = (r + c) % 2 === 0;
+                cell.className = `grid-cell`;
+                cell.style.backgroundColor = isLight ? 'var(--teak-light)' : 'var(--teak-base)';
+                cell.dataset.index = r * 10 + c;
+                this.boardGrid.appendChild(cell);
+            }
+        }
+    }
+
+    async initLevel() {
+        const wordLength = Math.min(3 + this.level, 8);
+        this.levelElement.innerText = this.level + " ...";
+        
+        let word = "";
+        let clue = "";
+        const cat = this.currentCategory;
+
+        if (cat === 'general') {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3500);
+                const response = await fetch(`https://random-word-api.herokuapp.com/word?length=${wordLength}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data[0]) {
+                        word = data[0].toUpperCase();
+                    }
+                }
+            } catch (err) {
+                console.warn("General API word fetch failed, using local offline fallback", err);
+            }
+            if (word) {
+                clue = await this.fetchDictionaryDefinition(word);
+            }
+        }
+        else if (cat === 'science' || cat === 'math' || cat === 'history' || cat === 'technology' || cat === 'novel') {
+            const mlQueries = {
+                science: 'science',
+                math: 'mathematics',
+                history: 'history',
+                technology: 'technology',
+                novel: 'novel'
+            };
+            const query = mlQueries[cat];
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3500);
+                const response = await fetch(`https://api.datamuse.com/words?ml=${query}&md=d&max=150`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (response.ok) {
+                    const data = await response.json();
+                    const candidates = data.filter(item => {
+                        const w = item.word.toUpperCase();
+                        return w.length === wordLength && /^[A-Z]+$/.test(w);
+                    });
+                    if (candidates.length > 0) {
+                        const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+                        word = chosen.word.toUpperCase();
+                        if (chosen.defs && chosen.defs.length > 0) {
+                            const rawDef = chosen.defs[0];
+                            const tabIdx = rawDef.indexOf('\t');
+                            clue = tabIdx !== -1 ? rawDef.substring(tabIdx + 1) : rawDef;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn(`Datamuse API fetch failed for ${cat}`, err);
+            }
+            if (word && !clue) {
+                clue = await this.fetchDictionaryDefinition(word);
+            }
+        }
+        else if (cat === 'anime' || cat === 'filipino-movies') {
+            const categories = {
+                anime: 'Category:Anime_series',
+                'filipino-movies': 'Category:Philippine_films'
+            };
+            const cmtitle = categories[cat];
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=${cmtitle}&cmlimit=250&format=json&origin=*`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.query && data.query.categorymembers) {
+                        const members = data.query.categorymembers;
+                        const candidates = [];
+                        members.forEach(m => {
+                            const rawTitle = m.title;
+                            if (rawTitle.toLowerCase().startsWith('list of') || rawTitle.toLowerCase().startsWith('category:')) return;
+                            let cleanTitle = rawTitle.replace(/\s*\(.*?\)\s*/g, '');
+                            cleanTitle = cleanTitle.replace(/[^a-zA-Z]/g, '').toUpperCase();
+                            if (cleanTitle.length >= 4 && cleanTitle.length <= 8) {
+                                candidates.push({ originalTitle: rawTitle, cleanTitle: cleanTitle });
+                            }
+                        });
+                        let filtered = candidates.filter(c => c.cleanTitle.length === wordLength);
+                        if (filtered.length === 0) filtered = candidates;
+                        if (filtered.length > 0) {
+                            const chosen = filtered[Math.floor(Math.random() * filtered.length)];
+                            word = chosen.cleanTitle;
+                            clue = await this.fetchWikipediaSummary(chosen.originalTitle, word);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn(`Wikipedia Category fetch failed for ${cat}`, err);
+            }
+        }
+
+        // Offline Fallback
+        if (!word || !/^[A-Z]+$/.test(word) || word.length < 4 || word.length > 8) {
+            console.log("Using offline fallback dictionary...");
+            const levelKey = Math.min(this.level, 5);
+            const wordPool = (this.dictionary[cat] && this.dictionary[cat][levelKey]) 
+                ? this.dictionary[cat][levelKey] 
+                : this.dictionary.general[levelKey];
+            word = wordPool[Math.floor(Math.random() * wordPool.length)].toUpperCase();
+        }
+        
+        this.targetWord = word;
+        
+        if (!clue) {
+            clue = `A word starting with '${this.targetWord[0]}' and ending with '${this.targetWord[this.targetWord.length-1]}'.`;
+        }
+        this.wordClue = this.censorWordInClue(clue, this.targetWord);
+        
+        let scrambled = this.targetWord;
+        let attempts = 0;
+        while (scrambled === this.targetWord && attempts < 100) {
+            scrambled = this.targetWord.split('').sort(() => Math.random() - 0.5).join('');
+            attempts++;
+        }
+        this.scrambledWord = scrambled;
+
+        this.tilesData = [];
+        this.boardOccupants = Array(100).fill(null);
+        this.rackSlots = Array(this.targetWord.length).fill(null);
+
+        const isVertical = Math.random() > 0.5;
+        const len = this.targetWord.length;
+        
+        let startRow, startCol;
+        if (isVertical) {
+            startRow = Math.floor(Math.random() * (10 - len));
+            startCol = Math.floor(Math.random() * 10);
+        } else {
+            startRow = Math.floor(Math.random() * 10);
+            startCol = Math.floor(Math.random() * (10 - len));
+        }
+
+        this.targetCellIndices = [];
+        for (let j = 0; j < len; j++) {
+            const r = isVertical ? startRow + j : startRow;
+            const c = isVertical ? startCol : startCol + j;
+            this.targetCellIndices.push(r * 10 + c);
+        }
+
+        this.levelElement.innerText = this.level;
+        this.buildLevelArchetype();
+    }
+
+    buildLevelArchetype() {
+        // Clean out existing slot outlines and wood tiles
+        document.querySelectorAll('.dashed-slot').forEach(el => el.remove());
+        document.querySelectorAll('.wood-tile').forEach(el => el.remove());
+        this.rackSlotsContainer.innerHTML = '';
+
+        // Overlay target slots in the randomly chosen cell path
+        this.targetCellIndices.forEach((cellIdx, i) => {
+            const slot = document.createElement('div');
+            slot.className = 'dashed-slot';
+            slot.dataset.index = i;
+            this.boardGrid.children[cellIdx].appendChild(slot);
+        });
+
+        // Create rack slots at bottom right
+        for (let i = 0; i < this.targetWord.length; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'rack-slot';
+            slot.dataset.index = i;
+            this.rackSlotsContainer.appendChild(slot);
+        }
+
+        this.boardGrid.offsetHeight; // reflow
+
+        // Instantiate wooden tiles on the rack
+        this.scrambledWord.split('').forEach((char, index) => {
+            const tile = document.createElement('div');
+            tile.className = 'wood-tile';
+            tile.innerText = char;
+            
+            const dataObj = {
+                element: tile,
+                char: char,
+                currentLocation: 'rack', // 'rack' or 'board'
+                slotIndex: index // index of rack (0 to L-1) or board cell (0 to 99)
+            };
+            
+            this.tilesData.push(dataObj);
+            this.rackSlots[index] = dataObj;
+
+            // Event bindings
+            tile.addEventListener('mousedown', (e) => this.dragStart(e, dataObj));
+            tile.addEventListener('touchstart', (e) => this.dragStart(e, dataObj), { passive: false });
+            tile.addEventListener('click', () => {
+                if (this.draggedDistance > 5) return;
+                this.handleTileClick(dataObj);
+            });
+
+            document.body.appendChild(tile);
+        });
+
+        this.syncViewPositions(false);
+    }
+
+    handleTileClick(tileObj) {
+        if (tileObj.element.classList.contains('locked')) return;
+        this.sound.play('select');
+
+        if (tileObj.currentLocation === 'rack') {
+            // Find first empty target cell in the highlighted path
+            let openCellIdx = -1;
+            for (let i = 0; i < this.targetCellIndices.length; i++) {
+                const cellIdx = this.targetCellIndices[i];
+                if (this.boardOccupants[cellIdx] === null) {
+                    openCellIdx = cellIdx;
+                    break;
+                }
+            }
+
+            // Fallback to any empty cell on the board if target slots are full
+            if (openCellIdx === -1) {
+                openCellIdx = this.boardOccupants.indexOf(null);
+            }
+
+            if (openCellIdx !== -1) {
+                this.moveTileTo(tileObj, 'board', openCellIdx);
+            }
+        } else {
+            // Return from board to the rack
+            const openRackIdx = this.rackSlots.indexOf(null);
+            if (openRackIdx !== -1) {
+                this.moveTileTo(tileObj, 'rack', openRackIdx);
+            }
+        }
+        this.syncViewPositions(true);
+    }
+
+    moveTileTo(tileObj, destination, index) {
+        // Clear previous reference
+        if (tileObj.currentLocation === 'rack') {
+            this.rackSlots[tileObj.slotIndex] = null;
+        } else {
+            this.boardOccupants[tileObj.slotIndex] = null;
+        }
+
+        // Apply new location
+        tileObj.currentLocation = destination;
+        tileObj.slotIndex = index;
+
+        if (destination === 'rack') {
+            this.rackSlots[index] = tileObj;
+            tileObj.element.classList.remove('inlaid');
+        } else {
+            this.boardOccupants[index] = tileObj;
+            tileObj.element.classList.add('inlaid');
+        }
+    }
+
+    syncViewPositions(animate = true) {
+        const scrollX = window.scrollX || window.pageXOffset || 0;
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+
+        this.tilesData.forEach(tileObj => {
+            let targetDOM = null;
+            
+            if (tileObj.currentLocation === 'rack') {
+                targetDOM = this.rackSlotsContainer.children[tileObj.slotIndex];
+            } else {
+                targetDOM = this.boardGrid.children[tileObj.slotIndex];
+            }
+
+            if (!targetDOM) return;
+            const rect = targetDOM.getBoundingClientRect();
+
+            if (!animate) tileObj.element.style.transition = 'none';
+
+            // Calculate dynamic tile size to fit grid-cells/slots responsively
+            const pad = 2;
+            const tileSize = rect.width - pad;
+            tileObj.element.style.width = `${tileSize}px`;
+            tileObj.element.style.height = `${tileSize}px`;
+            tileObj.element.style.fontSize = `${tileSize * 0.55}px`;
+
+            const offset = pad / 2;
+            
+            tileObj.element.style.transform = `translate3d(${rect.left + scrollX + offset}px, ${rect.top + scrollY + offset}px, 0px)`;
+
+            if (!animate) {
+                tileObj.element.offsetHeight; // flush
+                tileObj.element.style.transition = '';
+            }
+        });
+    }
+
+    // --- DRAG AND DROP CONTROLS ---
+    dragStart(e, tileObj) {
+        if (tileObj.element.classList.contains('locked')) return;
+        
+        e.preventDefault();
+        this.sound.play('select');
+        this.activeDragTile = tileObj;
+        this.draggedDistance = 0;
+        
+        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+        
+        const tileRect = tileObj.element.getBoundingClientRect();
+        this.dragOffset.x = clientX - tileRect.left;
+        this.dragOffset.y = clientY - tileRect.top;
+        this.dragStartRect = tileRect;
+
+        tileObj.element.classList.add('dragging');
+    }
+
+    dragMove(e) {
+        if (!this.activeDragTile) return;
+
+        // Prevent viewport scroll during drag operations on mobile
+        if (e.cancelable) {
+            e.preventDefault();
+        }
+
+        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+        const dx = clientX - (this.dragOffset.x + this.dragStartRect.left);
+        const dy = clientY - (this.dragOffset.y + this.dragStartRect.top);
+        this.draggedDistance = Math.sqrt(dx*dx + dy*dy);
+
+        const scrollX = window.scrollX || window.pageXOffset || 0;
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const x = clientX - this.dragOffset.x + scrollX;
+        const y = clientY - this.dragOffset.y + scrollY;
+        this.activeDragTile.element.style.transform = `translate3d(${x}px, ${y}px, 0px)`;
+
+        const halfWidth = this.activeDragTile.element.offsetWidth / 2;
+        const halfHeight = this.activeDragTile.element.offsetHeight / 2;
+        this.updateDragHighlights(clientX - this.dragOffset.x + halfWidth, clientY - this.dragOffset.y + halfHeight);
+    }
+
+    dragEnd(e) {
+        if (!this.activeDragTile) return;
+
+        const tileObj = this.activeDragTile;
+        tileObj.element.classList.remove('dragging');
+        this.activeDragTile = null;
+
+        // Clean layout highlights
+        document.querySelectorAll('.dashed-slot').forEach(el => el.classList.remove('drag-hover'));
+
+        // Mobile touch tap detection: if dragged distance is tiny, trigger tap-to-move
+        if (this.draggedDistance < 10) {
+            if (e && e.type === 'touchend') {
+                e.preventDefault();
+                this.handleTileClick(tileObj);
+            }
+            this.hoveredCell = null;
+            return;
+        }
+
+        if (this.hoveredCell) {
+            const destType = this.hoveredCell.type; // 'board' or 'rack'
+            const destIdx = this.hoveredCell.index;
+
+            // Check occupant in destination
+            let occupant = destType === 'rack' ? this.rackSlots[destIdx] : this.boardOccupants[destIdx];
+
+            if (occupant && occupant !== tileObj) {
+                // Swap layout positions
+                const srcLocation = tileObj.currentLocation;
+                const srcIdx = tileObj.slotIndex;
+
+                this.moveTileTo(tileObj, destType, destIdx);
+                this.moveTileTo(occupant, srcLocation, srcIdx);
+                this.sound.play('drop');
+            } else {
+                // Clear slot and move in
+                this.moveTileTo(tileObj, destType, destIdx);
+                this.sound.play('drop');
+            }
+        } else {
+            // return to start
+            this.sound.play('drop');
+        }
+
+        this.hoveredCell = null;
+        this.syncViewPositions(true);
+    }
+
+    updateDragHighlights(cx, cy) {
+        let bestCell = null;
+        let minDist = 36; // Snapping radius threshold
+
+        // 1. Scan board 10x10 squares
+        Array.from(this.boardGrid.children).forEach(cell => {
+            const rect = cell.getBoundingClientRect();
+            const cellX = rect.left + rect.width / 2;
+            const cellY = rect.top + rect.height / 2;
+            const dist = Math.sqrt((cx - cellX)**2 + (cy - cellY)**2);
+            
+            if (dist < minDist) {
+                minDist = dist;
+                bestCell = {
+                    type: 'board',
+                    index: parseInt(cell.dataset.index),
+                    element: cell
+                };
+            }
+        });
+
+        // 2. Scan rack slots
+        Array.from(this.rackSlotsContainer.children).forEach((slot, index) => {
+            const rect = slot.getBoundingClientRect();
+            const slotX = rect.left + rect.width / 2;
+            const slotY = rect.top + rect.height / 2;
+            const dist = Math.sqrt((cx - slotX)**2 + (cy - slotY)**2);
+            
+            if (dist < minDist) {
+                minDist = dist;
+                bestCell = {
+                    type: 'rack',
+                    index: index,
+                    element: slot
+                };
+            }
+        });
+
+        // Highlight slot outline if dragged over target cell paths
+        document.querySelectorAll('.dashed-slot').forEach(el => el.classList.remove('drag-hover'));
+
+        if (bestCell) {
+            this.hoveredCell = bestCell;
+            if (bestCell.type === 'board') {
+                const innerSlot = bestCell.element.querySelector('.dashed-slot');
+                if (innerSlot) {
+                    innerSlot.classList.add('drag-hover');
+                }
+            }
+        } else {
+            this.hoveredCell = null;
+        }
+    }
+
+    registerGlobalEvents() {
+        window.addEventListener('mousemove', (e) => this.dragMove(e));
+        window.addEventListener('touchmove', (e) => this.dragMove(e), { passive: false });
+        
+        window.addEventListener('mouseup', (e) => this.dragEnd(e));
+        window.addEventListener('touchend', (e) => this.dragEnd(e));
+
+        window.addEventListener('resize', () => this.syncViewPositions(false));
+    }
+
+    verifySolution() {
+        // Read letters placed in the target cell path
+        const playerWord = this.targetCellIndices.map(cellIdx => {
+            const tile = this.boardOccupants[cellIdx];
+            return tile ? tile.char : '';
+        }).join('');
+
+        if (playerWord === this.targetWord) {
+            this.sound.play('win');
+            this.tilesData.forEach(t => t.element.classList.add('locked'));
+            
+            // Trigger bounce effect sequentially on each letter from start to end
+            this.targetCellIndices.forEach((cellIdx, i) => {
+                const tileObj = this.boardOccupants[cellIdx];
+                if (tileObj && tileObj.element) {
+                    setTimeout(() => {
+                        tileObj.element.classList.add('bounce-active');
+                        // Remove class after animation finishes so it can be re-applied
+                        tileObj.element.addEventListener('animationend', () => {
+                            tileObj.element.classList.remove('bounce-active');
+                        }, { once: true });
+                    }, i * 100); // 100ms delay between each letter
+                }
+            });
+
+            const badge = document.querySelector('.score-bubble');
+            const badgeRect = badge.getBoundingClientRect();
+            this.particles.burst(badgeRect.left + 30, badgeRect.top + 30);
+
+            this.score += 100;
+            this.scoreElement.innerText = this.score.toString().padStart(3, '0');
+
+            setTimeout(() => {
+                this.victoryScreen.classList.add('active');
+            }, 1200); // Wait for the cascade bounce animation to finish beautifully
+        } else {
+            this.sound.play('error');
+            
+            // Shake and highlight incorrect board tiles red
+            this.tilesData.forEach(t => {
+                if (t.currentLocation === 'board' && !t.element.classList.contains('locked')) {
+                    t.element.style.transition = 'none';
+                    t.element.style.backgroundColor = '#ef5350';
+                    t.element.style.color = '#ffffff';
+                    
+                    const side = 5;
+                    const tileX = parseFloat(t.element.style.transform.match(/translate3d\(([^px]+)px/)[1]);
+                    const tileY = parseFloat(t.element.style.transform.match(/px, ([^px]+)px/)[1]);
+
+                    let tick = 0;
+                    const shakeInterval = setInterval(() => {
+                        tick++;
+                        const shakeOffset = (tick % 2 === 0 ? 1 : -1) * side;
+                        t.element.style.transform = `translate3d(${tileX + shakeOffset}px, ${tileY}px, 0px)`;
+                        if (tick >= 6) {
+                            clearInterval(shakeInterval);
+                            t.element.style.backgroundColor = '';
+                            t.element.style.color = '';
+                            t.element.style.transition = '';
+                            this.syncViewPositions(true);
+                        }
+                    }, 40);
+                }
+            });
+            
+            this.mainBoard.classList.add('shake');
+            setTimeout(() => this.mainBoard.classList.remove('shake'), 400);
+
+            setTimeout(() => this.resetTray(), 500);
+        }
+    }
+
+    resetTray() {
+        this.sound.play('reset');
+        this.boardOccupants.fill(null);
+        
+        this.tilesData.forEach((tileObj, index) => {
+            tileObj.currentLocation = 'rack';
+            tileObj.slotIndex = index;
+            this.rackSlots[index] = tileObj;
+            tileObj.element.classList.remove('inlaid');
+            tileObj.element.classList.remove('locked'); // Ensure all reset tiles are clickable again
+        });
+        this.syncViewPositions(true);
+    }
+
+    giveLetterHint() {
+        // First, return all unlocked/incorrect tiles currently on the board back to the rack
+        this.tilesData.forEach(tileObj => {
+            if (tileObj.currentLocation === 'board' && !tileObj.element.classList.contains('locked')) {
+                // Return to rack
+                this.boardOccupants[tileObj.slotIndex] = null;
+                tileObj.currentLocation = 'rack';
+                tileObj.element.classList.remove('inlaid');
+                
+                // Find empty slot on the rack
+                const openRackIdx = this.rackSlots.indexOf(null);
+                if (openRackIdx !== -1) {
+                    this.rackSlots[openRackIdx] = tileObj;
+                    tileObj.slotIndex = openRackIdx;
+                }
+            }
+        });
+
+        let hintSlotIndex = -1; // index inside the targetCellIndices path (0 to L-1)
+        for (let i = 0; i < this.targetCellIndices.length; i++) {
+            const cellIdx = this.targetCellIndices[i];
+            const occupant = this.boardOccupants[cellIdx];
+            if (!occupant || occupant.char !== this.targetWord[i] || !occupant.element.classList.contains('locked')) {
+                hintSlotIndex = i;
+                break;
+            }
+        }
+
+        if (hintSlotIndex !== -1) {
+            this.sound.play('select');
+            
+            const targetCellIdx = this.targetCellIndices[hintSlotIndex];
+            const correctChar = this.targetWord[hintSlotIndex];
+            
+            // 1. Kick out any incorrect tile currently sitting in that target cell
+            const occupant = this.boardOccupants[targetCellIdx];
+            if (occupant) {
+                const openRackIdx = this.rackSlots.indexOf(null);
+                if (openRackIdx !== -1) {
+                    this.moveTileTo(occupant, 'rack', openRackIdx);
+                } else {
+                    // find any empty cell on board
+                    const openBoardIdx = this.boardOccupants.indexOf(null);
+                    if (openBoardIdx !== -1) {
+                        this.moveTileTo(occupant, 'board', openBoardIdx);
+                    }
+                }
+            }
+
+            // 2. Locate the correct letter block (not currently locked)
+            const correctTile = this.tilesData.find(t => t.char === correctChar && !t.element.classList.contains('locked'));
+            
+            if (correctTile) {
+                // 3. Move correct tile to target cell
+                this.moveTileTo(correctTile, 'board', targetCellIdx);
+                // 4. Lock it
+                correctTile.element.classList.add('locked');
+                
+                this.sound.play('drop');
+                this.syncViewPositions(true);
+                
+                // Deduct 10 points
+                this.score = Math.max(0, this.score - 10);
+                this.scoreElement.innerText = this.score.toString().padStart(3, '0');
+            }
+        }
+    }
+
+    showWordClue() {
+        this.sound.play('select');
+        const panel = document.getElementById('clue-text');
+        panel.innerText = this.wordClue;
+    }
+
+    async nextLevel() {
+        this.victoryScreen.classList.remove('active');
+        this.particles.stop();
+        
+        this.level++;
+        this.levelElement.innerText = this.level;
+        
+        document.getElementById('clue-text').innerText = "Need a definition? Click 'Word Hint'!";
+        
+        this.tilesData.forEach(t => t.element.remove());
+        await this.runLoadingScreen(this.initLevel());
+    }
+
+    async runLoadingScreen(asyncTask) {
+        const loadingScreen = document.getElementById('loading-screen');
+        const progressBar = document.getElementById('loading-progress-bar');
+        const statusText = document.getElementById('loading-status-text');
+        const progressPercent = document.getElementById('loading-progress-percent');
+
+        loadingScreen.classList.add('active');
+        progressBar.style.width = '0%';
+        progressPercent.innerText = '0%';
+        statusText.innerText = 'Initializing...';
+
+        let progress = 0;
+        let isDone = false;
+        
+        // Progress bar simulation
+        const progressInterval = setInterval(() => {
+            if (isDone) {
+                progress = 100;
+                progressBar.style.width = '100%';
+                progressPercent.innerText = '100%';
+                clearInterval(progressInterval);
+            } else {
+                // Slower near the end for tension
+                let increment = progress > 85 ? 0.3 : 4;
+                progress += Math.random() * increment;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = `${Math.floor(progress)}%`;
+                progressPercent.innerText = `${Math.floor(progress)}%`;
+            }
+        }, 100);
+
+        const statusPhrases = [
+            'Accessing server core...',
+            'Querying word database...',
+            'Retrieving definitions...',
+            'Compiling board matrix...',
+            'Scrambling wooden tiles...'
+        ];
+        let phraseIdx = 0;
+        const phraseInterval = setInterval(() => {
+            if (isDone) {
+                statusText.innerText = 'Scramble completed!';
+                clearInterval(phraseInterval);
+            } else {
+                statusText.innerText = statusPhrases[phraseIdx % statusPhrases.length];
+                phraseIdx++;
+            }
+        }, 400);
+
+        try {
+            await asyncTask;
+        } catch (e) {
+            console.error('Task failed during loading', e);
+        } finally {
+            isDone = true;
+            progressBar.style.width = '100%';
+            progressPercent.innerText = '100%';
+            statusText.innerText = 'Completed!';
+            
+            clearInterval(progressInterval);
+            clearInterval(phraseInterval);
+            
+            setTimeout(() => {
+                loadingScreen.classList.remove('active');
+            }, 300);
+        }
+    }
+
+    toggleSound() {
+        this.sound.toggleMute();
+    }
+
+    openCategoryModal() {
+        this.sound.play('select');
+        document.getElementById('category-modal-backdrop').classList.add('active');
+    }
+
+    closeCategoryModal(event) {
+        if (!event || event.target === document.getElementById('category-modal-backdrop')) {
+            this.sound.play('select');
+            document.getElementById('category-modal-backdrop').classList.remove('active');
+        }
+    }
+
+    async switchCategory(category) {
+        if (category === this.currentCategory && this.tilesData.length > 0) {
+            document.getElementById('category-modal-backdrop').classList.remove('active');
+            return;
+        }
+
+        this.sound.play('select');
+        document.getElementById('category-modal-backdrop').classList.remove('active');
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('current');
+        });
+        const btnId = `cat-btn-${category}`;
+        const targetBtn = document.getElementById(btnId);
+        if (targetBtn) targetBtn.classList.add('current');
+
+        const tagBtn = document.getElementById('category-tag-btn');
+        if (tagBtn) {
+            const prettyNames = {
+                general: 'General',
+                science: 'Science',
+                math: 'Mathematics',
+                history: 'History',
+                anime: 'Anime Series',
+                technology: 'Technology',
+                novel: 'Novels',
+                'filipino-movies': 'Filipino Movies'
+            };
+            tagBtn.innerText = `Category: ${prettyNames[category] || category}`;
+        }
+
+        this.currentCategory = category;
+
+        // Clean current tiles
+        this.tilesData.forEach(t => t.element.remove());
+        this.tilesData = [];
+
+        await this.runLoadingScreen(this.initLevel());
+    }
+
+    async fetchDictionaryDefinition(word) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const defRes = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (defRes.ok) {
+                const defData = await defRes.json();
+                if (defData && defData[0] && defData[0].meanings && defData[0].meanings[0]) {
+                    const firstMeaning = defData[0].meanings[0];
+                    const firstDef = firstMeaning.definitions[0].definition;
+                    return `[${firstMeaning.partOfSpeech}] ${firstDef}`;
+                }
+            }
+        } catch (err) {
+            console.warn("Free Dictionary definition fetch failed", err);
+        }
+        return "";
+    }
+
+    async fetchWikipediaSummary(pageTitle, cleanWord) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.extract) {
+                    return data.extract;
+                }
+            }
+        } catch (err) {
+            console.warn("Wikipedia summary fetch failed", err);
+        }
+        return "";
+    }
+
+    censorWordInClue(clue, word) {
+        if (!clue) return "";
+        let censored = clue;
+        const escapedWord = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regexWord = new RegExp(escapedWord, 'gi');
+        censored = censored.replace(regexWord, '____');
+        return censored;
+    }
+}
+
+// Instantiate game engine on load
+let game;
+window.addEventListener('load', () => {
+    game = new TeakScrambleGame();
+});
+</script>
+</body>
+</html>
