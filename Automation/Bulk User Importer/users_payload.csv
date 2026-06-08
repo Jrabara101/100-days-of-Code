@@ -1,0 +1,5 @@
+name,email,role
+Alexander Wright,alex@domain.com,Administrator
+Sarah Connor,s.connor@cyberdyne.io,Manager
+John Doe,invalid-email-string,User
+Evelyn Thorne,evelyn@domain.com,User

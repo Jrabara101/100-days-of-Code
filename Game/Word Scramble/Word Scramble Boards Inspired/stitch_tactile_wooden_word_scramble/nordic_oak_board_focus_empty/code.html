@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Nordic Oak Grid Word Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            /* Nordic Oak Palette */
+            --board-wood: #f1ebd9;
+            --tile-wood: linear-gradient(145deg, #ffffff 0%, #f9f9f9 100%);
+            --carved-slot: #e3dec9;
+            --text-dark: #333333; /* Charcoal */
+            --highlight: rgba(255, 255, 255, 0.9);
+            --shadow-deep: rgba(0, 0, 0, 0.1);
+            --shadow-crisp: rgba(0, 0, 0, 0.05);
+            --bonus-blue: rgba(173, 216, 230, 0.4);
+            --bonus-slot: #d0e7ee;
+        }
+
+        body {
+            margin: 0; 
+            background-color: #faf9f6; 
+            background-image: 
+                linear-gradient(#f0ebe1 1px, transparent 1px),
+                linear-gradient(90deg, #f0ebe1 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--text-dark);
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden; font-family: 'Inter', sans-serif;
+            user-select: none; touch-action: none;
+        }
+
+        .layout-container {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        /* The Main Wooden Board Component */
+        .board-plate {
+            background: var(--board-wood); 
+            padding: 30px;
+            border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.08), 
+                inset 0 2px 10px var(--highlight);
+            display: grid;
+            grid-template-columns: repeat(10, 48px);
+            grid-template-rows: repeat(10, 48px);
+            gap: 6px;
+            position: relative;
+        }
+
+        .carved-slot {
+            width: 48px; height: 48px; 
+            background-color: var(--carved-slot);
+            border-radius: 6px; position: relative;
+            box-shadow: 
+                inset 2px 2px 4px rgba(0, 0, 0, 0.08), 
+                1px 1px 0px var(--highlight);
+        }
+
+        .carved-slot.bonus {
+            background-color: var(--bonus-slot);
+            box-shadow: 
+                inset 2px 2px 4px rgba(0, 0, 0, 0.08), 
+                inset 0 0 10px var(--bonus-blue),
+                1px 1px 0px var(--highlight);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .panel {
+            background: var(--board-wood);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.05), 
+                inset 0 2px 5px var(--highlight);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .panel h2 {
+            margin: 0 0 15px 0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #777;
+            font-weight: 700;
+        }
+
+        .score-value {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--text-dark);
+            line-height: 1;
+        }
+
+        .active-word-display {
+            min-height: 60px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .tray {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            min-height: 56px;
+        }
+
+        /* The Tactile Wooden Tiles Layer */
+        .wood-tile {
+            position: absolute; width: 48px; height: 48px; 
+            background: var(--tile-wood);
+            border-radius: 6px; display: flex; justify-content: center; align-items: center;
+            font-size: 1.5rem; font-weight: 800; color: var(--text-dark);
+            cursor: pointer; 
+            
+            box-shadow: 
+                0 4px 8px var(--shadow-deep), 
+                inset 0 1px 0px var(--highlight),
+                inset 0 -1px 0px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.2s;
+            z-index: 100;
+        }
+
+        .wood-tile .points {
+            position: absolute;
+            bottom: 3px;
+            right: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #888;
+        }
+        
+        .wood-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px var(--shadow-deep), inset 0 1px 0px var(--highlight);
+        }
+
+        .wood-tile:active {
+            transform: scale(0.96) translateY(0px);
+            box-shadow: 0 2px 4px var(--shadow-deep), inset 0 1px 0px var(--highlight);
+        }
+
+        .controls { display: flex; gap: 10px; width: 100%; margin-top: 20px; }
+        button {
+            flex: 1; background: #e0d8c3; color: var(--text-dark); border: none;
+            padding: 12px; font-size: 0.9rem; font-weight: 800; border-radius: 8px;
+            cursor: pointer; 
+            box-shadow: 0 3px 0 #c2baa6; 
+            transition: all 0.1s;
+            font-family: inherit; text-transform: uppercase; letter-spacing: 1px;
+        }
+        button:hover { background: #d4ccb6; }
+        button:active { transform: translateY(2px); box-shadow: 0 1px 0 #c2baa6; }
+        button.primary {
+            background: var(--text-dark);
+            color: white;
+            box-shadow: 0 3px 0 #1a1a1a;
+        }
+        button.primary:hover { background: #444; }
+        button.primary:active { box-shadow: 0 1px 0 #1a1a1a; }
+
+    </style>
+</head>
+<body>
+<div class="board-plate" id="main-board"></div>
+<script>
+class GridWordGame {
+    constructor() {
+        this.boardElement = document.getElementById('main-board');
+        this.scoreText = document.getElementById('score-text');
+        this.activeWordDisplay = document.getElementById('active-word');
+        
+        this.score = 0;
+        this.gridSize = 10;
+        this.tilesData = [];
+        this.boardState = Array(this.gridSize * this.gridSize).fill(null);
+        
+        this.letterPoints = {
+            'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1, 'F': 4, 'G': 2, 'H': 4, 'I': 1, 'J': 8,
+            'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1, 'P': 3, 'Q': 10, 'R': 1, 'S': 1, 'T': 1,
+            'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4, 'Z': 10
+        };
+
+        this.initBoard();
+        // Hand spawning removed to provide an empty board focus
+    }
+
+    initBoard() {
+        this.boardElement.innerHTML = '';
+        
+        // Define some bonus zones (e.g., center and corners)
+        const bonusIndices = [
+            0, 9, 90, 99, // Corners
+            44, 45, 54, 55, // Center 2x2
+            22, 27, 72, 77 // Some arbitrary spots
+        ];
+
+        for (let i = 0; i < this.gridSize * this.gridSize; i++) {
+            let slot = document.createElement('div');
+            slot.className = 'carved-slot';
+            if (bonusIndices.includes(i)) {
+                slot.classList.add('bonus');
+            }
+            slot.dataset.index = i;
+            
+            // Simple click to move test implementation
+            slot.addEventListener('click', () => {
+                if (this.selectedTile) {
+                    this.moveSelectedToSlot(i);
+                }
+            });
+
+            this.boardElement.appendChild(slot);
+        }
+    }
+
+    createTile(char, initialIndex) {
+        let tile = document.createElement('div');
+        tile.className = 'wood-tile';
+        
+        let charSpan = document.createElement('span');
+        charSpan.innerText = char;
+        
+        let ptsSpan = document.createElement('span');
+        ptsSpan.className = 'points';
+        ptsSpan.innerText = this.letterPoints[char] || 1;
+
+        tile.appendChild(charSpan);
+        tile.appendChild(ptsSpan);
+        
+        let dataObject = {
+            element: tile,
+            char: char,
+            points: this.letterPoints[char] || 1,
+            slotIndex: initialIndex,
+            isPlaced: true // Start them on board for visual demo
+        };
+        
+        this.tilesData.push(dataObject);
+        this.boardState[initialIndex] = dataObject;
+
+        tile.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.handleTileClick(dataObject);
+        });
+        
+        document.body.appendChild(tile);
+    }
+
+    handleTileClick(tileObj) {
+        // Toggle selection
+        if (this.selectedTile === tileObj) {
+            this.selectedTile.element.style.transform = '';
+            this.selectedTile = null;
+        } else {
+            if (this.selectedTile) this.selectedTile.element.style.transform = '';
+            this.selectedTile = tileObj;
+            tileObj.element.style.transform = 'translateY(-10px)';
+        }
+    }
+
+    moveSelectedToSlot(slotIndex) {
+        if (!this.selectedTile) return;
+        if (this.boardState[slotIndex] !== null) return; // Slot occupied
+
+        // Remove from old slot
+        if (this.selectedTile.slotIndex !== null) {
+            this.boardState[this.selectedTile.slotIndex] = null;
+        }
+
+        // Move to new
+        this.selectedTile.slotIndex = slotIndex;
+        this.boardState[slotIndex] = this.selectedTile;
+        
+        this.selectedTile.element.style.transform = '';
+        this.selectedTile = null;
+        
+        this.syncViewPositions();
+        this.updateActiveWord();
+    }
+
+    updateActiveWord() {
+        // Dummy logic to just read the first row for the "active word" visual
+        let word = "";
+        for(let i=0; i<this.gridSize; i++) {
+            if(this.boardState[i]) word += this.boardState[i].char;
+        }
+        if (this.activeWordDisplay) this.activeWordDisplay.innerText = word;
+    }
+
+    syncViewPositions() {
+        this.tilesData.forEach(tileObj => {
+            if (tileObj.slotIndex !== null) {
+                let targetSlotDOM = this.boardElement.children[tileObj.slotIndex];
+                let rect = targetSlotDOM.getBoundingClientRect();
+                tileObj.element.style.transform = `translate3d(${rect.left}px, ${rect.top}px, 0px)`;
+            }
+        });
+    }
+
+    playWord() {
+        // Dummy score increase
+        this.score += 24;
+        if (this.scoreText) this.scoreText.innerText = this.score;
+        if (this.activeWordDisplay) this.activeWordDisplay.innerText = "";
+    }
+
+    recallTiles() {
+        // Move all to start
+        this.boardState.fill(null);
+        this.tilesData.forEach((tileObj, index) => {
+            tileObj.slotIndex = index;
+            this.boardState[index] = tileObj;
+        });
+        this.syncViewPositions();
+        this.updateActiveWord();
+    }
+}
+
+let game;
+window.addEventListener('load', () => {
+    game = new GridWordGame();
+    window.addEventListener('resize', () => game.syncViewPositions());
+});
+</script>
+</body></html>

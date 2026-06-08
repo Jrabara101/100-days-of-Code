@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atomic Scramble - Rustic Edition</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&amp;family=Space+Grotesk:wght@700&amp;family=Work+Sans:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#004f57",
+                        "inverse-surface": "#dee3e4",
+                        "on-secondary-container": "#533c00",
+                        "surface-container-low": "#171d1e",
+                        "surface-container-lowest": "#090f10",
+                        "on-tertiary-fixed": "#2c1600",
+                        "on-error": "#690005",
+                        "surface-container": "#1b2122",
+                        "error-container": "#93000a",
+                        "on-secondary": "#402d00",
+                        "on-primary": "#00363c",
+                        "on-primary-container": "#00565f",
+                        "wood-mahogany-dark": "#2d1b15", // Darkened for rustic feel
+                        "primary-fixed-dim": "#56d7e9",
+                        "secondary-fixed-dim": "#f8bd2a",
+                        "secondary": "#f8bd2a",
+                        "on-background": "#dee3e4",
+                        "sun-gold": "#b08d57", // Muted for rustic
+                        "outline": "#869395",
+                        "on-tertiary-container": "#724200",
+                        "primary": "#6fecfe",
+                        "surface-container-highest": "#303637",
+                        "atomic-teal": "#4dd0e1",
+                        "surface-dim": "#0f1415",
+                        "surface": "#1a1614", // Stone-like base
+                        "background": "#1a1614", // Stone-like background
+                        "secondary-fixed": "#ffdfa0",
+                        "on-tertiary-fixed-variant": "#693c00",
+                        "walnut-inlay": "#20130f", // Darkened wood
+                        "on-surface": "#dee3e4",
+                        "wood-teak-light": "#5c4033", // Weathered wood
+                        "outline-variant": "#3d494b",
+                        "surface-container-high": "#252b2c",
+                        "primary-container": "#4dd0e1",
+                        "on-secondary-fixed-variant": "#5c4300",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed": "#93f1ff",
+                        "on-secondary-fixed": "#261a00",
+                        "tertiary-fixed": "#ffdcbd",
+                        "tertiary-fixed-dim": "#ffb86e",
+                        "surface-variant": "#303637",
+                        "on-primary-fixed": "#001f23",
+                        "cream-wallpaper": "#d9d0c1", // Aged parchment
+                        "on-tertiary": "#492900",
+                        "tertiary-container": "#ffae55",
+                        "surface-tint": "#56d7e9",
+                        "inverse-primary": "#006973",
+                        "surface-bright": "#343a3b",
+                        "on-surface-variant": "#a39e99",
+                        "secondary-container": "#d9a200",
+                        "error": "#ffb4ab",
+                        "tertiary": "#ffd3aa",
+                        "inverse-on-surface": "#2b3132",
+                        "iron": "#333333" // Custom iron color
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "slot-size": "48px",
+                        "margin-md": "16px",
+                        "margin-sm": "8px",
+                        "board-padding": "24px",
+                        "grid-gap": "4px",
+                        "margin-lg": "32px"
+                    },
+                    "fontFamily": {
+                        "score-readout": ["Space Grotesk"],
+                        "display-lg": ["Montserrat"],
+                        "display-lg-mobile": ["Montserrat"],
+                        "body-md": ["Work Sans"],
+                        "tile-letter": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "score-readout": ["24px", { "lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "0.15em", "fontWeight": "800" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "800" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "tile-letter": ["28px", { "lineHeight": "1.0", "fontWeight": "700" }]
+                    },
+                    "backgroundImage": {
+                        'stone-texture': "url('https://images.unsplash.com/photo-1524704654690-b56c05c78a00?q=80&w=2069&auto=format&fit=crop')",
+                        'wood-grain': "url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop')"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-image: var(--tw-gradient-stops);
+            background-color: theme('colors.background');
+            /* Fallback rustic texture */
+            background: linear-gradient(rgba(26, 22, 20, 0.9), rgba(26, 22, 20, 0.9)), url('https://images.unsplash.com/photo-1524704654690-b56c05c78a00?q=80&w=2069&auto=format&fit=crop');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        .barn-wood-board {
+            background: linear-gradient(rgba(45, 27, 21, 0.8), rgba(45, 27, 21, 0.8)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.8), 0 15px 25px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        
+        .barn-wood-board::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.6) 100%);
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        .routed-slot {
+            background-color: theme('colors.walnut-inlay');
+            box-shadow: inset 3px 3px 6px rgba(0,0,0,0.9), inset -1px -1px 2px rgba(255,255,255,0.05);
+            border-radius: theme('borderRadius.DEFAULT');
+        }
+
+        .rustic-tile {
+            background: theme('colors.wood-teak-light');
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1);
+            border-radius: theme('borderRadius.DEFAULT');
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Scorched effect */
+            color: #1a0f0a;
+            text-shadow: 0px 1px 0px rgba(255,255,255,0.1);
+            position: relative;
+        }
+        
+        .rustic-tile::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .iron-button {
+            background: linear-gradient(to bottom, #4a4a4a, #2a2a2a);
+            border: 2px solid #1a1a1a;
+            border-bottom-width: 6px;
+            color: #d9d0c1;
+            text-shadow: -1px -1px 0 #000;
+            transition: all 0.1s;
+        }
+
+        .iron-button:active {
+            transform: translateY(4px);
+            border-bottom-width: 2px;
+            margin-bottom: 4px;
+        }
+
+        .score-badge-iron {
+            background: radial-gradient(circle, #3a3a3a, #1a1a1a);
+            border: 3px solid #111;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.1);
+        }
+
+        /* Weathering overlay */
+        .weathering {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            background: url('https://www.transparenttextures.com/patterns/dust.png');
+            opacity: 0.4;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="text-on-surface antialiased min-h-screen flex flex-col pb-24 md:pb-0 pt-16">
+<div class="weathering"></div>
+<!-- TopAppBar -->
+<main class="flex-grow flex flex-col items-center justify-center p-4">
+<!-- Score & Info Area -->
+<!-- The Game Board (Rustic Wood Block) -->
+<div class="barn-wood-board p-board-padding rounded-xl border-4 border-wood-mahogany-dark border-opacity-50">
+<!-- 10x10 Grid -->
+<div class="grid grid-cols-10 gap-grid-gap w-[320px] h-[320px] md:w-[480px] md:h-[480px]">
+<!-- Generate 100 slots for visual grid -->
+<script>
+                    for(let i=0; i<100; i++) {
+                        document.write('<div class="routed-slot w-full h-full"></div>');
+                    }
+                </script>
+<!-- Example Tiles Overlaid -->
+</div>
+</div>
+<!-- Controls -->
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+</body></html>

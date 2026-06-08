@@ -1,0 +1,222 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Atomic Scramble - Coastal Driftwood Edition</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&amp;family=Space+Grotesk:wght@700&amp;family=Work+Sans:wght@400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed-variant": "#004f57",
+                      "inverse-surface": "#dee3e4",
+                      "on-secondary-container": "#533c00",
+                      "surface-container-low": "#171d1e",
+                      "surface-container-lowest": "#090f10",
+                      "on-tertiary-fixed": "#2c1600",
+                      "on-error": "#690005",
+                      "surface-container": "#1b2122",
+                      "error-container": "#93000a",
+                      "on-secondary": "#402d00",
+                      "on-primary": "#00363c",
+                      "on-primary-container": "#00565f",
+                      "wood-mahogany-dark": "#5d4037",
+                      "primary-fixed-dim": "#56d7e9",
+                      "secondary-fixed-dim": "#f8bd2a",
+                      "secondary": "#f8bd2a",
+                      "on-background": "#dee3e4",
+                      "sun-gold": "#fbc02d",
+                      "outline": "#869395",
+                      "on-tertiary-container": "#724200",
+                      "primary": "#6fecfe",
+                      "surface-container-highest": "#303637",
+                      "atomic-teal": "#4dd0e1",
+                      "surface-dim": "#0f1415",
+                      "surface": "#0f1415",
+                      "background": "#0f1415",
+                      "secondary-fixed": "#ffdfa0",
+                      "on-tertiary-fixed-variant": "#693c00",
+                      "walnut-inlay": "#3e2723",
+                      "on-surface": "#dee3e4",
+                      "wood-teak-light": "#8d6e63",
+                      "outline-variant": "#3d494b",
+                      "surface-container-high": "#252b2c",
+                      "primary-container": "#4dd0e1",
+                      "on-secondary-fixed-variant": "#5c4300",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed": "#93f1ff",
+                      "on-secondary-fixed": "#261a00",
+                      "tertiary-fixed": "#ffdcbd",
+                      "tertiary-fixed-dim": "#ffb86e",
+                      "surface-variant": "#303637",
+                      "on-primary-fixed": "#001f23",
+                      "cream-wallpaper": "#f5f5f0",
+                      "on-tertiary": "#492900",
+                      "tertiary-container": "#ffae55",
+                      "surface-tint": "#56d7e9",
+                      "inverse-primary": "#006973",
+                      "surface-bright": "#343a3b",
+                      "on-surface-variant": "#bcc9cb",
+                      "secondary-container": "#d9a200",
+                      "error": "#ffb4ab",
+                      "tertiary": "#ffd3aa",
+                      "inverse-on-surface": "#2b3132"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "slot-size": "48px",
+                      "margin-md": "16px",
+                      "margin-sm": "8px",
+                      "board-padding": "24px",
+                      "grid-gap": "4px",
+                      "margin-lg": "32px"
+              },
+              "fontFamily": {
+                      "score-readout": [
+                              "Space Grotesk"
+                      ],
+                      "display-lg": [
+                              "Montserrat"
+                      ],
+                      "display-lg-mobile": [
+                              "Montserrat"
+                      ],
+                      "body-md": [
+                              "Work Sans"
+                      ],
+                      "tile-letter": [
+                              "Montserrat"
+                      ]
+              },
+              "fontSize": {
+                      "score-readout": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.15em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "tile-letter": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .wood-texture {
+            background-color: #8a8883; /* Driftwood base */
+            background-image: 
+                linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px),
+                radial-gradient(ellipse at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.2) 100%);
+            background-size: 20px 20px, 20px 20px, 100% 100%;
+        }
+        
+        .sand-texture {
+            background-color: #d2c8b8; /* Sand base */
+            background-image: url('https://www.transparenttextures.com/patterns/sandpaper.png');
+        }
+
+        .routed-slot {
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.4), inset -1px -1px 2px rgba(255,255,255,0.1);
+        }
+
+        .sea-stone-tile {
+            background: linear-gradient(135deg, #e0e0e0 0%, #b8b8b8 100%);
+            box-shadow: 2px 4px 6px rgba(0,0,0,0.3), inset -1px -2px 3px rgba(0,0,0,0.2), inset 1px 2px 3px rgba(255,255,255,0.8);
+            border-radius: 40% 60% 50% 50% / 50% 40% 60% 50%; /* Organic stone shape */
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.2s;
+        }
+
+        .sea-stone-tile:active {
+            transform: scale(0.95) translateY(2px);
+            box-shadow: 1px 2px 3px rgba(0,0,0,0.3), inset -1px -1px 2px rgba(0,0,0,0.2), inset 1px 1px 2px rgba(255,255,255,0.8);
+        }
+        
+        .copper-button {
+            background: linear-gradient(to bottom, #b87333, #8b4513);
+            box-shadow: 0 4px 0 #5c2e0b, 0 6px 10px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+        
+        .copper-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #5c2e0b, 0 2px 4px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.3);
+        }
+
+        .rope-accent {
+            border-bottom: 4px dashed #8b7355;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="sand-texture min-h-screen text-on-surface flex flex-col items-center pb-32">
+<!-- TopAppBar -->
+<!-- Main Game Canvas -->
+<main class="mt-24 px-margin-md w-full max-w-[600px] flex flex-col items-center">
+<!-- Game Board Container -->
+<div class="relative w-full aspect-square wood-texture rounded-lg p-board-padding shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-4 border-[#5c5a55]">
+<!-- Rope accents -->
+<div class="absolute top-2 left-2 right-2 rope-accent"></div>
+<div class="absolute bottom-2 left-2 right-2 rope-accent"></div>
+<!-- Score Badge -->
+<!-- 10x10 Grid -->
+<div class="w-full h-full grid grid-cols-10 grid-rows-10 gap-grid-gap p-2 bg-[#4a4944] rounded-md inset-shadow">
+<!-- Generate 100 slots -->
+<script>
+                    for(let i=0; i<100; i++) {
+                        document.write('<div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div>');
+                    }
+                </script><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div><div class="routed-slot bg-[#3d3c38] rounded-sm w-full h-full"></div>
+</div>
+<!-- Draggable Sea Stone Tiles (Overlaying grid for demo) -->
+
+
+
+</div>
+<!-- Tile Rack (Driftwood styling) -->
+<!-- Action Controls -->
+</main>
+<!-- BottomNavBar -->
+
+
+</body></html>

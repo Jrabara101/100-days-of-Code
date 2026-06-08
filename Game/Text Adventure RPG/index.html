@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arcane Lexicon: Bookworm RPG Clone</title>
+    <!-- Inline SVG Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #070514;
+            --bg-light: #0d0a27;
+            --panel-bg: rgba(22, 19, 58, 0.65);
+            --panel-border: rgba(139, 92, 246, 0.25);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-violet: #8b5cf6;
+            --accent-gold: #fbbf24;
+            --health-green: #10b981;
+            --health-red: #ef4444;
+            
+            /* Elemental Gradients */
+            --gem-poison: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            --gem-frost: linear-gradient(135deg, #38bdf8 0%, #0369a1 100%);
+            --gem-flame: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at center, var(--bg-light) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+        }
+
+        /* Ambient background magical dust */
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-container {
+            position: relative;
+            z-index: 1;
+            width: 480px;
+            background: var(--panel-bg);
+            border: 2px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: transform 0.1s ease;
+        }
+
+        /* Title block */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #fbbf24, #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+            font-weight: 800;
+        }
+
+        .top-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .gold-display {
+            color: var(--accent-gold);
+        }
+
+        /* Combat Arena Stage */
+        .combat-stage {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 160px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 12px 20px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Actor Container */
+        .actor-wrapper {
+            width: 42%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .actor-avatar-container {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .actor-avatar {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Bobbing / Floating idle states */
+        .float-animation {
+            animation: idleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes idleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .enemy-float-animation {
+            animation: enemyFloat 3.4s ease-in-out infinite;
+        }
+
+        @keyframes enemyFloat {
+            0%, 100% { transform: translateY(0) scaleX(-1); }
+            50% { transform: translateY(-8px) scaleX(-1); }
+        }
+
+        /* Actor HP Bar & details */
+        .actor-details {
+            width: 100%;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .actor-title {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .hp-bar-outer {
+            width: 100%;
+            height: 8px;
+            background: #1e1b4b;
+            border-radius: 99px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .hp-bar-inner {
+            height: 100%;
+            background: linear-gradient(to right, #10b981, #059669);
+            width: 100%;
+            border-radius: 99px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+
+        .enemy-hp-bar {
+            background: linear-gradient(to right, #ef4444, #dc2626);
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+
+        /* Status Ailment Badges */
+        .badges-row {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            min-height: 18px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .badge-icon {
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            animation: badgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes badgePop {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .badge-icon.poison { background: #10b981; color: #070514; }
+        .badge-icon.frost { background: #38bdf8; color: #070514; }
+        .badge-icon.flame { background: #f97316; color: #f8fafc; }
+
+        /* Versus text */
+        .vs-text {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.2);
+            align-self: center;
+            margin-bottom: 40px;
+        }
+
+        /* Floating text popups */
+        .floating-text {
+            position: absolute;
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5);
+            pointer-events: none;
+            z-index: 10;
+            animation: floatUpAndOut 1.2s forwards ease-out;
+        }
+
+        @keyframes floatUpAndOut {
+            0% { transform: translateY(0) scale(0.6); opacity: 0; }
+            15% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-60px) scale(0.9); opacity: 0; }
+        }
+
+        /* Combat Log / Status feed */
+        .log-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 8px 12px;
+            height: 52px;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            font-family: monospace;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            scrollbar-width: none;
+        }
+
+        .log-panel::-webkit-scrollbar { display: none; }
+
+        .log-entry {
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+
+        .log-entry.player { color: #818cf8; }
+        .log-entry.enemy { color: #f87171; }
+        .log-entry.effect { color: #fbbf24; }
+        .log-entry.system { color: var(--text-primary); font-weight: bold; }
+
+        /* Word assembling area */
+        .word-tray-wrapper {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .word-tray {
+            min-height: 52px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .word-tray.active {
+            border-color: var(--accent-violet);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        /* Standard vs Elemental Tiles styling */
+        .tile {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            cursor: pointer;
+            position: relative;
+            color: var(--text-primary);
+            box-shadow: 0 4px 0 #0f0d30, 
+                        inset 0 1px 0 rgba(255,255,255,0.15);
+            transition: transform 0.1s, opacity 0.2s, background 0.2s;
+        }
+
+        .tile:hover:not(.used) {
+            transform: translateY(-2px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 6px 0 #0f0d30, 0 0 10px rgba(139, 92, 246, 0.2);
+        }
+
+        .tile:active:not(.used) {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #0f0d30;
+        }
+
+        .tile.used {
+            opacity: 0.12;
+            pointer-events: none;
+            transform: scale(0.9);
+            box-shadow: none;
+        }
+
+        /* Elemental Gems styling */
+        .tile[data-element="poison"] {
+            background: var(--gem-poison);
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 0 #04523b, 0 0 12px rgba(16, 185, 129, 0.35);
+        }
+        .tile[data-element="frost"] {
+            background: var(--gem-frost);
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 4px 0 #024a73, 0 0 12px rgba(56, 189, 248, 0.35);
+        }
+        .tile[data-element="flame"] {
+            background: var(--gem-flame);
+            border-color: rgba(249, 115, 22, 0.4);
+            box-shadow: 0 4px 0 #8c2e0b, 0 0 12px rgba(249, 115, 22, 0.35);
+        }
+
+        /* Letters Grid */
+        .letter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        /* Tray tiles matching active gems */
+        .tray-tile {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--accent-gold), #d97706);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #070514;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            animation: trayPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.1s;
+        }
+
+        .tray-tile:hover {
+            transform: scale(1.08);
+        }
+
+        @keyframes trayPop {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .tray-tile[data-element="poison"] { background: var(--gem-poison); color: #fff; }
+        .tray-tile[data-element="frost"] { background: var(--gem-frost); color: #fff; }
+        .tray-tile[data-element="flame"] { background: var(--gem-flame); color: #fff; }
+
+        /* Controls row */
+        .controls-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: linear-gradient(to right, #10b981, #059669);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: inherit;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #047857, 0 4px 15px rgba(16, 185, 129, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-grow: 1;
+            transition: all 0.1s;
+        }
+
+        .action-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #047857;
+        }
+
+        .action-btn:disabled {
+            background: #334155;
+            box-shadow: 0 4px 0 #1e293b;
+            cursor: not-allowed;
+            opacity: 0.4;
+        }
+
+        .potion-btn {
+            width: 48px;
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #9d174d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: all 0.1s;
+        }
+
+        .potion-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #9d174d;
+        }
+
+        .potion-btn:disabled {
+            background: #334155;
+            box-shadow: 0 4px 0 #1e293b;
+            cursor: not-allowed;
+            opacity: 0.4;
+        }
+
+        .potion-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #fff;
+        }
+
+        .potion-count {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #fbbf24;
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 800;
+            width: 18px;
+            height: 18px;
+            border-radius: 99px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #0d0a27;
+        }
+
+        /* Screen flash indicators */
+        .flash-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+            border-radius: 24px;
+        }
+
+        .flash-red {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .flash-green {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        /* Victory & Defeat screens */
+        .modal-screen {
+            position: absolute;
+            inset: 0;
+            background: rgba(7, 5, 20, 0.95);
+            border-radius: 24px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .modal-title.victory {
+            background: linear-gradient(to right, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-title.defeat {
+            background: linear-gradient(to right, #ef4444, #b91c1c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-body {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .modal-btn {
+            background: linear-gradient(to right, #8b5cf6, #6d28d9);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.2s;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* SVG Avatar Styles */
+        .lex-body { fill: #22c55e; }
+        .lex-face { fill: #4ade80; }
+        .lex-hat { fill: #4338ca; }
+        .lex-star { fill: #fbbf24; }
+        
+        .hydra-neck { fill: #15803d; }
+        .hydra-head { fill: #166534; }
+        .hydra-mouth { fill: #b91c1c; }
+
+        .gorgon-skin { fill: #64748b; }
+        .gorgon-hair { fill: #10b981; }
+
+        .chimera-body { fill: #ea580c; }
+        .chimera-mane { fill: #f97316; }
+        .chimera-horn { fill: #e2e8f0; }
+
+        .dragon-scale { fill: #5b21b6; }
+        .dragon-wing { fill: #fbbf24; }
+        .dragon-belly { fill: #8b5cf6; }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="game-container" id="game-window">
+        <!-- Visual Screen Overlays -->
+        <div class="flash-overlay flash-red" id="red-flash"></div>
+        <div class="flash-overlay flash-green" id="green-flash"></div>
+
+        <!-- RPG Header Stats -->
+        <header>
+            <h1>ARCANE LEXICON</h1>
+            <div class="top-meta">
+                <span>STAGE: <span id="meta-stage">1 / 4</span></span>
+                <span>LEVEL: <span id="meta-level">1</span></span>
+                <span>SCORE: <span id="meta-score">0</span></span>
+                <span class="gold-display">GOLD: <span id="meta-gold">0</span></span>
+            </div>
+        </header>
+
+        <!-- Dynamic Combat Arena -->
+        <div class="combat-stage" id="combat-stage">
+            <!-- Lex Avatar -->
+            <div class="actor-wrapper" id="player-wrapper">
+                <div class="actor-avatar-container">
+                    <svg class="actor-avatar float-animation" id="player-avatar" viewBox="0 0 100 100">
+                        <!-- Lex: wizard bookworm -->
+                        <!-- Tail -->
+                        <path d="M 20 80 Q 25 70 30 80 T 40 80 T 50 80" fill="none" stroke="#22c55e" stroke-width="8" stroke-linecap="round"/>
+                        <!-- Body segments -->
+                        <circle cx="50" cy="80" r="12" class="lex-body"/>
+                        <circle cx="60" cy="74" r="11" class="lex-body"/>
+                        <circle cx="70" cy="65" r="10" class="lex-body"/>
+                        <!-- Head -->
+                        <circle cx="74" cy="52" r="11" class="lex-face"/>
+                        <!-- Glasses -->
+                        <circle cx="78" cy="50" r="4" fill="none" stroke="#000" stroke-width="1.5"/>
+                        <line x1="74" y1="50" x2="74" y2="50" stroke="#000" stroke-width="1.5"/>
+                        <!-- wizard hat -->
+                        <path d="M 62 45 Q 70 35 72 20 Q 78 35 86 43 Z" class="lex-hat"/>
+                        <!-- hat brim -->
+                        <ellipse cx="74" cy="44" rx="14" ry="3" class="lex-hat"/>
+                        <!-- Stars on Hat -->
+                        <circle cx="72" cy="30" r="1.5" class="lex-star"/>
+                        <circle cx="77" cy="35" r="1" class="lex-star"/>
+                    </svg>
+                </div>
+                <div class="actor-details">
+                    <div class="actor-title">Lex</div>
+                    <div class="hp-bar-outer">
+                        <div class="hp-bar-inner" id="player-hp-fill"></div>
+                    </div>
+                    <div class="badges-row" id="player-badges"></div>
+                </div>
+            </div>
+
+            <div class="vs-text">VS</div>
+
+            <!-- Enemy Avatar -->
+            <div class="actor-wrapper" id="enemy-wrapper">
+                <div class="actor-avatar-container">
+                    <!-- Dynamic SVG inserted via JS -->
+                    <div id="enemy-avatar-holder" style="width:100%; height:100%;"></div>
+                </div>
+                <div class="actor-details">
+                    <div class="actor-title" id="enemy-name">Hydra</div>
+                    <div class="hp-bar-outer">
+                        <div class="hp-bar-inner enemy-hp-bar" id="enemy-hp-fill"></div>
+                    </div>
+                    <div class="badges-row" id="enemy-badges"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Log Screen -->
+        <div class="log-panel" id="combat-log">
+            <div class="log-entry system">⚔️ SPELL A WORD OF 3+ LETTERS TO INFLICT DAMAGE.</div>
+        </div>
+
+        <!-- Selected Word Tray -->
+        <div class="word-tray-wrapper">
+            <div class="word-tray" id="word-tray"></div>
+        </div>
+
+        <!-- 4x4 Letter Grid -->
+        <div class="letter-grid" id="letter-grid"></div>
+
+        <!-- Control Action Row -->
+        <div class="controls-row">
+            <button class="potion-btn" id="potion-btn" title="Drink Healing Potion (Cost: 15 Gold)">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12,2A3,3 0 0,0 9,5V6H7A2,2 0 0,0 5,8V20A2,2 0 0,0 7,22H17A2,2 0 0,0 19,20V8A2,2 0 0,0 17,6H15V5A3,3 0 0,0 12,2M12,4A1,1 0 0,1 13,5V6H11V5A1,1 0 0,1 12,4M7,8H17V11H7V8M10,13H14V15H16V17H14V19H10V17H8V15H10V13Z" />
+                </svg>
+                <div class="potion-count" id="potion-count">1</div>
+            </button>
+            <button class="action-btn" id="attack-btn" disabled>Cast Spell</button>
+        </div>
+
+        <!-- Victory Modal Screen -->
+        <div class="modal-screen" id="victory-modal">
+            <div class="modal-title victory">VICTORY</div>
+            <div class="modal-body" id="victory-desc">You completed the lexical trial and cleansed the library.</div>
+            <button class="modal-btn" onclick="location.reload()">Spells Anew</button>
+        </div>
+
+        <!-- Defeat Modal Screen -->
+        <div class="modal-screen" id="defeat-modal">
+            <div class="modal-title defeat">DEFEATED</div>
+            <div class="modal-body">The beasts overwhelmed Lex. Wisdom remains lost in the shadow.</div>
+            <button class="modal-btn" onclick="location.reload()">Retry trial</button>
+        </div>
+    </div>
+
+<script>
+// --- PROCEDURAL SYNTHESIZED SOUND SYSTEM ---
+class SoundManager {
+    constructor() {
+        this.ctx = null;
+    }
+
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    playTap() {
+        this.init();
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.frequency.setValueAtTime(440, this.ctx.currentTime); // A4
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+    }
+
+    playUntap() {
+        this.init();
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.frequency.setValueAtTime(280, this.ctx.currentTime); 
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+    }
+
+    playSuccess() {
+        this.init();
+        let t = this.ctx.currentTime;
+        let playNote = (freq, start, duration) => {
+            let osc = this.ctx.createOscillator();
+            let gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.06, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+            osc.start(start);
+            osc.stop(start + duration);
+        };
+        // Arpeggio
+        playNote(523.25, t, 0.15); // C5
+        playNote(659.25, t + 0.08, 0.15); // E5
+        playNote(783.99, t + 0.16, 0.2); // G5
+        playNote(1046.50, t + 0.24, 0.3); // C6
+    }
+
+    playMisfire() {
+        this.init();
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(90, this.ctx.currentTime + 0.3);
+        
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.3);
+    }
+
+    playHit() {
+        this.init();
+        // Noise buffer hit
+        let bufferSize = this.ctx.sampleRate * 0.15;
+        let buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        let data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        let noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        let filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 400;
+
+        let gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        noise.start();
+    }
+
+    playHeal() {
+        this.init();
+        let t = this.ctx.currentTime;
+        let playSweep = (freqStart, freqEnd, start, dur) => {
+            let osc = this.ctx.createOscillator();
+            let gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freqStart, start);
+            osc.frequency.exponentialRampToValueAtTime(freqEnd, start + dur);
+            gain.gain.setValueAtTime(0.08, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+            osc.start(start);
+            osc.stop(start + dur);
+        };
+        playSweep(400, 800, t, 0.3);
+        playSweep(600, 1200, t + 0.1, 0.3);
+    }
+
+    playLevelUp() {
+        this.init();
+        let t = this.ctx.currentTime;
+        let playNote = (freq, start, duration) => {
+            let osc = this.ctx.createOscillator();
+            let gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.06, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+            osc.start(start);
+            osc.stop(start + duration);
+        };
+        playNote(440, t, 0.12);
+        playNote(554, t + 0.12, 0.12);
+        playNote(659, t + 0.24, 0.12);
+        playNote(880, t + 0.36, 0.4);
+    }
+
+    playDeath() {
+        this.init();
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(50, this.ctx.currentTime + 0.8);
+        
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.8);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.8);
+    }
+}
+
+const sound = new SoundManager();
+
+// --- GAME MONSTER ASSETS (SVG CREATION) ---
+const MONSTER_TEMPLATES = [
+    {
+        name: "Gorgon",
+        maxHP: 80,
+        damage: 10,
+        color: "#64748b",
+        svg: `<svg viewBox="0 0 100 100" class="actor-avatar enemy-float-animation">
+            <!-- Snake hair wiggling underneath -->
+            <path d="M 25 25 Q 15 35 25 45" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+            <path d="M 35 15 Q 25 5 35 -5" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+            <path d="M 65 15 Q 75 5 65 -5" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+            <path d="M 75 25 Q 85 35 75 45" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+            <!-- Stone head base -->
+            <circle cx="50" cy="50" r="24" class="gorgon-skin"/>
+            <!-- Snakes forehead -->
+            <path d="M 40 28 Q 50 20 60 28" fill="none" stroke="#047857" stroke-width="6" stroke-linecap="round"/>
+            <!-- Stone Eyes (Glowing Red) -->
+            <circle cx="42" cy="45" r="4" fill="#ef4444"/>
+            <circle cx="58" cy="45" r="4" fill="#ef4444"/>
+            <!-- Dark stone nose and lips -->
+            <path d="M 50 48 L 50 56 M 44 62 L 56 62" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/>
+        </svg>`
+    },
+    {
+        name: "Hydra",
+        maxHP: 110,
+        damage: 13,
+        color: "#15803d",
+        svg: `<svg viewBox="0 0 100 100" class="actor-avatar enemy-float-animation">
+            <!-- Left Neck & Head -->
+            <path d="M 40 85 Q 20 60 30 40" fill="none" class="hydra-neck" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="30" cy="36" r="9" class="hydra-head"/>
+            <circle cx="28" cy="34" r="1.5" fill="#f59e0b"/>
+            <!-- Right Neck & Head -->
+            <path d="M 60 85 Q 80 60 70 40" fill="none" class="hydra-neck" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="70" cy="36" r="9" class="hydra-head"/>
+            <circle cx="72" cy="34" r="1.5" fill="#f59e0b"/>
+            <!-- Main Center Neck & Head -->
+            <path d="M 50 85 Q 50 50 50 30" fill="none" class="hydra-neck" stroke-width="10" stroke-linecap="round"/>
+            <circle cx="50" cy="24" r="12" class="hydra-head"/>
+            <circle cx="46" cy="22" r="2" fill="#ef4444"/>
+            <circle cx="54" cy="22" r="2" fill="#ef4444"/>
+            <path d="M 44 28 Q 50 34 56 28" fill="none" stroke="#ef4444" stroke-width="2"/>
+        </svg>`
+    },
+    {
+        name: "Chimera",
+        maxHP: 150,
+        damage: 16,
+        color: "#ea580c",
+        svg: `<svg viewBox="0 0 100 100" class="actor-avatar enemy-float-animation">
+            <!-- Tail (Snake Head) -->
+            <path d="M 25 80 Q 15 50 30 35" fill="none" stroke="#10b981" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="30" cy="31" r="5" fill="#10b981"/>
+            <!-- Body base -->
+            <rect x="35" y="55" width="45" height="30" rx="8" class="chimera-body"/>
+            <!-- Mane (Flame color) -->
+            <circle cx="68" cy="45" r="22" class="chimera-mane"/>
+            <!-- Lion Head -->
+            <circle cx="70" cy="45" r="15" class="chimera-body"/>
+            <circle cx="75" cy="42" r="2" fill="#fff"/>
+            <!-- Goat Horns -->
+            <path d="M 60 33 Q 50 20 54 10" fill="none" class="chimera-horn" stroke-width="4" stroke-linecap="round"/>
+            <path d="M 66 33 Q 62 18 68 8" fill="none" class="chimera-horn" stroke-width="4" stroke-linecap="round"/>
+        </svg>`
+    },
+    {
+        name: "Void Dragon",
+        maxHP: 200,
+        damage: 22,
+        color: "#5b21b6",
+        svg: `<svg viewBox="0 0 100 100" class="actor-avatar enemy-float-animation">
+            <!-- Wing -->
+            <path d="M 35 55 Q 10 30 35 15 Q 25 40 35 55" class="dragon-wing"/>
+            <!-- Dragon Body & Neck -->
+            <path d="M 40 80 Q 60 80 60 55 T 50 30" fill="none" class="dragon-belly" stroke-width="12" stroke-linecap="round"/>
+            <!-- Dragon Head -->
+            <circle cx="48" cy="24" r="12" class="dragon-scale"/>
+            <!-- Horn -->
+            <path d="M 44 14 Q 35 2 32 10" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 52 14 Q 60 2 64 10" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+            <!-- Golden Glow Eyes -->
+            <circle cx="44" cy="22" r="2" fill="#fbbf24"/>
+            <circle cx="52" cy="22" r="2" fill="#fbbf24"/>
+            <!-- Breathing sparks overlay -->
+            <circle cx="40" cy="34" r="3" fill="#f97316"/>
+            <circle cx="36" cy="38" r="1.5" fill="#fbbf24"/>
+        </svg>`
+    }
+];
+
+// --- CORE SYSTEM DICTIONARY PRE-LOADS ---
+const COMMON_DICTIONARY = [
+    // 3 Letters
+    "THE", "AND", "FOR", "ARE", "BUT", "NOT", "YOU", "ALL", "ANY", "CAN", "HAD", "HER", "WAS", "ONE", "OUR", "OUT", "DAY", "GET", "HAS", "HIM", "HIS", "HOW", "MAN", "NEW", "NOW", "OLD", "SEE", "TWO", "WAY", "WHO", "BOY", "CAT", "DOG", "RUN", "SAY", "USE", "WAR", "WIN", "WIT", "BOX", "TOY", "POT", "GEM", "FLY", "ICE", "WET", "HOT", "DRY", "RED", "BAD", "FIT", "FAT", "SAD", "MAP", "PIN", "NET", "SUN", "SKY", "EYE", "EAR", "ARM", "LEG", "LIP", "DIG", "BIG", "ORE", "LOG", "BAG", "CAR", "BED", "HAT", "CUP", "TIN", "PAN", "KEY", "PEN", "ACT", "ADD", "AIM", "AIR", "APE", "ART", "ASK", "ATE", "AWE", "AXE", "BAN", "BAR", "BAT", "BAY", "BEE", "BEG", "BET", "BIN", "BIT", "BOW", "BUD", "BUG", "BUM", "BUS", "BYE", "CAB", "CAP", "COD", "COG", "CON", "COP", "COT", "COW", "CRY", "CUT", "DAM", "DEN", "DEW", "DIE", "DIM", "DIP", "DOE", "DON", "DOT", "DUE", "DUG", "DYE", "EAT", "EGG", "EGO", "ELK", "END", "ERA", "EVE", "FAN", "FAR", "FAX", "FED", "FEW", "FIB", "FIG", "FIN", "FIR", "FIX", "FLU", "FOG", "FOE", "FOX", "FRY", "FUN", "FUR", "GAP", "GAS", "GEL", "GIG", "GIN", "GOD", "GUM", "GUN", "GUT", "GYM", "HAY", "HEM", "HEN", "HEX", "HEY", "HIT", "HOG", "HOP", "HUG", "HUM", "HUT", "ILL", "INK", "INN", "ION", "IVY", "JAM", "JAR", "JAW", "JAY", "JET", "JOB", "JOG", "JOT", "JOY", "JUG", "KEG", "KID", "KIT", "LAB", "LAD", "LAG", "LAP", "LAW", "LAY", "LED", "LET", "LID", "LIE", "LIT", "LOB", "LOP", "LOT", "LOW", "MAD", "MAT", "MAW", "MAX", "MAY", "MEN", "MET", "MIX", "MOB", "MOP", "MUD", "MUG", "NAP", "NAY", "NIB", "NIL", "NIP", "NOD", "NON", "NOR", "NUN", "NUT", "OAK", "OAR", "OAT", "ODD", "ODE", "OFF", "OFT", "OIL", "OPT", "ORB", "OWE", "OWL", "OWN", "PAD", "PAL", "PAR", "PAT", "PAW", "PAY", "PEA", "PEG", "PET", "PEW", "PIE", "PIG", "PIP", "PIT", "PLY", "POD", "POP", "PRO", "PRY", "PUB", "PUG", "PUN", "PUP", "PUS", "RAM", "RAN", "RAP", "RAT", "RAW", "RAY", "RIB", "RID", "RIG", "RIM", "RIP", "ROB", "ROD", "ROE", "ROT", "ROW", "RUB", "RUE", "RUG", "RUM", "RYE", "SAG", "SAP", "SAT", "SAW", "SEA", "SEN", "SET", "SEW", "SHY", "SIP", "SIR", "SIS", "SIT", "SKI", "SLY", "SOB", "SOD", "SON", "SOW", "SOY", "SPA", "SPY", "STY", "SUE", "SUM", "TAB", "TAG", "TAN", "TAP", "TAR", "TAX", "TEA", "TEE", "TEN", "THY", "TIC", "TIE", "TIP", "TOE", "TOG", "TON", "TOO", "TOP", "TRY", "TUB", "TUG", "TUN", "TUX", "URN", "VAL", "VAN", "VAT", "VET", "VIA", "VIE", "VOW", "WAD", "WAG", "WAN", "WEB", "WED", "WHY", "WIG", "WOE", "WOK", "WON", "WOO", "WRY", "YAK", "YAM", "YAP", "YAW", "YEA", "YEN", "YES", "YET", "ZEN", "ZOO",
+
+    // 4 Letters
+    "WITH", "HAVE", "THIS", "WILL", "YOUR", "FROM", "THEY", "MORE", "THAN", "THEM", "SOME", "BEEN", "INTO", "TIME", "FIND", "OVER", "WORK", "ONLY", "THEN", "THAT", "ALSO", "BACK", "BLUE", "GOLD", "FIRE", "IRON", "LEAD", "WOLF", "ORC", "LION", "BEAR", "WORM", "BOOK", "HERO", "MAGE", "CLAW", "FANG", "FURY", "RAGE", "SOUL", "MIND", "LIFE", "DEAD", "KILL", "HEAL", "CURE", "WARD", "CAST", "COLD", "WIND", "WAVE", "DUST", "LAVA", "ROCK", "STONE", "WOOD", "TREE", "LEAF", "WEED", "SAND", "CLAY", "MIST", "GALE", "SOIL", "SEED", "ROOT", "PATH", "ROAD", "GATE", "WALL", "DOOR", "COIN", "RUNE", "TOME", "WAND", "HEFT", "SWORD", "HELM", "BOOT", "RING", "BELT", "COAT", "VEST", "LACE", "SILK", "WOOL", "HIDE", "BONE", "SKIN", "VEIN", "MEAT", "FOOD", "SOUP", "CAKE", "WINE", "BEER", "MILK", "RAIN", "SNOW", "HAIL", "MUD", "COAL", "FUEL", "GLOW", "SOOT", "HEAT", "WARP", "COOL", "WARM", "ACID", "LUCK", "FATE", "DOOM", "HOPE", "FEAR", "LOVE", "HATE", "ENVY", "ZEAL", "PITY", "CARE", "WISH", "WANT", "NEED", "MUST", "DONE", "MADE", "MAKE", "TAKE", "GIVE", "KEEP", "HOLD", "LOSE", "SEEK", "HIDE", "SHOW", "TELL", "TALK", "SING", "PLAY", "GAME", "DICE", "RULE", "LAWS", "KING", "LORD", "LADY", "DUKE", "EARL", "BARD", "MONK", "CROW", "HAWK", "DOVE", "FROG", "TOAD", "FISH", "CRAB", "DEER", "HARE", "BOAR", "BULL", "GOAT", "APES", "SPIT", "BITE", "SLAM", "BASH", "KICK", "PUNCH", "SLAP", "STAB", "BLOW", "SHOT", "BOLT", "BEAM", "PAGE", "READ", "DARK", "VOID", "STAR", "MOON", "DAWN", "DUSK", "TIDE", "POND", "LAKE", "SEAS", "DEEP", "HELL", "GODS", "DEMO", "DEVIL", "IMP", "LICH", "OGRE", "TROL", "GOBL", "PIXY", "FAIR", "CLAN", "TEAM", "BAND", "CREW", "ARMY", "HOST", "FORT", "KEEP", "CELL", "CAVE", "MINE", "RUIN", "CAMP", "TENT", "SHOP", "INN", "BARN", "MILL", "SHIP", "BOAT", "RAFT", "CART", "GEAR", "TOOL", "ROPE", "FORG", "LOGS", "BARK", "BUSH", "VINE", "MOSS", "FERN", "HERB", "CROP", "CORN", "RICE", "MEAL", "SALT", "BEEF", "PORK", "HAM", "VEAL", "LAMB", "FOWL", "DUCK", "CLAM", "EELS", "CURD", "WHEY", "EGGS", "PEAR", "PLUM", "FIGS", "DATE", "NUTS", "GRAP", "MEAD", "ALE", "CIDER", "JUICE", "WATER", "ATOM", "BABY", "BAKE", "BALD", "BALL", "BANG", "BANK", "BASE", "BATH", "BEAT", "BEET", "BELL", "BEND", "BEST", "BETA", "BIAS", "BIKE", "BILL", "BIND", "BIRD", "BLAH", "BLED", "BLIP", "BLOB", "BODY", "BOIL", "BOLD", "BOMB", "BOND", "BOOM", "BORE", "BOSS", "BOTH", "BOWL", "BRAG", "BRAN", "BRAY", "BRED", "BREW", "BRIM", "BROW", "BUCK", "BUFF", "BULB", "BULK", "BUMP", "BUNK", "BURN", "BURY", "BUST", "BUSY", "BUYS", "BUZZ", "CAFE", "CAGE", "CALF", "CALL", "CALM", "CAME", "CANE", "CAPE", "CARD", "CASE", "CASH", "CATS", "CENT", "CHAT", "CHEF", "CHEW", "CHIN", "CHIP", "CHOP", "CHUM", "CITY", "CLIP", "CLOG", "CLOT", "CLUB", "CLUE", "COAX", "COCK", "CODE", "COIL", "COLE", "COLT", "COME", "CONE", "COOK", "COOP", "COOT", "COPE", "CORD", "CORE", "CORK", "COST", "COTE", "COUP", "COVE", "CRAG", "CRAM", "CRAN", "CRAW", "CRUD", "CRUX", "CUBE", "CUFF", "CULT", "CURL", "CURT", "CUSP", "CUSS", "CUTE", "CUTS", "CYST", "CZAR", "DADA", "DADO", "DAFT", "DAIS", "DAME", "DAMP", "DANK", "DARE", "DART", "DASH", "DATA", "DAYS", "DEAF", "DEAL", "DEAR", "DEBT", "DECK", "DEED", "DEEM", "DEFY", "DEFT", "DELI", "DELL", "DENT", "DENY", "DESK", "DIAL", "DIET", "DIKE", "DILL", "DIME", "DINE", "DING", "DINT", "DIRE", "DIRT", "DISC", "DISH", "DISK", "DIVA", "DIVE", "DOCK", "DODO", "DOER", "DOES", "DOGS", "DOLE", "DOLL", "DOLT", "DOME", "DOPE", "DOSE", "DOTE", "DOTS", "DOUR", "DOWN", "DOZE", "DRAB", "DRAG", "DRAM", "DRAW", "DRAY", "DREW", "DRIP", "DROP", "DRUG", "DRUM", "DUAL", "DUB", "DUCT", "DUDE", "DUDS", "DUEL", "DUET", "DUFF", "DULL", "DULY", "DUMB", "DUMP", "DUNE", "DUNG", "DUNK", "DUPE", "DUTY", "DYAD", "DYED", "DYER", "DYES", "EACH", "EARN", "EASE", "EAST", "EASY", "EATS", "ECHO", "EDDY", "EDGE", "EDGY", "EDIT", "EERIE", "ELMS", "ELSE", "EMIT", "EPIC", "ERAS", "ERRS", "ESPY", "ETCH", "EVEN", "EVER", "EVIL", "EWER", "EXAM", "EXIT", "EXPO", "FACT", "FADE", "FAIL", "FAIN", "FAKE", "FALL", "FAME", "FARE", "FARM", "FAST", "FAWN", "FEAT", "FEED", "FEEL", "FEES", "FELL", "FELT", "FEND", "FESS", "FEST", "FETE", "FEUD", "FIAT", "FIEF", "FIFE", "FILE", "FILL", "FILM", "FINE", "FINS", "FIRM", "FIST", "FIVE", "FIZZ", "FLAK", "FLAN", "FLAP", "FLAT", "FLAW", "FLAX", "FLAY", "FLED", "FLEE", "FLEW", "FLEX", "FLIP", "FLIT", "FLOW", "FLUE", "FLUX", "FOAL", "FOAM", "FOLD", "FOLK", "FOND", "FONT", "FOOL", "FOPS", "FORD", "FORE", "FORK", "FORM", "FOUL", "FOUR", "FRAY", "FREE", "FRET", "FROM", "FUEL", "FULL", "FUME", "FUND", "FUNK", "FUSE", "FUSS", "FUZZ", "GAGE", "GAIN", "GAIT", "GALA", "GALL", "GANG", "GAPE", "GARB", "GASH", "GASP", "GAVE", "GAWK", "GAZE", "GEEK", "GELD", "GENE", "GENT", "GERM", "GETS", "GIBE", "GIFT", "GILD", "GILL", "GILT", "GIMP", "GIRD", "GIRL", "GIRT", "GIST", "GLAD", "GLEN", "GLEE", "GLIB", "GLOB", "GLUE", "GLUT", "GNAT", "GNAW", "GOAD", "GOAL", "GOER", "GOGO", "GOLF", "GONE", "GONG", "GOOD", "GOOF", "GOON", "GORE", "GORY", "GOSH", "GOUT", "GOWN", "GRAD", "GRAM", "GRAY", "GRID", "GRIN", "GRIP", "GRIT", "GROW", "GRUB", "GULL", "GULP", "GUNK", "GURU", "GUSH", "GUST", "GYRE", "GYRO", "GYVE", "HACK", "HADE", "HAGS", "HAIR", "HAKE", "HALE", "HALF", "HALL", "HALO", "HALT", "HAMS", "HANG", "HANK", "HAP", "HARK", "HARM", "HARP", "HART", "HASH", "HASP", "HATS", "HAUL", "HAWS", "HAZE", "HAZY", "HEAP", "HEAR", "HECK", "HEED", "HEEL", "HEIR", "HELD", "HELP", "HEMP", "HENS", "HERD", "HERE", "HEWN", "HEWS", "HICK", "HIGH", "HIKE", "HILL", "HILT", "HIND", "HINT", "HIPS", "HIRE", "HISS", "HIST", "HITS", "HIVE", "HOAR", "HOAX", "HOBO", "HOCK", "HOIS", "HOLD", "HOLE", "HOLT", "HOME", "HONE", "HONK", "HOOD", "HOOF", "HOOK", "HOOP", "HOOT", "HOPE", "HOPS", "HOSE", "HOST", "HOUR", "HOVE", "HOWL", "HOWS", "HUBS", "HUED", "HUES", "HUFF", "HUGE", "HULA", "HULK", "HULL", "HUMP", "HUNG", "HUNK", "HUNT", "HURL", "HUSH", "HUSK", "HYMN", "HYPE", "HYPO", "IBIS", "ICED", "ICES", "ICON", "IDEA", "IDES", "IDLE", "IDLY", "IDOL", "ILLS", "INCH", "INFO", "INLY", "IOTA", "IRIS", "ISLE", "ITCH", "ITEM", "JACK", "JADE", "JAIL", "JAMB", "JAMS", "JAPE", "JARS", "JAVA", "JAZZ", "JEAN", "JEEP", "JEER", "JELL", "JERK", "JESS", "JEST", "JETS", "JIBE", "JIBS", "JIGS", "JILL", "JILT", "JIMP", "JINX", "JOBS", "JOCK", "JOIN", "JOKE", "JOLT", "JOSH", "JUTS", "KALE", "KART", "KEEL", "KEEN", "KELP", "KENT", "KEPT", "KERN", "KEYS", "KHAN", "KILN", "KILO", "KILT", "KIND", "KINK", "KINS", "KIPS", "KIRK", "KISS", "KITE", "KITH", "KITS", "KIWI", "KLAN", "KNEE", "KNELL", "KNEW", "KNIT", "KNOB", "KNOT", "KNOW", "KOAL", "KOHL", "KOLA", "KONG", "KOOK", "KOTO", "KUDO", "LACK", "LACY", "LAIC", "LAID", "LAIN", "LAIR", "LAMA", "LAME", "LAMP", "LAMS", "LAND", "LANE", "LANG", "LANK", "LARD", "LARK", "LASH", "LASS", "LAST", "LATE", "LATH", "LAUD", "LAVE", "LAWN", "LAZE", "LAZY", "LEAK", "LEAN", "LEAP", "LEAS", "LEEK", "LEER", "LEES", "LEFT", "LEND", "LENS", "LENT", "LEST", "LETS", "LEVI", "LEWD", "LIAR", "LIAS", "LIBS", "LICE", "LICK", "LIEN", "LIES", "LIEU", "LIFT", "LIKE", "LILT", "LILY", "LIMA", "LIMB", "LIME", "LIMP", "LIMY", "LINE", "LING", "LINK", "LINT", "LIRA", "LISP", "LIST", "LITE", "LIVE", "LOAD", "LOAF", "LOAM", "LOAN", "LOBE", "LOCH", "LOCI", "LOCK", "LOCO", "LODE", "LOFT", "LOIN", "LOLL", "LONE", "LONG", "LOOK", "LOOM", "LOON", "LOOP", "LOOT", "LOPE", "LORD", "LORE", "LORN", "LOSE", "LOSS", "LOST", "LOTS", "LOUD", "LOUT", "LOWS", "LUCE", "LULL", "LUMP", "LUNA", "LUNE", "LUNG", "LURE", "LURK", "LUSH", "LUST", "LUTE", "LYNX", "LYRE"
+];
+
+const ENHANCED_DICTIONARY_SET = new Set(COMMON_DICTIONARY);
+
+// --- CLASS DEFINITIONS ---
+class BookwormAilmentRPG {
+    constructor() {
+        // Frequency-weighted pool: Rich in vowels, standard consonant ratios
+        this.letterPool = "AAAAAAAAABBCCDDDEEEEEEEEEFFGGHHIIIIIIJKLLLLMMNNNNOOOOOPPQRRRRRRSSSSSSTTTTTTUUUUVVWWXYYZ";
+
+        // Level & Stats definition
+        this.level = 1;
+        this.score = 0;
+        this.gold = 5;
+        this.potions = 1;
+
+        this.playerMaxHP = 100;
+        this.playerHP = 100;
+
+        // Game State Lock
+        this.gameState = 'PLAYER_INPUT'; 
+        this.selectedSequence = []; // Selected tiles stack
+
+        this.cacheDOMElements();
+
+        // Current Monster Index
+        this.monsterIndex = 0;
+        this.loadMonster();
+
+        this.generateMatrixGrid();
+        this.bindInputSignals();
+        this.updateUIStats();
+        this.logMessage("⚔️ SPELL A WORD OF 3+ LETTERS TO INFLICT DAMAGE.", "system");
+    }
+
+    cacheDOMElements() {
+        this.gridContainer = document.getElementById('letter-grid');
+        this.trayContainer = document.getElementById('word-tray');
+        this.attackButton = document.getElementById('attack-btn');
+        this.potionButton = document.getElementById('potion-btn');
+        this.potionCountDisplay = document.getElementById('potion-count');
+
+        this.playerBar = document.getElementById('player-hp-fill');
+        this.enemyBar = document.getElementById('enemy-hp-fill');
+        
+        this.enemyNameDisplay = document.getElementById('enemy-name');
+        this.enemyAvatarHolder = document.getElementById('enemy-avatar-holder');
+
+        this.playerBadgesContainer = document.getElementById('player-badges');
+        this.enemyBadgesContainer = document.getElementById('enemy-badges');
+
+        this.combatLog = document.getElementById('combat-log');
+        this.gameWindow = document.getElementById('game-window');
+
+        // Meta indicators
+        this.metaStage = document.getElementById('meta-stage');
+        this.metaLevel = document.getElementById('meta-level');
+        this.metaScore = document.getElementById('meta-score');
+        this.metaGold = document.getElementById('meta-gold');
+
+        // Modals
+        this.victoryModal = document.getElementById('victory-modal');
+        this.defeatModal = document.getElementById('defeat-modal');
+    }
+
+    loadMonster() {
+        let t = MONSTER_TEMPLATES[this.monsterIndex];
+        this.enemyName = t.name;
+        this.enemyMaxHP = t.maxHP;
+        this.enemyHP = t.maxHP;
+        this.enemyBaseDamage = t.damage;
+        this.enemyColor = t.color;
+        this.enemyStatuses = { poison: 0, frost: 0, flame: 0 };
+
+        this.enemyNameDisplay.innerText = this.enemyName;
+        this.enemyAvatarHolder.innerHTML = t.svg;
+
+        // Reset badges
+        this.renderStatusBadges();
+        this.updateHPBars();
+    }
+
+    // --- PROCEDURAL LETTER MATRIX ---
+    generateMatrixGrid() {
+        this.gridState = [];
+        this.gridContainer.innerHTML = '';
+
+        for (let i = 0; i < 16; i++) {
+            let randomLetter = this.letterPool[Math.floor(Math.random() * this.letterPool.length)];
+            
+            // 20% total chance to spawn elemental gem
+            let element = 'none';
+            let rand = Math.random();
+            if (rand < 0.07) element = 'poison';
+            else if (rand < 0.14) element = 'frost';
+            else if (rand < 0.21) element = 'flame';
+
+            let tileDOM = document.createElement('div');
+            tileDOM.className = 'tile';
+            tileDOM.innerText = randomLetter;
+            tileDOM.dataset.index = i;
+            if (element !== 'none') {
+                tileDOM.setAttribute('data-element', element);
+            }
+
+            this.gridContainer.appendChild(tileDOM);
+            this.gridState.push({ 
+                letter: randomLetter, 
+                element: tileDOM, 
+                isUsed: false, 
+                elementEffect: element 
+            });
+        }
+    }
+
+    bindInputSignals() {
+        this.gridContainer.addEventListener('click', (e) => {
+            if (this.gameState !== 'PLAYER_INPUT') return;
+            let tile = e.target.closest('.tile');
+            if (!tile) return;
+            sound.playTap();
+            this.selectTile(parseInt(tile.dataset.index));
+        });
+
+        this.trayContainer.addEventListener('click', (e) => {
+            if (this.gameState !== 'PLAYER_INPUT') return;
+            let trayTile = e.target.closest('.tray-tile');
+            if (!trayTile) return;
+            sound.playUntap();
+            this.deselectTileViaTray(parseInt(trayTile.dataset.originIndex));
+        });
+
+        this.attackButton.addEventListener('click', () => {
+            if (this.gameState !== 'PLAYER_INPUT') return;
+            this.executeCombatTurnChain();
+        });
+
+        this.potionButton.addEventListener('click', () => {
+            if (this.gameState !== 'PLAYER_INPUT') return;
+            this.usePotion();
+        });
+    }
+
+    // --- TWO-WAY DATA MODEL BINDINGS ---
+    selectTile(index) {
+        let node = this.gridState[index];
+        if (node.isUsed) return;
+
+        node.isUsed = true;
+        node.element.classList.add('used');
+
+        this.selectedSequence.push({ 
+            letter: node.letter, 
+            gridIndex: index, 
+            element: node.elementEffect 
+        });
+        this.renderWordTrayUI();
+    }
+
+    deselectTileViaTray(gridIndex) {
+        this.selectedSequence = this.selectedSequence.filter(item => item.gridIndex !== gridIndex);
+        let node = this.gridState[gridIndex];
+        node.isUsed = false;
+        node.element.classList.remove('used');
+        this.renderWordTrayUI();
+    }
+
+    renderWordTrayUI() {
+        this.trayContainer.innerHTML = '';
+        let currentString = '';
+
+        this.selectedSequence.forEach(item => {
+            currentString += item.letter;
+            let trayCell = document.createElement('div');
+            trayCell.className = 'tray-tile';
+            trayCell.innerText = item.letter;
+            trayCell.dataset.originIndex = item.gridIndex;
+            if (item.element !== 'none') {
+                trayCell.setAttribute('data-element', item.element);
+            }
+            this.trayContainer.appendChild(trayCell);
+        });
+
+        if (currentString.length >= 3) {
+            this.attackButton.disabled = false;
+            this.attackButton.innerText = `Cast: ${currentString}`;
+        } else {
+            this.attackButton.disabled = true;
+            this.attackButton.innerText = `Spell Word`;
+        }
+    }
+
+    // --- COMBAT LIFECYCLE MACHINE ---
+    async executeCombatTurnChain() {
+        if (this.gameState !== 'PLAYER_INPUT') return;
+        this.gameState = 'ANIMATION_LOCK';
+        this.attackButton.disabled = true;
+
+        let finalWord = this.selectedSequence.map(item => item.letter).join('');
+        
+        // Auto-validate length >= 5 or match dict
+        let isValid = finalWord.length >= 5 || ENHANCED_DICTIONARY_SET.has(finalWord);
+
+        if (!isValid) {
+            sound.playMisfire();
+            this.logMessage(`💥 "${finalWord}" is not a valid spell!`, "effect");
+            this.spawnFloatingText(this.gridContainer, "MISFIRE", "yellow");
+            this.shakeElement(this.gridContainer);
+            this.flashScreen('red');
+
+            await this.delayAsync(1200);
+            this.resetTurnInputs();
+            return;
+        }
+
+        sound.playSuccess();
+
+        // 1. INFLICT ELEMENTAL GEM STATUSES
+        let appliedElements = [];
+        this.selectedSequence.forEach(item => {
+            if (item.element !== 'none') {
+                this.enemyStatuses[item.element] = 3; // inflict status for 3 rounds
+                appliedElements.push(item.element.toUpperCase());
+            }
+        });
+
+        if (appliedElements.length > 0) {
+            this.renderStatusBadges();
+            this.logMessage(`✨ Inflicted status: ${appliedElements.join(', ')}`, "effect");
+        }
+
+        // 2. PLAYER CAST RESOLUTION (onDamageCalculate hook)
+        let wordLength = finalWord.length;
+        let baseDamage = Math.floor(10 * Math.pow(1.5, wordLength - 3)); // Exponential Scaling
+        
+        // Flame/Burn Check: multiplies damage by 1.5x
+        if (this.enemyStatuses.flame > 0) {
+            baseDamage = Math.floor(baseDamage * 1.5);
+            this.spawnFloatingText(this.enemyAvatarHolder, "BURNED x1.5", "orange");
+            this.logMessage("🔥 Flame burn amplifies incoming strike!", "effect");
+            await this.delayAsync(600);
+        }
+
+        // Deal damage
+        this.enemyHP = Math.max(0, this.enemyHP - baseDamage);
+        this.updateHPBars();
+        sound.playHit();
+        this.shakeElement(this.enemyAvatarHolder);
+        this.spawnFloatingText(this.enemyAvatarHolder, `-${baseDamage} HP`, "orange");
+        this.logMessage(`⚔️ Lex casts "${finalWord}" for ${baseDamage} damage!`, "player");
+
+        // Reward gold & score based on word length
+        this.gold += wordLength;
+        this.score += baseDamage * 2;
+        this.updateUIStats();
+
+        await this.delayAsync(1400);
+
+        if (this.checkDeathStates()) return;
+
+        // 3. ENEMY TICK LIFECYCLE (onTurnStart hook)
+        this.gameState = 'ENEMY_TURN';
+
+        // Poison Dot check
+        if (this.enemyStatuses.poison > 0) {
+            let poisonDamage = 7 + this.level * 2;
+            this.enemyHP = Math.max(0, this.enemyHP - poisonDamage);
+            this.updateHPBars();
+            sound.playHit();
+            this.shakeElement(this.enemyAvatarHolder);
+            this.spawnFloatingText(this.enemyAvatarHolder, `${poisonDamage} Poison`, "green");
+            this.logMessage(`🤢 Poison ticks on ${this.enemyName} for ${poisonDamage} damage.`, "effect");
+            this.enemyStatuses.poison--;
+            this.renderStatusBadges();
+
+            await this.delayAsync(1200);
+            if (this.checkDeathStates()) return;
+        }
+
+        // Frost Skip Check
+        if (this.enemyStatuses.frost > 0) {
+            this.spawnFloatingText(this.enemyAvatarHolder, "FROZEN", "frost");
+            this.logMessage(`🥶 ${this.enemyName} is frozen! Turn skipped.`, "effect");
+            this.enemyStatuses.frost--;
+            this.renderStatusBadges();
+            await this.delayAsync(1400);
+        } else {
+            // Normal Enemy Attack
+            let enemyAttackDamage = this.enemyBaseDamage + Math.floor(Math.random() * 5);
+            this.playerHP = Math.max(0, this.playerHP - enemyAttackDamage);
+            this.updateHPBars();
+            sound.playHit();
+            this.shakeElement(document.getElementById('player-avatar'));
+            this.spawnFloatingText(document.getElementById('player-avatar'), `-${enemyAttackDamage} HP`, "red");
+            this.flashScreen('red');
+            this.logMessage(`👹 ${this.enemyName} strikes back for ${enemyAttackDamage} damage.`, "enemy");
+
+            await this.delayAsync(1400);
+            if (this.checkDeathStates()) return;
+        }
+
+        // Decrement flame count
+        if (this.enemyStatuses.flame > 0) {
+            this.enemyStatuses.flame--;
+            this.renderStatusBadges();
+        }
+
+        // Clean up tiles in-place
+        this.replaceConsumedTiles();
+        this.resetTurnInputs();
+    }
+
+    replaceConsumedTiles() {
+        this.selectedSequence.forEach(item => {
+            let randomLetter = this.letterPool[Math.floor(Math.random() * this.letterPool.length)];
+            let targetNode = this.gridState[item.gridIndex];
+            
+            let element = 'none';
+            let rand = Math.random();
+            if (rand < 0.07) element = 'poison';
+            else if (rand < 0.14) element = 'frost';
+            else if (rand < 0.21) element = 'flame';
+
+            targetNode.letter = randomLetter;
+            targetNode.elementEffect = element;
+            targetNode.element.innerText = randomLetter;
+            
+            targetNode.element.removeAttribute('data-element');
+            if (element !== 'none') {
+                targetNode.element.setAttribute('data-element', element);
+            }
+        });
+    }
+
+    resetTurnInputs() {
+        this.selectedSequence = [];
+        this.gridState.forEach(node => {
+            node.isUsed = false;
+            node.element.classList.remove('used');
+        });
+        this.renderWordTrayUI();
+        this.gameState = 'PLAYER_INPUT';
+    }
+
+    usePotion() {
+        if (this.gameState !== 'PLAYER_INPUT') return;
+        
+        // Buy potion if none and has gold
+        if (this.potions <= 0) {
+            if (this.gold >= 15) {
+                this.gold -= 15;
+                this.potions++;
+                this.updateUIStats();
+                this.logMessage("🛒 Purchased a Healing Potion for 15 Gold.", "system");
+                sound.playSuccess();
+                return;
+            } else {
+                this.logMessage("❌ Not enough Gold to buy potion! (Requires 15 Gold)", "system");
+                sound.playMisfire();
+                return;
+            }
+        }
+
+        // Consume Potion
+        this.potions--;
+        let healAmt = 35;
+        this.playerHP = Math.min(this.playerMaxHP, this.playerHP + healAmt);
+        this.updateHPBars();
+        this.updateUIStats();
+        
+        sound.playHeal();
+        this.spawnFloatingText(document.getElementById('player-avatar'), `+${healAmt} Heal`, "green");
+        this.flashScreen('green');
+        this.logMessage(`🥤 Lex drinks a potion and recovers ${healAmt} HP.`, "player");
+
+        // Healing takes 1 turn cycle
+        this.gameState = 'ANIMATION_LOCK';
+        setTimeout(() => {
+            this.executeEnemyOnlyTurn();
+        }, 1200);
+    }
+
+    // Handles the enemy attack transition directly when player heals
+    async executeEnemyOnlyTurn() {
+        this.gameState = 'ENEMY_TURN';
+        
+        if (this.enemyStatuses.poison > 0) {
+            let poisonDamage = 7 + this.level * 2;
+            this.enemyHP = Math.max(0, this.enemyHP - poisonDamage);
+            this.updateHPBars();
+            sound.playHit();
+            this.spawnFloatingText(this.enemyAvatarHolder, `${poisonDamage} Poison`, "green");
+            this.logMessage(`🤢 Poison ticks on ${this.enemyName} for ${poisonDamage} damage.`, "effect");
+            this.enemyStatuses.poison--;
+            this.renderStatusBadges();
+            await this.delayAsync(1200);
+            if (this.checkDeathStates()) return;
+        }
+
+        if (this.enemyStatuses.frost > 0) {
+            this.spawnFloatingText(this.enemyAvatarHolder, "FROZEN", "frost");
+            this.logMessage(`🥶 ${this.enemyName} is frozen! Turn skipped.`, "effect");
+            this.enemyStatuses.frost--;
+            this.renderStatusBadges();
+            await this.delayAsync(1400);
+        } else {
+            let enemyAttackDamage = this.enemyBaseDamage + Math.floor(Math.random() * 5);
+            this.playerHP = Math.max(0, this.playerHP - enemyAttackDamage);
+            this.updateHPBars();
+            sound.playHit();
+            this.shakeElement(document.getElementById('player-avatar'));
+            this.spawnFloatingText(document.getElementById('player-avatar'), `-${enemyAttackDamage} HP`, "red");
+            this.flashScreen('red');
+            this.logMessage(`👹 ${this.enemyName} strikes Lex for ${enemyAttackDamage} damage.`, "enemy");
+            await this.delayAsync(1400);
+            if (this.checkDeathStates()) return;
+        }
+
+        if (this.enemyStatuses.flame > 0) {
+            this.enemyStatuses.flame--;
+            this.renderStatusBadges();
+        }
+
+        this.gameState = 'PLAYER_INPUT';
+        this.renderWordTrayUI();
+    }
+
+    checkDeathStates() {
+        if (this.enemyHP <= 0) {
+            this.handleMonsterDefeated();
+            return true;
+        }
+        if (this.playerHP <= 0) {
+            this.handlePlayerDefeated();
+            return true;
+        }
+        return false;
+    }
+
+    handleMonsterDefeated() {
+        this.logMessage(`🏆 Defeated ${this.enemyName}! You earned 10 Gold.`, "system");
+        this.gold += 10;
+        this.score += 500;
+        
+        // Check progression
+        if (this.monsterIndex < MONSTER_TEMPLATES.length - 1) {
+            this.monsterIndex++;
+            this.levelUpLex();
+            this.loadMonster();
+            this.generateMatrixGrid();
+            this.resetTurnInputs();
+        } else {
+            // Ultimate victory
+            sound.playSuccess();
+            document.getElementById('victory-desc').innerText = `You cleared all stages and protected the Great Library. Final Score: ${this.score}`;
+            this.victoryModal.classList.add('active');
+            this.gameState = 'GAME_OVER';
+        }
+    }
+
+    levelUpLex() {
+        this.level++;
+        this.playerMaxHP += 15;
+        this.playerHP = this.playerMaxHP;
+        this.potions++;
+        sound.playLevelUp();
+        this.spawnFloatingText(document.getElementById('player-avatar'), "LEVEL UP!", "yellow");
+        this.logMessage(`⭐ Lex levels up! HP Max increased to ${this.playerMaxHP}!`, "system");
+        this.updateUIStats();
+        this.updateHPBars();
+    }
+
+    handlePlayerDefeated() {
+        sound.playDeath();
+        this.defeatModal.classList.add('active');
+        this.gameState = 'GAME_OVER';
+        this.logMessage("💀 Lex fell. The Library archives are lost.", "enemy");
+    }
+
+    // --- UI PRESENTATION UTILITIES ---
+    updateUIStats() {
+        this.metaStage.innerText = `${this.monsterIndex + 1} / ${MONSTER_TEMPLATES.length}`;
+        this.metaLevel.innerText = this.level;
+        this.metaScore.innerText = this.score;
+        this.metaGold.innerText = this.gold;
+
+        // Potion count indicator details
+        this.potionCountDisplay.innerText = this.potions;
+        if (this.potions <= 0) {
+            this.potionButton.title = "Buy Healing Potion (Cost: 15 Gold)";
+            this.potionCountDisplay.style.background = "#ef4444";
+            this.potionCountDisplay.innerText = "+";
+        } else {
+            this.potionButton.title = "Drink Healing Potion (Recover 35 HP)";
+            this.potionCountDisplay.style.background = "#fbbf24";
+        }
+    }
+
+    updateHPBars() {
+        let pPercent = (this.playerHP / this.playerMaxHP) * 100;
+        let ePercent = (this.enemyHP / this.enemyMaxHP) * 100;
+
+        this.playerBar.style.width = `${pPercent}%`;
+        this.enemyBar.style.width = `${ePercent}%`;
+    }
+
+    renderStatusBadges() {
+        this.enemyBadgesContainer.innerHTML = '';
+        Object.keys(this.enemyStatuses).forEach(status => {
+            let turns = this.enemyStatuses[status];
+            if (turns > 0) {
+                let badge = document.createElement('span');
+                badge.className = `badge-icon ${status}`;
+                badge.innerText = `${status} (${turns})`;
+                this.enemyBadgesContainer.appendChild(badge);
+            }
+        });
+    }
+
+    logMessage(text, type = 'system') {
+        let entry = document.createElement('div');
+        entry.className = `log-entry ${type}`;
+        entry.innerText = `> ${text}`;
+        this.combatLog.appendChild(entry);
+        this.combatLog.scrollTop = this.combatLog.scrollHeight;
+    }
+
+    spawnFloatingText(targetDOM, text, type) {
+        let rect = targetDOM.getBoundingClientRect();
+        let parentRect = this.gameWindow.getBoundingClientRect();
+
+        let x = rect.left - parentRect.left + (rect.width / 2) - 40;
+        let y = rect.top - parentRect.top;
+
+        let el = document.createElement('div');
+        el.className = 'floating-text';
+        el.innerText = text;
+        
+        if (type === 'red') el.style.color = '#ef4444';
+        else if (type === 'green') el.style.color = '#10b981';
+        else if (type === 'orange') el.style.color = '#f97316';
+        else if (type === 'yellow') el.style.color = '#fbbf24';
+        else if (type === 'frost') el.style.color = '#38bdf8';
+
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+
+        this.gameWindow.appendChild(el);
+        setTimeout(() => el.remove(), 1200);
+    }
+
+    shakeElement(el) {
+        el.style.transition = 'none';
+        el.style.transform = 'translateX(-10px)';
+        setTimeout(() => el.style.transform = 'translateX(10px)', 60);
+        setTimeout(() => el.style.transform = 'translateX(-6px)', 120);
+        setTimeout(() => el.style.transform = 'translateX(6px)', 180);
+        setTimeout(() => {
+            el.style.transform = '';
+            el.style.transition = '';
+        }, 240);
+    }
+
+    flashScreen(type) {
+        let flash = document.getElementById(`${type}-flash`);
+        flash.style.opacity = '1';
+        flash.style.transition = 'none';
+        setTimeout(() => {
+            flash.style.transition = 'opacity 0.6s ease';
+            flash.style.opacity = '0';
+        }, 50);
+    }
+
+    delayAsync(ms) { 
+        return new Promise(resolve => setTimeout(resolve, ms)); 
+    }
+}
+
+// System Startup Instance Initialization
+window.addEventListener('DOMContentLoaded', () => {
+    // Enable Web Audio context only on direct user interaction to satisfy browser policies
+    document.body.addEventListener('click', () => {
+        sound.init();
+    }, { once: true });
+
+    const game = new BookwormAilmentRPG();
+});
+</script>
+
+</body>
+</html>
