@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Platformer Active Equipping Architecture</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background-color: #030712;
+            color: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .app-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 28px;
+            align-items: flex-start;
+            justify-content: center;
+            max-width: 1100px;
+            width: 100%;
+        }
+        
+        .game-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .ui-panel {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            color: #a7f3d0;
+            letter-spacing: 1px;
+            line-height: 1.4;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .instructions {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 8px;
+            font-weight: 400;
+        }
+        
+        #game-container {
+            width: 640px;
+            height: 480px;
+            border: 4px solid #1f2937;
+            border-radius: 8px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            background-color: #0f172a;
+        }
+        
+        #game-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        .sidebar-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 380px;
+            height: 480px;
+            margin-top: 54px; /* Align with game canvas top */
+        }
+        
+        .console-box {
+            background-color: #090d16;
+            border: 1px solid #1f2937;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .console-header {
+            background-color: #111827;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px solid #1f2937;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot.red { background-color: #ef4444; }
+        .dot.yellow { background-color: #f59e0b; }
+        .dot.green { background-color: #10b981; }
+        
+        .console-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            color: #9ca3af;
+            margin-left: 6px;
+            letter-spacing: 0.5px;
+        }
+        
+        pre {
+            margin: 0;
+            padding: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            overflow: auto;
+            flex: 1;
+            line-height: 1.5;
+        }
+        
+        #state-matrix {
+            color: #a7f3d0;
+        }
+        
+        #player-stats-json {
+            color: #38bdf8;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1060px) {
+            .app-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            .sidebar-column {
+                width: 640px;
+                height: auto;
+                margin-top: 16px;
+            }
+            .console-box {
+                height: 220px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <div class="game-column">
+            <div class="ui-panel">
+                <h1>ACTIVE EQUIPPING SYSTEM</h1>
+                <div class="instructions">A/D: Move | W: Jump | I: Toggle Bag | Click item to Use/Equip</div>
+            </div>
+            <div id="game-container"></div>
+        </div>
+        
+        <div class="sidebar-column">
+            <div class="console-box">
+                <div class="console-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                    <span class="console-title">INVENTORY_STATE_MATRIX</span>
+                </div>
+                <pre id="state-matrix">Loading state matrix...</pre>
+            </div>
+            
+            <div class="console-box">
+                <div class="console-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                    <span class="console-title">PLAYER_STATS_REGISTRY</span>
+                </div>
+                <pre id="player-stats-json">Loading player stats...</pre>
+            </div>
+        </div>
+    </div>
+
+<script>
+class PlatformerEquipScene extends Phaser.Scene {
+    constructor() {
+        super('EquipGameScene');
+    }
+
+    preload() {
+        // --- 8-BIT TEXTURE GENERATION ---
+        // 1. Solid Environment Tile (16x16)
+        const tileMatrix = [
+            'FFFFFFFFFFFFFFFF', 'F11111111111111F', 'F12222222222221F', 'F12222222222221F',
+            'F12222222222221F', 'F12222222222221F', 'F12222222222221F', 'F12222222222221F',
+            'F12222222222221F', 'F12222222222221F', 'F12222222222221F', 'F12222222222221F',
+            'F12222222222221F', 'F12222222222221F', 'F11111111111111F', 'FFFFFFFFFFFFFFFF'
+        ];
+        this.textures.generate('pixel-wall', { data: tileMatrix, pixelWidth: 1, pixelHeight: 1, palette: { '1': '#374151', '2': '#1f2937', 'F': '#4b5563' } });
+
+        // 2. Health Potion Sprite Matrix (14x12)
+        const potionMatrix = [
+            '......11......', '.....1001.....', '.....1001.....', '....111111....',
+            '...12222221...', '..1223333221..', '.122333333221.', '.122333333221.',
+            '.122333333221.', '.122222222221.', '..1222222221..', '...11111111...'
+        ];
+        this.textures.generate('item-potion', { data: potionMatrix, pixelWidth: 1, pixelHeight: 1, palette: { '0': '#93c5fd', '1': '#1e3a8a', '2': '#ef4444', '3': '#fee2e2', '.': 'transparent' } });
+
+        // 3. Iron Sword Sprite Matrix (14x12)
+        const swordMatrix = [
+            '......22......', '.....2112.....', '.....2112.....', '.....2112.....',
+            '.....2112.....', '.....2112.....', '.....2112.....', '....221122....',
+            '...21111112...', '....222222....', '.....2332.....', '......22......'
+        ];
+        this.textures.generate('item-sword', { data: swordMatrix, pixelWidth: 1, pixelHeight: 1, palette: { '1': '#d1d5db', '2': '#374151', '3': '#b45309', '.': 'transparent' } });
+
+        // 4. Unselected Slot Frame Template (16x16)
+        const slotMatrix = [
+            '3333333333333333', '3111111111111113', '31............13', '31............13',
+            '31............13', '31............13', '31............13', '31............13',
+            '31............13', '31............13', '31............13', '31............13',
+            '31............13', '31............13', '3111111111111113', '3333333333333333'
+        ];
+        this.textures.generate('inv-slot-bg', { data: slotMatrix, pixelWidth: 2, pixelHeight: 2, palette: { '1': '#111827', '3': '#4b5563', '.': 'transparent' } });
+
+        // 5. Equipped Active Weapon Outline Frame Template (16x16 - Neon Emerald Highlight)
+        const activeSlotMatrix = [
+            '3333333333333333', '3111111111111113', '31............13', '31............13',
+            '31............13', '31............13', '31............13', '31............13',
+            '31............13', '31............13', '31............13', '31............13',
+            '31............13', '31............13', '3111111111111113', '3333333333333333'
+        ];
+        this.textures.generate('inv-slot-equipped', { data: activeSlotMatrix, pixelWidth: 2, pixelHeight: 2, palette: { '1': '#064e3b', '3': '#10b981', '.': 'transparent' } });
+    }
+
+    create() {
+        // --- SEPARATED CHARACTER PLAYER REGISTRY DATA ---
+        this.playerStats = {
+            hp: 60,
+            maxHp: 100,
+            baseDamage: 5,
+            equippedWeaponSlot: null // Stores array index pointer if weapon is hot-slotted
+        };
+
+        this.inventorySize = 8;
+        this.inventoryData = Array(this.inventorySize).fill(null);
+        this.isInventoryOpen = false;
+
+        this.physics.world.setBounds(0, 0, 320, 240);
+        
+        this.platforms = this.physics.add.staticGroup();
+        this.createGroundLevel();
+
+        // Spawn Player Base Container
+        this.player = this.physics.add.sprite(40, 150, 'pixel-wall');
+        this.player.setDisplaySize(16, 24).setTint(0x34d399).setCollideWorldBounds(true);
+        this.physics.add.collider(this.player, this.platforms);
+
+        // Visual Sword Attacher Accessory (Sits on top of character sprite model)
+        this.playerWeaponSprite = this.add.sprite(0, 0, 'item-sword').setOrigin(0.5).setVisible(false);
+
+        // Environment Item Setup
+        this.droppedItems = this.physics.add.group();
+        this.physics.add.collider(this.droppedItems, this.platforms);
+        this.physics.add.overlap(this.player, this.droppedItems, this.handleItemPickup, null, this);
+
+        // Key bindings
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+        this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        this.keyI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I);
+
+        // Seed Map Collectibles
+        this.spawnWorldItem(90, 150, 'item-potion', 'POTION_RED', 5);
+        this.spawnWorldItem(130, 150, 'item-potion', 'POTION_RED', 5);
+        this.spawnWorldItem(180, 150, 'item-sword', 'SWORD_IRON', 1);
+
+        // UI text elements (Phaser Text objects)
+        this.hpDisplay = this.add.text(8, 8, '', { fontFamily: 'monospace', fontSize: '11px', color: '#10b981' }).setScrollFactor(0);
+        this.dmgDisplay = this.add.text(8, 20, '', { fontFamily: 'monospace', fontSize: '11px', color: '#f59e0b' }).setScrollFactor(0);
+
+        this.inventoryUIGroup = this.add.group();
+
+        // Sync systems initially
+        this.syncPlayerSystems();
+    }
+
+    createGroundLevel() {
+        for (let x = 0; x < 320; x += 16) {
+            this.platforms.create(x + 8, 232, 'pixel-wall');
+        }
+        for (let x = 80; x < 220; x += 16) {
+            this.platforms.create(x + 8, 175, 'pixel-wall');
+        }
+    }
+
+    spawnWorldItem(x, y, assetKey, itemID, stackMaxValue) {
+        let item = this.droppedItems.create(x, y, assetKey);
+        item.setBounce(0.2);
+        item.customData = { id: itemID, textureKey: assetKey, maxStack: stackMaxValue };
+    }
+
+    update() {
+        if (this.cursors.left.isDown || this.keyA.isDown) {
+            this.player.setVelocityX(-120);
+            this.player.setFlipX(true);
+        } else if (this.cursors.right.isDown || this.keyD.isDown) {
+            this.player.setVelocityX(120);
+            this.player.setFlipX(false);
+        } else {
+            this.player.setVelocityX(0);
+        }
+
+        if ((this.cursors.up.isDown || this.keyW.isDown) && this.player.body.touching.down) {
+            this.player.setVelocityY(-160);
+        }
+
+        // Weapon accessory attachments vector mapping follow loops
+        if (this.playerWeaponSprite.visible) {
+            if (this.player.flipX) {
+                this.playerWeaponSprite.x = this.player.x - 10;
+                this.playerWeaponSprite.setFlipX(true);
+            } else {
+                this.playerWeaponSprite.x = this.player.x + 10;
+                this.playerWeaponSprite.setFlipX(false);
+            }
+            this.playerWeaponSprite.y = this.player.y;
+        }
+
+        if (Phaser.Input.Keyboard.JustDown(this.keyI)) {
+            this.isInventoryOpen = !this.isInventoryOpen;
+            this.refreshInventoryUI();
+        }
+    }
+
+    handleItemPickup(player, itemInstance) {
+        let data = itemInstance.customData;
+        let targetSlot = this.inventoryData.find(s => s !== null && s.id === data.id && s.qty < s.maxStack);
+
+        if (targetSlot) {
+            targetSlot.qty++;
+            itemInstance.destroy();
+            this.syncPlayerSystems();
+            this.refreshInventoryUI();
+            return;
+        }
+
+        let emptyIndex = this.inventoryData.findIndex(s => s === null);
+        if (emptyIndex !== -1) {
+            this.inventoryData[emptyIndex] = { id: data.id, qty: 1, maxStack: data.maxStack, texture: data.textureKey };
+            itemInstance.destroy();
+            this.syncPlayerSystems();
+            this.refreshInventoryUI();
+        }
+    }
+
+    // --- INTERACTIVE CLICK DELEGATOR SYSTEM ---
+    processSlotAction(index) {
+        let item = this.inventoryData[index];
+        if (!item) return;
+
+        // Route Category 1: Consumption Action Loops
+        if (item.id === 'POTION_RED') {
+            this.playerStats.hp = Math.min(this.playerStats.maxHp, this.playerStats.hp + 30);
+            item.qty--;
+            
+            if (item.qty <= 0) {
+                this.inventoryData[index] = null;
+                // If an item slot vanishes, verify it doesn't leave broken hardware equip trackers active
+                if (this.playerStats.equippedWeaponSlot === index) this.playerStats.equippedWeaponSlot = null;
+            }
+        } 
+        // Route Category 2: Equippable Hardware Action Loops
+        else if (item.id === 'SWORD_IRON') {
+            if (this.playerStats.equippedWeaponSlot === index) {
+                // Toggle action: Already equipped, unslot it
+                this.playerStats.equippedWeaponSlot = null;
+            } else {
+                this.playerStats.equippedWeaponSlot = index;
+            }
+        }
+
+        this.syncPlayerSystems();
+        this.refreshInventoryUI();
+    }
+
+    syncPlayerSystems() {
+        // Evaluate damage weights dependent on active equipment trackers
+        if (this.playerStats.equippedWeaponSlot !== null) {
+            this.dmgDisplay.setText(`ATK DMG: 15 (SWORD)`);
+            this.playerWeaponSprite.setVisible(true);
+        } else {
+            this.dmgDisplay.setText(`ATK DMG: 5`);
+            this.playerWeaponSprite.setVisible(false);
+        }
+        this.hpDisplay.setText(`HP: ${this.playerStats.hp}/100`);
+
+        // Update DOM state matrix visualizers for high-fidelity debugging
+        const stateMatrixEl = document.getElementById('state-matrix');
+        if (stateMatrixEl) {
+            stateMatrixEl.textContent = JSON.stringify(this.inventoryData, null, 2);
+        }
+        const statsEl = document.getElementById('player-stats-json');
+        if (statsEl) {
+            statsEl.textContent = JSON.stringify(this.playerStats, null, 2);
+        }
+    }
+
+    // --- REFRESH UI LAYER GENERATION ---
+    refreshInventoryUI() {
+        this.inventoryUIGroup.clear(true, true);
+        if (!this.isInventoryOpen) return;
+
+        let startX = 32, startY = 50, slotSpacing = 36;
+
+        for (let i = 0; i < this.inventorySize; i++) {
+            let col = i % 4; let row = Math.floor(i / 4);
+            let x = startX + (col * slotSpacing); let y = startY + (row * slotSpacing);
+
+            // Determine texture keys dependent on active item equipment parameters
+            let isEquipped = (this.playerStats.equippedWeaponSlot === i);
+            let slotTexture = isEquipped ? 'inv-slot-equipped' : 'inv-slot-bg';
+
+            let slotBG = this.add.sprite(x, y, slotTexture).setOrigin(0).setScrollFactor(0).setDepth(10);
+            
+            // Activate Input Component Pipeline
+            slotBG.setInteractive();
+            slotBG.slotIndex = i; // Save pointer directly to prevent garbage generation arrays closures
+            
+            slotBG.on('pointerdown', function() {
+                this.scene.processSlotAction(this.slotIndex);
+            });
+
+            this.inventoryUIGroup.add(slotBG);
+
+            let itemState = this.inventoryData[i];
+            if (itemState !== null) {
+                let itemSprite = this.add.sprite(x + 16, y + 16, itemState.texture).setScrollFactor(0).setDepth(11);
+                itemSprite.setDisplaySize(16, 16);
+                this.inventoryUIGroup.add(itemSprite);
+
+                if (itemState.maxStack > 1) {
+                    let qtyText = this.add.text(x + 22, y + 20, itemState.qty.toString(), {
+                        fontFamily: 'monospace', fontSize: '10px', color: '#ffffff', stroke: '#000000', strokeThickness: 2
+                    }).setScrollFactor(0).setDepth(12);
+                    this.inventoryUIGroup.add(qtyText);
+                }
+            }
+        }
+    }
+}
+
+const config = {
+    type: Phaser.AUTO,
+    width: 320,
+    height: 240,
+    parent: 'game-container',
+    backgroundColor: '#0f172a',
+    pixelArt: true,
+    roundPixels: true,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 400 },
+            debug: false
+        }
+    },
+    scene: PlatformerEquipScene
+};
+const game = new Phaser.Game(config);
+</script>
+</body>
+</html>

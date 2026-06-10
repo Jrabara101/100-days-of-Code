@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Staff Architected Turn-Based Battle Engine</title>
+    <style>
+        :root {
+            --bg: #0b0f19; --panel: #1e293b; --border: #475569;
+            --primary: #3b82f6; --accent-red: #ef4444; --accent-green: #10b981;
+            --accent-purple: #a855f7; --text: #f8fafc;
+        }
+
+        body {
+            margin: 0; padding: 0; background-color: var(--bg); color: var(--text);
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden; user-select: none; touch-action: none;
+        }
+
+        .battle-arena {
+            width: 480px; background: var(--panel); border: 3px solid var(--border);
+            border-radius: 12px; padding: 24px; box-sizing: border-box;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Stage Layer for Actors */
+        .stage {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            height: 140px; margin-bottom: 25px; border-bottom: 2px dashed var(--border);
+            padding-bottom: 15px; position: relative;
+        }
+
+        .sprite-box {
+            display: flex; flex-direction: column; align-items: center; width: 100px;
+            transition: transform 0.15s ease-out;
+        }
+        
+        /* Placeholder procedural geometric pixel art representations */
+        .avatar { width: 64px; height: 64px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 10px 15px rgba(0,0,0,0.3); }
+        .player-avatar { background: linear-gradient(135deg, #60a5fa, #2563eb); border: 2px solid #93c5fd; }
+        .enemy-avatar { background: linear-gradient(135deg, #f87171, #dc2626); border: 2px solid #fca5a5; }
+
+        .hp-container { width: 100%; }
+        .name-lbl { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .hp-bar-bg { width: 100%; height: 10px; background: #475569; border-radius: 5px; overflow: hidden; border: 1px solid #0f172a; }
+        .hp-bar-fill { height: 100%; background: var(--accent-green); width: 100%; transition: width 0.3s ease; }
+        .hp-bar-fill.low { background: var(--accent-red); }
+
+        /* Combat Logging Output Component */
+        .combat-log {
+            height: 80px; background: #0f172a; border-radius: 6px; padding: 10px;
+            box-sizing: border-box; overflow-y: auto; font-family: monospace;
+            font-size: 12px; line-height: 1.5; color: #cbd5e1; border: 1px solid var(--border);
+            margin-bottom: 20px; display: flex; flex-direction: column-reverse;
+        }
+        .log-entry { margin-bottom: 4px; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Command Interface Dashboard */
+        .command-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        
+        button {
+            background: #334155; color: var(--text); border: 2px solid var(--border);
+            padding: 12px; font-size: 14px; font-weight: bold; border-radius: 6px;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: background 0.15s, transform 0.1s; font-family: inherit;
+        }
+        button:hover:not(:disabled) { background: #475569; border-color: #64748b; }
+        button:active:not(:disabled) { transform: scale(0.97); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Core Animation Hooks */
+        .shake { animation: strikeShake 0.25s ease-in-out; }
+        .flash { animation: damageFlash 0.15s ease-in-out 2; }
+
+        @keyframes strikeShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-12px); }
+            40%, 80% { transform: translateX(12px); }
+        }
+        @keyframes damageFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="battle-arena">
+        <div class="stage">
+            <div class="sprite-box" id="player-sprite">
+                <div class="name-lbl">Hero (LV. 12)</div>
+                <div class="avatar player-avatar"></div>
+                <div class="hp-container">
+                    <div class="hp-bar-bg"><div class="hp-bar-fill" id="player-hp-fill"></div></div>
+                </div>
+            </div>
+
+            <div class="sprite-box" id="enemy-sprite">
+                <div class="name-lbl">Behemoth</div>
+                <div class="avatar enemy-avatar"></div>
+                <div class="hp-container">
+                    <div class="hp-bar-bg"><div class="hp-bar-fill" id="enemy-hp-fill"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="combat-log" id="log-display">
+            <div class="log-entry" style="color: var(--primary);">System initialized. Combat engine ready.</div>
+        </div>
+
+        <div class="command-menu" id="action-panel">
+            <button onclick="game.handleInput('STRIKE')">⚔️ Strike</button>
+            <button onclick="game.handleInput('BLAZE')" style="color: var(--accent-purple);">🔥 Blaze (MP)</button>
+            <button onclick="game.handleInput('MEND')" style="color: var(--accent-green);">💖 Mend</button>
+            <button id="btn-run" onclick="game.handleInput('FLEE')" style="color: #94a3b8;">🏃 Flee</button>
+        </div>
+    </div>
+
+<script>
+class BattleEngine {
+    constructor() {
+        // Structural Actor Profiles
+        this.player = { name: "Hero", hp: 120, maxHp: 120, attack: 18, defense: 10, mp: 30 };
+        this.enemy = { name: "Behemoth", hp: 200, maxHp: 200, attack: 22, defense: 14 };
+
+        this.gameState = "PLAYER_TURN"; // Engine state driver: PLAYER_TURN, ANIMATION_LOCK, ENEMY_TURN, TERMINATED
+        this.cacheDOMElements();
+    }
+
+    cacheDOMElements() {
+        this.playerBar = document.getElementById('player-hp-fill');
+        this.enemyBar = document.getElementById('enemy-hp-fill');
+        this.logDisplay = document.getElementById('log-display');
+        this.actionButtons = document.querySelectorAll('#action-panel button');
+        this.playerSprite = document.getElementById('player-sprite');
+        this.enemySprite = document.getElementById('enemy-sprite');
+    }
+
+    // --- MAIN ENGINE INPUT ROUTER ---
+    handleInput(actionType) {
+        if (this.gameState !== "PLAYER_TURN") return;
+        
+        // Lock system immediately to protect against rapid-click data racing corruption
+        this.setInterfaceLock(true);
+        this.processActionCommand("PLAYER", actionType);
+    }
+
+    async processActionCommand(executor, actionType) {
+        let attacker = (executor === "PLAYER") ? this.player : this.enemy;
+        let defender = (executor === "PLAYER") ? this.enemy : this.player;
+        let targetSprite = (executor === "PLAYER") ? this.enemySprite : this.playerSprite;
+        let attackerSprite = (executor === "PLAYER") ? this.playerSprite : this.enemySprite;
+
+        let outputMessage = "";
+        let finalDamage = 0;
+
+        switch (actionType) {
+            case "STRIKE":
+                // Standard Physical Mitigation Formula Execution
+                finalDamage = Math.max(1, Math.floor((attacker.attack * 1.0) - (defender.defense * 0.5)));
+                outputMessage = `${attacker.name} executes a heavy strike on ${defender.name} for ${finalDamage} damage!`;
+                
+                // Visual Juice: Lunge forward animation execution via transform rules
+                attackerSprite.style.transform = (executor === "PLAYER") ? "translateX(30px)" : "translateX(-30px)";
+                await this.delay(150);
+                attackerSprite.style.transform = "translateX(0)";
+                
+                this.applyDamage(defender, finalDamage);
+                this.triggerFX(targetSprite, "SHAKE_FLASH");
+                break;
+
+            case "BLAZE":
+                if (executor === "PLAYER" && attacker.mp < 10) {
+                    this.pushLog("Not enough Mana Points!", "var(--accent-red)");
+                    this.setInterfaceLock(false);
+                    return;
+                }
+                if (executor === "PLAYER") attacker.mp -= 10;
+
+                // Magic Pierces Standard Defense Parameters
+                finalDamage = Math.max(5, Math.floor(attacker.attack * 1.4));
+                outputMessage = `${attacker.name} summons an inferno spell upon ${defender.name} for ${finalDamage} raw magic damage!`;
+                
+                this.applyDamage(defender, finalDamage);
+                this.triggerFX(targetSprite, "FLASH");
+                break;
+
+            case "MEND":
+                let healVolume = Math.floor(attacker.maxHp * 0.35);
+                attacker.hp = Math.min(attacker.maxHp, attacker.hp + healVolume);
+                outputMessage = `${attacker.name} invokes local recovery vectors, restoring +${healVolume} HP.`;
+                this.triggerFX(attackerSprite, "FLASH");
+                break;
+
+            case "FLEE":
+                outputMessage = `${attacker.name} attempts to escape the encounter...`;
+                this.pushLog(outputMessage);
+                await this.delay(800);
+                if (Math.random() > 0.5) {
+                    this.pushLog("Escape successful!", "var(--accent-green)");
+                    this.terminateEngine("FLED");
+                    return;
+                } else {
+                    outputMessage = "Escape failed! The enemy blocks the exit route.";
+                }
+                break;
+        }
+
+        this.pushLog(outputMessage, (executor === "PLAYER") ? "#60a5fa" : "#f87171");
+        this.syncBarsUI();
+
+        await this.delay(1000); // Allow animation windows to rest completely before proceeding
+
+        if (this.evaluateCombatLifecycle()) return;
+
+        // Shift processing loops inside the State Machine
+        if (executor === "PLAYER") {
+            this.gameState = "ENEMY_TURN";
+            this.executeEnemyAIServer();
+        } else {
+            this.gameState = "PLAYER_TURN";
+            this.setInterfaceLock(false);
+        }
+    }
+
+    // --- ENEMY INTERFERENCE ENGINE AI ---
+    executeEnemyAIServer() {
+        // Procedural behavior tree: low health forces the monster to heal
+        let action = "STRIKE";
+        if (this.enemy.hp < this.enemy.maxHp * 0.3 && Math.random() > 0.4) {
+            action = "MEND";
+        } else if (Math.random() > 0.7) {
+            action = "BLAZE";
+        }
+
+        this.processActionCommand("ENEMY", action);
+    }
+
+    // --- DATA-VIEW SYNCHRONIZATION BINDINGS ---
+    applyDamage(target, amt) {
+        target.hp = Math.max(0, target.hp - amt);
+    }
+
+    syncBarsUI() {
+        let pPct = (this.player.hp / this.player.maxHp) * 100;
+        let ePct = (this.enemy.hp / this.enemy.maxHp) * 100;
+
+        this.playerBar.style.width = `${pPct}%`;
+        this.enemyBar.style.width = `${ePct}%`;
+
+        // Low Health Threshold Alert modifications
+        this.playerBar.className = `hp-bar-fill ${pPct < 30 ? 'low' : ''}`;
+        this.enemyBar.className = `hp-bar-fill enemy-bar ${ePct < 30 ? 'low' : ''}`;
+    }
+
+    triggerFX(spriteElement, pattern) {
+        spriteElement.classList.remove('shake', 'flash');
+        spriteElement.offsetHeight; // Force layout flow recalculation pipeline flash
+
+        if (pattern === "SHAKE_FLASH") {
+            spriteElement.classList.add('shake', 'flash');
+        } else if (pattern === "FLASH") {
+            spriteElement.classList.add('flash');
+        }
+    }
+
+    evaluateCombatLifecycle() {
+        if (this.enemy.hp <= 0) {
+            this.pushLog("Target Destroyed! Hero secures victory metrics.", "var(--accent-green)");
+            this.terminateEngine("VICTORY");
+            return true;
+        }
+        if (this.player.hp <= 0) {
+            this.pushLog("Critical Failure: Core systems crashed. Hero defeated.", "var(--accent-red)");
+            this.terminateEngine("DEFEAT");
+            return true;
+        }
+        return false;
+    }
+
+    setInterfaceLock(booleanFlag) {
+        this.actionButtons.forEach(btn => btn.disabled = booleanFlag);
+        // Ensure "Run" button is completely disabled if tactical lock states lock up
+        if (this.gameOver) document.getElementById('btn-run').disabled = true;
+    }
+
+    pushLog(text, colorStr = "#cbd5e1") {
+        let entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.style.color = colorStr;
+        entry.innerText = `> ${text}`;
+        this.logDisplay.insertBefore(entry, this.logDisplay.firstChild);
+    }
+
+    terminateEngine(resolutionCondition) {
+        this.gameState = "TERMINATED";
+        this.gameOver = true;
+        this.setInterfaceLock(true);
+        if (resolutionCondition === "VICTORY") this.enemySprite.classList.add('flash');
+        if (resolutionCondition === "DEFEAT") this.playerSprite.classList.add('flash');
+    }
+
+    delay(ms) { return new Promise(res => setTimeout(res, ms)); }
+}
+
+// System Boot Execution Instance configuration
+const game = new BattleEngine();
+</script>
+</body>
+</html>

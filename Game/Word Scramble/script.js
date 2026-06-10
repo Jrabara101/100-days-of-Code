@@ -298,6 +298,8 @@ class TeakScrambleGame {
         this.score = 0;
         this.level = 1;
         this.winStreak = 0;
+        this.tilesData = []; // Initialize to prevent TypeError before levels load
+        this.prefetchedData = null; // Prefetched next level word data
         
         this.sound = new SoundController();
         this.particles = new ParticleSystem(document.getElementById('effects-canvas'));
@@ -343,104 +345,120 @@ class TeakScrambleGame {
         let clue = "";
         const cat = this.currentCategory;
 
-        if (cat === 'general') {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3500);
-                const response = await fetch(`https://random-word-api.herokuapp.com/word?length=${wordLength}`, {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data[0]) {
-                        word = data[0].toUpperCase();
-                    }
-                }
-            } catch (err) {
-                console.warn("General API word fetch failed, using local offline fallback", err);
-            }
-            if (word) {
-                clue = await this.fetchDictionaryDefinition(word);
-            }
-        }
-        else if (cat === 'science' || cat === 'math' || cat === 'history' || cat === 'technology' || cat === 'novel') {
-            const mlQueries = {
-                science: 'science',
-                math: 'mathematics',
-                history: 'history',
-                technology: 'technology',
-                novel: 'novel'
-            };
-            const query = mlQueries[cat];
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3500);
-                const response = await fetch(`https://api.datamuse.com/words?ml=${query}&md=d&max=150`, {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                if (response.ok) {
-                    const data = await response.json();
-                    const candidates = data.filter(item => {
-                        const w = item.word.toUpperCase();
-                        return w.length === wordLength && /^[A-Z]+$/.test(w);
-                    });
-                    if (candidates.length > 0) {
-                        const chosen = candidates[Math.floor(Math.random() * candidates.length)];
-                        word = chosen.word.toUpperCase();
-                        if (chosen.defs && chosen.defs.length > 0) {
-                            const rawDef = chosen.defs[0];
-                            const tabIdx = rawDef.indexOf('\t');
-                            clue = tabIdx !== -1 ? rawDef.substring(tabIdx + 1) : rawDef;
-                        }
-                    }
-                }
-            } catch (err) {
-                console.warn(`Datamuse API fetch failed for ${cat}`, err);
-            }
-            if (word && !clue) {
-                clue = await this.fetchDictionaryDefinition(word);
-            }
-        }
-        else if (cat === 'anime' || cat === 'filipino-movies') {
-            const categories = {
-                anime: 'Category:Anime_series',
-                'filipino-movies': 'Category:Philippine_films'
-            };
-            const cmtitle = categories[cat];
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 4000);
-                const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=${cmtitle}&cmlimit=250&format=json&origin=*`, {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.query && data.query.categorymembers) {
-                        const members = data.query.categorymembers;
-                        const candidates = [];
-                        members.forEach(m => {
-                            const rawTitle = m.title;
-                            if (rawTitle.toLowerCase().startsWith('list of') || rawTitle.toLowerCase().startsWith('category:')) return;
-                            let cleanTitle = rawTitle.replace(/\s*\(.*?\)\s*/g, '');
-                            cleanTitle = cleanTitle.replace(/[^a-zA-Z]/g, '').toUpperCase();
-                            if (cleanTitle.length >= 4 && cleanTitle.length <= 8) {
-                                candidates.push({ originalTitle: rawTitle, cleanTitle: cleanTitle });
-                            }
+        // Check if we have pre-fetched data for the current level and category
+        if (this.prefetchedData && this.prefetchedData.level === this.level && this.prefetchedData.category === cat) {
+            word = this.prefetchedData.word;
+            clue = this.prefetchedData.clue;
+            this.prefetchedData = null;
+            console.log("Using pre-fetched level data:", word);
+        } else {
+            // To make initial load (LCP) extremely fast, we use the offline fallback on the first entrance load
+            if (this.isEntranceLoad) {
+                console.log("First load: using offline fallback for instant start");
+            } else {
+                if (cat === 'general') {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 1000);
+                        const response = await fetch(`https://random-word-api.herokuapp.com/word?length=${wordLength}`, {
+                            signal: controller.signal
                         });
-                        let filtered = candidates.filter(c => c.cleanTitle.length === wordLength);
-                        if (filtered.length === 0) filtered = candidates;
-                        if (filtered.length > 0) {
-                            const chosen = filtered[Math.floor(Math.random() * filtered.length)];
-                            word = chosen.cleanTitle;
-                            clue = await this.fetchWikipediaSummary(chosen.originalTitle, word);
+                        clearTimeout(timeoutId);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data && data[0]) {
+                                word = data[0].toUpperCase();
+                            }
                         }
+                    } catch (err) {
+                        console.warn("General API word fetch failed or timed out", err);
                     }
                 }
-            } catch (err) {
-                console.warn(`Wikipedia Category fetch failed for ${cat}`, err);
+                else if (cat === 'science' || cat === 'math' || cat === 'history' || cat === 'technology' || cat === 'novel') {
+                    const mlQueries = {
+                        science: 'science',
+                        math: 'mathematics',
+                        history: 'history',
+                        technology: 'technology',
+                        novel: 'novel'
+                    };
+                    const query = mlQueries[cat];
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 1000);
+                        const response = await fetch(`https://api.datamuse.com/words?ml=${query}&md=d&max=150`, {
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                        if (response.ok) {
+                            const data = await response.json();
+                            const candidates = data.filter(item => {
+                                const w = item.word.toUpperCase();
+                                return w.length === wordLength && /^[A-Z]+$/.test(w);
+                            });
+                            if (candidates.length > 0) {
+                                const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+                                word = chosen.word.toUpperCase();
+                                if (chosen.defs && chosen.defs.length > 0) {
+                                    const rawDef = chosen.defs[0];
+                                    const tabIdx = rawDef.indexOf('\t');
+                                    clue = tabIdx !== -1 ? rawDef.substring(tabIdx + 1) : rawDef;
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        console.warn(`Datamuse API fetch failed for ${cat}`, err);
+                    }
+                }
+                else if (cat === 'anime' || cat === 'filipino-movies') {
+                    const categories = {
+                        anime: 'Category:Anime_series',
+                        'filipino-movies': 'Category:Philippine_films'
+                    };
+                    const cmtitle = categories[cat];
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 1200);
+                        const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=${cmtitle}&cmlimit=250&format=json&origin=*`, {
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data && data.query && data.query.categorymembers) {
+                                const members = data.query.categorymembers;
+                                const candidates = [];
+                                members.forEach(m => {
+                                    const rawTitle = m.title;
+                                    if (rawTitle.toLowerCase().startsWith('list of') || rawTitle.toLowerCase().startsWith('category:')) return;
+                                    let cleanTitle = rawTitle.replace(/\s*\(.*?\)\s*/g, '');
+                                    cleanTitle = cleanTitle.replace(/[^a-zA-Z]/g, '').toUpperCase();
+                                    if (cleanTitle.length >= 4 && cleanTitle.length <= 8) {
+                                        candidates.push({ originalTitle: rawTitle, cleanTitle: cleanTitle });
+                                    }
+                                });
+                                let filtered = candidates.filter(c => c.cleanTitle.length === wordLength);
+                                if (filtered.length === 0) filtered = candidates;
+                                if (filtered.length > 0) {
+                                    const chosen = filtered[Math.floor(Math.random() * filtered.length)];
+                                    word = chosen.cleanTitle;
+                                    // Fetch Wikipedia summary asynchronously in background
+                                    this.fetchWikipediaSummary(chosen.originalTitle, word).then(resolvedClue => {
+                                        if (resolvedClue) {
+                                            this.wordClue = this.censorWordInClue(resolvedClue, this.targetWord);
+                                            const panel = document.getElementById('clue-text');
+                                            if (panel && panel.innerText !== "Need a definition? Click 'Word Hint'!") {
+                                                panel.innerText = this.wordClue;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        console.warn(`Wikipedia Category fetch failed for ${cat}`, err);
+                    }
+                }
             }
         }
 
@@ -456,7 +474,17 @@ class TeakScrambleGame {
         
         this.targetWord = word;
         
+        // Fetch definition asynchronously in background if not available
         if (!clue) {
+            this.fetchDictionaryDefinition(word).then(resolvedClue => {
+                if (resolvedClue) {
+                    this.wordClue = this.censorWordInClue(resolvedClue, this.targetWord);
+                    const panel = document.getElementById('clue-text');
+                    if (panel && panel.innerText !== "Need a definition? Click 'Word Hint'!") {
+                        panel.innerText = this.wordClue;
+                    }
+                }
+            });
             clue = `A word starting with '${this.targetWord[0]}' and ending with '${this.targetWord[this.targetWord.length-1]}'.`;
         }
         this.wordClue = this.censorWordInClue(clue, this.targetWord);
@@ -494,6 +522,116 @@ class TeakScrambleGame {
 
         this.levelElement.innerText = this.level;
         this.buildLevelArchetype();
+
+        // Start pre-fetching the word for the next level asynchronously in the background
+        setTimeout(() => this.prefetchNextWord(), 1500);
+    }
+
+    async prefetchNextWord() {
+        const nextLevel = this.level + 1;
+        const wordLength = Math.min(3 + nextLevel, 8);
+        const cat = this.currentCategory;
+        
+        let word = "";
+        let clue = "";
+        
+        console.log(`Pre-fetching next word for Level ${nextLevel} in Category ${cat}...`);
+        
+        if (cat === 'general') {
+            try {
+                const response = await fetch(`https://random-word-api.herokuapp.com/word?length=${wordLength}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data[0]) {
+                        word = data[0].toUpperCase();
+                    }
+                }
+            } catch (err) {
+                console.warn("Pre-fetch word failed", err);
+            }
+            if (word) {
+                clue = await this.fetchDictionaryDefinition(word);
+            }
+        }
+        else if (cat === 'science' || cat === 'math' || cat === 'history' || cat === 'technology' || cat === 'novel') {
+            const mlQueries = {
+                science: 'science',
+                math: 'mathematics',
+                history: 'history',
+                technology: 'technology',
+                novel: 'novel'
+            };
+            const query = mlQueries[cat];
+            try {
+                const response = await fetch(`https://api.datamuse.com/words?ml=${query}&md=d&max=150`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const candidates = data.filter(item => {
+                        const w = item.word.toUpperCase();
+                        return w.length === wordLength && /^[A-Z]+$/.test(w);
+                    });
+                    if (candidates.length > 0) {
+                        const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+                        word = chosen.word.toUpperCase();
+                        if (chosen.defs && chosen.defs.length > 0) {
+                            const rawDef = chosen.defs[0];
+                            const tabIdx = rawDef.indexOf('\t');
+                            clue = tabIdx !== -1 ? rawDef.substring(tabIdx + 1) : rawDef;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Pre-fetch word failed", err);
+            }
+            if (word && !clue) {
+                clue = await this.fetchDictionaryDefinition(word);
+            }
+        }
+        else if (cat === 'anime' || cat === 'filipino-movies') {
+            const categories = {
+                anime: 'Category:Anime_series',
+                'filipino-movies': 'Category:Philippine_films'
+            };
+            const cmtitle = categories[cat];
+            try {
+                const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=${cmtitle}&cmlimit=250&format=json&origin=*`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.query && data.query.categorymembers) {
+                        const members = data.query.categorymembers;
+                        const candidates = [];
+                        members.forEach(m => {
+                            const rawTitle = m.title;
+                            if (rawTitle.toLowerCase().startsWith('list of') || rawTitle.toLowerCase().startsWith('category:')) return;
+                            let cleanTitle = rawTitle.replace(/\s*\(.*?\)\s*/g, '');
+                            cleanTitle = cleanTitle.replace(/[^a-zA-Z]/g, '').toUpperCase();
+                            if (cleanTitle.length >= 4 && cleanTitle.length <= 8) {
+                                candidates.push({ originalTitle: rawTitle, cleanTitle: cleanTitle });
+                            }
+                        });
+                        let filtered = candidates.filter(c => c.cleanTitle.length === wordLength);
+                        if (filtered.length === 0) filtered = candidates;
+                        if (filtered.length > 0) {
+                            const chosen = filtered[Math.floor(Math.random() * filtered.length)];
+                            word = chosen.cleanTitle;
+                            clue = await this.fetchWikipediaSummary(chosen.originalTitle, word);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Pre-fetch word failed", err);
+            }
+        }
+        
+        if (word && /^[A-Z]+$/.test(word) && word.length >= 4 && word.length <= 8) {
+            this.prefetchedData = {
+                level: nextLevel,
+                category: cat,
+                word: word,
+                clue: clue
+            };
+            console.log(`Pre-fetched word for Level ${nextLevel}: ${word}`);
+        }
     }
 
     buildLevelArchetype() {
@@ -605,6 +743,8 @@ class TeakScrambleGame {
     }
 
     syncViewPositions(animate = true) {
+        if (!this.tilesData || this.tilesData.length === 0) return;
+
         const scrollX = window.scrollX || window.pageXOffset || 0;
         const scrollY = window.scrollY || window.pageYOffset || 0;
 
@@ -1155,6 +1295,13 @@ class TeakScrambleGame {
     openThemeModal() {
         this.sound.play('select');
         document.getElementById('theme-modal-backdrop').classList.add('active');
+        
+        // Lazy load theme preview images on modal open
+        document.querySelectorAll('.theme-modal img[data-src]').forEach(img => {
+            img.src = img.getAttribute('data-src');
+            img.removeAttribute('data-src');
+        });
+
         // Update the current selection state in the cards
         document.querySelectorAll('.theme-card').forEach(card => {
             card.classList.remove('current');
@@ -1239,6 +1386,9 @@ class TeakScrambleGame {
         this.winStreak = 0;
         if (this.streakElement) this.streakElement.innerText = this.winStreak;
 
+        // Clear pre-fetched data since we changed category
+        this.prefetchedData = null;
+
         // Clean current tiles
         this.tilesData.forEach(t => t.element.remove());
         this.tilesData = [];
@@ -1298,8 +1448,8 @@ class TeakScrambleGame {
     }
 }
 
-// Instantiate game engine on load
+// Instantiate game engine on DOMContentLoaded
 let game;
-window.addEventListener('load', () => {
+document.addEventListener('DOMContentLoaded', () => {
     game = new TeakScrambleGame();
 });

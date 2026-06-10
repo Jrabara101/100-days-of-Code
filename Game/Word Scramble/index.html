@@ -5,16 +5,23 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
     <title>Mid-Century Teak Scramble</title>
     
-    <!-- Premium Font Families -->
+    <!-- Premium Font Families (Asynchronous Non-Blocking Load) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700;900&family=Montserrat:wght@700;800&family=Space+Grotesk:wght@700&family=Courier+Prime&family=Inter:wght@400;700;900&family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700;900&family=Montserrat:wght@700;800&family=Space+Grotesk:wght@700&family=Courier+Prime&family=Inter:wght@400;700;900&family=Work+Sans:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700;900&family=Montserrat:wght@700;800&family=Space+Grotesk:wght@700&family=Courier+Prime&family=Inter:wght@400;700;900&family=Work+Sans:wght@400;700&display=swap" media="print" onload="this.media='all'">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700;900&family=Montserrat:wght@700;800&family=Space+Grotesk:wght@700&family=Courier+Prime&family=Inter:wght@400;700;900&family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0&display=swap" rel="stylesheet" />
+    </noscript>
     
     <!-- Retro Atomic SVG Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23E1AD01%22 stroke=%22%235C3A21%22 stroke-width=%224%22/><ellipse cx=%2250%22 cy=%2250%22 rx=%2242%22 ry=%2214%22 fill=%22none%22 stroke=%22%2340E0D0%22 stroke-width=%224%22 transform=%22rotate(30 50 50)%22/><ellipse cx=%2250%22 cy=%2250%22 rx=%2242%22 ry=%2214%22 fill=%22none%22 stroke=%22%2340E0D0%22 stroke-width=%224%22 transform=%22rotate(-30 50 50)%22/></svg>">
     
     <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
 
@@ -176,22 +183,22 @@
                 </div>
                 <!-- Nordic Oak -->
                 <div class="theme-card" id="theme-card-nordic" onclick="game.switchTheme('nordic')">
-                    <img class="theme-preview" src="Word%20Scramble%20Boards%20Inspired/stitch_tactile_wooden_word_scramble/nordic_oak_board_focus_empty/screen.png" alt="Nordic Oak">
+                    <img class="theme-preview" data-src="Word Scramble Boards Inspired/stitch_tactile_wooden_word_scramble/nordic_oak_board_focus_empty/screen.png" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Nordic Oak">
                     <div class="theme-name">Nordic Oak</div>
                 </div>
                 <!-- Rustic Reclaimed -->
                 <div class="theme-card" id="theme-card-rustic" onclick="game.switchTheme('rustic')">
-                    <img class="theme-preview" src="Word%20Scramble%20Boards%20Inspired/stitch_tactile_wooden_word_scramble/rustic_reclaimed_board_focus/screen.png" alt="Rustic Reclaimed">
+                    <img class="theme-preview" data-src="Word Scramble Boards Inspired/stitch_tactile_wooden_word_scramble/rustic_reclaimed_board_focus/screen.png" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Rustic Reclaimed">
                     <div class="theme-name">Rustic Reclaimed</div>
                 </div>
                 <!-- Vintage Parchment -->
                 <div class="theme-card" id="theme-card-parchment" onclick="game.switchTheme('parchment')">
-                    <img class="theme-preview" src="Word%20Scramble%20Boards%20Inspired/stitch_tactile_wooden_word_scramble/vintage_parchment_board_regenerated_grid/screen.png" alt="Vintage Parchment">
+                    <img class="theme-preview" data-src="Word Scramble Boards Inspired/stitch_tactile_wooden_word_scramble/vintage_parchment_board_regenerated_grid/screen.png" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Vintage Parchment">
                     <div class="theme-name">Vintage Parchment</div>
                 </div>
                 <!-- Coastal Driftwood -->
                 <div class="theme-card" id="theme-card-coastal" onclick="game.switchTheme('coastal')">
-                    <img class="theme-preview" src="Word%20Scramble%20Boards%20Inspired/stitch_tactile_wooden_word_scramble/coastal_board_focus_updated/screen.png" alt="Coastal Driftwood">
+                    <img class="theme-preview" data-src="Word Scramble Boards Inspired/stitch_tactile_wooden_word_scramble/coastal_board_focus_updated/screen.png" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" loading="lazy" alt="Coastal Driftwood">
                     <div class="theme-name">Coastal Driftwood</div>
                 </div>
             </div>
@@ -292,6 +299,5 @@
         </main>
     </div>
 
-<script src="script.js"></script>
 </body>
 </html>
