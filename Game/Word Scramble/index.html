@@ -35,9 +35,10 @@
     <div class="header-container">
         <div style="display: flex; flex-direction: column; gap: 6px;">
             <h1>Word Scramble</h1>
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button class="category-btn-tag" id="category-tag-btn" onclick="game.openCategoryModal()" onmousedown="this.style.transform='translateY(3px)'; this.style.boxShadow='0 0px 0 var(--turquoise-dark)'" onmouseup="this.style.transform=''; this.style.boxShadow='0 3px 0 var(--turquoise-dark)'" onmouseleave="this.style.transform=''; this.style.boxShadow='0 3px 0 var(--turquoise-dark)'" style="font-size: 0.8rem; padding: 8px 12px; border-radius: 4px; border: 1.5px solid var(--teak-dark); background: var(--turquoise); color: var(--teak-dark); font-weight: 900; box-shadow: 0 3px 0 var(--turquoise-dark); width: fit-content; cursor: pointer; text-transform: uppercase; font-family: inherit; transition: transform 0.1s, box-shadow 0.1s;">Category: General</button>
                 <button class="customize-btn-tag" id="customize-tag-btn" onclick="game.openThemeModal()" onmousedown="this.style.transform='translateY(3px)'; this.style.boxShadow='0 0px 0 var(--mustard-dark)'" onmouseup="this.style.transform=''; this.style.boxShadow='0 3px 0 var(--mustard-dark)'" onmouseleave="this.style.transform=''; this.style.boxShadow='0 3px 0 var(--mustard-dark)'" style="font-size: 0.8rem; padding: 8px 12px; border-radius: 4px; border: 1.5px solid var(--teak-dark); background: var(--mustard); color: var(--teak-dark); font-weight: 900; box-shadow: 0 3px 0 var(--mustard-dark); width: fit-content; cursor: pointer; text-transform: uppercase; font-family: inherit; transition: transform 0.1s, box-shadow 0.1s;">Customize Board</button>
+                <button class="customize-btn-tag" id="customize-chips-btn" onclick="game.openChipModal()" onmousedown="this.style.transform='translateY(3px)'; this.style.boxShadow='0 0px 0 var(--turquoise-dark)'" onmouseup="this.style.transform=''; this.style.boxShadow='0 3px 0 var(--turquoise-dark)'" onmouseleave="this.style.transform=''; this.style.boxShadow='0 3px 0 var(--turquoise-dark)'" style="font-size: 0.8rem; padding: 8px 12px; border-radius: 4px; border: 1.5px solid var(--teak-dark); background: var(--turquoise); color: var(--teak-dark); font-weight: 900; box-shadow: 0 3px 0 var(--turquoise-dark); width: fit-content; cursor: pointer; text-transform: uppercase; font-family: inherit; transition: transform 0.1s, box-shadow 0.1s;">Customize Chips</button>
             </div>
         </div>
         <div class="stats-container">
@@ -78,6 +79,11 @@
 
         <!-- Amber Glowing Clue Panel -->
         <div class="clue-panel">
+            <div class="clue-status-container" id="clue-status-container">
+                <span class="clue-dot active" data-clue="1" title="Clue 1: Definition">1</span>
+                <span class="clue-dot" data-clue="2" title="Clue 2: Starts With">2</span>
+                <span class="clue-dot" data-clue="3" title="Clue 3: Trump Card">3</span>
+            </div>
             <span id="clue-text">Need a definition? Click 'Word Hint'!</span>
         </div>
 
@@ -206,12 +212,96 @@
         </div>
     </div>
 
+    <!-- Customize Chip Material Selector Modal -->
+    <div class="modal-backdrop" id="chip-modal-backdrop" onclick="game.closeChipModal(event)">
+        <div class="theme-modal" onclick="event.stopPropagation()">
+            <h3>Select Custom Chip Material</h3>
+            <div class="theme-grid">
+                <!-- Chip: Bone -->
+                <div class="theme-card" id="chip-card-bone" onclick="game.switchChipMaterial('bone')">
+                    <div class="theme-preview" style="background: #f5f3eb; border: 2px solid var(--teak-dark); border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 90px; box-sizing: border-box; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.2); border-top: 1.5px solid rgba(255,255,255,0.4); margin-bottom: 4px;">
+                        <div style="font-weight: 800; font-size: 2.5rem; color: #4a3728; text-shadow: 0px 1px 0px rgba(255,255,255,0.3); font-family: inherit;">A</div>
+                    </div>
+                    <div class="theme-name">Bone</div>
+                </div>
+                <!-- Chip: Acrylic -->
+                <div class="theme-card" id="chip-card-acrylic" onclick="game.switchChipMaterial('acrylic')">
+                    <div class="theme-preview" style="background: #77d4e6; border: 2px solid var(--teak-dark); border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 90px; box-sizing: border-box; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.2); border-top: 1.5px solid rgba(255,255,255,0.4); margin-bottom: 4px;">
+                        <div style="font-weight: 800; font-size: 2.5rem; color: #ffffff; text-shadow: 0px 1px 0px rgba(255,255,255,0.3); font-family: inherit;">B</div>
+                    </div>
+                    <div class="theme-name">Acrylic</div>
+                </div>
+                <!-- Chip: Aluminum -->
+                <div class="theme-card" id="chip-card-aluminum" onclick="game.switchChipMaterial('aluminum')">
+                    <div class="theme-preview" style="background: #cbd5db; border: 2px solid var(--teak-dark); border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 90px; box-sizing: border-box; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.2); border-top: 1.5px solid rgba(255,255,255,0.4); margin-bottom: 4px;">
+                        <div style="font-weight: 800; font-size: 2.5rem; color: #4a3728; text-shadow: 0px 1px 0px rgba(255,255,255,0.3); font-family: inherit;">C</div>
+                    </div>
+                    <div class="theme-name">Aluminum</div>
+                </div>
+                <!-- Chip: Mahogany -->
+                <div class="theme-card" id="chip-card-mahogany" onclick="game.switchChipMaterial('mahogany')">
+                    <div class="theme-preview" style="background: #5d3d31; border: 2px solid var(--teak-dark); border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 90px; box-sizing: border-box; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.2); border-top: 1.5px solid rgba(255,255,255,0.4); margin-bottom: 4px;">
+                        <div style="font-weight: 800; font-size: 2.5rem; color: #000000; text-shadow: 0px 1px 0px rgba(255,255,255,0.3); font-family: inherit;">D</div>
+                    </div>
+                    <div class="theme-name">Mahogany</div>
+                </div>
+                <!-- Chip: Ebony -->
+                <div class="theme-card" id="chip-card-ebony" onclick="game.switchChipMaterial('ebony')">
+                    <div class="theme-preview" style="background: #1a1a1a; border: 2px solid var(--teak-dark); border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 90px; box-sizing: border-box; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.2); border-top: 1.5px solid rgba(255,255,255,0.4); margin-bottom: 4px;">
+                        <div style="font-weight: 800; font-size: 2.5rem; color: #ffffff; text-shadow: 0px 1px 0px rgba(255,255,255,0.3); font-family: inherit;">E</div>
+                    </div>
+                    <div class="theme-name">Ebony</div>
+                </div>
+                <!-- Chip: Vibrant Amber -->
+                <div class="theme-card" id="chip-card-amber" onclick="game.switchChipMaterial('amber')">
+                    <div class="theme-preview" style="background: #fdbb11; border: 2px solid var(--teak-dark); border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 90px; box-sizing: border-box; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.2); border-top: 1.5px solid rgba(255,255,255,0.4); margin-bottom: 4px;">
+                        <div style="font-weight: 800; font-size: 2.5rem; color: #4a3728; text-shadow: 0px 1px 0px rgba(255,255,255,0.3); font-family: inherit;">F</div>
+                    </div>
+                    <div class="theme-name">Vibrant Amber</div>
+                </div>
+                <!-- Chip: Malachite -->
+                <div class="theme-card" id="chip-card-malachite" onclick="game.switchChipMaterial('malachite')">
+                    <div class="theme-preview" style="background: #008542; border: 2px solid var(--teak-dark); border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 90px; box-sizing: border-box; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.2); border-top: 1.5px solid rgba(255,255,255,0.4); margin-bottom: 4px;">
+                        <div style="font-weight: 800; font-size: 2.5rem; color: #ffffff; text-shadow: 0px 1px 0px rgba(255,255,255,0.3); font-family: inherit;">G</div>
+                    </div>
+                    <div class="theme-name">Malachite</div>
+                </div>
+                <!-- Chip: Smoked Glass -->
+                <div class="theme-card" id="chip-card-glass" onclick="game.switchChipMaterial('glass')">
+                    <div class="theme-preview" style="background: #5e5e5e; border: 2px solid var(--teak-dark); border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 90px; box-sizing: border-box; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.2); border-top: 1.5px solid rgba(255,255,255,0.4); margin-bottom: 4px;">
+                        <div style="font-weight: 800; font-size: 2.5rem; color: #ffffff; text-shadow: 0px 1px 0px rgba(255,255,255,0.3); font-family: inherit;">H</div>
+                    </div>
+                    <div class="theme-name">Smoked Glass</div>
+                </div>
+            </div>
+            <button class="theme-close-btn" onclick="game.closeChipModal(null)">Close Menu</button>
+        </div>
+    </div>
+
     <!-- Changelog Selector Modal -->
     <div class="modal-backdrop" id="changelog-modal-backdrop" onclick="game.closeChangelogModal(event)">
         <div class="changelog-modal" onclick="event.stopPropagation()">
             <h3>Game Updates</h3>
             <div class="changelog-content">
                 <div class="changelog-version">
+                    <h4>v1.5.0 - Custom Chips, Background Music & Alignment Fixes</h4>
+                    <ul>
+                        <li><strong>8 Skeuomorphic Chip Materials:</strong> Customize your tiles via the new "Customize Chips" menu. Choose from Bone, Acrylic, Aluminum, Mahogany, Ebony, Vibrant Amber, Malachite, and Smoked Glass!</li>
+                        <li><strong>Dynamic Jazz Loop:</strong> A relaxing, dynamic bossa nova loop synthesized directly in your browser using the Web Audio API, controllable via the mute toggle.</li>
+                        <li><strong>Tile Alignment Fix:</strong> Absolute coordinates are now calculated relative to the main body element, resolving the drift/alignment bug of letters on the board.</li>
+                        <li><strong>Layout Stability:</strong> Fixed the clue panel height to prevent layout shifts when clues change or grow.</li>
+                    </ul>
+                </div>
+                <div class="changelog-version" style="margin-top: 15px;">
+                    <h4>v1.4.0 - Progressive Clue & Letter Lock System</h4>
+                    <ul>
+                        <li><strong>3-Stage Clue System:</strong> Definitions are now active by default as Clue 1. Progress to Clue 2 (first letter lock) and Clue 3 (Trump Card - first & last letter lock) on wrong guesses or hint clicks.</li>
+                        <li><strong>Retro HUD Indicator Dots:</strong> 3 visual glow indicators (green, amber, red/gold with pulse) show active clue levels in the monitored HUD panel.</li>
+                        <li><strong>Point/Streak Mechanics:</strong> Requesting hints costs 10 pts but preserves win streaks. Wrong guesses lock letters for free but reset streaks.</li>
+                        <li><strong>Definition Toggle:</strong> Clicking "Word Hint" toggles the display back to the definition at any time.</li>
+                    </ul>
+                </div>
+                <div class="changelog-version" style="margin-top: 15px;">
                     <h4>v1.3.0 - Customizable Board & Wallpaper Themes</h4>
                     <ul>
                         <li><strong>Custom Board Themes:</strong> Open the "Customize Board" menu in the header to pick between 5 stunning aesthetics: Mid-Century Teak, Nordic Oak, Rustic Reclaimed, Vintage Parchment, and Coastal Driftwood.</li>

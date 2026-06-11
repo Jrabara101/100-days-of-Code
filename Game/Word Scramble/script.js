@@ -3,6 +3,13 @@ class SoundController {
     constructor() {
         this.audioCtx = null;
         this.isMuted = false;
+
+        // Music loop states
+        this.musicSchedulerId = null;
+        this.nextNoteTime = 0.0;
+        this.currentStep = 0; // eighth notes (0 to 63)
+        this.isPlayingMusic = false;
+        this.musicGainNode = null;
     }
 
     init() {
@@ -16,9 +23,136 @@ class SoundController {
         if (this.isMuted) {
             toggle.classList.add('muted');
             toggle.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>`;
+            this.stopBackgroundMusic();
         } else {
             toggle.classList.remove('muted');
             toggle.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
+            this.startBackgroundMusic();
+        }
+    }
+
+    startBackgroundMusic() {
+        this.init();
+        if (!this.audioCtx || this.isMuted || this.isPlayingMusic) return;
+
+        if (this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+
+        if (!this.musicGainNode) {
+            this.musicGainNode = this.audioCtx.createGain();
+            this.musicGainNode.gain.setValueAtTime(0.05, this.audioCtx.currentTime); // Louder background music
+            this.musicGainNode.connect(this.audioCtx.destination);
+        }
+
+        this.isPlayingMusic = true;
+        this.nextNoteTime = this.audioCtx.currentTime + 0.1;
+        this.currentStep = 0;
+
+        this.musicSchedulerId = setInterval(() => {
+            this.scheduler();
+        }, 50);
+    }
+
+    stopBackgroundMusic() {
+        if (!this.isPlayingMusic) return;
+        this.isPlayingMusic = false;
+        if (this.musicSchedulerId) {
+            clearInterval(this.musicSchedulerId);
+            this.musicSchedulerId = null;
+        }
+    }
+
+    scheduler() {
+        while (this.nextNoteTime < this.audioCtx.currentTime + 0.2) {
+            this.scheduleNextNote(this.currentStep, this.nextNoteTime);
+            // BPM = 90. Eighth note step = 30 / 90 = 0.3333s
+            this.nextNoteTime += 0.3333;
+            this.currentStep = (this.currentStep + 1) % 64;
+        }
+    }
+
+    scheduleNextNote(step, time) {
+        const chordIndex = Math.floor(step / 16);
+        const localStep = step % 16;
+
+        // Bossa Nova chord rhythm hits on local step: 0, 3, 6, 8, 11, 14
+        const chordHits = [0, 3, 6, 8, 11, 14];
+        const isChordHit = chordHits.includes(localStep);
+
+        // Bass rhythm hits on even steps: 0, 2, 4, 6, 8, 10, 12, 14
+        const isBassHit = (localStep % 2 === 0);
+
+        const progressions = [
+            // Cmaj7: C4, E4, G4, B4
+            {
+                bassRoot: 65.41, // C2
+                bassFifth: 98.00, // G2
+                chordFreqs: [261.63, 329.63, 392.00, 493.88]
+            },
+            // Am7: A3, C4, E4, G4
+            {
+                bassRoot: 55.00, // A1
+                bassFifth: 82.41, // E2
+                chordFreqs: [220.00, 261.63, 329.63, 392.00]
+            },
+            // Dm7: D4, F4, A4, C5
+            {
+                bassRoot: 73.42, // D2
+                bassFifth: 110.00, // A2
+                chordFreqs: [293.66, 349.23, 440.00, 523.25]
+            },
+            // G7: G3, B3, D4, F4
+            {
+                bassRoot: 49.00, // G1
+                bassFifth: 73.42, // D2
+                chordFreqs: [196.00, 246.94, 293.66, 349.23]
+            }
+        ];
+
+        const currentProg = progressions[chordIndex];
+
+        if (isChordHit) {
+            currentProg.chordFreqs.forEach((freq, idx) => {
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, time);
+                
+                const duration = 0.8;
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(0.04, time + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+                
+                osc.connect(gain);
+                gain.connect(this.musicGainNode);
+                
+                osc.start(time);
+                osc.stop(time + duration);
+            });
+        }
+
+        if (isBassHit) {
+            const isRoot = (localStep % 4 === 0);
+            const freq = isRoot ? currentProg.bassRoot : currentProg.bassFifth;
+            
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, time);
+            
+            const duration = 0.5;
+            gain.gain.setValueAtTime(0, time);
+            gain.gain.linearRampToValueAtTime(0.12, time + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+            
+            osc.connect(gain);
+            gain.connect(this.musicGainNode);
+            
+            osc.start(time);
+            osc.stop(time + duration);
         }
     }
 
@@ -300,6 +434,9 @@ class TeakScrambleGame {
         this.winStreak = 0;
         this.tilesData = []; // Initialize to prevent TypeError before levels load
         this.prefetchedData = null; // Prefetched next level word data
+        this.clueLevel = 1;
+        this.clue3Exhausted = false;
+        this.showingPureDefinition = false;
         
         this.sound = new SoundController();
         this.particles = new ParticleSystem(document.getElementById('effects-canvas'));
@@ -308,6 +445,10 @@ class TeakScrambleGame {
         // Custom board theme initialization
         this.currentTheme = localStorage.getItem('word_scramble_theme') || 'teak';
         this.applyTheme(this.currentTheme, false);
+
+        // Custom chip material initialization
+        this.currentChipMaterial = localStorage.getItem('word_scramble_chip_material') || 'bone';
+        this.applyChipMaterial(this.currentChipMaterial, false);
 
         // Initialize drag-and-drop trackers
         this.activeDragTile = null;
@@ -319,6 +460,19 @@ class TeakScrambleGame {
         this.registerGlobalEvents();
         
         this.isEntranceLoad = true;
+
+        // Start background music loop on first interaction (respecting autoplay policy)
+        const startMusicOnce = () => {
+            if (this.sound) {
+                this.sound.startBackgroundMusic();
+            }
+            window.removeEventListener('click', startMusicOnce);
+            window.removeEventListener('keydown', startMusicOnce);
+            window.removeEventListener('touchstart', startMusicOnce);
+        };
+        window.addEventListener('click', startMusicOnce);
+        window.addEventListener('keydown', startMusicOnce);
+        window.addEventListener('touchstart', startMusicOnce);
         // Trigger initial loader
         this.runLoadingScreen(this.initLevel());
     }
@@ -352,9 +506,10 @@ class TeakScrambleGame {
             this.prefetchedData = null;
             console.log("Using pre-fetched level data:", word);
         } else {
-            // To make initial load (LCP) extremely fast, we use the offline fallback on the first entrance load
-            if (this.isEntranceLoad) {
-                console.log("First load: using offline fallback for instant start");
+            const isOffline = (typeof navigator !== 'undefined' && !navigator.onLine);
+            // To make initial load (LCP) extremely fast, we use the offline fallback on the first entrance load or when offline
+            if (this.isEntranceLoad || isOffline) {
+                console.log("First load or offline: using offline fallback for instant start");
             } else {
                 if (cat === 'general') {
                     try {
@@ -371,7 +526,7 @@ class TeakScrambleGame {
                             }
                         }
                     } catch (err) {
-                        console.warn("General API word fetch failed or timed out", err);
+                        console.log("General API word fetch failed (using offline fallback)");
                     }
                 }
                 else if (cat === 'science' || cat === 'math' || cat === 'history' || cat === 'technology' || cat === 'novel') {
@@ -407,7 +562,7 @@ class TeakScrambleGame {
                             }
                         }
                     } catch (err) {
-                        console.warn(`Datamuse API fetch failed for ${cat}`, err);
+                        console.log(`Datamuse API fetch failed for ${cat} (using offline fallback)`);
                     }
                 }
                 else if (cat === 'anime' || cat === 'filipino-movies') {
@@ -446,17 +601,14 @@ class TeakScrambleGame {
                                     this.fetchWikipediaSummary(chosen.originalTitle, word).then(resolvedClue => {
                                         if (resolvedClue) {
                                             this.wordClue = this.censorWordInClue(resolvedClue, this.targetWord);
-                                            const panel = document.getElementById('clue-text');
-                                            if (panel && panel.innerText !== "Need a definition? Click 'Word Hint'!") {
-                                                panel.innerText = this.wordClue;
-                                            }
+                                            this.updateClueUI();
                                         }
                                     });
                                 }
                             }
                         }
                     } catch (err) {
-                        console.warn(`Wikipedia Category fetch failed for ${cat}`, err);
+                        console.log(`Wikipedia Category fetch failed for ${cat} (using offline fallback)`);
                     }
                 }
             }
@@ -474,17 +626,17 @@ class TeakScrambleGame {
         
         this.targetWord = word;
         
-        // Fetch definition asynchronously in background if not available
+        // Fetch definition asynchronously in background if not available and online
         if (!clue) {
-            this.fetchDictionaryDefinition(word).then(resolvedClue => {
-                if (resolvedClue) {
-                    this.wordClue = this.censorWordInClue(resolvedClue, this.targetWord);
-                    const panel = document.getElementById('clue-text');
-                    if (panel && panel.innerText !== "Need a definition? Click 'Word Hint'!") {
-                        panel.innerText = this.wordClue;
+            const isOffline = (typeof navigator !== 'undefined' && !navigator.onLine);
+            if (!isOffline) {
+                this.fetchDictionaryDefinition(word).then(resolvedClue => {
+                    if (resolvedClue) {
+                        this.wordClue = this.censorWordInClue(resolvedClue, this.targetWord);
+                        this.updateClueUI();
                     }
-                }
-            });
+                });
+            }
             clue = `A word starting with '${this.targetWord[0]}' and ending with '${this.targetWord[this.targetWord.length-1]}'.`;
         }
         this.wordClue = this.censorWordInClue(clue, this.targetWord);
@@ -523,11 +675,19 @@ class TeakScrambleGame {
         this.levelElement.innerText = this.level;
         this.buildLevelArchetype();
 
+        this.clueLevel = 1;
+        this.clue3Exhausted = false;
+        this.showingPureDefinition = false;
+        this.updateClueUI();
+
         // Start pre-fetching the word for the next level asynchronously in the background
         setTimeout(() => this.prefetchNextWord(), 1500);
     }
 
     async prefetchNextWord() {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+            return; // completely silent and skip when offline
+        }
         const nextLevel = this.level + 1;
         const wordLength = Math.min(3 + nextLevel, 8);
         const cat = this.currentCategory;
@@ -547,7 +707,7 @@ class TeakScrambleGame {
                     }
                 }
             } catch (err) {
-                console.warn("Pre-fetch word failed", err);
+                console.log("Pre-fetch word failed (using offline fallback)");
             }
             if (word) {
                 clue = await this.fetchDictionaryDefinition(word);
@@ -581,7 +741,7 @@ class TeakScrambleGame {
                     }
                 }
             } catch (err) {
-                console.warn("Pre-fetch word failed", err);
+                console.log("Pre-fetch word failed (using offline fallback)");
             }
             if (word && !clue) {
                 clue = await this.fetchDictionaryDefinition(word);
@@ -619,7 +779,7 @@ class TeakScrambleGame {
                     }
                 }
             } catch (err) {
-                console.warn("Pre-fetch word failed", err);
+                console.log("Pre-fetch word failed (using offline fallback)");
             }
         }
         
@@ -745,8 +905,7 @@ class TeakScrambleGame {
     syncViewPositions(animate = true) {
         if (!this.tilesData || this.tilesData.length === 0) return;
 
-        const scrollX = window.scrollX || window.pageXOffset || 0;
-        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const bodyRect = document.body.getBoundingClientRect();
 
         this.tilesData.forEach(tileObj => {
             let targetDOM = null;
@@ -771,7 +930,11 @@ class TeakScrambleGame {
 
             const offset = pad / 2;
             
-            tileObj.element.style.transform = `translate3d(${rect.left + scrollX + offset}px, ${rect.top + scrollY + offset}px, 0px)`;
+            // Absolute coordinates relative to body to prevent viewport offsets/scroll gaps
+            const x = rect.left - bodyRect.left + offset;
+            const y = rect.top - bodyRect.top + offset;
+            
+            tileObj.element.style.transform = `translate3d(${x}px, ${y}px, 0px)`;
 
             if (!animate) {
                 tileObj.element.offsetHeight; // flush
@@ -815,10 +978,9 @@ class TeakScrambleGame {
         const dy = clientY - (this.dragOffset.y + this.dragStartRect.top);
         this.draggedDistance = Math.sqrt(dx*dx + dy*dy);
 
-        const scrollX = window.scrollX || window.pageXOffset || 0;
-        const scrollY = window.scrollY || window.pageYOffset || 0;
-        const x = clientX - this.dragOffset.x + scrollX;
-        const y = clientY - this.dragOffset.y + scrollY;
+        const bodyRect = document.body.getBoundingClientRect();
+        const x = clientX - this.dragOffset.x - bodyRect.left;
+        const y = clientY - this.dragOffset.y - bodyRect.top;
         this.activeDragTile.element.style.transform = `translate3d(${x}px, ${y}px, 0px)`;
 
         const halfWidth = this.activeDragTile.element.offsetWidth / 2;
@@ -1013,7 +1175,22 @@ class TeakScrambleGame {
             this.mainBoard.classList.add('shake');
             setTimeout(() => this.mainBoard.classList.remove('shake'), 400);
 
-            setTimeout(() => this.resetTray(true), 500);
+            setTimeout(() => {
+                // Progress clue level on incorrect submission
+                if (this.clueLevel === 1) {
+                    this.clueLevel = 2;
+                    this.lockLetterAt(0); // Automatically lock first letter
+                } else if (this.clueLevel === 2) {
+                    this.clueLevel = 3;
+                    this.clue3Exhausted = false;
+                    this.lockLetterAt(this.targetWord.length - 1); // Automatically lock last letter
+                } else if (this.clueLevel === 3) {
+                    this.clue3Exhausted = true; // Exhausted state
+                }
+                this.showingPureDefinition = false;
+                this.resetTray(true);
+                this.updateClueUI();
+            }, 500);
         }
     }
 
@@ -1071,26 +1248,14 @@ class TeakScrambleGame {
         this.syncViewPositions(true);
     }
 
-    giveLetterHint() {
-        // Check if the first letter is already locked in slot 0
-        const firstCellIdx = this.targetCellIndices[0];
-        const firstOccupant = this.boardOccupants[firstCellIdx];
-        if (firstOccupant && firstOccupant.char === this.targetWord[0] && firstOccupant.element.classList.contains('locked')) {
-            this.sound.play('error');
-            const panel = document.getElementById('clue-text');
-            panel.innerText = "Challenge Mode: Only the first letter hint is available!";
-            return;
-        }
-
+    lockLetterAt(charIndex) {
         // Return all unlocked tiles currently on the board back to the rack
         this.tilesData.forEach(tileObj => {
             if (tileObj.currentLocation === 'board' && !tileObj.element.classList.contains('locked')) {
-                // Return to rack
                 this.boardOccupants[tileObj.slotIndex] = null;
                 tileObj.currentLocation = 'rack';
                 tileObj.element.classList.remove('inlaid');
                 
-                // Find empty slot on the rack
                 const openRackIdx = this.rackSlots.indexOf(null);
                 if (openRackIdx !== -1) {
                     this.rackSlots[openRackIdx] = tileObj;
@@ -1099,12 +1264,8 @@ class TeakScrambleGame {
             }
         });
 
-        // The hint is always for the first letter (index 0)
-        const hintSlotIndex = 0;
-        this.sound.play('select');
-        
-        const targetCellIdx = this.targetCellIndices[hintSlotIndex];
-        const correctChar = this.targetWord[hintSlotIndex];
+        const targetCellIdx = this.targetCellIndices[charIndex];
+        const correctChar = this.targetWord[charIndex];
         
         // 1. Kick out any incorrect tile currently sitting in that target cell
         const occupant = this.boardOccupants[targetCellIdx];
@@ -1131,20 +1292,94 @@ class TeakScrambleGame {
             
             this.sound.play('drop');
             this.syncViewPositions(true);
-            
+            return true;
+        }
+        return false;
+    }
+
+    giveLetterHint() {
+        if (this.clueLevel === 3) {
+            this.sound.play('error');
+            const panel = document.getElementById('clue-text');
+            panel.innerText = "No more hints available for this scramble!";
+            return;
+        }
+
+        this.sound.play('select');
+
+        if (this.clueLevel === 1) {
+            this.clueLevel = 2;
+            this.lockLetterAt(0); // Reveal & lock first letter
             // Deduct 10 points
             this.score = Math.max(0, this.score - 10);
             this.scoreElement.innerText = this.score.toString().padStart(3, '0');
-            
-            const panel = document.getElementById('clue-text');
-            panel.innerText = `First letter '${correctChar}' revealed and locked!`;
+        } else if (this.clueLevel === 2) {
+            this.clueLevel = 3;
+            this.clue3Exhausted = false;
+            this.lockLetterAt(this.targetWord.length - 1); // Reveal & lock last letter
+            // Deduct 10 points
+            this.score = Math.max(0, this.score - 10);
+            this.scoreElement.innerText = this.score.toString().padStart(3, '0');
         }
+
+        this.showingPureDefinition = false;
+        this.resetTray(true);
+        this.updateClueUI();
     }
 
     showWordClue() {
         this.sound.play('select');
+        this.showingPureDefinition = !this.showingPureDefinition;
+        if (this.showingPureDefinition) {
+            const panel = document.getElementById('clue-text');
+            panel.innerHTML = `<strong>Definition:</strong> ${this.wordClue}`;
+            
+            // Briefly scale the Clue 1 dot indicator
+            const dot1 = document.querySelector(`.clue-dot[data-clue="1"]`);
+            if (dot1) {
+                dot1.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    dot1.style.transform = '';
+                }, 500);
+            }
+        } else {
+            this.updateClueUI();
+        }
+        this.syncViewPositions(true);
+    }
+
+    updateClueUI() {
         const panel = document.getElementById('clue-text');
-        panel.innerText = this.wordClue;
+        if (!panel) return;
+
+        // Update indicator dots active class
+        for (let i = 1; i <= 3; i++) {
+            const dot = document.querySelector(`.clue-dot[data-clue="${i}"]`);
+            if (dot) {
+                if (i <= this.clueLevel) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            }
+        }
+
+        const firstChar = this.targetWord[0];
+        const lastChar = this.targetWord[this.targetWord.length - 1];
+        const wordLength = this.targetWord.length;
+
+        if (this.clueLevel === 1) {
+            panel.innerHTML = `<strong>Definition:</strong> ${this.wordClue || 'Fetching definition...'}`;
+        } else if (this.clueLevel === 2) {
+            panel.innerHTML = `🔍 <strong>Clue 2:</strong> Starts with "${firstChar}" (${wordLength} letters)<br/><strong>Definition:</strong> ${this.wordClue}`;
+        } else if (this.clueLevel === 3) {
+            if (this.clue3Exhausted) {
+                panel.innerHTML = `🚫 <strong>No clues left!</strong> You must solve: <strong>${firstChar}${'_'.repeat(wordLength - 2)}${lastChar}</strong><br/><strong>Definition:</strong> ${this.wordClue}`;
+            } else {
+                panel.innerHTML = `🔥 <strong>Trump Card:</strong> Starts with "${firstChar}", Ends with "${lastChar}" (${wordLength} letters)<br/><strong>Scrambled:</strong> <span style="letter-spacing: 2px;">${this.scrambledWord}</span><br/><strong>Definition:</strong> ${this.wordClue}`;
+            }
+        }
+        this.syncViewPositions(true);
     }
 
     getStreakBonus() {
@@ -1184,7 +1419,7 @@ class TeakScrambleGame {
         this.level++;
         this.levelElement.innerText = this.level;
         
-        document.getElementById('clue-text').innerText = "Need a definition? Click 'Word Hint'!";
+        document.getElementById('clue-text').innerText = "Preparing next scramble...";
         
         this.tilesData.forEach(t => t.element.remove());
         await this.runLoadingScreen(this.initLevel());
@@ -1351,6 +1586,55 @@ class TeakScrambleGame {
         }, 120);
     }
 
+    openChipModal() {
+        this.sound.play('select');
+        document.getElementById('chip-modal-backdrop').classList.add('active');
+        
+        // Update active class on the chip cards
+        document.querySelectorAll('#chip-modal-backdrop .theme-card').forEach(card => {
+            card.classList.remove('current');
+        });
+        const activeCard = document.getElementById(`chip-card-${this.currentChipMaterial}`);
+        if (activeCard) activeCard.classList.add('current');
+    }
+
+    closeChipModal(event) {
+        if (!event || event.target === document.getElementById('chip-modal-backdrop')) {
+            this.sound.play('select');
+            document.getElementById('chip-modal-backdrop').classList.remove('active');
+        }
+    }
+
+    switchChipMaterial(materialId) {
+        if (materialId === this.currentChipMaterial) {
+            document.getElementById('chip-modal-backdrop').classList.remove('active');
+            return;
+        }
+
+        this.sound.play('win');
+        this.currentChipMaterial = materialId;
+        localStorage.setItem('word_scramble_chip_material', materialId);
+
+        // Update active highlight
+        document.querySelectorAll('#chip-modal-backdrop .theme-card').forEach(card => {
+            card.classList.remove('current');
+        });
+        const activeCard = document.getElementById(`chip-card-${materialId}`);
+        if (activeCard) activeCard.classList.add('current');
+
+        this.applyChipMaterial(materialId, true);
+        document.getElementById('chip-modal-backdrop').classList.remove('active');
+    }
+
+    applyChipMaterial(materialId, animate = true) {
+        document.body.setAttribute('data-chip-material', materialId);
+
+        // Update tile positions since margins/borders might have adjusted
+        setTimeout(() => {
+            this.syncViewPositions(animate);
+        }, 120);
+    }
+
     async switchCategory(category) {
         if (category === this.currentCategory && this.tilesData.length > 0) {
             document.getElementById('category-modal-backdrop').classList.remove('active');
@@ -1413,7 +1697,7 @@ class TeakScrambleGame {
                 }
             }
         } catch (err) {
-            console.warn("Free Dictionary definition fetch failed", err);
+            console.log("Free Dictionary definition fetch failed (using fallback clue)");
         }
         return "";
     }
@@ -1433,7 +1717,7 @@ class TeakScrambleGame {
                 }
             }
         } catch (err) {
-            console.warn("Wikipedia summary fetch failed", err);
+            console.log("Wikipedia summary fetch failed (using fallback clue)");
         }
         return "";
     }
