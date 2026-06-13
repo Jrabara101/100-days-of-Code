@@ -1,0 +1,18 @@
+# Dependencies — not needed at runtime (SDK + Wallets Kit load from esm.sh CDN)
+node_modules/
+
+# Build / package metadata
+package.json
+package-lock.json
+
+# Soroban contract source (already deployed on-chain)
+word-scramble-contract/
+
+# Tooling / editor config
+.claude/
+.git/
+.gitignore
+
+# OS cruft
+.DS_Store
+Thumbs.db

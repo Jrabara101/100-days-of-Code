@@ -1137,6 +1137,11 @@ class TeakScrambleGame {
             if (this.streakElement) this.streakElement.innerText = this.winStreak;
             this.updateVictoryBreakdown(100, streakBonus);
 
+            // Submit score to Stellar leaderboard (non-blocking)
+            if (window.stellarWallet && window.stellarWallet.connected) {
+                window.stellarWallet.submitScore(this.score, this.level);
+            }
+
             setTimeout(() => {
                 this.victoryScreen.classList.add('active');
             }, 1200); // Wait for the cascade bounce animation to finish beautifully

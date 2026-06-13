@@ -21,11 +21,23 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23E1AD01%22 stroke=%22%235C3A21%22 stroke-width=%224%22/><ellipse cx=%2250%22 cy=%2250%22 rx=%2242%22 ry=%2214%22 fill=%22none%22 stroke=%22%2340E0D0%22 stroke-width=%224%22 transform=%22rotate(30 50 50)%22/><ellipse cx=%2250%22 cy=%2250%22 rx=%2242%22 ry=%2214%22 fill=%22none%22 stroke=%22%2340E0D0%22 stroke-width=%224%22 transform=%22rotate(-30 50 50)%22/></svg>">
     
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="stellar.js"></script>
     <script src="script.js" defer></script>
 </head>
 <body>
 
     <div class="ambient-glow"></div>
+
+    <!-- Stellar Wallet Bar -->
+    <div class="stellar-bar">
+        <div class="stellar-wallet-info">
+            <span class="stellar-label">WALLET:</span>
+            <span id="stellar-address" class="stellar-address">Not connected</span>
+            <span id="stellar-balance" class="stellar-balance"></span>
+        </div>
+        <button id="stellar-connect-btn" class="stellar-connect-btn" onclick="window.stellarWallet && window.stellarWallet.connect()">Connect Wallet</button>
+    </div>
+    <div id="stellar-status" class="stellar-status" style="display:none;"></div>
 
     <!-- Mute/Sound Toggle Switch -->
     <div class="sound-toggle" id="sound-toggle" onclick="game.toggleSound()" title="Toggle Sound">
