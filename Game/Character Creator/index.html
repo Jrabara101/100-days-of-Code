@@ -3,22 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Staff Architected Pixel Character Animator</title>
-    <!-- Google Fonts for Modern and Retro aesthetic combination -->
+    <meta name="description" content="Tactical Battle Royale Character Creator with vector compositing, loadout serialization, and active weapon holstering mechanics.">
+    <title>Tactical Battle Royale Loadout & Holster Engine</title>
+    <!-- Google Fonts for Modern HUD & Retro Tactical feel -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #060913;
-            --panel: rgba(15, 23, 42, 0.65);
-            --border: #1e293b;
-            --border-active: #38bdf8;
-            --accent: #00f0ff;
-            --accent-glow: rgba(0, 240, 255, 0.4);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --success: #10b981;
+            --bg-dark: #07090e;
+            --panel-slate: #0f131a;
+            --border-gray: #1b2432;
+            --border-glow: #2c3c54;
+            --pubg-orange: #f2a900;
+            --pubg-orange-dim: #b88100;
+            --pubg-orange-glow: rgba(242, 169, 0, 0.4);
+            --text-light: #eceff4;
+            --text-muted: #64748b;
+            --accent-cyan: #00f0ff;
+            --accent-cyan-glow: rgba(0, 240, 255, 0.3);
+            --danger-red: #ef4444;
+            --terminal-bg: #05070a;
+            --font-hud: 'Orbitron', sans-serif;
+            --font-body: 'Space Grotesk', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
         }
 
         * {
@@ -28,590 +36,976 @@
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text-primary);
-            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: var(--font-body);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden;
-            padding: 20px;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
-                radial-gradient(at 50% 0%, rgba(14, 165, 233, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
+            overflow: hidden;
             user-select: none;
+            touch-action: none;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(242, 169, 0, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 240, 255, 0.05) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(15, 19, 26, 0.8) 0px, var(--bg-dark) 100%);
         }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        /* Scanline Overlay Effect */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            z-index: 99999;
+            pointer-events: none;
+            opacity: 0.4;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 12px;
-        }
-
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            background: linear-gradient(90deg, #00f0ff, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header h1 span {
-            font-size: 10px;
-            font-family: 'Courier Prime', monospace;
-            padding: 2px 6px;
-            border: 1px solid var(--accent);
-            border-radius: 4px;
-            color: var(--accent);
-            text-shadow: 0 0 8px var(--accent-glow);
-        }
-
-        .audio-toggle {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-family: 'Courier Prime', monospace;
-            font-size: 11px;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .audio-toggle:hover {
-            color: var(--text-primary);
-            border-color: var(--text-secondary);
-        }
-
-        .audio-toggle.active {
-            color: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .creator-grid {
+        /* Container grid layout */
+        .battleground-creator {
             display: grid;
             grid-template-columns: 1fr;
             gap: 24px;
+            background: rgba(15, 19, 26, 0.85);
+            border: 1px solid var(--border-gray);
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 40px rgba(27, 36, 50, 0.2);
+            backdrop-filter: blur(12px);
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            margin: 20px;
         }
 
         @media (min-width: 768px) {
-            .creator-grid {
+            .battleground-creator {
                 grid-template-columns: 320px 1fr;
+                padding: 30px;
             }
         }
 
-        /* Preview Pane Styling */
-        .preview-pane {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            backdrop-filter: blur(10px);
+        /* Top HUD Header info */
+        .hud-header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-gray);
+            padding-bottom: 12px;
+            margin-bottom: 8px;
+        }
+
+        .hud-title {
+            font-family: var(--font-hud);
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hud-title span {
+            color: var(--pubg-orange);
+            text-shadow: 0 0 10px var(--pubg-orange-glow);
+        }
+
+        .hud-title .system-badge {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-shadow: 0 0 5px var(--accent-cyan-glow);
+        }
+
+        .hud-controls-top {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: 1px solid var(--border-gray);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-family: var(--font-hud);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-light);
+            border-color: var(--border-glow);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .icon-btn.active {
+            color: var(--pubg-orange);
+            border-color: var(--pubg-orange);
+            box-shadow: 0 0 8px var(--pubg-orange-glow);
+        }
+
+        /* Tactical Viewport Panel */
+        .viewport-box {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            gap: 16px;
             position: relative;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
         }
 
-        .canvas-container {
+        .canvas-wrapper {
             position: relative;
-            margin-bottom: 20px;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border-gray);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+            background: #090e16;
+        }
+
+        .canvas-wrapper::before {
+            content: "LOBBY VIEWPORT [LIVE]";
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--pubg-orange);
+            letter-spacing: 1px;
+            z-index: 10;
+            background: rgba(9, 14, 22, 0.7);
+            padding: 2px 6px;
+            border-radius: 2px;
+            border-left: 2px solid var(--pubg-orange);
+        }
+
+        .canvas-wrapper::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.05) 0%, rgba(0, 0, 0, 0) 80%);
+            pointer-events: none;
         }
 
         canvas {
             display: block;
+            background: radial-gradient(circle, #151e2b 0%, #080c13 100%);
+            width: 300px;
+            height: 400px;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
             image-rendering: pixelated;
-            width: 224px;
-            height: 224px;
-            background: #070b19;
-            border-radius: 6px;
-            transition: transform 0.2s ease;
+            image-rendering: crisp-edges;
         }
 
-        .grid-overlay {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 224px;
-            height: 224px;
-            pointer-events: none;
-            background-size: 14px 14px;
-            background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-
-        .grid-overlay.visible {
-            opacity: 1;
-        }
-
-        .preview-controls {
+        .deploy-btn {
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .anim-speed-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            font-size: 11px;
-            font-family: 'Courier Prime', monospace;
-            color: var(--text-secondary);
-        }
-
-        .anim-speed-row input[type="range"] {
-            flex: 1;
-            accent-color: var(--accent);
-            height: 4px;
+            background: linear-gradient(135deg, var(--pubg-orange) 0%, #d97706 100%);
+            color: #000;
+            border: none;
+            padding: 14px;
+            font-family: var(--font-hud);
+            font-size: 14px;
+            font-weight: 900;
             cursor: pointer;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .action-btn {
-            background: #1e1b4b;
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            padding: 10px 14px;
-            font-weight: 600;
-            font-family: inherit;
-            border-radius: 8px;
-            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(242, 169, 0, 0.3);
             transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 8px;
-            font-size: 13px;
+            align-items: center;
+            gap: 10px;
         }
 
-        .action-btn:hover {
-            border-color: var(--text-secondary);
-            background: rgba(30, 27, 75, 0.8);
+        .deploy-btn::before {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: all 0.6s ease;
         }
 
-        .action-btn.primary {
-            background: var(--accent);
-            color: #020617;
-            border-color: var(--accent);
-            font-weight: 700;
-            flex: 2;
-        }
-
-        .action-btn.primary:hover {
-            box-shadow: 0 0 15px var(--accent-glow);
+        .deploy-btn:hover {
+            box-shadow: 0 6px 20px rgba(242, 169, 0, 0.5);
             transform: translateY(-1px);
         }
 
-        .dna-box {
-            width: 100%;
-            margin-top: 16px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px dashed var(--border);
-            border-radius: 8px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+        .deploy-btn:hover::before {
+            left: 150%;
         }
 
-        .dna-header {
+        .deploy-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(242, 169, 0, 0.3);
+        }
+
+        /* Right Dashboard Configurator */
+        .dashboard-controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            height: 460px;
+        }
+
+        .gear-dashboard {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        /* Scrollbar customizing */
+        .gear-dashboard::-webkit-scrollbar {
+            width: 4px;
+        }
+        .gear-dashboard::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 2px;
+        }
+        .gear-dashboard::-webkit-scrollbar-thumb {
+            background: var(--border-glow);
+            border-radius: 2px;
+        }
+        .gear-dashboard::-webkit-scrollbar-thumb:hover {
+            background: var(--pubg-orange);
+        }
+
+        .category-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(27, 36, 50, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .category-title {
+            font-family: var(--font-hud);
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            border-left: 3px solid var(--pubg-orange);
+            padding-left: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 10px;
-            font-family: 'Courier Prime', monospace;
-            color: var(--text-secondary);
-            text-transform: uppercase;
         }
 
-        .dna-input-wrapper {
-            display: flex;
+        .category-title span.active-val {
+            font-family: var(--font-mono);
+            color: var(--accent-cyan);
+            font-size: 10px;
+            letter-spacing: 0px;
+        }
+
+        .grid-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 6px;
         }
 
-        .dna-input {
+        button.gear-btn {
+            background: #121824;
+            color: var(--text-muted);
+            border: 1px solid var(--border-gray);
+            padding: 10px 4px;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: var(--font-hud);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+
+        button.gear-btn:hover {
+            background: #1b2435;
+            border-color: var(--border-glow);
+            color: var(--text-light);
+        }
+
+        button.gear-btn.active {
+            background: var(--pubg-orange);
+            color: #000;
+            font-weight: 900;
+            border-color: #ffcc00;
+            box-shadow: 0 0 10px var(--pubg-orange-glow);
+        }
+
+        /* Bottom Console Terminal & Manifest Logs */
+        .terminal-panel {
+            grid-column: 1 / -1;
+            background: var(--terminal-bg);
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #8da1b9;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            border-left: 3px solid var(--accent-cyan);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 6px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .terminal-header span.green-pulse {
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .terminal-header span.green-pulse::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-cyan);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 6px var(--accent-cyan);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        .terminal-logs {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 90px;
+        }
+
+        .terminal-line {
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        .terminal-line.info { color: #8da1b9; }
+        .terminal-line.success { color: var(--accent-cyan); }
+        .terminal-line.warning { color: var(--pubg-orange); }
+        .terminal-line.error { color: var(--danger-red); }
+
+        .manifest-bar {
+            grid-column: 1 / -1;
+            background: rgba(18, 24, 34, 0.6);
+            border: 1px dashed var(--border-glow);
+            padding: 10px 14px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .manifest-label {
+            font-family: var(--font-hud);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .manifest-token-input {
             flex: 1;
             background: transparent;
-            border: 1px solid var(--border);
-            color: var(--accent);
-            font-family: 'Courier Prime', monospace;
-            font-size: 11px;
-            padding: 6px;
-            border-radius: 4px;
-            outline: none;
-            text-align: center;
-        }
-
-        .dna-input:focus {
-            border-color: var(--accent);
-        }
-
-        .copy-btn {
-            background: var(--border);
             border: none;
-            color: var(--text-primary);
-            padding: 0 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
+            color: var(--pubg-orange);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            outline: none;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            border-bottom: 1px solid transparent;
             transition: all 0.2s ease;
         }
 
-        .copy-btn:hover {
-            background: var(--border-active);
+        .manifest-token-input:focus {
+            border-bottom-color: var(--pubg-orange-dim);
         }
 
-        /* Controls Pane Styling */
-        .controls-pane {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .control-group:last-child {
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        .group-label {
+        .copy-token-btn {
+            background: rgba(242, 169, 0, 0.1);
+            border: 1px solid var(--pubg-orange-dim);
+            color: var(--pubg-orange);
+            font-family: var(--font-hud);
             font-size: 10px;
-            font-family: 'Courier Prime', monospace;
             font-weight: 700;
-            letter-spacing: 1.5px;
-            color: #a5b4fc;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
             text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .copy-token-btn:hover {
+            background: var(--pubg-orange);
+            color: #000;
+            border-color: var(--pubg-orange);
+            box-shadow: 0 0 8px var(--pubg-orange-glow);
+        }
+
+        .footer-hud {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
+            padding-top: 10px;
             display: flex;
             justify-content: space-between;
-        }
-
-        .style-selector {
-            display: flex;
-            gap: 6px;
-        }
-
-        .style-btn {
-            flex: 1;
-            background: rgba(30, 41, 59, 0.4);
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-            padding: 8px;
-            font-family: inherit;
-            font-weight: 600;
-            font-size: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .style-btn:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
-
-        .style-btn.active {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent);
-            border-color: var(--accent);
-            text-shadow: 0 0 6px var(--accent-glow);
-        }
-
-        .palette-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .color-swatch {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.15s ease;
-            position: relative;
-        }
-
-        .color-swatch:hover {
-            transform: scale(1.1);
-        }
-
-        .color-swatch.active {
-            border-color: var(--text-primary);
-            box-shadow: 0 0 10px var(--accent-glow);
-            transform: scale(1.05);
-        }
-
-        /* Custom color picker wrapper */
-        .color-picker-wrapper {
-            position: relative;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            border: 1px dashed var(--text-secondary);
-            cursor: pointer;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            transition: all 0.2s ease;
-        }
-
-        .color-picker-wrapper:hover {
-            border-color: var(--accent);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .color-picker-wrapper input[type="color"] {
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            width: 38px;
-            height: 38px;
-            border: none;
-            cursor: pointer;
-            opacity: 0;
-        }
-
-        .color-picker-wrapper span {
-            font-size: 14px;
-            color: var(--text-secondary);
-            pointer-events: none;
-        }
-
-        .color-picker-wrapper:hover span {
-            color: var(--accent);
-        }
-
-        .footer-info {
-            text-align: center;
-            font-size: 10px;
-            font-family: 'Courier Prime', monospace;
-            color: var(--text-secondary);
-            letter-spacing: 0.5px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>Pixel Compositor <span>v1.2.0-Staff</span></h1>
-        <button id="sound-toggle" class="audio-toggle active">🔊 Audio Synthesizer: ON</button>
-    </div>
-
-    <div class="creator-grid">
-        <!-- Live Preview Component -->
-        <div class="preview-pane">
-            <div class="canvas-container">
-                <canvas id="stageCanvas" width="16" height="16"></canvas>
-                <div id="gridOverlay" class="grid-overlay"></div>
+    <main class="battleground-creator">
+        
+        <!-- Top HUD Panel Header -->
+        <header class="hud-header">
+            <h1 class="hud-title">
+                BATTLEGROUNDS <span>OPERATOR</span> <div class="system-badge">HUD v2.5.0-STAFF</div>
+            </h1>
+            <div class="hud-controls-top">
+                <button id="btn-audio-toggle" class="icon-btn active" title="Toggle audio synthesizer effects" aria-label="Toggle Audio">
+                    🔊 SYNTH
+                </button>
+                <button id="btn-randomize" class="icon-btn" title="Randomize operator equipment configuration" aria-label="Randomize Loadout">
+                    🎲 RANDOM
+                </button>
             </div>
+        </header>
 
-            <div class="preview-controls">
-                <div class="anim-speed-row">
-                    <label>Frame Sequencer Ticker Speed</label>
-                    <input type="range" id="speed-slider" min="100" max="600" step="50" value="250">
-                    <span id="speed-lbl">250ms</span>
-                </div>
-
-                <div class="btn-group">
-                    <button id="play-pause-btn" class="action-btn" title="Toggle Playback">⏸</button>
-                    <button id="grid-toggle-btn" class="action-btn" title="Toggle Pixel Grid">🌐 Grid</button>
-                    <button id="random-btn" class="action-btn" style="flex: 1;" title="Randomize Attributes">🎲 Random</button>
-                </div>
-
-                <div class="btn-group" style="margin-top: 4px;">
-                    <button id="export-btn" class="action-btn primary">💾 Export Sheet (.png)</button>
-                </div>
+        <!-- Left Column: Tactical Viewport Canvas -->
+        <section class="viewport-box">
+            <div class="canvas-wrapper">
+                <canvas id="loadoutCanvas" width="300" height="400" aria-label="Character Customization Stage"></canvas>
             </div>
+            <button class="deploy-btn" id="deploy-action" aria-label="Deploy Loadout to Lobby Server">
+                🚀 Deploy to Lobby
+            </button>
+        </section>
 
-            <div class="dna-box">
-                <div class="dna-header">
-                    <span>Cosmetic State DNA Code</span>
-                </div>
-                <div class="dna-input-wrapper">
-                    <input type="text" id="dna-str" class="dna-input" placeholder="00_fbcbc3|00_b15c25|00_0284c7">
-                    <button id="copy-dna-btn" class="copy-btn">Copy</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Customization Configurator -->
-        <div class="controls-pane">
-            <!-- SKIN CONFIG -->
-            <div class="control-group">
-                <div class="group-label">
-                    <span>Skin Complexion</span>
-                    <span id="skin-label-val" style="color: var(--text-secondary);">Skin 0</span>
-                </div>
-                <div class="palette-row" id="skin-palette">
-                    <!-- Swatches filled dynamically -->
-                    <div class="color-picker-wrapper" title="Custom Skin Tone">
-                        <span>＋</span>
-                        <input type="color" id="skin-custom-picker" value="#fbcbc3">
+        <!-- Right Column: Configurator Options Dashboard -->
+        <section class="dashboard-controls-wrapper">
+            <div class="gear-dashboard">
+                
+                <!-- Headwear Slot Category -->
+                <div class="category-group">
+                    <div class="category-title">
+                        Head Protection <span id="label-head" class="active-val">LEVEL 3 HELMET</span>
+                    </div>
+                    <div class="grid-options" id="row-head">
+                        <button data-id="none" class="gear-btn" id="opt-head-none">Bare</button>
+                        <button data-id="cap_mil" class="gear-btn" id="opt-head-beret">Beret</button>
+                        <button data-id="helm_03" class="gear-btn active" id="opt-head-helm">Helmet L3</button>
                     </div>
                 </div>
-            </div>
 
-            <!-- HAIR CONFIG -->
-            <div class="control-group">
-                <div class="group-label">
-                    <span>Hair Style & Tint</span>
-                    <span id="hair-label-val" style="color: var(--text-secondary);">Style: Short</span>
-                </div>
-                <div class="style-selector" id="hair-styles">
-                    <button data-index="0" class="style-btn active">Short Crop</button>
-                    <button data-index="1" class="style-btn">Mohawk Spiky</button>
-                </div>
-                <div class="palette-row" id="hair-palette" style="margin-top: 8px;">
-                    <!-- Swatches filled dynamically -->
-                    <div class="color-picker-wrapper" title="Custom Hair Color">
-                        <span>＋</span>
-                        <input type="color" id="hair-custom-picker" value="#b15c25">
+                <!-- Torso Protection Slot Category -->
+                <div class="category-group">
+                    <div class="category-title">
+                        Body Protection & Armor <span id="label-torso" class="active-val">TACTICAL VEST</span>
+                    </div>
+                    <div class="grid-options" id="row-torso">
+                        <button data-id="jacket_camo" class="gear-btn" id="opt-torso-coat">Camo Coat</button>
+                        <button data-id="vest_heavy" class="gear-btn active" id="opt-torso-vest">Tac Vest</button>
+                        <button data-id="suit_ghillie" class="gear-btn" id="opt-torso-ghillie">Ghillie</button>
                     </div>
                 </div>
-            </div>
 
-            <!-- OUTFIT CONFIG -->
-            <div class="control-group">
-                <div class="group-label">
-                    <span>Outfit Layer Model</span>
-                    <span id="outfit-label-val" style="color: var(--text-secondary);">Style: Tunics</span>
-                </div>
-                <div class="style-selector" id="outfit-styles">
-                    <button data-index="0" class="style-btn active">Adventurer Tunic</button>
-                    <button data-index="1" class="style-btn">Sorcerer Robes</button>
-                </div>
-                <div class="palette-row" id="outfit-palette" style="margin-top: 8px;">
-                    <!-- Swatches filled dynamically -->
-                    <div class="color-picker-wrapper" title="Custom Outfit Color">
-                        <span>＋</span>
-                        <input type="color" id="outfit-custom-picker" value="#0284c7">
+                <!-- Lower Body & Gear Slot Category -->
+                <div class="category-group">
+                    <div class="category-title">
+                        Lower Body Utilities <span id="label-legs" class="active-val">CARGO PANTS</span>
+                    </div>
+                    <div class="grid-options" id="row-legs">
+                        <button data-id="pants_cargo" class="gear-btn active" id="opt-legs-cargo">Cargo Khaki</button>
+                        <button data-id="pants_digital" class="gear-btn" id="opt-legs-digital">Digi Camo</button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="footer-info">
-        Procedural Grayscale Masking Matrix • High Fidelity Engine Integration Mode
-    </div>
-</div>
+                <!-- Weapon Slot Category -->
+                <div class="category-group">
+                    <div class="category-title">
+                        Primary Armament <span id="label-weapon" class="active-val">M416 RIFLE</span>
+                    </div>
+                    <div class="grid-options" id="row-weapon">
+                        <button data-id="none" class="gear-btn" id="opt-weapon-none">None</button>
+                        <button data-id="m416" class="gear-btn active" id="opt-weapon-m416">M416 Rifle</button>
+                        <button data-id="awm" class="gear-btn" id="opt-weapon-awm">AWM Sniper</button>
+                    </div>
+                </div>
+
+                <!-- Holster Mode Slot Category -->
+                <div class="category-group">
+                    <div class="category-title">
+                        Holster Allocation <span id="label-holster" class="active-val">SLUNG BACK</span>
+                    </div>
+                    <div class="grid-options" id="row-holster">
+                        <button data-id="BACK" class="gear-btn active" id="opt-holster-back">Slung Back</button>
+                        <button data-id="HAND" class="gear-btn" id="opt-holster-hand">In Hands</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Manifest Serializer String Bar -->
+        <section class="manifest-bar">
+            <span class="manifest-label">Loadout Manifest Token:</span>
+            <input type="text" id="dna-manifest" class="manifest-token-input" value="BR-HELM03_VESTHEAVY_M416_BACK" readonly title="Loadout configuration token string">
+            <button id="copy-manifest-btn" class="copy-token-btn">Copy Token</button>
+        </section>
+
+        <!-- Real-Time WebSocket Server Log Terminal -->
+        <section class="terminal-panel" aria-label="Lobby Connection Terminal">
+            <div class="terminal-header">
+                <span class="green-pulse">Lobby Connection Feed</span>
+                <span id="terminal-latency">LATENCY: 24ms</span>
+            </div>
+            <div class="terminal-logs" id="terminal-feed">
+                <!-- Log entries will print here dynamically -->
+            </div>
+        </section>
+
+        <!-- Footer Info HUD -->
+        <footer class="footer-hud">
+            <span>SECURE CHANNEL BLITTING PORT: 8443</span>
+            <span>SYSTEM STATUS: COMPOSITING SECURE</span>
+            <span>RENDER ENGINE: VECTOR ATLAS BLITTER v2.0</span>
+        </footer>
+
+    </main>
 
 <script>
-// --- PROCEDURAL GRAYSCALE BITMAPS (2-Frame Walking Loops) ---
-// '.' = Transparent, '0' = Highlight, '1' = Midtone, '2' = Shadow
-const SPRITE_SHEET_ASSETS = {
-    skin: {
-        frame0: [ // Frame 0: Idle/Stand
-            '................', '......111.......', '.....11011......', '.....11111......',
-            '......111.......', '.....21112......', '.....11111......', '.....11111......',
-            '.....11111......', '.....11111......', '.....11111......', '......1.1.......'
-        ],
-        frame1: [ // Frame 1: Stride Step
-            '................', '......111.......', '.....11011......', '.....11111......',
-            '......111.......', '.....21112......', '.....11111......', '.....11111......',
-            '.....11111......', '.....11111......', '.....11111......', '.....1...1......'
-        ]
+// --- 1. DETAILED VECTOR GRAPHICS DRAW PRIMITIVES ---
+// Shading vectors for smooth gradient fills, strokes, and military camo patterns
+function drawRect(ctx, x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+}
+
+function drawCircle(ctx, x, y, r, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawCapsule(ctx, x, y, w, h, r, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    ctx.fill();
+}
+
+function drawPolygon(ctx, points, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for(let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.closePath();
+    ctx.fill();
+}
+
+// Custom camo shader for vests/jackets to simulate tactical look
+function applyDigitalCamoPattern(ctx, x, y, w, h, baseColor, patternColor1, patternColor2) {
+    ctx.save();
+    // Clip drawing context to the rectangle to prevent overlay bleed
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.clip();
+    
+    // Fill base
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(x, y, w, h);
+    
+    // Draw scatter pixels
+    const size = 6;
+    for(let px = x; px < x + w; px += size) {
+        for(let py = y; py < y + h; py += size) {
+            let rand = Math.random();
+            if (rand > 0.8) {
+                ctx.fillStyle = patternColor1;
+                ctx.fillRect(px, py, size, size);
+            } else if (rand > 0.6) {
+                ctx.fillStyle = patternColor2;
+                ctx.fillRect(px + size/2, py + size/2, size/2, size/2);
+            }
+        }
+    }
+    ctx.restore();
+}
+
+// --- 2. VECTOR ARSENAL REGISTRY ---
+// Detailed 2D coordinate-based military weapon renderers
+const WEAPON_RENDERERS = {
+    'm416': (ctx, x, y, angle) => {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle * Math.PI / 180);
+
+        // Weapon Shadow
+        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 2;
+
+        // Stock (Tan/Black)
+        drawRect(ctx, -50, -2, 14, 8, '#70583b');
+        drawRect(ctx, -48, 6, 4, 6, '#1a1d24');
+        
+        // Stock buffer tube
+        drawRect(ctx, -36, -1, 12, 4, '#313846');
+
+        // Receiver / Body (Desert Tan M4)
+        drawCapsule(ctx, -24, -4, 30, 9, 2, '#8b7355');
+        drawRect(ctx, -14, 5, 6, 11, '#1a1d24'); // Pistol Grip
+        
+        // Handguard (Rail covers/laser box)
+        drawRect(ctx, 6, -4, 25, 8, '#70583b');
+        drawRect(ctx, 12, -7, 10, 3, '#1a1d24'); // Laser PEQ box
+        
+        // Long Steel Barrel
+        drawRect(ctx, 31, -2, 28, 4, '#1a1d24');
+        drawRect(ctx, 59, -3, 5, 6, '#434d5e'); // Muzzle Flash Hider
+        
+        // Tactical Holographic Sight
+        drawRect(ctx, -12, -7, 14, 3, '#1a1d24');
+        drawRect(ctx, -10, -11, 10, 4, '#8b7355');
+        
+        // Magazine (30rd PMAG curved)
+        ctx.save();
+        ctx.translate(-2, 5);
+        ctx.rotate(10 * Math.PI / 180);
+        drawCapsule(ctx, 0, 0, 8, 20, 2, '#1a1d24'); // Black PMAG
+        ctx.restore();
+
+        ctx.restore();
     },
-    hair: {
-        0: { // Style 0: Short Crop
-            frame0: ['......222.......', '.....22022......', '................'],
-            frame1: ['......222.......', '.....22022......', '................']
+    'awm': (ctx, x, y, angle) => {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle * Math.PI / 180);
+
+        // Weapon Shadow
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 3;
+
+        // Olive Drab Sniper stock
+        drawPolygon(ctx, [
+            {x: -60, y: -4},
+            {x: -40, y: -4},
+            {x: -30, y: 8},
+            {x: -45, y: 15},
+            {x: -60, y: 12}
+        ], '#3b4d3a');
+        
+        // Buttpad (black rubber)
+        drawRect(ctx, -62, -2, 3, 12, '#0c0e12');
+
+        // Main Frame (Green Polymer)
+        drawCapsule(ctx, -30, -5, 45, 11, 2, '#3b4d3a');
+        drawRect(ctx, -10, 6, 7, 13, '#0c0e12'); // Bolt Action Grip
+
+        // Scope Rails & High-Power Sniper Scope
+        drawRect(ctx, -16, -9, 22, 4, '#0c0e12'); // Mount
+        drawRect(ctx, -24, -15, 36, 6, '#1d232b'); // Outer Tube
+        drawCircle(ctx, 12, -12, 5, '#1d232b'); // Objective lens housing
+        drawCircle(ctx, -24, -12, 4, '#1d232b'); // Eyepiece
+        
+        // Heavy Fluted Steel Barrel
+        drawRect(ctx, 15, -3, 60, 4, '#1a2029');
+        drawRect(ctx, 75, -5, 8, 8, '#0c0e12'); // Heavy Muzzle Brake
+
+        // Magazine (5rd Lapua Mag)
+        drawRect(ctx, -8, 6, 9, 10, '#0c0e12');
+
+        // Folded Bipod under barrel
+        drawRect(ctx, 28, 2, 16, 3, '#1a2029');
+
+        ctx.restore();
+    }
+};
+
+// --- 3. COSMETIC APPAREL REGISTRY ---
+const GEAR_REGISTRY = {
+    head: {
+        'none': (ctx) => {
+            // Draw face structure / military details
+            drawCircle(ctx, 150, 115, 25, '#dfb195'); // Skin Head
+            // Draw military face camo paint stripes
+            ctx.fillStyle = '#2c3c2b';
+            ctx.fillRect(135, 115, 8, 3);
+            ctx.fillRect(158, 112, 7, 3);
+            ctx.fillRect(142, 122, 12, 2);
+            // Crew cut hair stubble
+            drawCapsule(ctx, 128, 98, 44, 15, 6, 'rgba(40,30,20,0.55)');
         },
-        1: { // Style 1: Spiky Mohawk
-            frame0: ['......020.......', '.....22022......', '................'],
-            frame1: ['......020.......', '.....22022......', '................']
+        'cap_mil': (ctx) => {
+            // Draw head base
+            drawCircle(ctx, 150, 115, 25, '#dfb195');
+            // Camo paint
+            ctx.fillStyle = '#2c3c2b';
+            ctx.fillRect(135, 115, 8, 3);
+            ctx.fillRect(158, 112, 7, 3);
+            
+            // Draw Special Forces Maroon Beret
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetY = 2;
+            
+            // Beret Crest
+            drawCapsule(ctx, 122, 92, 54, 18, 9, '#721b2d');
+            // Fold flap on the side
+            drawPolygon(ctx, [
+                {x: 160, y: 95},
+                {x: 178, y: 104},
+                {x: 168, y: 114},
+                {x: 154, y: 106}
+            ], '#581321');
+            
+            // Golden military pin emblem
+            drawCircle(ctx, 136, 103, 3, '#f2a900');
+            ctx.restore();
+        },
+        'helm_03': (ctx) => {
+            // Draw head base partially visible
+            drawCircle(ctx, 150, 115, 25, '#dfb195');
+            
+            // Tier 3 Ballistic Helmet (Classic PUBG Spetsnaz helmet with visor)
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.4)';
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetY = 3;
+            
+            // Helmet shell
+            drawCircle(ctx, 150, 110, 27, '#242a34');
+            drawRect(ctx, 123, 108, 54, 14, '#242a34');
+            
+            // Metal visor overlay
+            drawCapsule(ctx, 126, 110, 48, 18, 4, '#1b1f26');
+            // Visor viewing slit
+            drawRect(ctx, 134, 114, 32, 4, '#090a0d');
+            // Rivets on helmet
+            drawCircle(ctx, 130, 123, 2, '#48566b');
+            drawCircle(ctx, 170, 123, 2, '#48566b');
+            ctx.restore();
         }
     },
-    outfit: {
-        0: { // Style 0: Adventurer Tunic
-            frame0: [
-                '................', '................', '................', '................',
-                '......111.......', '.....11211......', '.....12221......', '.....11211......',
-                '.....11111......', '.....22.22......', '.....22.22......', '................'
-            ],
-            frame1: [
-                '................', '................', '................', '................',
-                '......111.......', '.....11211......', '.....12221......', '.....11211......',
-                '.....11111......', '....22...22.....', '....22...22.....', '................'
-            ]
+    torso: {
+        'jacket_camo': (ctx) => {
+            // Long sleeve camouflage combat jacket
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetY = 2;
+            
+            // Left & Right Arms
+            applyDigitalCamoPattern(ctx, 100, 150, 22, 90, '#42543b', '#2c3c2b', '#60705a');
+            applyDigitalCamoPattern(ctx, 178, 150, 22, 90, '#42543b', '#2c3c2b', '#60705a');
+            
+            // Torso Body Coat
+            applyDigitalCamoPattern(ctx, 115, 146, 70, 100, '#42543b', '#2c3c2b', '#60705a');
+            
+            // Draw jacket collar, zipper line, and pocket highlights
+            drawRect(ctx, 148, 146, 4, 100, '#1d261b');
+            drawRect(ctx, 120, 165, 20, 22, '#2d3b2a'); // Left chest pocket
+            drawRect(ctx, 160, 165, 20, 22, '#2d3b2a'); // Right chest pocket
+            
+            ctx.restore();
         },
-        1: { // Style 1: Sorcerer Robes
-            frame0: [
-                '................', '................', '................', '................',
-                '......212.......', '.....21012......', '.....20102......', '.....21012......',
-                '.....21012......', '.....21112......', '.....22222......', '................'
-            ],
-            frame1: [
-                '................', '................', '................', '................',
-                '......212.......', '.....21012......', '.....20102......', '.....21012......',
-                '.....21012......', '....22...22.....', '....22...22.....', '................'
-            ]
+        'vest_heavy': (ctx) => {
+            // Camo Shirt Base
+            ctx.save();
+            applyDigitalCamoPattern(ctx, 115, 146, 70, 100, '#42543b', '#2c3c2b', '#60705a');
+            
+            // Bare arms with tactical wrap
+            drawRect(ctx, 102, 148, 15, 80, '#dfb195'); // Skin Left arm
+            drawRect(ctx, 183, 148, 15, 80, '#dfb195'); // Skin Right arm
+            drawRect(ctx, 102, 180, 15, 20, '#2b3440'); // Dark wrap left
+            drawRect(ctx, 183, 180, 15, 20, '#2b3440'); // Dark wrap right
+            
+            // Heavy Military Tactical Plate Carrier Vest (Tan color)
+            ctx.shadowColor = 'rgba(0,0,0,0.4)';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetY = 3;
+            
+            // Main Vest Body block
+            drawCapsule(ctx, 117, 152, 66, 88, 6, '#7d684f'); // Tan plate base
+            drawCapsule(ctx, 120, 156, 60, 80, 4, '#63513d'); // Inner plate
+            
+            // Shoulder straps
+            drawRect(ctx, 124, 140, 12, 16, '#4f4030');
+            drawRect(ctx, 164, 140, 12, 16, '#4f4030');
+            
+            // Chest Molle Webbing loops
+            ctx.fillStyle = '#4f4030';
+            for(let py = 166; py <= 186; py += 10) {
+                drawRect(ctx, 128, py, 44, 4, '#4f4030');
+            }
+            
+            // Triple Rifle Magazine Pouches on bottom of vest
+            drawRect(ctx, 125, 198, 14, 30, '#4f4030'); // Mag 1
+            drawRect(ctx, 143, 198, 14, 30, '#4f4030'); // Mag 2
+            drawRect(ctx, 161, 198, 14, 30, '#4f4030'); // Mag 3
+            
+            // Buckles
+            drawRect(ctx, 121, 186, 6, 8, '#1b1f26');
+            drawRect(ctx, 173, 186, 6, 8, '#1b1f26');
+            
+            ctx.restore();
+        },
+        'suit_ghillie': (ctx) => {
+            // Ghillie suit top (leafy/hairy grass coverage)
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetY = 2;
+            
+            // Base foliage layer
+            applyDigitalCamoPattern(ctx, 94, 140, 112, 115, '#5d6f3e', '#3e4a27', '#7e9653');
+            
+            // Procedurally draw dynamic grass foliage tufts to make it look hairy/bushy
+            ctx.fillStyle = '#3e4a27';
+            const drawTuft = (tx, ty) => {
+                ctx.beginPath();
+                ctx.moveTo(tx, ty);
+                ctx.lineTo(tx - 8, ty + 12);
+                ctx.lineTo(tx, ty + 6);
+                ctx.lineTo(tx + 8, ty + 12);
+                ctx.closePath();
+                ctx.fill();
+            };
+            
+            // Distribute leaf clumps around the ghillie torso profile
+            const locations = [
+                {x: 100, y: 150}, {x: 120, y: 144}, {x: 140, y: 146}, {x: 160, y: 142}, {x: 180, y: 145}, {x: 200, y: 150},
+                {x: 96, y: 175}, {x: 110, y: 170}, {x: 135, y: 180}, {x: 155, y: 172}, {x: 178, y: 178}, {x: 198, y: 170},
+                {x: 104, y: 205}, {x: 124, y: 200}, {x: 148, y: 210}, {x: 172, y: 202}, {x: 192, y: 212},
+                {x: 112, y: 232}, {x: 136, y: 228}, {x: 160, y: 235}, {x: 184, y: 230}
+            ];
+            
+            locations.forEach(loc => {
+                ctx.fillStyle = Math.random() > 0.5 ? '#3e4a27' : '#7e9653';
+                drawTuft(loc.x, loc.y);
+                drawTuft(loc.x + 4, loc.y + 6);
+            });
+            
+            ctx.restore();
+        }
+    },
+    legs: {
+        'pants_cargo': (ctx) => {
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 4;
+            
+            // Cargo Khaki Pants
+            drawCapsule(ctx, 116, 240, 28, 110, 4, '#9c815e'); // Left Leg
+            drawCapsule(ctx, 156, 240, 28, 110, 4, '#9c815e'); // Right Leg
+            
+            // Cargo side pockets
+            drawRect(ctx, 110, 264, 8, 24, '#7c6547');
+            drawRect(ctx, 182, 264, 8, 24, '#7c6547');
+            
+            // Heavy black combat boots
+            drawCapsule(ctx, 112, 340, 32, 18, 4, '#151921');
+            drawCapsule(ctx, 156, 340, 32, 18, 4, '#151921');
+            drawRect(ctx, 114, 348, 28, 12, '#0c0e12');
+            drawRect(ctx, 158, 348, 28, 12, '#0c0e12');
+            
+            ctx.restore();
+        },
+        'pants_digital': (ctx) => {
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 4;
+            
+            // Digital camo pants
+            applyDigitalCamoPattern(ctx, 116, 240, 28, 110, '#334430', '#202c1d', '#4d5e4a'); // Left Leg
+            applyDigitalCamoPattern(ctx, 156, 240, 28, 110, '#334430', '#202c1d', '#4d5e4a'); // Right Leg
+            
+            // Black knee pads
+            drawCapsule(ctx, 120, 282, 20, 22, 5, '#1b2028');
+            drawCapsule(ctx, 160, 282, 20, 22, 5, '#1b2028');
+            drawRect(ctx, 122, 290, 16, 6, '#0f1217');
+            drawRect(ctx, 162, 290, 16, 6, '#0f1217');
+            
+            // Heavy black combat boots
+            drawCapsule(ctx, 112, 340, 32, 18, 4, '#151921');
+            drawCapsule(ctx, 156, 340, 32, 18, 4, '#151921');
+            
+            ctx.restore();
         }
     }
 };
 
-const COLOR_MAPS = {
-    skin:   ['#fbcbc3', '#e0a99f', '#8a5a44', '#f1c232', '#c27ba0', '#4a86e8'],
-    hair:   ['#1a0f08', '#b15c25', '#e2b13c', '#980000', '#351c75', '#00f0ff'],
-    outfit: ['#0284c7', '#16a34a', '#e11d48', '#d97706', '#7c3aed', '#db2777']
-};
-
-// --- AUDIO SYNTH MATRIX (Procedural retro audio triggers) ---
+// --- 4. INTERACTIVE RETRO AUDIO EFFECTS SYNTHESIZER ---
 class WebAudioSynth {
     constructor() {
         this.ctx = null;
@@ -634,7 +1028,7 @@ class WebAudioSynth {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
 
-            osc.type = type;
+            osc.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
             osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
             
             gain.gain.setValueAtTime(volume, this.ctx.currentTime);
@@ -646,439 +1040,289 @@ class WebAudioSynth {
             osc.start();
             osc.stop(this.ctx.currentTime + duration);
         } catch (e) {
-            console.error("Audio trigger failed: ", e);
+            console.warn("Audio Context playback failed.", e);
         }
     }
 
     triggerSelect() {
-        this.playTone(330, 'square', 0.08, 0.08);
+        // High frequency digital click/blip
+        this.playTone(880, 'sine', 0.05, 0.05);
     }
 
-    triggerStyleChange() {
-        this.playTone(180, 'triangle', 0.1, 0.15);
-        setTimeout(() => this.playTone(270, 'triangle', 0.06, 0.12), 40);
+    triggerGearEquip() {
+        // Metallic clink
+        this.playTone(320, 'triangle', 0.12, 0.2);
+        setTimeout(() => this.playTone(480, 'triangle', 0.08, 0.15), 50);
     }
 
-    triggerRandom() {
-        this.playTone(220, 'sawtooth', 0.05, 0.05);
-        setTimeout(() => this.playTone(440, 'square', 0.05, 0.05), 50);
-        setTimeout(() => this.playTone(880, 'square', 0.08, 0.06), 100);
+    triggerWeaponLock() {
+        // Dynamic heavy slide clack
+        this.playTone(180, 'sawtooth', 0.08, 0.12);
+        setTimeout(() => this.playTone(280, 'square', 0.06, 0.1), 60);
     }
 
-    triggerExport() {
-        this.playTone(523.25, 'sine', 0.1, 0.1); // C5
-        setTimeout(() => this.playTone(659.25, 'sine', 0.1, 0.1), 100); // E5
-        setTimeout(() => this.playTone(783.99, 'sine', 0.15, 0.1), 200); // G5
-        setTimeout(() => this.playTone(1046.50, 'sine', 0.25, 0.15), 300); // C6
+    triggerRandomizer() {
+        // Synthesizer sweeping chirp
+        this.playTone(220, 'triangle', 0.04, 0.15);
+        setTimeout(() => this.playTone(440, 'triangle', 0.04, 0.12), 40);
+        setTimeout(() => this.playTone(880, 'triangle', 0.08, 0.1), 80);
+    }
+
+    triggerDeployment() {
+        // Radio transmission sound + buzzer
+        this.playTone(150, 'sawtooth', 0.15, 0.25);
+        setTimeout(() => this.playTone(250, 'sine', 0.1, 0.2), 150);
+        setTimeout(() => this.playTone(600, 'sine', 0.3, 0.15), 250);
     }
 }
 
 const Audio = new WebAudioSynth();
 
-class SpriteCompositor {
+// --- 5. CENTRAL OPERATOR CREATOR ENGINE ---
+class TacticalHolsterCreator {
     constructor() {
-        this.canvas = document.getElementById('stageCanvas');
+        this.canvas = document.getElementById('loadoutCanvas');
         this.ctx = this.canvas.getContext('2d');
-        
-        // State Object (DNA Mapping standard payload)
+
+        // Centralized State Engine (Single Source of Truth)
         this.state = {
-            skinStyle: 0,
-            skinColor: COLOR_MAPS.skin[0],
-            hairStyle: 0,
-            hairColor: COLOR_MAPS.hair[1],
-            outfitStyle: 0,
-            outfitColor: COLOR_MAPS.outfit[0]
+            head: 'helm_03',
+            torso: 'vest_heavy',
+            legs: 'pants_cargo',
+            weapon: 'm416',
+            holsterPos: 'BACK' // BACK, HAND
         };
 
-        this.currentFrame = 0;
-        this.playbackSpeed = 250;
-        this.isPlaying = true;
-        this.tickerIntervalId = null;
+        this.terminalLogsElement = document.getElementById('terminal-feed');
 
-        this.initUI();
-        this.startPlaybackTicker();
+        this.initDashboard();
+        this.compositePipeline();
         
-        // Sync UI options state to setup initial DNA
-        this.updateDNAString();
+        // Print initialization logs
+        this.logToTerminal("TACTICAL LOADOUT INTEGRATOR ONLINE.", "info");
+        this.logToTerminal("Lobby secure pipeline loaded.", "info");
+        this.logToTerminal("Awaiting deployment configuration sequence...", "info");
     }
 
-    initUI() {
-        // Build the swatches dynamically
-        this.buildPaletteRow('skin-palette', COLOR_MAPS.skin, 'skinColor', 'skin-custom-picker');
-        this.buildPaletteRow('hair-palette', COLOR_MAPS.hair, 'hairColor', 'hair-custom-picker');
-        this.buildPaletteRow('outfit-palette', COLOR_MAPS.outfit, 'outfitColor', 'outfit-custom-picker');
+    initDashboard() {
+        // Map UI container selection matrices
+        this.bindCategory('row-head', 'head', 'label-head', 'HEAD PROTECTION');
+        this.bindCategory('row-torso', 'torso', 'label-torso', 'BODY PROTECTION');
+        this.bindCategory('row-legs', 'legs', 'label-legs', 'LOWER BODY');
+        this.bindCategory('row-weapon', 'weapon', 'label-weapon', 'ARMAMENT');
+        this.bindCategory('row-holster', 'holsterPos', 'label-holster', 'HOLSTER MODE');
 
-        // Style toggles
-        this.bindStyleToggles('hair-styles', 'hairStyle', (val) => {
-            document.getElementById('hair-label-val').textContent = val === 0 ? 'Style: Short' : 'Style: Mohawk';
-        });
-        this.bindStyleToggles('outfit-styles', 'outfitStyle', (val) => {
-            document.getElementById('outfit-label-val').textContent = val === 0 ? 'Style: Tunics' : 'Style: Robes';
-        });
-
-        // Speed Slider Control
-        const slider = document.getElementById('speed-slider');
-        const speedLbl = document.getElementById('speed-lbl');
-        slider.oninput = (e) => {
-            this.playbackSpeed = parseInt(e.target.value);
-            speedLbl.textContent = `${this.playbackSpeed}ms`;
-            if (this.isPlaying) {
-                this.restartPlaybackTicker();
-            }
-        };
-
-        // Play/Pause Control
-        const playPauseBtn = document.getElementById('play-pause-btn');
-        playPauseBtn.onclick = () => {
-            Audio.triggerSelect();
-            if (this.isPlaying) {
-                this.isPlaying = false;
-                playPauseBtn.textContent = '▶';
-                clearInterval(this.tickerIntervalId);
-            } else {
-                this.isPlaying = true;
-                playPauseBtn.textContent = '⏸';
-                this.startPlaybackTicker();
-            }
-        };
-
-        // Grid Toggle Control
-        const gridBtn = document.getElementById('grid-toggle-btn');
-        const gridOverlay = document.getElementById('gridOverlay');
-        gridBtn.onclick = () => {
-            Audio.triggerSelect();
-            const visible = gridOverlay.classList.toggle('visible');
-            gridBtn.classList.toggle('active', visible);
-        };
-
-        // Sound Toggle Button
-        const soundBtn = document.getElementById('sound-toggle');
-        soundBtn.onclick = () => {
+        // Top controls callbacks
+        document.getElementById('btn-audio-toggle').onclick = () => {
             Audio.enabled = !Audio.enabled;
-            soundBtn.classList.toggle('active', Audio.enabled);
-            soundBtn.textContent = Audio.enabled ? '🔊 Audio Synthesizer: ON' : '🔇 Audio Synthesizer: OFF';
+            const btn = document.getElementById('btn-audio-toggle');
+            btn.classList.toggle('active', Audio.enabled);
+            btn.textContent = Audio.enabled ? '🔊 SYNTH' : '🔇 SYNTH';
             if (Audio.enabled) Audio.triggerSelect();
         };
 
-        // Randomizer Control
-        document.getElementById('random-btn').onclick = () => {
-            this.randomizeCharacter();
+        document.getElementById('btn-randomize').onclick = () => {
+            this.randomizeConfiguration();
         };
 
-        // DNA string input direct loader
-        const dnaInput = document.getElementById('dna-str');
-        dnaInput.onchange = (e) => {
-            this.loadStateFromDNA(e.target.value);
+        document.getElementById('deploy-action').onclick = () => {
+            this.exportFinalManifest();
         };
 
-        // DNA string copy button
-        document.getElementById('copy-dna-btn').onclick = () => {
-            dnaInput.select();
-            document.execCommand('copy');
-            Audio.triggerSelect();
-            const origText = document.getElementById('copy-dna-btn').textContent;
-            document.getElementById('copy-dna-btn').textContent = 'Copied!';
-            setTimeout(() => {
-                document.getElementById('copy-dna-btn').textContent = origText;
-            }, 1000);
-        };
-
-        // Exporter
-        document.getElementById('export-btn').onclick = () => {
-            Audio.triggerExport();
-            this.generateSpriteSheetPNG();
+        document.getElementById('copy-manifest-btn').onclick = () => {
+            this.copyManifestToClipboard();
         };
     }
 
-    buildPaletteRow(elementId, hexArray, stateTarget, customPickerId) {
-        const row = document.getElementById(elementId);
+    bindCategory(containerId, stateKey, labelId, titleText) {
+        const container = document.getElementById(containerId);
+        const label = document.getElementById(labelId);
         
-        // Clear old swatches but keep custom picker (which is last element)
-        const customPickerWrapper = row.querySelector('.color-picker-wrapper');
-        while (row.firstChild !== customPickerWrapper) {
-            row.removeChild(row.firstChild);
-        }
+        container.addEventListener('click', (e) => {
+            const btn = e.target.closest('.gear-btn');
+            if (!btn) return;
 
-        // Add standard color swatches
-        hexArray.forEach((color, i) => {
-            let swatch = document.createElement('div');
-            swatch.className = `color-swatch`;
-            swatch.style.backgroundColor = color;
-            swatch.title = color;
-            if (this.state[stateTarget].toLowerCase() === color.toLowerCase()) {
-                swatch.classList.add('active');
-            }
-            swatch.onclick = () => {
-                Audio.triggerSelect();
-                const activeSwatch = row.querySelector('.color-swatch.active');
-                if (activeSwatch) activeSwatch.classList.remove('active');
-                swatch.classList.add('active');
-
-                // Reset custom picker preview
-                customPickerWrapper.style.backgroundColor = '';
-                customPickerWrapper.querySelector('span').style.color = '';
-                
-                this.state[stateTarget] = color;
-                this.updateDNAString();
-                this.renderFrame(this.ctx, this.currentFrame);
-            };
-            row.insertBefore(swatch, customPickerWrapper);
-        });
-
-        // Set up custom color picker callbacks
-        const picker = document.getElementById(customPickerId);
-        picker.oninput = (e) => {
-            const pickedColor = e.target.value;
-            const activeSwatch = row.querySelector('.color-swatch.active');
-            if (activeSwatch) activeSwatch.classList.remove('active');
-            
-            // Visual indicator for custom picked color
-            customPickerWrapper.style.backgroundColor = pickedColor;
-            customPickerWrapper.querySelector('span').style.color = '#fff';
-            
-            this.state[stateTarget] = pickedColor;
-            this.updateDNAString();
-            this.renderFrame(this.ctx, this.currentFrame);
-        };
-    }
-
-    bindStyleToggles(containerId, stateTarget, onStyleUpdate) {
-        const box = document.getElementById(containerId);
-        box.querySelectorAll('button').forEach(btn => {
-            btn.onclick = () => {
-                Audio.triggerStyleChange();
-                box.querySelector('button.active').classList.remove('active');
-                btn.classList.add('active');
-                const val = parseInt(btn.dataset.index);
-                this.state[stateTarget] = val;
-                if (onStyleUpdate) onStyleUpdate(val);
-                this.updateDNAString();
-                this.renderFrame(this.ctx, this.currentFrame);
-            };
-        });
-    }
-
-    startPlaybackTicker() {
-        this.tickerIntervalId = setInterval(() => {
-            this.currentFrame = this.currentFrame === 0 ? 1 : 0;
-            this.renderFrame(this.ctx, this.currentFrame);
-        }, this.playbackSpeed);
-    }
-
-    restartPlaybackTicker() {
-        clearInterval(this.tickerIntervalId);
-        this.startPlaybackTicker();
-    }
-
-    // --- STATE DNA SERIALIZATION ---
-    // Serializes state in hexadecimal format: 00_fbcbc3|01_b15c25|00_0284c7
-    // Segment 1: SkinStyle_SkinColor
-    // Segment 2: HairStyle_HairColor
-    // Segment 3: OutfitStyle_OutfitColor
-    updateDNAString() {
-        const skinColorClean = this.state.skinColor.replace('#', '');
-        const hairColorClean = this.state.hairColor.replace('#', '');
-        const outfitColorClean = this.state.outfitColor.replace('#', '');
-        
-        const dna = `00_${skinColorClean}|0${this.state.hairStyle}_${hairColorClean}|0${this.state.outfitStyle}_${outfitColorClean}`;
-        document.getElementById('dna-str').value = dna;
-    }
-
-    loadStateFromDNA(dnaString) {
-        try {
-            const segments = dnaString.split('|');
-            if (segments.length !== 3) throw new Error("Invalid DNA token size");
-
-            const skin = segments[0].split('_');
-            const hair = segments[1].split('_');
-            const outfit = segments[2].split('_');
-
-            if (skin.length !== 2 || hair.length !== 2 || outfit.length !== 2) throw new Error("Format mismatch");
-
-            this.state.skinColor = '#' + skin[1];
-            this.state.hairStyle = parseInt(hair[0]);
-            this.state.hairColor = '#' + hair[1];
-            this.state.outfitStyle = parseInt(outfit[0]);
-            this.state.outfitColor = '#' + outfit[1];
-
-            // Re-sync UI inputs visually
-            this.syncUIToState();
-            
-            // Re-render
-            this.renderFrame(this.ctx, this.currentFrame);
-            Audio.triggerRandom();
-        } catch (e) {
-            console.error("DNA Load failed, reverting DNA string to matches: ", e);
-            this.updateDNAString();
-        }
-    }
-
-    syncUIToState() {
-        // Update palettes active selections
-        const syncPaletteActive = (elementId, colorVal) => {
-            const row = document.getElementById(elementId);
-            const swatches = row.querySelectorAll('.color-swatch');
-            let matched = false;
-            swatches.forEach(swatch => {
-                const bg = swatch.style.backgroundColor;
-                // convert to hex
-                const hex = this.rgbToHex(bg) || bg;
-                if (hex.toLowerCase() === colorVal.toLowerCase()) {
-                    swatch.classList.add('active');
-                    matched = true;
-                } else {
-                    swatch.classList.remove('active');
-                }
-            });
-
-            const customPickerWrapper = row.querySelector('.color-picker-wrapper');
-            if (!matched) {
-                // Highlight custom picker since it's a custom color
-                customPickerWrapper.style.backgroundColor = colorVal;
-                customPickerWrapper.querySelector('span').style.color = '#fff';
+            // Trigger corresponding sound feedback
+            if (stateKey === 'weapon') {
+                Audio.triggerWeaponLock();
             } else {
-                customPickerWrapper.style.backgroundColor = '';
-                customPickerWrapper.querySelector('span').style.color = '';
+                Audio.triggerGearEquip();
             }
+
+            container.querySelector('.gear-btn.active').classList.remove('active');
+            btn.classList.add('active');
+
+            this.state[stateKey] = btn.dataset.id;
+            
+            // Update HUD labels dynamically
+            label.textContent = btn.textContent.toUpperCase();
+            
+            // Re-run the compositor blit pipeline
+            this.compositePipeline();
+            this.updateManifestToken();
+            this.logToTerminal(`State altered: [${titleText}] -> ${btn.dataset.id.toUpperCase()}`, "warning");
+        });
+    }
+
+    // --- CENTRAL PIPELINE: CONDITIONAL ROUTING LOOP ---
+    compositePipeline() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Render Layer Phase 1: Lower Body / Legs
+        GEAR_REGISTRY.legs[this.state.legs](this.ctx);
+
+        // --- INTERCEPT CHECK 1: WEAPON SLUNG ON BACK PASS ---
+        if (this.state.weapon !== 'none' && this.state.holsterPos === 'BACK') {
+            // Render weapon behind torso with a defensive tactical sling tilt (55 degrees)
+            WEAPON_RENDERERS[this.state.weapon](this.ctx, 130, 190, 55);
+        }
+
+        // Render Layer Phase 2: Torso Structure Base & Outer Armor Vests
+        GEAR_REGISTRY.torso[this.state.torso](this.ctx);
+
+        // Render Layer Phase 3: Character Head Skeleton & Ballistic Helmets
+        GEAR_REGISTRY.head[this.state.head](this.ctx);
+
+        // --- INTERCEPT CHECK 2: EQUIPPED IN HANDS PASS ---
+        if (this.state.weapon !== 'none' && this.state.holsterPos === 'HAND') {
+            // Render weapon across the absolute front of the stack at combat position (horizontal 0 degrees)
+            WEAPON_RENDERERS[this.state.weapon](this.ctx, 185, 205, 0);
+            
+            // Draw hands overlapping the weapon profile to secure structural look
+            drawCircle(this.ctx, 140, 208, 6, '#dfb195'); // Left hand holding grip
+            drawCircle(this.ctx, 175, 208, 6, '#dfb195'); // Right hand supporting handguard
+        }
+
+        // Apply visual environmental shading / vignettes
+        this.applyTacticalVignette();
+    }
+
+    applyTacticalVignette() {
+        // Vignette shading
+        let grad = this.ctx.createRadialGradient(150, 200, 110, 150, 200, 260);
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(1, 'rgba(5, 7, 10, 0.75)');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Subtle tech grid lines drawn onto canvas
+        this.ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        // Crosshair ticks
+        this.ctx.moveTo(150, 20); this.ctx.lineTo(150, 50);
+        this.ctx.moveTo(150, 350); this.ctx.lineTo(150, 380);
+        this.ctx.moveTo(20, 200); this.ctx.lineTo(50, 200);
+        this.ctx.moveTo(250, 200); this.ctx.lineTo(280, 200);
+        
+        // Circular crosshair radar ring
+        this.ctx.arc(150, 200, 120, 0, Math.PI * 2);
+        this.ctx.stroke();
+    }
+
+    // --- DATA SERIALIZATION MANIFEST GENERATOR ---
+    updateManifestToken() {
+        const token = `BR-${this.state.head.toUpperCase()}_${this.state.torso.toUpperCase()}_${this.state.weapon.toUpperCase()}_${this.state.holsterPos}`;
+        document.getElementById('dna-manifest').value = token;
+    }
+
+    exportFinalManifest() {
+        Audio.triggerDeployment();
+        
+        const manifest = {
+            timestamp: Date.now(),
+            game_id: "PUBG_CLONE_2026",
+            version: "2.5.0-STAFF",
+            token: document.getElementById('dna-manifest').value,
+            loadout: this.state
         };
 
-        syncPaletteActive('skin-palette', this.state.skinColor);
-        syncPaletteActive('hair-palette', this.state.hairColor);
-        syncPaletteActive('outfit-palette', this.state.outfitColor);
-
-        // Sync Custom Picker values
-        document.getElementById('skin-custom-picker').value = this.state.skinColor;
-        document.getElementById('hair-custom-picker').value = this.state.hairColor;
-        document.getElementById('outfit-custom-picker').value = this.state.outfitColor;
-
-        // Update active buttons styles
-        const syncButtons = (containerId, val) => {
-            const box = document.getElementById(containerId);
-            box.querySelectorAll('button').forEach(btn => {
-                if (parseInt(btn.dataset.index) === val) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        };
-
-        syncButtons('hair-styles', this.state.hairStyle);
-        syncButtons('outfit-styles', this.state.outfitStyle);
-
-        // Labels
-        document.getElementById('hair-label-val').textContent = this.state.hairStyle === 0 ? 'Style: Short' : 'Style: Mohawk';
-        document.getElementById('outfit-label-val').textContent = this.state.outfitStyle === 0 ? 'Style: Tunics' : 'Style: Robes';
-    }
-
-    rgbToHex(rgb) {
-        if (/^rgb/.test(rgb)) {
-            const rgbValues = rgb.match(/\d+/g);
-            const hex = rgbValues.map(val => {
-                const hexVal = parseInt(val).toString(16);
-                return hexVal.length === 1 ? '0' + hexVal : hexVal;
-            }).join('');
-            return '#' + hex;
-        }
-        return rgb;
-    }
-
-    randomizeCharacter() {
-        Audio.triggerRandom();
-
-        const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        this.logToTerminal("===============================================", "success");
+        this.logToTerminal("=== TRANSACTION INITIATED: DEPLOYING OPERATOR ===", "success");
+        this.logToTerminal(`Loadout Signature Token: ${manifest.token}`, "info");
+        this.logToTerminal("Transmitting compressed state arrays over WebSocket...", "info");
         
-        // Random style indices (0 or 1)
-        this.state.hairStyle = Math.random() < 0.5 ? 0 : 1;
-        this.state.outfitStyle = Math.random() < 0.5 ? 0 : 1;
-
-        // Custom random color generation or select from preset
-        const randColor = () => '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-        
-        this.state.skinColor = Math.random() < 0.7 ? pickRandom(COLOR_MAPS.skin) : randColor();
-        this.state.hairColor = Math.random() < 0.7 ? pickRandom(COLOR_MAPS.hair) : randColor();
-        this.state.outfitColor = Math.random() < 0.7 ? pickRandom(COLOR_MAPS.outfit) : randColor();
-
-        // Sync and render
-        this.syncUIToState();
-        this.updateDNAString();
-        this.renderFrame(this.ctx, this.currentFrame);
+        // Simulating packet network latency
+        setTimeout(() => {
+            this.logToTerminal("[SERVER]: Sync Successful! Connection verified.", "success");
+            this.logToTerminal(`[SERVER]: Operator spawned in LOBBY_09 with latent latency: ${Math.floor(Math.random()*15 + 10)}ms`, "success");
+            this.logToTerminal("===============================================", "success");
+            
+            alert(`OPERATOR DEPLOYED!\nLoadout Token: ${manifest.token}\nSync code: 200 OK.`);
+        }, 600);
     }
 
-    // --- ALGORITHMIC BLITTING PIPELINE (TINT MULTIPLY GENERATOR) ---
-    renderFrame(targetContext, frameIndex, offsetX = 0, offsetY = 0) {
-        const frameKey = `frame${frameIndex}`;
+    copyManifestToClipboard() {
+        Audio.triggerSelect();
+        const input = document.getElementById('dna-manifest');
+        input.select();
+        document.execCommand('copy');
         
-        // Reset or clear frame dimensions
-        targetContext.clearRect(offsetX, offsetY, 16, 16);
-
-        // Layer 1: Draw base flesh profile
-        this.blitLayer(targetContext, SPRITE_SHEET_ASSETS.skin[frameKey], this.state.skinColor, offsetX, offsetY);
+        this.logToTerminal("Manifest Token copied to system clipboard successfully.", "warning");
         
-        // Layer 2: Draw active outfit layout overlay
-        this.blitLayer(targetContext, SPRITE_SHEET_ASSETS.outfit[this.state.outfitStyle][frameKey], this.state.outfitColor, offsetX, offsetY);
-        
-        // Layer 3: Draw head hair configurations
-        this.blitLayer(targetContext, SPRITE_SHEET_ASSETS.hair[this.state.hairStyle][frameKey], this.state.hairColor, offsetX, offsetY);
+        const copyBtn = document.getElementById('copy-manifest-btn');
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = "COPIED!";
+        copyBtn.style.backgroundColor = "var(--pubg-orange)";
+        copyBtn.style.color = "#000";
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.style.backgroundColor = "";
+            copyBtn.style.color = "";
+        }, 1200);
     }
 
-    blitLayer(context, assetData, hexColor, dx, dy) {
-        if (!assetData) return;
+    randomizeConfiguration() {
+        Audio.triggerRandomizer();
+        
+        const heads = ['none', 'cap_mil', 'helm_03'];
+        const torsos = ['jacket_camo', 'vest_heavy', 'suit_ghillie'];
+        const legs = ['pants_cargo', 'pants_digital'];
+        const weapons = ['none', 'm416', 'awm'];
+        const holsters = ['BACK', 'HAND'];
 
-        // Parse hex arrays down into native numerical RGB profiles for tint blending
-        const rgb = this.hexToRGB(hexColor);
+        const selectRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-        for (let y = 0; y < assetData.length; y++) {
-            for (let x = 0; x < 16; x++) {
-                let char = assetData[y][x];
-                if (char === '.') continue; // Skip transparency vectors
+        this.state.head = selectRandom(heads);
+        this.state.torso = selectRandom(torsos);
+        this.state.legs = selectRandom(legs);
+        this.state.weapon = selectRandom(weapons);
+        this.state.holsterPos = selectRandom(holsters);
 
-                // Mathematical Shading Matrix Multipliers
-                let factor = 1.0;
-                if (char === '0') factor = 1.3; // Highlight pop
-                if (char === '2') factor = 0.6; // Shadow depth
+        // Sync buttons active classes in HUD dashboard
+        this.syncCategoryUI('row-head', this.state.head, 'label-head');
+        this.syncCategoryUI('row-torso', this.state.torso, 'label-torso');
+        this.syncCategoryUI('row-legs', this.state.legs, 'label-legs');
+        this.syncCategoryUI('row-weapon', this.state.weapon, 'label-weapon');
+        this.syncCategoryUI('row-holster', this.state.holsterPos, 'label-holster');
 
-                let r = Math.min(255, Math.floor(rgb.r * factor));
-                let g = Math.min(255, Math.floor(rgb.g * factor));
-                let b = Math.min(255, Math.floor(rgb.b * factor));
+        this.compositePipeline();
+        this.updateManifestToken();
 
-                context.fillStyle = `rgb(${r},${g},${b})`;
-                context.fillRect(dx + x, dy + y, 1, 1);
-            }
-        }
+        this.logToTerminal(`Operator Randomized: ${document.getElementById('dna-manifest').value}`, "warning");
     }
 
-    hexToRGB(hex) {
-        // Clean hex code from picking artifacts
-        let cleanHex = hex.replace('#', '');
-        if (cleanHex.length === 3) {
-            cleanHex = cleanHex.split('').map(c => c + c).join('');
-        }
-        let num = parseInt(cleanHex, 16);
-        return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    syncCategoryUI(containerId, activeId, labelId) {
+        const container = document.getElementById(containerId);
+        container.querySelector('.gear-btn.active').classList.remove('active');
+        const activeBtn = container.querySelector(`[data-id="${activeId}"]`);
+        activeBtn.classList.add('active');
+        document.getElementById(labelId).textContent = activeBtn.textContent.toUpperCase();
     }
 
-    // --- AUTOMATED BATCH EXPORTER ---
-    generateSpriteSheetPNG() {
-        // Instantiating a temporary detached canvas matrix sheet payload holder
-        const exportCanvas = document.createElement('canvas');
-        exportCanvas.width = 32;  // 2 Frames wide (16px * 2)
-        exportCanvas.height = 16; // 1 Frame tall
-        const exportCtx = exportCanvas.getContext('2d');
-
-        // Draw every standalone frame sequence sequentially across horizontal timeline tracks
-        this.renderFrame(exportCtx, 0, 0, 0);  // Frame 0 at X: 0
-        this.renderFrame(exportCtx, 1, 16, 0); // Frame 1 at X: 16
-
-        const anchor = document.createElement('a');
-        anchor.download = `spritesheet_${document.getElementById('dna-str').value}.png`;
-        anchor.href = exportCanvas.toDataURL('image/png');
-        anchor.click();
+    logToTerminal(text, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const line = document.createElement('div');
+        line.className = `terminal-line ${type}`;
+        line.textContent = `[${timestamp}] ${text}`;
+        
+        this.terminalLogsElement.appendChild(line);
+        this.terminalLogsElement.scrollTop = this.terminalLogsElement.scrollHeight;
     }
 }
 
-// Instantiate engine core
-const game = new SpriteCompositor();
+// Boot Character Customization Loop
+const app = new TacticalHolsterCreator();
 </script>
 </body>
 </html>
