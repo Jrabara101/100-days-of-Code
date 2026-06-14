@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Staff Architected Pixel Character Animator</title>
+    <!-- Google Fonts for Modern and Retro aesthetic combination -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060913;
+            --panel: rgba(15, 23, 42, 0.65);
+            --border: #1e293b;
+            --border-active: #38bdf8;
+            --accent: #00f0ff;
+            --accent-glow: rgba(0, 240, 255, 0.4);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 20px;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+                radial-gradient(at 50% 0%, rgba(14, 165, 233, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
+            user-select: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #00f0ff, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 span {
+            font-size: 10px;
+            font-family: 'Courier Prime', monospace;
+            padding: 2px 6px;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .audio-toggle {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .audio-toggle:hover {
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        .audio-toggle.active {
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .creator-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .creator-grid {
+                grid-template-columns: 320px 1fr;
+            }
+        }
+
+        /* Preview Pane Styling */
+        .preview-pane {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .canvas-container {
+            position: relative;
+            margin-bottom: 20px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+            width: 224px;
+            height: 224px;
+            background: #070b19;
+            border-radius: 6px;
+            transition: transform 0.2s ease;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 224px;
+            height: 224px;
+            pointer-events: none;
+            background-size: 14px 14px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .grid-overlay.visible {
+            opacity: 1;
+        }
+
+        .preview-controls {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .anim-speed-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 11px;
+            font-family: 'Courier Prime', monospace;
+            color: var(--text-secondary);
+        }
+
+        .anim-speed-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent);
+            height: 4px;
+            cursor: pointer;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .action-btn {
+            background: #1e1b4b;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            font-weight: 600;
+            font-family: inherit;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .action-btn:hover {
+            border-color: var(--text-secondary);
+            background: rgba(30, 27, 75, 0.8);
+        }
+
+        .action-btn.primary {
+            background: var(--accent);
+            color: #020617;
+            border-color: var(--accent);
+            font-weight: 700;
+            flex: 2;
+        }
+
+        .action-btn.primary:hover {
+            box-shadow: 0 0 15px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .dna-box {
+            width: 100%;
+            margin-top: 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .dna-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            font-family: 'Courier Prime', monospace;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .dna-input-wrapper {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dna-input {
+            flex: 1;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--accent);
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            padding: 6px;
+            border-radius: 4px;
+            outline: none;
+            text-align: center;
+        }
+
+        .dna-input:focus {
+            border-color: var(--accent);
+        }
+
+        .copy-btn {
+            background: var(--border);
+            border: none;
+            color: var(--text-primary);
+            padding: 0 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--border-active);
+        }
+
+        /* Controls Pane Styling */
+        .controls-pane {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .control-group:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .group-label {
+            font-size: 10px;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #a5b4fc;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .style-selector {
+            display: flex;
+            gap: 6px;
+        }
+
+        .style-btn {
+            flex: 1;
+            background: rgba(30, 41, 59, 0.4);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 8px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .style-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .style-btn.active {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            border-color: var(--accent);
+            text-shadow: 0 0 6px var(--accent-glow);
+        }
+
+        .palette-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .color-swatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 10px var(--accent-glow);
+            transform: scale(1.05);
+        }
+
+        /* Custom color picker wrapper */
+        .color-picker-wrapper {
+            position: relative;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px dashed var(--text-secondary);
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .color-picker-wrapper:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 38px;
+            height: 38px;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        .color-picker-wrapper span {
+            font-size: 14px;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .color-picker-wrapper:hover span {
+            color: var(--accent);
+        }
+
+        .footer-info {
+            text-align: center;
+            font-size: 10px;
+            font-family: 'Courier Prime', monospace;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Pixel Compositor <span>v1.2.0-Staff</span></h1>
+        <button id="sound-toggle" class="audio-toggle active">🔊 Audio Synthesizer: ON</button>
+    </div>
+
+    <div class="creator-grid">
+        <!-- Live Preview Component -->
+        <div class="preview-pane">
+            <div class="canvas-container">
+                <canvas id="stageCanvas" width="16" height="16"></canvas>
+                <div id="gridOverlay" class="grid-overlay"></div>
+            </div>
+
+            <div class="preview-controls">
+                <div class="anim-speed-row">
+                    <label>Frame Sequencer Ticker Speed</label>
+                    <input type="range" id="speed-slider" min="100" max="600" step="50" value="250">
+                    <span id="speed-lbl">250ms</span>
+                </div>
+
+                <div class="btn-group">
+                    <button id="play-pause-btn" class="action-btn" title="Toggle Playback">⏸</button>
+                    <button id="grid-toggle-btn" class="action-btn" title="Toggle Pixel Grid">🌐 Grid</button>
+                    <button id="random-btn" class="action-btn" style="flex: 1;" title="Randomize Attributes">🎲 Random</button>
+                </div>
+
+                <div class="btn-group" style="margin-top: 4px;">
+                    <button id="export-btn" class="action-btn primary">💾 Export Sheet (.png)</button>
+                </div>
+            </div>
+
+            <div class="dna-box">
+                <div class="dna-header">
+                    <span>Cosmetic State DNA Code</span>
+                </div>
+                <div class="dna-input-wrapper">
+                    <input type="text" id="dna-str" class="dna-input" placeholder="00_fbcbc3|00_b15c25|00_0284c7">
+                    <button id="copy-dna-btn" class="copy-btn">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customization Configurator -->
+        <div class="controls-pane">
+            <!-- SKIN CONFIG -->
+            <div class="control-group">
+                <div class="group-label">
+                    <span>Skin Complexion</span>
+                    <span id="skin-label-val" style="color: var(--text-secondary);">Skin 0</span>
+                </div>
+                <div class="palette-row" id="skin-palette">
+                    <!-- Swatches filled dynamically -->
+                    <div class="color-picker-wrapper" title="Custom Skin Tone">
+                        <span>＋</span>
+                        <input type="color" id="skin-custom-picker" value="#fbcbc3">
+                    </div>
+                </div>
+            </div>
+
+            <!-- HAIR CONFIG -->
+            <div class="control-group">
+                <div class="group-label">
+                    <span>Hair Style & Tint</span>
+                    <span id="hair-label-val" style="color: var(--text-secondary);">Style: Short</span>
+                </div>
+                <div class="style-selector" id="hair-styles">
+                    <button data-index="0" class="style-btn active">Short Crop</button>
+                    <button data-index="1" class="style-btn">Mohawk Spiky</button>
+                </div>
+                <div class="palette-row" id="hair-palette" style="margin-top: 8px;">
+                    <!-- Swatches filled dynamically -->
+                    <div class="color-picker-wrapper" title="Custom Hair Color">
+                        <span>＋</span>
+                        <input type="color" id="hair-custom-picker" value="#b15c25">
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTFIT CONFIG -->
+            <div class="control-group">
+                <div class="group-label">
+                    <span>Outfit Layer Model</span>
+                    <span id="outfit-label-val" style="color: var(--text-secondary);">Style: Tunics</span>
+                </div>
+                <div class="style-selector" id="outfit-styles">
+                    <button data-index="0" class="style-btn active">Adventurer Tunic</button>
+                    <button data-index="1" class="style-btn">Sorcerer Robes</button>
+                </div>
+                <div class="palette-row" id="outfit-palette" style="margin-top: 8px;">
+                    <!-- Swatches filled dynamically -->
+                    <div class="color-picker-wrapper" title="Custom Outfit Color">
+                        <span>＋</span>
+                        <input type="color" id="outfit-custom-picker" value="#0284c7">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        Procedural Grayscale Masking Matrix • High Fidelity Engine Integration Mode
+    </div>
+</div>
+
+<script>
+// --- PROCEDURAL GRAYSCALE BITMAPS (2-Frame Walking Loops) ---
+// '.' = Transparent, '0' = Highlight, '1' = Midtone, '2' = Shadow
+const SPRITE_SHEET_ASSETS = {
+    skin: {
+        frame0: [ // Frame 0: Idle/Stand
+            '................', '......111.......', '.....11011......', '.....11111......',
+            '......111.......', '.....21112......', '.....11111......', '.....11111......',
+            '.....11111......', '.....11111......', '.....11111......', '......1.1.......'
+        ],
+        frame1: [ // Frame 1: Stride Step
+            '................', '......111.......', '.....11011......', '.....11111......',
+            '......111.......', '.....21112......', '.....11111......', '.....11111......',
+            '.....11111......', '.....11111......', '.....11111......', '.....1...1......'
+        ]
+    },
+    hair: {
+        0: { // Style 0: Short Crop
+            frame0: ['......222.......', '.....22022......', '................'],
+            frame1: ['......222.......', '.....22022......', '................']
+        },
+        1: { // Style 1: Spiky Mohawk
+            frame0: ['......020.......', '.....22022......', '................'],
+            frame1: ['......020.......', '.....22022......', '................']
+        }
+    },
+    outfit: {
+        0: { // Style 0: Adventurer Tunic
+            frame0: [
+                '................', '................', '................', '................',
+                '......111.......', '.....11211......', '.....12221......', '.....11211......',
+                '.....11111......', '.....22.22......', '.....22.22......', '................'
+            ],
+            frame1: [
+                '................', '................', '................', '................',
+                '......111.......', '.....11211......', '.....12221......', '.....11211......',
+                '.....11111......', '....22...22.....', '....22...22.....', '................'
+            ]
+        },
+        1: { // Style 1: Sorcerer Robes
+            frame0: [
+                '................', '................', '................', '................',
+                '......212.......', '.....21012......', '.....20102......', '.....21012......',
+                '.....21012......', '.....21112......', '.....22222......', '................'
+            ],
+            frame1: [
+                '................', '................', '................', '................',
+                '......212.......', '.....21012......', '.....20102......', '.....21012......',
+                '.....21012......', '....22...22.....', '....22...22.....', '................'
+            ]
+        }
+    }
+};
+
+const COLOR_MAPS = {
+    skin:   ['#fbcbc3', '#e0a99f', '#8a5a44', '#f1c232', '#c27ba0', '#4a86e8'],
+    hair:   ['#1a0f08', '#b15c25', '#e2b13c', '#980000', '#351c75', '#00f0ff'],
+    outfit: ['#0284c7', '#16a34a', '#e11d48', '#d97706', '#7c3aed', '#db2777']
+};
+
+// --- AUDIO SYNTH MATRIX (Procedural retro audio triggers) ---
+class WebAudioSynth {
+    constructor() {
+        this.ctx = null;
+        this.enabled = true;
+    }
+
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    playTone(frequency, type, duration, volume) {
+        if (!this.enabled) return;
+        this.init();
+        try {
+            if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
+            
+            gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start();
+            osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+            console.error("Audio trigger failed: ", e);
+        }
+    }
+
+    triggerSelect() {
+        this.playTone(330, 'square', 0.08, 0.08);
+    }
+
+    triggerStyleChange() {
+        this.playTone(180, 'triangle', 0.1, 0.15);
+        setTimeout(() => this.playTone(270, 'triangle', 0.06, 0.12), 40);
+    }
+
+    triggerRandom() {
+        this.playTone(220, 'sawtooth', 0.05, 0.05);
+        setTimeout(() => this.playTone(440, 'square', 0.05, 0.05), 50);
+        setTimeout(() => this.playTone(880, 'square', 0.08, 0.06), 100);
+    }
+
+    triggerExport() {
+        this.playTone(523.25, 'sine', 0.1, 0.1); // C5
+        setTimeout(() => this.playTone(659.25, 'sine', 0.1, 0.1), 100); // E5
+        setTimeout(() => this.playTone(783.99, 'sine', 0.15, 0.1), 200); // G5
+        setTimeout(() => this.playTone(1046.50, 'sine', 0.25, 0.15), 300); // C6
+    }
+}
+
+const Audio = new WebAudioSynth();
+
+class SpriteCompositor {
+    constructor() {
+        this.canvas = document.getElementById('stageCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        // State Object (DNA Mapping standard payload)
+        this.state = {
+            skinStyle: 0,
+            skinColor: COLOR_MAPS.skin[0],
+            hairStyle: 0,
+            hairColor: COLOR_MAPS.hair[1],
+            outfitStyle: 0,
+            outfitColor: COLOR_MAPS.outfit[0]
+        };
+
+        this.currentFrame = 0;
+        this.playbackSpeed = 250;
+        this.isPlaying = true;
+        this.tickerIntervalId = null;
+
+        this.initUI();
+        this.startPlaybackTicker();
+        
+        // Sync UI options state to setup initial DNA
+        this.updateDNAString();
+    }
+
+    initUI() {
+        // Build the swatches dynamically
+        this.buildPaletteRow('skin-palette', COLOR_MAPS.skin, 'skinColor', 'skin-custom-picker');
+        this.buildPaletteRow('hair-palette', COLOR_MAPS.hair, 'hairColor', 'hair-custom-picker');
+        this.buildPaletteRow('outfit-palette', COLOR_MAPS.outfit, 'outfitColor', 'outfit-custom-picker');
+
+        // Style toggles
+        this.bindStyleToggles('hair-styles', 'hairStyle', (val) => {
+            document.getElementById('hair-label-val').textContent = val === 0 ? 'Style: Short' : 'Style: Mohawk';
+        });
+        this.bindStyleToggles('outfit-styles', 'outfitStyle', (val) => {
+            document.getElementById('outfit-label-val').textContent = val === 0 ? 'Style: Tunics' : 'Style: Robes';
+        });
+
+        // Speed Slider Control
+        const slider = document.getElementById('speed-slider');
+        const speedLbl = document.getElementById('speed-lbl');
+        slider.oninput = (e) => {
+            this.playbackSpeed = parseInt(e.target.value);
+            speedLbl.textContent = `${this.playbackSpeed}ms`;
+            if (this.isPlaying) {
+                this.restartPlaybackTicker();
+            }
+        };
+
+        // Play/Pause Control
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        playPauseBtn.onclick = () => {
+            Audio.triggerSelect();
+            if (this.isPlaying) {
+                this.isPlaying = false;
+                playPauseBtn.textContent = '▶';
+                clearInterval(this.tickerIntervalId);
+            } else {
+                this.isPlaying = true;
+                playPauseBtn.textContent = '⏸';
+                this.startPlaybackTicker();
+            }
+        };
+
+        // Grid Toggle Control
+        const gridBtn = document.getElementById('grid-toggle-btn');
+        const gridOverlay = document.getElementById('gridOverlay');
+        gridBtn.onclick = () => {
+            Audio.triggerSelect();
+            const visible = gridOverlay.classList.toggle('visible');
+            gridBtn.classList.toggle('active', visible);
+        };
+
+        // Sound Toggle Button
+        const soundBtn = document.getElementById('sound-toggle');
+        soundBtn.onclick = () => {
+            Audio.enabled = !Audio.enabled;
+            soundBtn.classList.toggle('active', Audio.enabled);
+            soundBtn.textContent = Audio.enabled ? '🔊 Audio Synthesizer: ON' : '🔇 Audio Synthesizer: OFF';
+            if (Audio.enabled) Audio.triggerSelect();
+        };
+
+        // Randomizer Control
+        document.getElementById('random-btn').onclick = () => {
+            this.randomizeCharacter();
+        };
+
+        // DNA string input direct loader
+        const dnaInput = document.getElementById('dna-str');
+        dnaInput.onchange = (e) => {
+            this.loadStateFromDNA(e.target.value);
+        };
+
+        // DNA string copy button
+        document.getElementById('copy-dna-btn').onclick = () => {
+            dnaInput.select();
+            document.execCommand('copy');
+            Audio.triggerSelect();
+            const origText = document.getElementById('copy-dna-btn').textContent;
+            document.getElementById('copy-dna-btn').textContent = 'Copied!';
+            setTimeout(() => {
+                document.getElementById('copy-dna-btn').textContent = origText;
+            }, 1000);
+        };
+
+        // Exporter
+        document.getElementById('export-btn').onclick = () => {
+            Audio.triggerExport();
+            this.generateSpriteSheetPNG();
+        };
+    }
+
+    buildPaletteRow(elementId, hexArray, stateTarget, customPickerId) {
+        const row = document.getElementById(elementId);
+        
+        // Clear old swatches but keep custom picker (which is last element)
+        const customPickerWrapper = row.querySelector('.color-picker-wrapper');
+        while (row.firstChild !== customPickerWrapper) {
+            row.removeChild(row.firstChild);
+        }
+
+        // Add standard color swatches
+        hexArray.forEach((color, i) => {
+            let swatch = document.createElement('div');
+            swatch.className = `color-swatch`;
+            swatch.style.backgroundColor = color;
+            swatch.title = color;
+            if (this.state[stateTarget].toLowerCase() === color.toLowerCase()) {
+                swatch.classList.add('active');
+            }
+            swatch.onclick = () => {
+                Audio.triggerSelect();
+                const activeSwatch = row.querySelector('.color-swatch.active');
+                if (activeSwatch) activeSwatch.classList.remove('active');
+                swatch.classList.add('active');
+
+                // Reset custom picker preview
+                customPickerWrapper.style.backgroundColor = '';
+                customPickerWrapper.querySelector('span').style.color = '';
+                
+                this.state[stateTarget] = color;
+                this.updateDNAString();
+                this.renderFrame(this.ctx, this.currentFrame);
+            };
+            row.insertBefore(swatch, customPickerWrapper);
+        });
+
+        // Set up custom color picker callbacks
+        const picker = document.getElementById(customPickerId);
+        picker.oninput = (e) => {
+            const pickedColor = e.target.value;
+            const activeSwatch = row.querySelector('.color-swatch.active');
+            if (activeSwatch) activeSwatch.classList.remove('active');
+            
+            // Visual indicator for custom picked color
+            customPickerWrapper.style.backgroundColor = pickedColor;
+            customPickerWrapper.querySelector('span').style.color = '#fff';
+            
+            this.state[stateTarget] = pickedColor;
+            this.updateDNAString();
+            this.renderFrame(this.ctx, this.currentFrame);
+        };
+    }
+
+    bindStyleToggles(containerId, stateTarget, onStyleUpdate) {
+        const box = document.getElementById(containerId);
+        box.querySelectorAll('button').forEach(btn => {
+            btn.onclick = () => {
+                Audio.triggerStyleChange();
+                box.querySelector('button.active').classList.remove('active');
+                btn.classList.add('active');
+                const val = parseInt(btn.dataset.index);
+                this.state[stateTarget] = val;
+                if (onStyleUpdate) onStyleUpdate(val);
+                this.updateDNAString();
+                this.renderFrame(this.ctx, this.currentFrame);
+            };
+        });
+    }
+
+    startPlaybackTicker() {
+        this.tickerIntervalId = setInterval(() => {
+            this.currentFrame = this.currentFrame === 0 ? 1 : 0;
+            this.renderFrame(this.ctx, this.currentFrame);
+        }, this.playbackSpeed);
+    }
+
+    restartPlaybackTicker() {
+        clearInterval(this.tickerIntervalId);
+        this.startPlaybackTicker();
+    }
+
+    // --- STATE DNA SERIALIZATION ---
+    // Serializes state in hexadecimal format: 00_fbcbc3|01_b15c25|00_0284c7
+    // Segment 1: SkinStyle_SkinColor
+    // Segment 2: HairStyle_HairColor
+    // Segment 3: OutfitStyle_OutfitColor
+    updateDNAString() {
+        const skinColorClean = this.state.skinColor.replace('#', '');
+        const hairColorClean = this.state.hairColor.replace('#', '');
+        const outfitColorClean = this.state.outfitColor.replace('#', '');
+        
+        const dna = `00_${skinColorClean}|0${this.state.hairStyle}_${hairColorClean}|0${this.state.outfitStyle}_${outfitColorClean}`;
+        document.getElementById('dna-str').value = dna;
+    }
+
+    loadStateFromDNA(dnaString) {
+        try {
+            const segments = dnaString.split('|');
+            if (segments.length !== 3) throw new Error("Invalid DNA token size");
+
+            const skin = segments[0].split('_');
+            const hair = segments[1].split('_');
+            const outfit = segments[2].split('_');
+
+            if (skin.length !== 2 || hair.length !== 2 || outfit.length !== 2) throw new Error("Format mismatch");
+
+            this.state.skinColor = '#' + skin[1];
+            this.state.hairStyle = parseInt(hair[0]);
+            this.state.hairColor = '#' + hair[1];
+            this.state.outfitStyle = parseInt(outfit[0]);
+            this.state.outfitColor = '#' + outfit[1];
+
+            // Re-sync UI inputs visually
+            this.syncUIToState();
+            
+            // Re-render
+            this.renderFrame(this.ctx, this.currentFrame);
+            Audio.triggerRandom();
+        } catch (e) {
+            console.error("DNA Load failed, reverting DNA string to matches: ", e);
+            this.updateDNAString();
+        }
+    }
+
+    syncUIToState() {
+        // Update palettes active selections
+        const syncPaletteActive = (elementId, colorVal) => {
+            const row = document.getElementById(elementId);
+            const swatches = row.querySelectorAll('.color-swatch');
+            let matched = false;
+            swatches.forEach(swatch => {
+                const bg = swatch.style.backgroundColor;
+                // convert to hex
+                const hex = this.rgbToHex(bg) || bg;
+                if (hex.toLowerCase() === colorVal.toLowerCase()) {
+                    swatch.classList.add('active');
+                    matched = true;
+                } else {
+                    swatch.classList.remove('active');
+                }
+            });
+
+            const customPickerWrapper = row.querySelector('.color-picker-wrapper');
+            if (!matched) {
+                // Highlight custom picker since it's a custom color
+                customPickerWrapper.style.backgroundColor = colorVal;
+                customPickerWrapper.querySelector('span').style.color = '#fff';
+            } else {
+                customPickerWrapper.style.backgroundColor = '';
+                customPickerWrapper.querySelector('span').style.color = '';
+            }
+        };
+
+        syncPaletteActive('skin-palette', this.state.skinColor);
+        syncPaletteActive('hair-palette', this.state.hairColor);
+        syncPaletteActive('outfit-palette', this.state.outfitColor);
+
+        // Sync Custom Picker values
+        document.getElementById('skin-custom-picker').value = this.state.skinColor;
+        document.getElementById('hair-custom-picker').value = this.state.hairColor;
+        document.getElementById('outfit-custom-picker').value = this.state.outfitColor;
+
+        // Update active buttons styles
+        const syncButtons = (containerId, val) => {
+            const box = document.getElementById(containerId);
+            box.querySelectorAll('button').forEach(btn => {
+                if (parseInt(btn.dataset.index) === val) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        };
+
+        syncButtons('hair-styles', this.state.hairStyle);
+        syncButtons('outfit-styles', this.state.outfitStyle);
+
+        // Labels
+        document.getElementById('hair-label-val').textContent = this.state.hairStyle === 0 ? 'Style: Short' : 'Style: Mohawk';
+        document.getElementById('outfit-label-val').textContent = this.state.outfitStyle === 0 ? 'Style: Tunics' : 'Style: Robes';
+    }
+
+    rgbToHex(rgb) {
+        if (/^rgb/.test(rgb)) {
+            const rgbValues = rgb.match(/\d+/g);
+            const hex = rgbValues.map(val => {
+                const hexVal = parseInt(val).toString(16);
+                return hexVal.length === 1 ? '0' + hexVal : hexVal;
+            }).join('');
+            return '#' + hex;
+        }
+        return rgb;
+    }
+
+    randomizeCharacter() {
+        Audio.triggerRandom();
+
+        const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        
+        // Random style indices (0 or 1)
+        this.state.hairStyle = Math.random() < 0.5 ? 0 : 1;
+        this.state.outfitStyle = Math.random() < 0.5 ? 0 : 1;
+
+        // Custom random color generation or select from preset
+        const randColor = () => '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+        
+        this.state.skinColor = Math.random() < 0.7 ? pickRandom(COLOR_MAPS.skin) : randColor();
+        this.state.hairColor = Math.random() < 0.7 ? pickRandom(COLOR_MAPS.hair) : randColor();
+        this.state.outfitColor = Math.random() < 0.7 ? pickRandom(COLOR_MAPS.outfit) : randColor();
+
+        // Sync and render
+        this.syncUIToState();
+        this.updateDNAString();
+        this.renderFrame(this.ctx, this.currentFrame);
+    }
+
+    // --- ALGORITHMIC BLITTING PIPELINE (TINT MULTIPLY GENERATOR) ---
+    renderFrame(targetContext, frameIndex, offsetX = 0, offsetY = 0) {
+        const frameKey = `frame${frameIndex}`;
+        
+        // Reset or clear frame dimensions
+        targetContext.clearRect(offsetX, offsetY, 16, 16);
+
+        // Layer 1: Draw base flesh profile
+        this.blitLayer(targetContext, SPRITE_SHEET_ASSETS.skin[frameKey], this.state.skinColor, offsetX, offsetY);
+        
+        // Layer 2: Draw active outfit layout overlay
+        this.blitLayer(targetContext, SPRITE_SHEET_ASSETS.outfit[this.state.outfitStyle][frameKey], this.state.outfitColor, offsetX, offsetY);
+        
+        // Layer 3: Draw head hair configurations
+        this.blitLayer(targetContext, SPRITE_SHEET_ASSETS.hair[this.state.hairStyle][frameKey], this.state.hairColor, offsetX, offsetY);
+    }
+
+    blitLayer(context, assetData, hexColor, dx, dy) {
+        if (!assetData) return;
+
+        // Parse hex arrays down into native numerical RGB profiles for tint blending
+        const rgb = this.hexToRGB(hexColor);
+
+        for (let y = 0; y < assetData.length; y++) {
+            for (let x = 0; x < 16; x++) {
+                let char = assetData[y][x];
+                if (char === '.') continue; // Skip transparency vectors
+
+                // Mathematical Shading Matrix Multipliers
+                let factor = 1.0;
+                if (char === '0') factor = 1.3; // Highlight pop
+                if (char === '2') factor = 0.6; // Shadow depth
+
+                let r = Math.min(255, Math.floor(rgb.r * factor));
+                let g = Math.min(255, Math.floor(rgb.g * factor));
+                let b = Math.min(255, Math.floor(rgb.b * factor));
+
+                context.fillStyle = `rgb(${r},${g},${b})`;
+                context.fillRect(dx + x, dy + y, 1, 1);
+            }
+        }
+    }
+
+    hexToRGB(hex) {
+        // Clean hex code from picking artifacts
+        let cleanHex = hex.replace('#', '');
+        if (cleanHex.length === 3) {
+            cleanHex = cleanHex.split('').map(c => c + c).join('');
+        }
+        let num = parseInt(cleanHex, 16);
+        return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    }
+
+    // --- AUTOMATED BATCH EXPORTER ---
+    generateSpriteSheetPNG() {
+        // Instantiating a temporary detached canvas matrix sheet payload holder
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = 32;  // 2 Frames wide (16px * 2)
+        exportCanvas.height = 16; // 1 Frame tall
+        const exportCtx = exportCanvas.getContext('2d');
+
+        // Draw every standalone frame sequence sequentially across horizontal timeline tracks
+        this.renderFrame(exportCtx, 0, 0, 0);  // Frame 0 at X: 0
+        this.renderFrame(exportCtx, 1, 16, 0); // Frame 1 at X: 16
+
+        const anchor = document.createElement('a');
+        anchor.download = `spritesheet_${document.getElementById('dna-str').value}.png`;
+        anchor.href = exportCanvas.toDataURL('image/png');
+        anchor.click();
+    }
+}
+
+// Instantiate engine core
+const game = new SpriteCompositor();
+</script>
+</body>
+</html>

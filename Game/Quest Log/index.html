@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Staff Architected Quest Log System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg: #07090e;
+            --panel: #0f131a;
+            --panel-light: #181f2a;
+            --border: #2a3444;
+            --border-glow: rgba(56, 189, 248, 0.25);
+            --accent-blue: #38bdf8;
+            --accent-green: #10b981;
+            --accent-gold: #fbbf24;
+            --text: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-purple: #a855f7;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(15, 19, 26, 1) 0%, rgba(7, 9, 14, 1) 100%);
+        }
+
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .app-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 28px;
+            letter-spacing: 4px;
+            margin: 0 0 4px 0;
+            background: linear-gradient(to right, #fbbf24, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+        }
+
+        .app-header .subtitle {
+            font-size: 11px;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        .interface-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            height: 500px;
+        }
+
+        /* Split-Pane Interface Box */
+        .quest-interface {
+            flex: 2;
+            display: flex;
+            background: var(--panel);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .quest-interface::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(to right, transparent, var(--border-glow), transparent);
+        }
+
+        /* Left Sidebar: Filtering and Selection list */
+        .sidebar {
+            width: 38%;
+            border-right: 2px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border);
+            background: var(--panel-light);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 14px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .tab-btn:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .tab-btn.active {
+            color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0; right: 0; height: 2px;
+            background: var(--accent-blue);
+            box-shadow: 0 0 10px var(--accent-blue);
+        }
+
+        .quest-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Customize scrollbar */
+        .quest-list::-webkit-scrollbar,
+        .details-pane::-webkit-scrollbar,
+        .logger-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .quest-list::-webkit-scrollbar-track,
+        .details-pane::-webkit-scrollbar-track,
+        .logger-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .quest-list::-webkit-scrollbar-thumb,
+        .details-pane::-webkit-scrollbar-thumb,
+        .logger-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        .quest-list::-webkit-scrollbar-thumb:hover,
+        .details-pane::-webkit-scrollbar-thumb:hover,
+        .logger-content::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+        
+        .quest-item-card {
+            padding: 16px;
+            background: var(--panel-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .quest-item-card:hover {
+            border-color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.03);
+            transform: translateX(2px);
+        }
+        .quest-item-card.selected {
+            border-color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.08);
+            box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.08);
+        }
+        .quest-item-card.selected::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0; width: 3px;
+            background: var(--accent-blue);
+            box-shadow: 0 0 10px var(--accent-blue);
+        }
+        .quest-item-card.ready-turnin {
+            border-color: var(--accent-gold);
+            background: rgba(251, 191, 36, 0.04);
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+        .quest-item-card.ready-turnin.selected {
+            background: rgba(251, 191, 36, 0.08);
+        }
+        .quest-item-card.ready-turnin::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0; width: 3px;
+            background: var(--accent-gold);
+            box-shadow: 0 0 10px var(--accent-gold);
+        }
+
+        .quest-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+        .quest-card-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Right Window Pane: Granular Quest Details */
+        .details-pane {
+            width: 62%;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            background: radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.02) 0%, transparent 50%);
+        }
+        .empty-state {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 14px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .quest-title-header {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        .quest-description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin: 0;
+            background: rgba(255, 255, 255, 0.01);
+            padding: 16px;
+            border-left: 2px solid var(--border);
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Objective Progress Items */
+        .objective-section h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--accent-blue);
+            letter-spacing: 1px;
+            margin: 0 0 12px 0;
+        }
+        .objective-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .objective-row {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        .objective-row:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .objective-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+        .objective-row.complete {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.02);
+        }
+        .objective-row.complete .objective-meta {
+            color: var(--accent-green);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: #374151;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-blue);
+            width: 0%;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .objective-row.complete .progress-fill {
+            background: var(--accent-green);
+        }
+
+        .claim-btn {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+            margin-top: 15px;
+            align-self: flex-start;
+        }
+        .claim-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        .claim-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Event Logger Pane (Right Sidebar style) */
+        .event-logger-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+        }
+
+        .logger-header {
+            background: var(--panel-light);
+            border-bottom: 2px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logger-header h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            color: var(--accent-purple);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-purple);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-purple);
+            animation: pulseGlowDot 1s infinite alternate;
+        }
+
+        .logger-content {
+            flex: 1;
+            padding: 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .log-row {
+            padding: 6px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 2px solid #4b5563;
+            line-height: 1.4;
+            animation: slideInLog 0.25s ease-out;
+            word-break: break-all;
+        }
+
+        .log-row.event-in {
+            border-left-color: var(--accent-purple);
+            color: #d8b4fe;
+            background: rgba(168, 85, 247, 0.03);
+        }
+
+        .log-row.state-change {
+            border-left-color: var(--accent-blue);
+            color: #bae6fd;
+            background: rgba(56, 189, 248, 0.03);
+        }
+
+        .log-row.quest-done {
+            border-left-color: var(--accent-gold);
+            color: #fef08a;
+            background: rgba(253, 224, 71, 0.03);
+        }
+
+        .log-row.init {
+            border-left-color: var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        /* Simulation Debug Panel Overlay */
+        .sim-console {
+            background: var(--panel-light);
+            padding: 12px 24px;
+            border-radius: 40px;
+            border: 2px solid var(--border);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        
+        .sim-btn {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .sim-btn:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: var(--accent-blue);
+            transform: translateY(-1px);
+        }
+        .sim-btn:active {
+            transform: translateY(1px);
+        }
+
+        @keyframes pulseGlow {
+            from {
+                box-shadow: 0 0 4px rgba(251, 191, 36, 0.15);
+                border-color: rgba(251, 191, 36, 0.3);
+            }
+            to {
+                box-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
+                border-color: rgba(251, 191, 36, 0.8);
+            }
+        }
+
+        @keyframes pulseGlowDot {
+            from { opacity: 0.4; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInLog {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-wrapper">
+        <header class="app-header">
+            <h1>Arcane Chronicle Ledger</h1>
+            <p class="subtitle">Event-Driven Reactive Quest Tracker</p>
+        </header>
+
+        <div class="interface-container">
+            <!-- Split-Pane Interface Box -->
+            <div class="quest-interface">
+                <div class="sidebar">
+                    <div class="filter-tabs" id="tab-row">
+                        <button class="tab-btn active" data-filter="ACTIVE">Active</button>
+                        <button class="tab-btn" data-filter="COMPLETED">Completed</button>
+                    </div>
+                    <div class="quest-list" id="quest-item-container"></div>
+                </div>
+
+                <div class="details-pane" id="details-view">
+                    <div class="empty-state">Select a chronicle from the ledger to inspect data.</div>
+                </div>
+            </div>
+
+            <!-- Event Bus Stream Log -->
+            <div class="event-logger-pane">
+                <div class="logger-header">
+                    <h3>Event Bus Stream</h3>
+                    <div class="pulse-dot"></div>
+                </div>
+                <div class="logger-content" id="logger-content">
+                    <div class="log-row init">System initialized. Decoupled observers registered.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sim-console">
+            <span style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Simulate Engine Triggers:</span>
+            <button class="sim-btn" onclick="tracker.triggerObjectiveTick('kill_wolves')">🐺 Hunt Wolf</button>
+            <button class="sim-btn" onclick="tracker.triggerObjectiveTick('collect_herbs')">🌿 Gather Herb</button>
+        </div>
+    </div>
+
+<script>
+// --- 1. THE DATA SYSTEM LAYER ---
+const QUEST_DATABASE = {
+    'quest_01': {
+        title: 'Thinning the Pack',
+        desc: 'The wolves of the Timberwood valley have grown aggressive, threatening trade routes. Clear them out to secure the passing merchants.',
+        objectives: {
+            'kill_wolves': { text: 'Hunt Timberwood Wolves', required: 3 }
+        }
+    },
+    'quest_02': {
+        title: 'Runic Concoction',
+        desc: 'The local alchemist requires materials to synthesize a protective warding solution before the eclipse approaches.',
+        objectives: {
+            'collect_herbs': { text: 'Gather Silverleaf Herbs', required: 4 },
+            'kill_wolves':   { text: 'Harvest Wolf Alpha Fangs', required: 1 }
+        }
+    }
+};
+
+// Log helper to capture events
+function logEventToConsole(event, data) {
+    const container = document.getElementById('logger-content');
+    if (!container) return;
+
+    let text = `[Emit] ${event}`;
+    let typeClass = '';
+    
+    if (event === 'ENGINE_OBJECTIVE_TICK') {
+        text = `📡 EventBus: emit('ENGINE_OBJECTIVE_TICK', { objectiveID: '${data.objectiveID}', amount: ${data.amount} })`;
+        typeClass = 'event-in';
+    } else if (event === 'QUEST_TRACKING_SYNCED') {
+        text = `🔄 EventBus: emit('QUEST_TRACKING_SYNCED') -> Repainting Observers`;
+        typeClass = 'state-change';
+    } else {
+        text = `🔔 EventBus: emit('${event}')`;
+    }
+
+    const row = document.createElement('div');
+    row.className = `log-row ${typeClass}`;
+    row.innerText = text;
+    
+    container.appendChild(row);
+    container.scrollTop = container.scrollHeight;
+
+    while (container.childNodes.length > 30) {
+        container.removeChild(container.firstChild);
+    }
+}
+
+// --- 2. EVENT BUS MIDDLEWARE ---
+class SimpleEventBus {
+    constructor() { this.listeners = {}; }
+    on(event, callback) {
+        if (!this.listeners[event]) this.listeners[event] = [];
+        this.listeners[event].push(callback);
+    }
+    emit(event, data) {
+        logEventToConsole(event, data);
+        if (this.listeners[event]) this.listeners[event].forEach(cb => cb(data));
+    }
+}
+const EventEngine = new SimpleEventBus();
+
+// --- 3. STATE CONTROLLER MACHINE (CORE LOGIC) ---
+class QuestTrackerMachine {
+    constructor() {
+        // Player State Database Template
+        this.playerQuests = {
+            'quest_01': { status: 'ACTIVE', progress: { 'kill_wolves': 0 } },
+            'quest_02': { status: 'ACTIVE', progress: { 'collect_herbs': 0, 'kill_wolves': 0 } }
+        };
+
+        this.bindInternalListeners();
+    }
+
+    bindInternalListeners() {
+        // Intercept action ticks coming from the physics / combat state loops
+        EventEngine.on('ENGINE_OBJECTIVE_TICK', (payload) => {
+            let stateChanged = false;
+
+            Object.keys(this.playerQuests).forEach(questID => {
+                let instance = this.playerQuests[questID];
+                if (instance.status !== 'ACTIVE') return;
+
+                // Check if this quest tracks the broadcast objective type identifier
+                if (instance.progress[payload.objectiveID] !== undefined) {
+                    let maxReq = QUEST_DATABASE[questID].objectives[payload.objectiveID].required;
+                    
+                    if (instance.progress[payload.objectiveID] < maxReq) {
+                        instance.progress[payload.objectiveID] = Math.min(maxReq, instance.progress[payload.objectiveID] + payload.amount);
+                        stateChanged = true;
+                        
+                        // Check if all parameters are suddenly fulfilled to flip the FSM lifecycle
+                        this.evaluateQuestCompletionState(questID);
+                    }
+                }
+            });
+
+            if (stateChanged) {
+                // Broadcast state synchronization events downstream to observers
+                EventEngine.emit('QUEST_TRACKING_SYNCED', null);
+            }
+        });
+    }
+
+    evaluateQuestCompletionState(questID) {
+        let questDef = QUEST_DATABASE[questID];
+        let instance = this.playerQuests[questID];
+        
+        let allComplete = Object.keys(questDef.objectives).every(objID => {
+            return instance.progress[objID] >= questDef.objectives[objID].required;
+        });
+
+        if (allComplete) {
+            instance.status = 'OBJECTIVES_COMPLETE';
+            
+            // Output log entry for state machine transition
+            setTimeout(() => {
+                const container = document.getElementById('logger-content');
+                if (container) {
+                    const row = document.createElement('div');
+                    row.className = 'log-row quest-done';
+                    row.innerText = `🏆 QuestTracker: '${questDef.title}' status -> OBJECTIVES_COMPLETE`;
+                    container.appendChild(row);
+                    container.scrollTop = container.scrollHeight;
+                }
+            }, 30);
+        }
+    }
+
+    triggerObjectiveTick(id) {
+        // Inject fake transaction packets directly into the event pipeline
+        EventEngine.emit('ENGINE_OBJECTIVE_TICK', { objectiveID: id, amount: 1 });
+    }
+}
+
+// --- 4. VIEW INTERFACE LAYER (THE OBSERVER) ---
+class QuestLogUI {
+    constructor(stateMachine) {
+        this.tracker = stateMachine;
+        this.currentFilter = 'ACTIVE';
+        this.selectedQuestID = null;
+
+        this.cacheDOMElements();
+        this.bindMenuControls();
+        
+        // Register UI log component as a direct listener of state adjustments
+        EventEngine.on('QUEST_TRACKING_SYNCED', () => {
+            this.drawQuestList();
+            if (this.selectedQuestID) this.drawDetailsPane();
+        });
+
+        this.drawQuestList();
+    }
+
+    cacheDOMElements() {
+        this.tabRow = document.getElementById('tab-row');
+        this.listContainer = document.getElementById('quest-item-container');
+        this.detailsPane = document.getElementById('details-view');
+    }
+
+    bindMenuControls() {
+        // Navigation Filtering Tab Listener
+        this.tabRow.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('tab-btn')) return;
+            
+            this.tabRow.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            this.currentFilter = e.target.dataset.filter;
+            this.drawQuestList();
+        });
+    }
+
+    drawQuestList() {
+        this.listContainer.innerHTML = '';
+        let matchCount = 0;
+
+        Object.keys(this.tracker.playerQuests).forEach(questID => {
+            let instance = this.tracker.playerQuests[questID];
+            let def = QUEST_DATABASE[questID];
+
+            // Filter Mapping Rules: 'OBJECTIVES_COMPLETE' stays visible inside the Active pane till turned in
+            let isMatch = false;
+            if (this.currentFilter === 'ACTIVE' && (instance.status === 'ACTIVE' || instance.status === 'OBJECTIVES_COMPLETE')) isMatch = true;
+            if (this.currentFilter === 'COMPLETED' && instance.status === 'COMPLETED') isMatch = true;
+
+            if (!isMatch) return;
+            matchCount++;
+
+            let card = document.createElement('div');
+            card.className = 'quest-item-card';
+            if (questID === this.selectedQuestID) card.classList.add('selected');
+            if (instance.status === 'OBJECTIVES_COMPLETE') card.classList.add('ready-turnin');
+
+            card.innerHTML = `
+                <div class="quest-card-title">${def.title}</div>
+                <div class="quest-card-meta">${instance.status === 'OBJECTIVES_COMPLETE' ? '🎁 Ready to Claim' : '⚔️ In Progress'}</div>
+            `;
+
+            card.onclick = () => {
+                this.selectedQuestID = questID;
+                this.drawQuestList();
+                this.drawDetailsPane();
+            };
+
+            this.listContainer.appendChild(card);
+        });
+
+        if (matchCount === 0) {
+            this.listContainer.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:20px;">No records listed.</div>`;
+        }
+    }
+
+    drawDetailsPane() {
+        let questID = this.selectedQuestID;
+        let def = QUEST_DATABASE[questID];
+        let instance = this.tracker.playerQuests[questID];
+
+        this.detailsPane.innerHTML = `
+            <h2 class="quest-title-header">${def.title}</h2>
+            <p class="quest-description">${def.desc}</p>
+            
+            <div class="objective-section">
+                <h3>Chronicle Objectives</h3>
+                <div class="objective-list" id="obj-rows-box"></div>
+            </div>
+        `;
+
+        const rowBox = document.getElementById('obj-rows-box');
+
+        // Loop multi-objective matrix maps smoothly
+        Object.keys(def.objectives).forEach(objID => {
+            let objDef = def.objectives[objID];
+            let currentAmt = instance.progress[objID];
+            
+            let pct = (currentAmt / objDef.required) * 100;
+            let isComplete = currentAmt >= objDef.required;
+
+            let row = document.createElement('div');
+            row.className = `objective-row ${isComplete ? 'complete' : ''}`;
+            row.innerHTML = `
+                <div class="objective-meta">
+                    <span>${objDef.text}</span>
+                    <span>${currentAmt} / ${objDef.required}</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: ${pct}%"></div>
+                </div>
+            `;
+            rowBox.appendChild(row);
+        });
+
+        // Inject active Turn-In Reward mechanics if objective limits are maxed out
+        if (instance.status === 'OBJECTIVES_COMPLETE') {
+            let rewardBtn = document.createElement('button');
+            rewardBtn.className = 'claim-btn action-btn';
+            rewardBtn.innerText = 'Claim Quest Rewards';
+            rewardBtn.style.background = 'var(--accent-gold)';
+            rewardBtn.style.color = 'var(--bg)';
+            rewardBtn.style.marginTop = '15px';
+            
+            rewardBtn.onclick = () => {
+                instance.status = 'COMPLETED';
+                this.selectedQuestID = null;
+                this.detailsPane.innerHTML = `<div class="empty-state">Select a chronicle from the ledger to inspect data.</div>`;
+                
+                // Print custom log for reward collection
+                const container = document.getElementById('logger-content');
+                if (container) {
+                    const row = document.createElement('div');
+                    row.className = 'log-row quest-done';
+                    row.innerText = `🎁 QuestTracker: '${def.title}' COMPLETED & claimed!`;
+                    container.appendChild(row);
+                    container.scrollTop = container.scrollHeight;
+                }
+                
+                EventEngine.emit('QUEST_TRACKING_SYNCED', null);
+            };
+            this.detailsPane.appendChild(rewardBtn);
+        }
+    }
+}
+
+// System Core Instantiation Startup Paths
+const tracker = new QuestTrackerMachine();
+const gameUI  = new QuestLogUI(tracker);
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Dependencies (loaded from CDN at runtime, not needed in repo)
+node_modules/
+
+# Rust / Soroban contract build artifacts
+word-scramble-contract/target/
+**/*.rs.bk
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.claude/
+
+# Logs
+*.log
