@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Tactical Progression Management Engine</title>
+    <!-- Tailwind CSS with custom theme mapping Aegis Command design system -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts for Telemetry HUD aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols for HUD instrumentation -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        // Color palette tokens from DESIGN.md
+                        background: '#060913',
+                        surface: '#0b1326',
+                        'surface-dim': '#0b1326',
+                        'surface-bright': '#31394d',
+                        'surface-container-lowest': '#060e20',
+                        'surface-container-low': '#131b2e',
+                        'surface-container': '#171f33',
+                        'surface-container-high': '#222a3d',
+                        'surface-container-highest': '#2d3449',
+                        'on-surface': '#dae2fd',
+                        'on-surface-variant': '#d8c3ac',
+                        'inverse-surface': '#dae2fd',
+                        'inverse-on-surface': '#283044',
+                        outline: '#a08e79',
+                        'outline-variant': '#524433',
+                        'surface-tint': '#ffb952',
+                        primary: '#ffcf91', // HUD Amber base
+                        'on-primary': '#452b00',
+                        'primary-container': '#ffaa00', // Active warning amber
+                        'on-primary-container': '#694300',
+                        secondary: '#ffffff',
+                        'secondary-container': '#00ffcc', // Cyber Cyan base
+                        'on-secondary-container': '#00725a',
+                        tertiary: '#4ade80', // Zombie Green base
+                        error: '#ffb4ab',
+                        'error-container': '#93000a',
+                        'on-error-container': '#ffdad6',
+                        'secondary-fixed': '#00ffcc',
+                        'secondary-fixed-dim': '#00e0b3',
+                        'primary-fixed-dim': '#ffaa00',
+                        'tertiary-fixed': '#4ade80',
+                        'tertiary-fixed-dim': '#22c55e',
+                    },
+                    spacing: {
+                        margin: '24px',
+                        'panel-padding': '12px',
+                        gutter: '16px',
+                        unit: '4px',
+                        'container-max-width': '1440px'
+                    },
+                    fontFamily: {
+                        'display-lg': ['Space Grotesk', 'sans-serif'],
+                        'headline-lg': ['Space Grotesk', 'sans-serif'],
+                        'headline-md': ['Space Grotesk', 'sans-serif'],
+                        'body-lg': ['JetBrains Mono', 'monospace'],
+                        'body-md': ['JetBrains Mono', 'monospace'],
+                        'label-lg': ['Space Mono', 'monospace'],
+                        'label-sm': ['Space Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #060913;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255, 255, 255, 0.02) 1px, rgba(255, 255, 255, 0.02) 2px);
+            background-size: 100% 2px;
+            color: #dae2fd;
+        }
+        
+        /* Glassmorphic Tactical Panels (DESIGN.md sectioning & depth) */
+        .hud-border {
+            border: 1px solid rgba(160, 142, 121, 0.3);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+        }
+        
+        .hud-border-active {
+            border: 1px solid #ffaa00;
+            background: rgba(255, 170, 0, 0.03);
+            backdrop-filter: blur(12px);
+        }
+        
+        .hud-border-equipped {
+            border: 1px solid #00ffcc;
+            background: rgba(0, 255, 204, 0.05);
+            backdrop-filter: blur(12px);
+        }
+        
+        /* Atmospheric glow effects */
+        .glow-cyan {
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.35);
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
+        }
+        
+        .glow-amber {
+            box-shadow: 0 0 10px rgba(255, 170, 0, 0.35);
+            text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+        }
+
+        .glow-text-cyan {
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.6);
+        }
+
+        .glow-text-amber {
+            text-shadow: 0 0 5px rgba(255, 170, 0, 0.6);
+        }
+
+        .glow-text-green {
+            text-shadow: 0 0 5px rgba(74, 222, 128, 0.6);
+        }
+        
+        /* Diagonal structural stripe pattern (DESIGN.md card details) */
+        .diagonal-stripes {
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.02) 10px, rgba(255, 255, 255, 0.02) 20px);
+        }
+        
+        /* Hardware grid scanline overlay (DESIGN.md Z-Axis hierarchy) */
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 50%, rgba(0, 255, 204, 0.03) 50%);
+            background-size: 100% 4px;
+        }
+        
+        /* Micro-animations and flicker effects */
+        .flicker:hover {
+            animation: flicker 0.2s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.85; }
+            100% { opacity: 1; text-shadow: 0 0 6px currentColor; }
+        }
+        
+        .blinking-cursor::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+            color: #00ffcc;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* Custom scrollbars */
+        .terminal-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #00ffcc;
+        }
+        
+        /* Angled accents (DESIGN.md shape cuts) */
+        .dog-ear-btn {
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+        }
+        
+        .dog-ear-panel {
+            clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 0 100%);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 overflow-hidden antialiased font-body-md select-none touch-none">
+
+    <!-- Global Hardware Scanlines (DESIGN.md elevation overlay) -->
+    <div class="fixed inset-0 pointer-events-none z-[99] scanlines opacity-60"></div>
+
+    <!-- Top Navigation Telemetry Header -->
+    <nav class="fixed top-0 w-full bg-surface/85 backdrop-blur-md flex justify-between items-center px-margin h-16 z-50 border-b border-outline-variant bg-surface-container-lowest/60 shadow-[0px_0px_10px_rgba(0,255,204,0.1)]">
+        <div class="font-headline-md text-headline-md font-bold tracking-wider text-secondary-fixed flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary-fixed-dim animate-pulse">shield</span>
+            AEGIS_TACTICAL_COMMAND // COM_OS
+        </div>
+        <div class="flex items-center gap-6 font-label-lg text-label-lg">
+            <div class="text-on-surface-variant flex items-center gap-2">
+                <span class="h-2 w-2 bg-tertiary rounded-full animate-ping"></span>
+                CORE_ENGINE: <span class="text-tertiary glow-text-green">[ RUNNING ]</span>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="ui.toggleMute()" class="text-on-surface-variant hover:text-secondary-fixed hover:bg-surface-variant/40 p-2 rounded-none transition-all duration-75 active:scale-95" title="Toggle Sound System">
+                    <span id="mute-icon" class="material-symbols-outlined">volume_up</span>
+                </button>
+                <button onclick="ui.clearLogs()" class="text-on-surface-variant hover:text-secondary-fixed hover:bg-surface-variant/40 p-2 rounded-none transition-all duration-75 active:scale-95" title="Flush Console Logs">
+                    <span class="material-symbols-outlined">delete_sweep</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Operational Workspace Grid (Max width 1280px for a beautiful 3-column desktop view) -->
+    <main class="w-full max-w-[1280px] h-[640px] md:h-[680px] mt-20 relative flex flex-col justify-between z-10 border border-outline-variant/40 bg-[#0f172a]/60 backdrop-blur-lg">
+        
+        <!-- Corner Bracket Hardware Accents (DESIGN.md visual framing) -->
+        <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-secondary-fixed z-20"></div>
+        <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-secondary-fixed z-20"></div>
+        <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-secondary-fixed z-20"></div>
+        <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-secondary-fixed z-20"></div>
+
+        <!-- Upper Workspace Area -->
+        <div class="flex flex-1 overflow-hidden">
+            
+            <!-- Left Column: Operator Status & System Telemetry (1/4 width) -->
+            <section class="w-[28%] min-w-[300px] border-r border-outline-variant/40 p-panel-padding flex flex-col gap-4 overflow-y-auto terminal-scroll">
+                
+                <!-- Operator Status Panel -->
+                <div class="hud-border p-3 diagonal-stripes relative">
+                    <div class="absolute top-0 right-0 font-label-sm text-label-sm text-on-surface-variant/50 p-1">SYS_REF_82</div>
+                    <div class="font-label-lg text-label-lg text-primary-fixed-dim mb-2 uppercase font-bold tracking-widest">[ OPERATOR STATUS ]</div>
+                    
+                    <div class="flex justify-between items-end mb-3">
+                        <div class="font-headline-md text-2xl text-secondary font-bold tracking-tight">TIER <span id="ui-tier" class="text-primary-fixed-dim glow-text-amber">01</span></div>
+                        <div class="font-label-sm text-label-sm text-secondary-fixed font-bold">LVL <span id="ui-level" class="text-secondary-fixed glow-text-cyan">01</span></div>
+                    </div>
+
+                    <!-- Segmented XP Meter (DESIGN.md Status Meters rule) -->
+                    <div class="font-label-sm text-label-sm text-on-surface-variant mb-1 flex justify-between">
+                        <span>XP ACCRUED</span>
+                        <span id="ui-xp-text" class="font-bold">0 / 100</span>
+                    </div>
+                    <div class="flex gap-[2px] h-3 w-full bg-surface-container border border-outline-variant/30 p-[2px]" id="ui-xp-segments">
+                        <!-- 20 Segments will be managed via Javascript -->
+                    </div>
+                </div>
+
+                <!-- Stats Registry Panel -->
+                <div class="hud-border p-3 flex flex-col gap-2 flex-1 min-h-[160px]">
+                    <div class="font-label-lg text-label-lg text-primary-fixed-dim mb-1 uppercase font-bold tracking-widest">[ SYSTEMS METRICS ]</div>
+                    
+                    <div class="flex justify-between items-center py-1.5 border-b border-surface-variant/40">
+                        <span class="text-on-surface-variant text-label-sm uppercase font-semibold">MAX VITALITY LIFE (HP)</span>
+                        <span class="text-tertiary-fixed font-bold glow-text-green" id="ui-hp">100</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-surface-variant/40">
+                        <span class="text-on-surface-variant text-label-sm uppercase font-semibold">MOVEMENT SPEED MULT</span>
+                        <span class="text-secondary-fixed font-bold glow-text-cyan" id="ui-spd">1.00x</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5">
+                        <span class="text-on-surface-variant text-label-sm uppercase font-semibold">COMBAT DAMAGE MULT</span>
+                        <span class="text-primary-fixed-dim font-bold glow-text-amber" id="ui-dmg">1.00x</span>
+                    </div>
+                    
+                    <div class="mt-auto bg-surface-container-lowest/50 p-2 border border-outline-variant/20">
+                        <div class="text-[10px] text-on-surface-variant font-label-sm leading-tight text-justify">
+                            * Telemetry coefficients scale polynomially on Operator Tier promotions. Safety parameters override at max loads.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal Logs (1/3 height, monospaced auto-scroller) -->
+                <div class="h-[180px] hud-border p-3 bg-surface-container-lowest flex flex-col">
+                    <div class="font-label-sm text-label-sm text-primary-fixed-dim mb-1.5 uppercase font-bold tracking-widest border-b border-outline-variant/30 pb-1.5 flex justify-between items-center">
+                        <span>SYS_LOGGER // OUTPUT</span>
+                        <span class="h-1.5 w-1.5 bg-secondary-fixed rounded-full animate-ping"></span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto terminal-scroll font-body-md text-body-md text-secondary-fixed text-[11px] leading-relaxed space-y-1 blinking-cursor" id="ui-terminal">
+                        <!-- Logs injected here -->
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Center Column: 3D Tactical Weapon Viewer (Main space filler) -->
+            <section class="flex-1 border-r border-outline-variant/40 p-panel-padding flex flex-col relative">
+                
+                <!-- Tactical Viewer Header -->
+                <div class="font-headline-md text-lg text-secondary mb-3 border-b border-outline-variant/30 pb-2 uppercase tracking-widest text-center flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-secondary-fixed animate-spin" style="animation-duration: 4s;">3d_rotation</span>
+                    TACTICAL WEAPON TELEMETRY
+                </div>
+                
+                <!-- 3D Canvas Container -->
+                <div class="flex-1 hud-border relative overflow-hidden bg-surface-container-lowest flex items-center justify-center">
+                    
+                    <!-- Tech overlay grid borders -->
+                    <div class="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-secondary-fixed/55"></div>
+                    <div class="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-secondary-fixed/55"></div>
+                    <div class="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-secondary-fixed/55"></div>
+                    <div class="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-secondary-fixed/55"></div>
+                    
+                    <!-- Crosshair Telemetry HUD layer overlay -->
+                    <div class="absolute inset-0 pointer-events-none z-10 flex items-center justify-center opacity-30">
+                        <div class="border border-secondary-fixed/40 rounded-full w-44 h-44 flex items-center justify-center">
+                            <div class="border border-dashed border-secondary-fixed/20 rounded-full w-32 h-32 flex items-center justify-center">
+                                <div class="w-1.5 h-1.5 bg-primary-fixed-dim rounded-full"></div>
+                            </div>
+                        </div>
+                        <div class="absolute w-52 h-[1px] bg-secondary-fixed/25"></div>
+                        <div class="absolute h-52 w-[1px] bg-secondary-fixed/25"></div>
+                    </div>
+
+                    <!-- 3D Model Telemetry Label Overlay -->
+                    <div class="absolute bottom-4 left-4 z-10 pointer-events-none bg-surface-container-lowest/80 border border-outline-variant/40 p-2.5 max-w-[240px]">
+                        <div class="font-label-sm text-[10px] text-primary-fixed-dim tracking-wider uppercase font-bold">[ ACTIVE GEOMETRY ]</div>
+                        <div class="font-headline-md text-sm text-secondary tracking-tight font-bold" id="hud-weapon-name">M-11 PISTOL</div>
+                        <div class="font-label-sm text-[9px] text-on-surface-variant flex justify-between mt-1">
+                            <span>CLASS:</span>
+                            <span id="hud-weapon-class" class="text-secondary-fixed font-bold">LIGHT BALLISTIC</span>
+                        </div>
+                        <div class="font-label-sm text-[9px] text-on-surface-variant flex justify-between">
+                            <span>BASE HIT:</span>
+                            <span id="hud-weapon-dmg" class="text-tertiary font-bold">15 DMG</span>
+                        </div>
+                    </div>
+
+                    <!-- 3D Model Loading Indicator -->
+                    <div id="threejs-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-surface-container-lowest z-20 transition-opacity duration-300">
+                        <span class="material-symbols-outlined text-[48px] text-secondary-fixed animate-spin">sync</span>
+                        <div class="font-label-lg text-label-lg text-secondary-fixed mt-4 tracking-widest uppercase">Initializing Telemetry Buffer...</div>
+                    </div>
+
+                    <!-- Three.js Canvas Container -->
+                    <div id="threejs-container" class="w-full h-full bg-transparent relative z-0"></div>
+                </div>
+            </section>
+
+            <!-- Right Column: Weaponry Loadout Registry (30% width) -->
+            <section class="w-[30%] p-panel-padding flex flex-col gap-3">
+                <div class="font-headline-md text-lg text-primary-fixed-dim mb-3 border-b border-outline-variant/30 pb-2 uppercase tracking-widest text-center font-bold">
+                    WEAPONRY LOADOUT REGISTRY
+                </div>
+                
+                <!-- Loadout Cards Grid -->
+                <div class="grid grid-cols-1 gap-2.5 flex-1 content-start overflow-y-auto terminal-scroll pr-1.5" id="ui-arsenal-grid">
+                    <!-- Cards will be populated dynamically via JavaScript -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Bottom Footer: Target Simulation Deck (DESIGN.md dog-ear corners) -->
+        <footer class="h-16 border-t border-outline-variant/40 bg-surface-container-low/90 backdrop-blur-xl flex items-center justify-between px-margin">
+            <div class="font-label-sm text-label-sm text-on-surface-variant uppercase flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px] text-primary-fixed-dim animate-pulse">radar</span>
+                SIMULATION DECK // NEUTRALIZATION DECK
+            </div>
+            <div class="flex gap-4">
+                <button class="dog-ear-btn border border-tertiary text-tertiary font-label-lg text-label-lg px-4 py-1.5 bg-transparent hover:bg-tertiary hover:text-background transition-all duration-150 flicker uppercase flex items-center gap-2" onclick="app.simulateKill('Walker')">
+                    <span class="material-symbols-outlined text-[14px]">pest_control</span>
+                    Neutralize Walker (+25 XP)
+                </button>
+                <button class="dog-ear-btn border border-primary-container text-primary-container font-label-lg text-label-lg px-4 py-1.5 bg-transparent hover:bg-primary-container hover:text-background transition-all duration-150 flicker uppercase flex items-center gap-2" onclick="app.simulateKill('Runner')">
+                    <span class="material-symbols-outlined text-[14px]">directions_run</span>
+                    Neutralize Runner (+45 XP)
+                </button>
+                <button class="dog-ear-btn border border-error text-error font-label-lg text-label-lg px-4 py-1.5 bg-transparent hover:bg-error hover:text-background transition-all duration-150 flicker uppercase flex items-center gap-2" onclick="app.simulateKill('Tank')">
+                    <span class="material-symbols-outlined text-[14px]">shield</span>
+                    Neutralize Tank (+120 XP)
+                </button>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Three.js Library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+
+    <script>
+        // --- 1. HEADLESS EVENT BUS (Staff Level decouple strategy) ---
+        class EventBus {
+            constructor() {
+                this.listeners = {};
+            }
+            on(event, callback) {
+                if (!this.listeners[event]) {
+                    this.listeners[event] = [];
+                }
+                this.listeners[event].push(callback);
+            }
+            emit(event, data) {
+                if (this.listeners[event]) {
+                    this.listeners[event].forEach(cb => {
+                        try {
+                            cb(data);
+                        } catch(e) {
+                            console.error(`Error in EventBus listener [${event}]:`, e);
+                        }
+                    });
+                }
+            }
+        }
+        const eventBus = new EventBus();
+
+        // --- 2. AUDIO SYNTHESIS ENGINE (Web Audio API telemetry) ---
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            toggleMute() {
+                this.muted = !this.muted;
+                return this.muted;
+            }
+            playClick() {
+                this.init();
+                if (this.muted || !this.ctx) return;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(220, this.ctx.currentTime + 0.08);
+                
+                gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+            playKill() {
+                this.init();
+                if (this.muted || !this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.linearRampToValueAtTime(35, now + 0.12);
+                
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(250, now);
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.12);
+            }
+            playLevelUp() {
+                this.init();
+                if (this.muted || !this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const playTone = (freq, start, duration, gainVal) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, start);
+                    osc.frequency.exponentialRampToValueAtTime(freq * 1.6, start + duration);
+                    
+                    gain.gain.setValueAtTime(gainVal, start);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(start);
+                    osc.stop(start + duration);
+                };
+                
+                playTone(220, now, 0.12, 0.08);
+                playTone(330, now + 0.08, 0.12, 0.08);
+                playTone(440, now + 0.16, 0.12, 0.08);
+                playTone(660, now + 0.24, 0.25, 0.12);
+            }
+            playUnlock() {
+                this.init();
+                if (this.muted || !this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(440, now);
+                osc1.frequency.linearRampToValueAtTime(880, now + 0.25);
+                
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(554, now);
+                osc2.frequency.linearRampToValueAtTime(1108, now + 0.25);
+                
+                gain.gain.setValueAtTime(0.02, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, now);
+                filter.frequency.exponentialRampToValueAtTime(3000, now + 0.25);
+                
+                osc1.connect(filter);
+                osc2.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc1.start();
+                osc2.start();
+                osc1.stop(now + 0.25);
+                osc2.stop(now + 0.25);
+            }
+        }
+        const sfx = new SoundEngine();
+
+        // --- 3. MASTER FLYWEIGHT CONFIGURATION DATA ---
+        const MASTER_WEAPON_DATABASE = {
+            'pistol':      { name: 'Pistol X-9',        unlockLevel: 1, type: 'Light Ballistic',    baseDmg: 15,  icon: 'colorize',        desc: 'Standard tactical sidearm. Reliable semi-automatic firing.' },
+            'grenade':     { name: 'Frag Grenade Mk5',  unlockLevel: 2, type: 'Thrown Explosive',   baseDmg: 50,  icon: 'mode_cool',       desc: 'High explosive anti-personnel projectile. Wide radius.' },
+            'shotgun':     { name: 'Shotgun C-12',      unlockLevel: 5, type: 'Close Spread Combat', baseDmg: 45,  icon: 'view_headline',   desc: 'Pump action scatter shot. Maximum damage at point-blank.' },
+            'smg':         { name: 'SMG Swift-4',       unlockLevel: 10,type: 'Rapid Automatic',    baseDmg: 12,  icon: 'bolt',            desc: 'Compact blowback automatic rifle. Extremely high fire rate.' },
+            'rifle':       { name: 'Assault Rifle M4',  unlockLevel: 15,type: 'Precision Firearm',  baseDmg: 25,  icon: 'my_location',     desc: 'Selective fire tactical rifle. Optimal range flexibility.' },
+            'machine_gun': { name: 'Heavy M249 MG',     unlockLevel: 20,type: 'Sustained Suppress',  baseDmg: 30,  icon: 'drag_handle',     desc: 'Belt-fed support light machine gun. Heavy suppressive weight.' },
+            'rocket':      { name: 'HE Rocket Launcher',unlockLevel: 30,type: 'Heavy Ordinance',     baseDmg: 150, icon: 'rocket_launch',   desc: 'Shoulder-mounted anti-armor rocket. High yield blast.' },
+            'laser_gun':   { name: 'Plasma Laser Gun',  unlockLevel: 50,type: 'Energy Beam Piercer',baseDmg: 80,  icon: 'blur_on',         desc: 'Experimental high-energy particle beam. Pierces armor targets.' }
+        };
+
+        // --- 4. THE HEADLESS PROGRESSION ENGINE CORE ---
+        class ShooterProgressionEngine {
+            constructor() {
+                this.state = {
+                    level: 1,
+                    xp: 0,
+                    tier: 1,
+                    stats: {
+                        hp: 100,
+                        speedMultiplier: 1.0,
+                        damageMultiplier: 1.0
+                    },
+                    unlockedWeapons: ['pistol'],
+                    equippedWeapon: 'pistol'
+                };
+                
+                this.enemyXpMap = {
+                    'Walker': 25,
+                    'Runner': 45,
+                    'Tank': 120
+                };
+            }
+
+            calculateRequiredXP(targetLevel) {
+                // Polynomial distribution curve (Staff Level)
+                return Math.floor(100 * Math.pow(targetLevel, 1.5));
+            }
+
+            simulateKill(enemyType) {
+                sfx.playKill();
+                const xpGain = this.enemyXpMap[enemyType] || 0;
+                
+                eventBus.emit('ZOMBIE_KILLED', { 
+                    type: enemyType, 
+                    xp: xpGain,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+                
+                this.incrementExperience(xpGain);
+            }
+
+            incrementExperience(amount) {
+                this.state.xp += amount;
+                let reqXp = this.calculateRequiredXP(this.state.level);
+                let leveledUp = false;
+
+                // Loop handles overflow XP spikes
+                while (this.state.xp >= reqXp) {
+                    this.state.xp -= reqXp;
+                    this.executeLevelUp();
+                    reqXp = this.calculateRequiredXP(this.state.level);
+                    leveledUp = true;
+                }
+
+                if (leveledUp) {
+                    eventBus.emit('LEVEL_UP', {
+                        level: this.state.level,
+                        tier: this.state.tier,
+                        stats: this.state.stats
+                    });
+                } else {
+                    eventBus.emit('PROGRESS_UPDATED', this.getStateSnapshot());
+                }
+            }
+
+            executeLevelUp() {
+                this.state.level++;
+                
+                // Stat scaling multipliers (from prompt specification)
+                this.state.stats.hp += 15;
+                this.state.stats.speedMultiplier = parseFloat((this.state.stats.speedMultiplier + 0.05).toFixed(2));
+                this.state.stats.damageMultiplier = parseFloat((this.state.stats.damageMultiplier + 0.10).toFixed(2));
+                
+                // Tier scaling (advances every 10 levels)
+                const newTier = Math.floor((this.state.level - 1) / 10) + 1;
+                if (newTier > this.state.tier) {
+                    this.state.tier = newTier;
+                }
+
+                // Scan static weapon unlocks
+                Object.keys(MASTER_WEAPON_DATABASE).forEach(id => {
+                    const req = MASTER_WEAPON_DATABASE[id].unlockLevel;
+                    if (this.state.level >= req && !this.state.unlockedWeapons.includes(id)) {
+                        this.state.unlockedWeapons.push(id);
+                        eventBus.emit('WEAPON_UNLOCKED', {
+                            id: id,
+                            config: MASTER_WEAPON_DATABASE[id]
+                        });
+                    }
+                });
+            }
+
+            equipWeapon(weaponId) {
+                if (this.state.unlockedWeapons.includes(weaponId)) {
+                    sfx.playClick();
+                    this.state.equippedWeapon = weaponId;
+                    eventBus.emit('WEAPON_EQUIPPED', {
+                        id: weaponId,
+                        config: MASTER_WEAPON_DATABASE[weaponId]
+                    });
+                    return true;
+                }
+                return false;
+            }
+
+            getStateSnapshot() {
+                return JSON.parse(JSON.stringify(this.state));
+            }
+        }
+        const app = new ShooterProgressionEngine();
+
+        // --- 5. 3D WEAPON VIEWER COMPONENT (Three.js Engine) ---
+        class ThreeJsWeaponViewer {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.weaponGroup = null;
+                this.activeMeshId = null;
+                this.burstSystem = null;
+                this.init();
+            }
+
+            init() {
+                const width = this.container.clientWidth || 300;
+                const height = this.container.clientHeight || 300;
+
+                // Setup Scene, Camera & WebGL Renderer
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+                this.camera.position.set(0, 0, 3.2);
+
+                this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                this.renderer.setSize(width, height);
+                this.renderer.setPixelRatio(window.devicePixelRatio || 1);
+                this.container.appendChild(this.renderer.domElement);
+
+                // Add Ambient & Directional Lights
+                const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+                this.scene.add(ambient);
+
+                const dirLight1 = new THREE.DirectionalLight(0x00ffcc, 1.2);
+                dirLight1.position.set(2, 4, 3);
+                this.scene.add(dirLight1);
+
+                const dirLight2 = new THREE.DirectionalLight(0xffaa00, 0.8);
+                dirLight2.position.set(-2, -4, 3);
+                this.scene.add(dirLight2);
+
+                // Group wrapper to float/rotate geometries
+                this.weaponGroup = new THREE.Group();
+                this.scene.add(this.weaponGroup);
+
+                // Particle explosion system
+                this.burstSystem = new LevelUpBurst(this.scene);
+
+                // Load initial weapon
+                this.loadWeaponMesh('pistol');
+
+                // Animate loop
+                const animate = () => {
+                    requestAnimationFrame(animate);
+
+                    // Float & Rotate calculations
+                    if (this.weaponGroup) {
+                        this.weaponGroup.rotation.y += 0.008;
+                        this.weaponGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.1;
+                        this.weaponGroup.position.y = Math.sin(Date.now() * 0.0015) * 0.08;
+                    }
+
+                    // Update level up particle bursts
+                    if (this.burstSystem) {
+                        this.burstSystem.update();
+                    }
+
+                    this.renderer.render(this.scene, this.camera);
+                };
+                animate();
+
+                // Window Resize Hook
+                const resizeHandler = () => {
+                    const w = this.container.clientWidth;
+                    const h = this.container.clientHeight;
+                    if (w && h) {
+                        this.camera.aspect = w / h;
+                        this.camera.updateProjectionMatrix();
+                        this.renderer.setSize(w, h);
+                    }
+                };
+                window.addEventListener('resize', resizeHandler);
+                setTimeout(resizeHandler, 100);
+
+                // Event bindings
+                eventBus.on('WEAPON_EQUIPPED', (data) => {
+                    this.transitionToWeapon(data.id);
+                });
+
+                eventBus.on('LEVEL_UP', () => {
+                    this.burstSystem.trigger();
+                });
+
+                // Hide loader once initialized
+                const loader = document.getElementById('threejs-loader');
+                if (loader) {
+                    loader.style.opacity = 0;
+                    setTimeout(() => loader.style.display = 'none', 300);
+                }
+            }
+
+            transitionToWeapon(weaponId) {
+                // Simple scale down, swap, scale up visual transition
+                let scale = 1.0;
+                const shrink = () => {
+                    if (scale > 0.05) {
+                        scale -= 0.15;
+                        this.weaponGroup.scale.set(scale, scale, scale);
+                        requestAnimationFrame(shrink);
+                    } else {
+                        this.loadWeaponMesh(weaponId);
+                        grow();
+                    }
+                };
+                const grow = () => {
+                    if (scale < 1.0) {
+                        scale += 0.15;
+                        this.weaponGroup.scale.set(scale, scale, scale);
+                        requestAnimationFrame(grow);
+                    } else {
+                        this.weaponGroup.scale.set(1, 1, 1);
+                    }
+                };
+                shrink();
+            }
+
+            loadWeaponMesh(id) {
+                // Flush old meshes
+                while (this.weaponGroup.children.length > 0) {
+                    const obj = this.weaponGroup.children[0];
+                    this.weaponGroup.remove(obj);
+                    if (obj.geometry) obj.geometry.dispose();
+                    if (obj.material) {
+                        if (Array.isArray(obj.material)) {
+                            obj.material.forEach(m => m.dispose());
+                        } else {
+                            obj.material.dispose();
+                        }
+                    }
+                }
+
+                // Build new mesh group procedurally
+                const mesh = this.createProceduralWeapon(id);
+                this.weaponGroup.add(mesh);
+                this.activeMeshId = id;
+            }
+
+            createProceduralWeapon(id) {
+                const group = new THREE.Group();
+
+                // Material palettes matching Design Tokens
+                const metalDark = new THREE.MeshPhongMaterial({ color: 0x1e293b, shininess: 80 });
+                const metalLight = new THREE.MeshPhongMaterial({ color: 0x475569, shininess: 100 });
+                const brassMat = new THREE.MeshPhongMaterial({ color: 0xffaa00, shininess: 120 });
+                const glowCyan = new THREE.MeshPhongMaterial({ 
+                    color: 0x00ffcc, emissive: 0x00ffcc, emissiveIntensity: 0.8, shininess: 100 
+                });
+                const glowAmber = new THREE.MeshPhongMaterial({ 
+                    color: 0xffaa00, emissive: 0xffaa00, emissiveIntensity: 0.8, shininess: 100 
+                });
+
+                if (id === 'pistol') {
+                    // Pistol Body
+                    const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.18, 0.12), metalDark);
+                    body.position.set(-0.05, 0.1, 0);
+                    group.add(body);
+
+                    // Barrel
+                    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.8), metalLight);
+                    barrel.rotation.z = Math.PI / 2;
+                    barrel.position.set(0.1, 0.1, 0);
+                    group.add(barrel);
+
+                    // Grip
+                    const grip = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.45, 0.12), metalDark);
+                    grip.rotation.z = -Math.PI / 8;
+                    grip.position.set(-0.25, -0.15, 0);
+                    group.add(grip);
+
+                    // Laser pointer dot
+                    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), glowCyan);
+                    dot.position.set(0.5, 0.07, 0);
+                    group.add(dot);
+                } 
+                else if (id === 'grenade') {
+                    // Spherical Grenade Body
+                    const body = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), metalDark);
+                    body.scale.set(1, 1.25, 1);
+                    group.add(body);
+
+                    // Fragment ridges
+                    const ringMat = new THREE.MeshPhongMaterial({ color: 0x334155, wireframe: true });
+                    const ridges = new THREE.Mesh(new THREE.SphereGeometry(0.255, 8, 8), ringMat);
+                    ridges.scale.set(1, 1.25, 1);
+                    group.add(ridges);
+
+                    // Fuse pin top
+                    const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.15), brassMat);
+                    pin.position.set(0, 0.35, 0);
+                    group.add(pin);
+
+                    // Pull Ring
+                    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.02, 8, 24), glowCyan);
+                    ring.position.set(0.08, 0.38, 0);
+                    group.add(ring);
+                } 
+                else if (id === 'shotgun') {
+                    // Twin Cylindrical Barrels
+                    const barrel1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.4), metalLight);
+                    barrel1.rotation.z = Math.PI / 2;
+                    barrel1.position.set(0.2, 0.05, -0.025);
+                    group.add(barrel1);
+
+                    const barrel2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.4), metalLight);
+                    barrel2.rotation.z = Math.PI / 2;
+                    barrel2.position.set(0.2, 0.05, 0.025);
+                    group.add(barrel2);
+
+                    // Slide/Forend Grip
+                    const slide = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.14, 0.14), brassMat);
+                    slide.position.set(0.05, 0.03, 0);
+                    group.add(slide);
+
+                    // Stock
+                    const stock = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.22, 0.12), metalDark);
+                    stock.rotation.z = -Math.PI / 10;
+                    stock.position.set(-0.4, -0.05, 0);
+                    group.add(stock);
+
+                    const pad = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.26, 0.1), metalDark);
+                    pad.position.set(-0.55, -0.15, 0);
+                    group.add(pad);
+                } 
+                else if (id === 'smg') {
+                    // Main Frame
+                    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.25, 0.16), metalDark);
+                    group.add(frame);
+
+                    // Barrel
+                    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.45), metalLight);
+                    barrel.rotation.z = Math.PI / 2;
+                    barrel.position.set(0.4, 0.05, 0);
+                    group.add(barrel);
+
+                    // Curved Foregrip Magazine
+                    const mag = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.42, 0.12), metalLight);
+                    mag.rotation.z = -Math.PI / 6;
+                    mag.position.set(0.2, -0.22, 0);
+                    group.add(mag);
+
+                    // Rear Pistol Grip
+                    const grip = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.35, 0.1), metalDark);
+                    grip.rotation.z = -Math.PI / 8;
+                    grip.position.set(-0.2, -0.2, 0);
+                    group.add(grip);
+
+                    // Glowing neon tube
+                    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.4), glowCyan);
+                    tube.rotation.z = Math.PI / 2;
+                    tube.position.set(-0.02, 0.14, 0);
+                    group.add(tube);
+                } 
+                else if (id === 'rifle') {
+                    // Frame receiver
+                    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.2, 0.14), metalDark);
+                    frame.position.set(-0.1, 0.05, 0);
+                    group.add(frame);
+
+                    // Long Barrel
+                    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.95), metalLight);
+                    barrel.rotation.z = Math.PI / 2;
+                    barrel.position.set(0.55, 0.07, 0);
+                    group.add(barrel);
+
+                    // Ammo Magazine
+                    const mag = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.38, 0.12), metalDark);
+                    mag.rotation.z = -Math.PI / 12;
+                    mag.position.set(0.08, -0.18, 0);
+                    group.add(mag);
+
+                    // Tactical Stock
+                    const stock = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.15, 0.1), metalLight);
+                    stock.position.set(-0.55, 0.03, 0);
+                    group.add(stock);
+
+                    // Holosight Scope
+                    const scope = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.08), metalDark);
+                    scope.position.set(-0.05, 0.18, 0);
+                    group.add(scope);
+
+                    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), glowAmber);
+                    dot.position.set(0.05, 0.18, 0);
+                    group.add(dot);
+                } 
+                else if (id === 'machine_gun') {
+                    // Heavy Receiver Frame
+                    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.32, 0.22), metalDark);
+                    group.add(frame);
+
+                    // Massive Barrel
+                    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.25), metalLight);
+                    barrel.rotation.z = Math.PI / 2;
+                    barrel.position.set(0.7, 0.08, 0);
+                    group.add(barrel);
+
+                    // Barrel Cooling Vent Rings
+                    for(let i = 0; i < 4; i++) {
+                        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.015, 6, 16), metalDark);
+                        ring.rotation.y = Math.PI / 2;
+                        ring.position.set(0.35 + (i * 0.2), 0.08, 0);
+                        group.add(ring);
+                    }
+
+                    // Ammo Drum (Large cylinder on bottom)
+                    const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.28, 16), metalDark);
+                    drum.rotation.x = Math.PI / 2;
+                    drum.position.set(0.02, -0.32, 0);
+                    group.add(drum);
+
+                    // Ammo feeder line
+                    const feed = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.15, 0.12), brassMat);
+                    feed.position.set(0.02, -0.16, 0);
+                    group.add(feed);
+                } 
+                else if (id === 'rocket') {
+                    // RPG Launch Tube
+                    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 2.0, 16), metalDark);
+                    tube.rotation.z = Math.PI / 2;
+                    group.add(tube);
+
+                    // Exhaust expansion cone on back
+                    const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.09, 0.25, 16), metalLight);
+                    exhaust.rotation.z = -Math.PI / 2;
+                    exhaust.position.set(-0.9, 0, 0);
+                    group.add(exhaust);
+
+                    // Rocket Warhead sticking out from front
+                    const rocketBody = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.4), brassMat);
+                    rocketBody.rotation.z = Math.PI / 2;
+                    rocketBody.position.set(1.05, 0, 0);
+                    group.add(rocketBody);
+
+                    const cone = new THREE.Mesh(new THREE.CylinderGeometry(0.0, 0.18, 0.35, 16), glowAmber);
+                    cone.rotation.z = -Math.PI / 2;
+                    cone.position.set(1.35, 0, 0);
+                    group.add(cone);
+
+                    // Grips
+                    const grip1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.08), metalLight);
+                    grip1.position.set(0.1, -0.22, 0);
+                    group.add(grip1);
+                } 
+                else if (id === 'laser_gun') {
+                    // Double futuristic rails
+                    const rail1 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.4), metalDark);
+                    rail1.rotation.z = Math.PI / 2;
+                    rail1.position.set(0.2, 0.08, -0.06);
+                    group.add(rail1);
+
+                    const rail2 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.4), metalDark);
+                    rail2.rotation.z = Math.PI / 2;
+                    rail2.position.set(0.2, 0.08, 0.06);
+                    group.add(rail2);
+
+                    // Core generator body
+                    const generator = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), metalLight);
+                    generator.position.set(-0.35, 0.08, 0);
+                    group.add(generator);
+
+                    // Plasma core sphere (glowing inside)
+                    const core = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 16), glowCyan);
+                    core.position.set(-0.35, 0.08, 0);
+                    group.add(core);
+
+                    // Floating Glowing Accelerator Rings
+                    for(let i = 0; i < 4; i++) {
+                        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.015, 6, 24), glowCyan);
+                        ring.rotation.y = Math.PI / 2;
+                        ring.position.set(0.05 + (i * 0.22), 0.08, 0);
+                        group.add(ring);
+                    }
+
+                    // Power cable wraps
+                    const cable = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.18), brassMat);
+                    cable.position.set(-0.15, -0.06, 0);
+                    group.add(cable);
+                }
+
+                // Standard scaling to fit inside frame neatly
+                group.scale.set(1.4, 1.4, 1.4);
+                return group;
+            }
+        }
+
+        // --- 6. LEVEL UP PARTICLE BURST (Three.js overlay helper) ---
+        class LevelUpBurst {
+            constructor(scene) {
+                this.scene = scene;
+                this.points = null;
+                this.velocities = [];
+                this.age = 0;
+                this.maxAge = 75; // 75 frames animation span
+                this.active = false;
+            }
+            trigger() {
+                if (this.points) {
+                    this.scene.remove(this.points);
+                }
+
+                const count = 120;
+                const positions = [];
+                this.velocities = [];
+                
+                for (let i = 0; i < count; i++) {
+                    positions.push(0, 0, 0);
+                    // Emit in random spherical shell direction
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos((Math.random() * 2) - 1);
+                    const speed = 0.04 + Math.random() * 0.09;
+                    
+                    this.velocities.push(
+                        Math.sin(phi) * Math.cos(theta) * speed,
+                        Math.sin(phi) * Math.sin(theta) * speed,
+                        Math.cos(phi) * speed
+                    );
+                }
+
+                const geom = new THREE.BufferGeometry();
+                geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+                // Bright Cyber Cyan particle points
+                const mat = new THREE.PointsMaterial({
+                    color: 0x00ffcc,
+                    size: 0.06,
+                    transparent: true,
+                    opacity: 1.0,
+                    blending: THREE.AdditiveBlending
+                });
+
+                this.points = new THREE.Points(geom, mat);
+                this.scene.add(this.points);
+                this.age = 0;
+                this.active = true;
+            }
+            update() {
+                if (!this.active || !this.points) return;
+
+                const posAttr = this.points.geometry.attributes.position;
+                const arr = posAttr.array;
+
+                for (let i = 0; i < arr.length / 3; i++) {
+                    arr[i * 3] += this.velocities[i * 3];
+                    arr[i * 3 + 1] += this.velocities[i * 3 + 1];
+                    arr[i * 3 + 2] += this.velocities[i * 3 + 2];
+
+                    // Standard friction drag
+                    this.velocities[i * 3] *= 0.96;
+                    this.velocities[i * 3 + 1] *= 0.96;
+                    this.velocities[i * 3 + 2] *= 0.96;
+                }
+
+                posAttr.needsUpdate = true;
+                
+                // Fade out curves
+                this.points.material.opacity = 1.0 - (this.age / this.maxAge);
+                this.age++;
+
+                if (this.age >= this.maxAge) {
+                    this.scene.remove(this.points);
+                    this.points.geometry.dispose();
+                    this.points.material.dispose();
+                    this.points = null;
+                    this.active = false;
+                }
+            }
+        }
+
+        // --- 7. TACTICAL HUD CONTROLLER (CSS/DOM renderer) ---
+        class TacticalHUDController {
+            constructor() {
+                this.cacheDOMElements();
+                this.setupEventBindings();
+            }
+
+            cacheDOMElements() {
+                this.uiTier = document.getElementById('ui-tier');
+                this.uiLevel = document.getElementById('ui-level');
+                this.uiXpText = document.getElementById('ui-xp-text');
+                this.uiXpSegments = document.getElementById('ui-xp-segments');
+                
+                this.uiHp = document.getElementById('ui-hp');
+                this.uiSpd = document.getElementById('ui-spd');
+                this.uiDmg = document.getElementById('ui-dmg');
+                this.uiTerminal = document.getElementById('ui-terminal');
+                
+                this.hudWpnName = document.getElementById('hud-weapon-name');
+                this.hudWpnClass = document.getElementById('hud-weapon-class');
+                this.hudWpnDmg = document.getElementById('hud-weapon-dmg');
+                this.gridArsenal = document.getElementById('ui-arsenal-grid');
+                this.muteIcon = document.getElementById('mute-icon');
+            }
+
+            setupEventBindings() {
+                // EventBus subscription updates (Scale Isolation)
+                eventBus.on('ZOMBIE_KILLED', (data) => {
+                    this.pushLog(`NEUTRALIZED ZOMBIE [${data.type.toUpperCase()}]: +${data.xp} XP accrued.`, 'text-tertiary glow-text-green');
+                });
+
+                eventBus.on('LEVEL_UP', (data) => {
+                    sfx.playLevelUp();
+                    this.pushLog(`⚠️ SYSTEM SECURITY UPGRADE: OPERATOR PROMOTED TO TIER ${data.level.toString().padStart(2, '0')}!`, 'text-primary-fixed-dim glow-text-amber font-bold');
+                    const state = app.getStateSnapshot();
+                    this.updateHUDValues(state);
+                    this.renderArsenalGrid(state);
+                });
+
+                eventBus.on('PROGRESS_UPDATED', (state) => {
+                    this.updateHUDValues(state);
+                });
+
+                eventBus.on('WEAPON_UNLOCKED', (data) => {
+                    sfx.playUnlock();
+                    this.pushLog(`🔓 UNLOCKED ASSET INSTANTIATED: ${data.config.name} is now ready in Arsenal pool.`, 'text-secondary-fixed glow-text-cyan');
+                    this.renderArsenalGrid(app.getStateSnapshot());
+                });
+
+                eventBus.on('WEAPON_EQUIPPED', (data) => {
+                    this.hudWpnName.textContent = data.config.name;
+                    this.hudWpnClass.textContent = data.config.type;
+                    this.hudWpnDmg.textContent = `${data.config.baseDmg} DMG`;
+                    this.pushLog(`⚔️ LOADOUT EQUIPPED: ${data.config.name} system loaded.`, 'text-secondary');
+                    this.renderArsenalGrid(app.getStateSnapshot());
+                });
+            }
+
+            initHUD() {
+                this.pushLog("Aegis Operational Telemetry System online.", "text-secondary-fixed-dim");
+                this.pushLog("Headless progression engine compiler bound successfully.", "text-on-surface-variant/70");
+                const state = app.getStateSnapshot();
+                this.updateHUDValues(state);
+                this.renderArsenalGrid(state);
+            }
+
+            updateHUDValues(state) {
+                const currentState = state || app.getStateSnapshot();
+                this.uiTier.textContent = currentState.tier.toString().padStart(2, '0');
+                this.uiLevel.textContent = currentState.level.toString().padStart(2, '0');
+                
+                const nextXp = app.calculateRequiredXP(currentState.level);
+                this.uiXpText.textContent = `${currentState.xp} / ${nextXp}`;
+                
+                // Segmented XP bar renderer
+                this.renderXpSegments(currentState.xp, nextXp);
+
+                // Stats values
+                this.uiHp.textContent = currentState.stats.hp;
+                this.uiSpd.textContent = currentState.stats.speedMultiplier.toFixed(2) + 'x';
+                this.uiDmg.textContent = currentState.stats.damageMultiplier.toFixed(2) + 'x';
+            }
+
+            renderXpSegments(currentXp, reqXp) {
+                this.uiXpSegments.innerHTML = '';
+                const totalSegments = 20;
+                const fillRatio = Math.min(1.0, currentXp / reqXp);
+                const activeSegmentsCount = Math.floor(fillRatio * totalSegments);
+
+                for (let i = 0; i < totalSegments; i++) {
+                    const segment = document.createElement('div');
+                    segment.className = 'flex-1 h-full transition-all duration-200';
+                    if (i < activeSegmentsCount) {
+                        segment.className += ' bg-primary-container glow-amber';
+                    } else {
+                        segment.className += ' bg-surface-container-highest/60';
+                    }
+                    this.uiXpSegments.appendChild(segment);
+                }
+            }
+
+            renderArsenalGrid(state) {
+                this.gridArsenal.innerHTML = '';
+
+                Object.keys(MASTER_WEAPON_DATABASE).forEach(id => {
+                    const config = MASTER_WEAPON_DATABASE[id];
+                    const isUnlocked = state.unlockedWeapons.includes(id);
+                    const isEquipped = state.equippedWeapon === id;
+
+                    // Compute dynamic card class rules (DESIGN.md shapes/borders)
+                    let borderClass = 'hud-border';
+                    if (isEquipped) {
+                        borderClass = 'hud-border-equipped glow-cyan border-2';
+                    } else if (isUnlocked) {
+                        borderClass = 'hud-border hover:border-secondary-fixed/70 hover:bg-surface-container-high/40 cursor-pointer active:scale-98';
+                    } else {
+                        borderClass = 'hud-border opacity-30 cursor-not-allowed';
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = `p-2.5 flex flex-col justify-between transition-all duration-100 ${borderClass} relative overflow-hidden`;
+                    
+                    // Unlock Top Colored Strip (DESIGN.md container header)
+                    let headerColor = 'bg-surface-container-highest';
+                    if (isEquipped) {
+                        headerColor = 'bg-secondary-fixed glow-cyan';
+                    } else if (isUnlocked) {
+                        headerColor = 'bg-primary-container';
+                    } else {
+                        headerColor = 'bg-outline-variant/60';
+                    }
+                    
+                    const headerStrip = document.createElement('div');
+                    headerStrip.className = `absolute top-0 left-0 right-0 h-1 ${headerColor}`;
+                    card.appendChild(headerStrip);
+
+                    // Card Content
+                    const statusText = isEquipped 
+                        ? '[ EQUIPPED ]' 
+                        : (isUnlocked ? '[ SELECTABLE ]' : `[ REQ LVL ${config.unlockLevel} ]`);
+                    
+                    const statusColor = isEquipped 
+                        ? 'text-secondary-fixed' 
+                        : (isUnlocked ? 'text-primary' : 'text-error/80');
+
+                    card.innerHTML += `
+                        <div class="flex items-center justify-between mt-1 mb-1.5">
+                            <span class="material-symbols-outlined text-[20px] ${isUnlocked ? 'text-secondary-fixed' : 'text-on-surface-variant/40'}">${config.icon}</span>
+                            <span class="font-label-sm text-[9px] ${statusColor} font-bold">${statusText}</span>
+                        </div>
+                        <div class="px-0.5">
+                            <div class="font-body-lg text-sm text-secondary truncate font-bold uppercase tracking-tight">${config.name}</div>
+                            <div class="font-label-sm text-[10px] text-on-surface-variant/65 mt-0.5 line-clamp-2 leading-snug">${config.desc}</div>
+                        </div>
+                        <div class="mt-2.5 flex justify-between items-center text-[10px] font-label-sm border-t border-outline-variant/20 pt-1.5 text-on-surface-variant">
+                            <span>BASE HIT:</span>
+                            <span class="text-tertiary-fixed font-bold">${config.baseDmg} DMG</span>
+                        </div>
+                    `;
+
+                    if (isUnlocked && !isEquipped) {
+                        card.onclick = () => app.equipWeapon(id);
+                    }
+
+                    this.gridArsenal.appendChild(card);
+                });
+            }
+
+            pushLog(text, cssClass = "text-on-surface-variant") {
+                const entry = document.createElement('div');
+                entry.className = `${cssClass} select-text`;
+                
+                // ISO telemetry timestamps
+                const timestamp = `<span class="text-on-surface-variant/50 font-label-sm">[${new Date().toLocaleTimeString()}]</span> `;
+                entry.innerHTML = `${timestamp}&gt; ${text}`;
+                
+                this.uiTerminal.appendChild(entry);
+                this.uiTerminal.scrollTop = this.uiTerminal.scrollHeight;
+            }
+
+            clearLogs() {
+                sfx.playClick();
+                this.uiTerminal.innerHTML = '';
+                this.pushLog("Terminal logs buffer cleared.", "text-on-surface-variant/50");
+            }
+
+            toggleMute() {
+                const muted = sfx.toggleMute();
+                if (muted) {
+                    this.muteIcon.textContent = 'volume_off';
+                    this.pushLog("Audio output telemetry standard: [ MUTED ]", "text-error/80");
+                } else {
+                    this.muteIcon.textContent = 'volume_up';
+                    sfx.playClick();
+                    this.pushLog("Audio output telemetry standard: [ UNMUTED ]", "text-tertiary");
+                }
+            }
+        }
+
+        // Initialize HUD
+        const ui = new TacticalHUDController();
+        ui.initHUD();
+
+        // Initialize 3D viewport once document DOM is ready
+        let viewer;
+        window.addEventListener('DOMContentLoaded', () => {
+            viewer = new ThreeJsWeaponViewer('threejs-container');
+        });
+    </script>
+</body>
+</html>

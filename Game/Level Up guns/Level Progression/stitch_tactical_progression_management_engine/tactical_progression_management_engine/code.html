@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tactical Progression Management Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=Space+Grotesk:wght@600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#ffb952",
+                        "surface-dim": "#0b1326",
+                        "on-secondary-container": "#00725a",
+                        "on-error": "#690005",
+                        "on-surface-variant": "#d8c3ac",
+                        "surface-container": "#171f33",
+                        "primary": "#ffcf91",
+                        "secondary-container": "#24ffcd",
+                        "tertiary-fixed": "#6dfe9c",
+                        "secondary": "#ffffff",
+                        "surface-tint": "#ffb952",
+                        "surface-variant": "#2d3449",
+                        "surface": "#0b1326",
+                        "on-secondary-fixed-variant": "#00513f",
+                        "on-tertiary-container": "#00572a",
+                        "surface-container-highest": "#2d3449",
+                        "inverse-primary": "#825500",
+                        "tertiary-container": "#3fd578",
+                        "on-primary-fixed-variant": "#633f00",
+                        "surface-bright": "#31394d",
+                        "on-tertiary-fixed": "#00210c",
+                        "surface-container-low": "#131b2e",
+                        "error-container": "#93000a",
+                        "primary-container": "#ffaa00",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed": "#291800",
+                        "secondary-fixed": "#24ffcd",
+                        "on-primary-container": "#694300",
+                        "on-primary": "#452b00",
+                        "surface-container-lowest": "#060e20",
+                        "on-error-container": "#ffdad6",
+                        "tertiary": "#61f291",
+                        "primary-fixed": "#ffddb4",
+                        "tertiary-fixed-dim": "#4de082",
+                        "inverse-surface": "#dae2fd",
+                        "on-tertiary-fixed-variant": "#005227",
+                        "outline": "#a08e79",
+                        "on-secondary-fixed": "#002118",
+                        "on-surface": "#dae2fd",
+                        "outline-variant": "#524433",
+                        "secondary-fixed-dim": "#00e0b3",
+                        "on-background": "#dae2fd",
+                        "surface-container-high": "#222a3d",
+                        "on-tertiary": "#003919",
+                        "inverse-on-surface": "#283044",
+                        "background": "#0b1326",
+                        "on-secondary": "#00382b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin": "24px",
+                        "panel-padding": "12px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "container-max-width": "1440px"
+                    },
+                    "fontFamily": {
+                        "label-lg": ["Space Mono"],
+                        "headline-md": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "body-md": ["JetBrains Mono"],
+                        "headline-lg": ["Space Grotesk"],
+                        "display-lg": ["Space Grotesk"],
+                        "label-sm": ["Space Mono"],
+                        "body-lg": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-lg": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.05em", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #060913;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255, 255, 255, 0.03) 1px, rgba(255, 255, 255, 0.03) 2px);
+            background-size: 100% 2px;
+            color: #dae2fd;
+        }
+        .hud-border {
+            border: 1px solid rgba(160, 142, 121, 0.3);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+        }
+        .glow-cyan {
+            box-shadow: 0 0 8px rgba(36, 255, 205, 0.5);
+        }
+        .glow-amber {
+            box-shadow: 0 0 8px rgba(255, 185, 82, 0.5);
+        }
+        .diagonal-stripes {
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.05) 10px, rgba(255, 255, 255, 0.05) 20px);
+        }
+        .flicker:hover {
+            animation: flicker 0.15s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; text-shadow: 0 0 4px currentColor; }
+        }
+        .blinking-cursor::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .terminal-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #24ffcd;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 overflow-hidden antialiased">
+<!-- Top Navigation Anchor (Simulated via JSON) -->
+<nav class="fixed top-0 w-full bg-surface/80 backdrop-blur-md flex justify-between items-center px-margin h-16 z-50 border-b border-outline-variant bg-surface-container-lowest/60 shadow-[0px_0px_8px_rgba(255,185,82,0.15)]">
+<div class="font-headline-md text-headline-md font-bold tracking-tighter text-primary-fixed-dim">
+            COM_PROGRESS_OS // ONLINE
+        </div>
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:text-secondary-fixed-dim hover:bg-surface-variant/40 p-2 rounded transition-all duration-75 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="text-primary border-b-2 border-primary p-2 transition-all duration-75 active:scale-95 flex-col flex items-center">
+<span class="material-symbols-outlined">terminal</span>
+</button>
+<button class="text-on-surface-variant hover:text-secondary-fixed-dim hover:bg-surface-variant/40 p-2 rounded transition-all duration-75 active:scale-95">
+<span class="material-symbols-outlined">power_settings_new</span>
+</button>
+</div>
+</nav>
+<!-- Main HUD Container -->
+<main class="w-[780px] h-[500px] hud-border flex flex-col mt-16 relative">
+<!-- Corner Accents -->
+<div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-secondary-fixed"></div>
+<div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-secondary-fixed"></div>
+<div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-secondary-fixed"></div>
+<div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-secondary-fixed"></div>
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Column: Status & Logs -->
+<section class="w-1/3 border-r border-outline-variant p-panel-padding flex flex-col gap-4">
+<!-- Operator Info -->
+<div class="hud-border p-2 diagonal-stripes">
+<div class="font-label-lg text-label-lg text-primary mb-1 uppercase">[ OPERATOR STATUS ]</div>
+<div class="flex justify-between items-end mb-2">
+<div class="font-headline-md text-headline-md text-secondary">TIER <span id="ui-tier">1</span></div>
+<div class="font-label-sm text-label-sm text-secondary-fixed">LVL <span id="ui-level">1</span></div>
+</div>
+<!-- XP Bar -->
+<div class="h-2 bg-surface-container w-full relative overflow-hidden flex gap-[1px]">
+<!-- Segments will be injected here via JS, simplifying for static structure initially -->
+<div class="h-full bg-primary-container" id="ui-xp-fill" style="width: 0%;"></div>
+</div>
+<div class="flex justify-between mt-1 font-label-sm text-label-sm text-on-surface-variant">
+<span>XP</span>
+<span id="ui-xp-text">0 / 100</span>
+</div>
+</div>
+<!-- Metrics -->
+<div class="flex-1 hud-border p-2 flex flex-col gap-2">
+<div class="font-label-lg text-label-lg text-primary uppercase">[ METRICS ]</div>
+<div class="flex justify-between items-center font-body-md text-body-md border-b border-surface-variant pb-1">
+<span class="text-on-surface-variant text-label-sm font-label-sm">MAX HP</span>
+<span class="text-tertiary-fixed" id="ui-hp">100.0</span>
+</div>
+<div class="flex justify-between items-center font-body-md text-body-md border-b border-surface-variant pb-1">
+<span class="text-on-surface-variant text-label-sm font-label-sm">SPD MULT</span>
+<span class="text-secondary-fixed" id="ui-spd">1.00x</span>
+</div>
+<div class="flex justify-between items-center font-body-md text-body-md border-b border-surface-variant pb-1">
+<span class="text-on-surface-variant text-label-sm font-label-sm">DMG MULT</span>
+<span class="text-error" id="ui-dmg">1.00x</span>
+</div>
+</div>
+<!-- Terminal Log -->
+<div class="h-1/3 hud-border p-2 bg-surface flex flex-col">
+<div class="font-label-sm text-label-sm text-primary mb-1 uppercase opacity-70 border-b border-outline-variant pb-1">SYS_LOGS //</div>
+<div class="flex-1 overflow-y-auto terminal-scroll font-body-md text-body-md text-secondary-fixed text-[10px] leading-tight space-y-1 mt-1 blinking-cursor" id="ui-terminal">
+<!-- Logs injected here -->
+<div class="text-on-surface-variant">&gt; Engine Initialized...</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Arsenal -->
+<section class="w-2/3 p-panel-padding flex flex-col">
+<div class="font-headline-md text-headline-md text-primary mb-4 border-b border-outline-variant pb-2 uppercase tracking-widest">
+                    WEAPONRY LOADOUT REGISTRY
+                </div>
+<div class="grid grid-cols-2 gap-4 flex-1 content-start overflow-y-auto terminal-scroll pr-2" id="ui-arsenal-grid">
+<!-- Weapon cards generated via JS -->
+</div>
+</section>
+</div>
+<!-- Bottom Simulation Deck -->
+<footer class="h-16 border-t border-outline-variant bg-surface-container-low/90 backdrop-blur-xl flex items-center justify-between px-margin">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-error animate-pulse">radar</span>
+                SIMULATION TARGETS
+            </div>
+<div class="flex gap-4">
+<button class="border border-secondary-fixed text-secondary-fixed font-label-lg text-label-lg px-4 py-1 hover:bg-secondary-fixed hover:text-surface-dim transition-colors flicker uppercase flex items-center gap-2" onclick="engine.simulateKill('Walker')">
+<span class="material-symbols-outlined text-[14px]">pest_control</span>
+                    Walker (+10 XP)
+                </button>
+<button class="border border-primary text-primary font-label-lg text-label-lg px-4 py-1 hover:bg-primary hover:text-surface-dim transition-colors flicker uppercase flex items-center gap-2" onclick="engine.simulateKill('Runner')">
+<span class="material-symbols-outlined text-[14px]">directions_run</span>
+                    Runner (+25 XP)
+                </button>
+<button class="border border-error text-error font-label-lg text-label-lg px-4 py-1 hover:bg-error hover:text-surface-dim transition-colors flicker uppercase flex items-center gap-2" onclick="engine.simulateKill('Tank')">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+                    Tank (+100 XP)
+                </button>
+</div>
+</footer>
+</main>
+<script>
+        /**
+         * Tactical Progression Management Engine Logic
+         */
+        class ShooterProgressionEngine {
+            constructor() {
+                this.state = {
+                    level: 1,
+                    xp: 0,
+                    tier: 1, // Tier increases every 10 levels
+                    stats: {
+                        hp: 100,
+                        speedMult: 1.0,
+                        damageMult: 1.0
+                    },
+                    weapons: [
+                        { id: 'pistol', name: 'M-11 PISTOL', reqLevel: 1, icon: 'colorize', locked: false },
+                        { id: 'grenade', name: 'FRAG GRENADE', reqLevel: 2, icon: 'mode_cool', locked: true },
+                        { id: 'shotgun', name: 'TRENCH GUN', reqLevel: 5, icon: 'view_headline', locked: true },
+                        { id: 'smg', name: 'VECTOR SMG', reqLevel: 10, icon: 'bolt', locked: true },
+                        { id: 'rifle', name: 'ASSAULT RIFLE', reqLevel: 15, icon: 'my_location', locked: true },
+                        { id: 'mg', name: 'HEAVY MG', reqLevel: 20, icon: 'drag_handle', locked: true },
+                        { id: 'rocket', name: 'RPG LAUNCHER', reqLevel: 30, icon: 'rocket_launch', locked: true },
+                        { id: 'laser', name: 'PLASMA CASTER', reqLevel: 50, icon: 'blur_on', locked: true }
+                    ]
+                };
+
+                this.enemyXpMap = {
+                    'Walker': 10,
+                    'Runner': 25,
+                    'Tank': 100
+                };
+
+                this.initUI();
+                this.updateUI();
+            }
+
+            // XP Formula: O(n^1.5) progression curve
+            getXpForNextLevel(targetLevel) {
+                return Math.floor(100 * Math.pow(targetLevel, 1.5));
+            }
+
+            simulateKill(enemyType) {
+                const xpGain = this.enemyXpMap[enemyType] || 0;
+                this.addXp(xpGain);
+                this.log(`> KILLED [${enemyType.toUpperCase()}] ... +${xpGain} XP`);
+            }
+
+            addXp(amount) {
+                this.state.xp += amount;
+                let nextLevelXp = this.getXpForNextLevel(this.state.level);
+                let leveledUp = false;
+
+                while (this.state.xp >= nextLevelXp) {
+                    this.state.xp -= nextLevelXp;
+                    this.state.level++;
+                    nextLevelXp = this.getXpForNextLevel(this.state.level);
+                    this.updateStatsOnLevelUp();
+                    leveledUp = true;
+                }
+
+                if (leveledUp) {
+                    this.checkUnlocks();
+                    this.log(`>> LEVEL UP: NOW LEVEL ${this.state.level}`, 'text-tertiary-fixed');
+                }
+
+                this.updateUI();
+            }
+
+            updateStatsOnLevelUp() {
+                // Tier logic
+                const newTier = Math.floor((this.state.level - 1) / 10) + 1;
+                if (newTier > this.state.tier) {
+                    this.state.tier = newTier;
+                    this.log(`>>> TIER ADVANCEMENT: TIER ${this.state.tier}`, 'text-primary glow-amber');
+                }
+
+                // Stat scaling
+                this.state.stats.hp = +(100 + (this.state.level * 2.5)).toFixed(1);
+                this.state.stats.speedMult = +(1.0 + (this.state.level * 0.01)).toFixed(2);
+                this.state.stats.damageMult = +(1.0 + (this.state.level * 0.05)).toFixed(2);
+            }
+
+            checkUnlocks() {
+                this.state.weapons.forEach(w => {
+                    if (w.locked && this.state.level >= w.reqLevel) {
+                        w.locked = false;
+                        this.log(`> UNLOCKED: ${w.name}`, 'text-secondary-fixed');
+                    }
+                });
+            }
+
+            log(message, cssClass = 'text-on-surface-variant') {
+                const terminal = document.getElementById('ui-terminal');
+                const entry = document.createElement('div');
+                entry.className = cssClass;
+                entry.textContent = message;
+                terminal.appendChild(entry);
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+
+            // --- UI Rendering ---
+
+            initUI() {
+                this.renderArsenal();
+            }
+
+            updateUI() {
+                document.getElementById('ui-level').textContent = this.state.level;
+                document.getElementById('ui-tier').textContent = this.state.tier;
+                
+                const nextLevelXp = this.getXpForNextLevel(this.state.level);
+                document.getElementById('ui-xp-text').textContent = `${Math.floor(this.state.xp)} / ${nextLevelXp}`;
+                
+                const fillPercent = Math.min(100, (this.state.xp / nextLevelXp) * 100);
+                document.getElementById('ui-xp-fill').style.width = `${fillPercent}%`;
+
+                document.getElementById('ui-hp').textContent = this.state.stats.hp.toFixed(1);
+                document.getElementById('ui-spd').textContent = this.state.stats.speedMult.toFixed(2) + 'x';
+                document.getElementById('ui-dmg').textContent = this.state.stats.damageMult.toFixed(2) + 'x';
+
+                this.renderArsenal(); // Re-render to update lock states
+            }
+
+            renderArsenal() {
+                const grid = document.getElementById('ui-arsenal-grid');
+                grid.innerHTML = ''; // Clear
+
+                this.state.weapons.forEach(w => {
+                    const cardClass = w.locked 
+                        ? 'opacity-30 border-outline-variant bg-surface' 
+                        : 'border-secondary-fixed bg-surface-container-low glow-cyan';
+                    
+                    const statusText = w.locked ? `REQ LVL ${w.reqLevel}` : 'UNLOCKED';
+                    const statusColor = w.locked ? 'text-error' : 'text-secondary-fixed';
+
+                    const cardHtml = `
+                        <div class="hud-border border relative overflow-hidden flex flex-col ${cardClass}">
+                            <div class="h-1 w-full bg-secondary-fixed absolute top-0 left-0 ${w.locked ? 'hidden' : ''}"></div>
+                            <div class="p-2 flex items-center justify-between">
+                                <span class="material-symbols-outlined text-[20px] ${w.locked ? 'text-on-surface-variant' : 'text-secondary-fixed'}">${w.icon}</span>
+                                <div class="font-label-sm text-label-sm ${statusColor}">[ ${statusText} ]</div>
+                            </div>
+                            <div class="px-2 pb-2 mt-auto">
+                                <div class="font-body-md text-body-md text-secondary truncate">${w.name}</div>
+                            </div>
+                        </div>
+                    `;
+                    grid.insertAdjacentHTML('beforeend', cardHtml);
+                });
+            }
+        }
+
+        // Initialize Engine
+        const engine = new ShooterProgressionEngine();
+    </script>
+</body></html>
