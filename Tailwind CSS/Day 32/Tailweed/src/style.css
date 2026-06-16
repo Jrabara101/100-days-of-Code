@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/* Design System Variables */
+:root {
+  --neon-cyan: #00f0ff;
+  --neon-pink: #ff007f;
+  --neon-purple: #9d4edd;
+  --neon-green: #39ff14;
+  --dark-bg: #05050a;
+  --panel-bg: rgba(13, 13, 25, 0.75);
+  --panel-border: rgba(0, 240, 255, 0.15);
+}
+
+/* Prevent text selection and outline focus bugs */
+* {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+*:focus {
+  outline: none;
+}
+
+/* Retro custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0b14;
+}
+::-webkit-scrollbar-thumb {
+  background: #252538;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-cyan);
+}
+
+/* Layout and Base Styles */
+body {
+  background-color: var(--dark-bg);
+  color: #e2e8f0;
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Glassmorphism Panel styles */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+}
+
+.glass-panel-accent {
+  background: rgba(255, 0, 127, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 0, 127, 0.2);
+}
+
+/* Glow effects */
+.glow-cyan {
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+}
+.glow-pink {
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.25);
+}
+.glow-text-cyan {
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+}
+.glow-text-pink {
+  text-shadow: 0 0 8px rgba(255, 0, 127, 0.6);
+}
+
+/* Pixel art transparency checkerboard */
+.checkerboard {
+  background-color: #1e1e30;
+  background-image: 
+    linear-gradient(45deg, #151522 25%, transparent 25%), 
+    linear-gradient(-45deg, #151522 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #151522 75%), 
+    linear-gradient(-45deg, transparent 75%, #151522 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* Active buttons state style */
+.tool-active {
+  background-color: rgba(0, 240, 255, 0.2) !important;
+  border-color: var(--neon-cyan) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+/* Animations preview arena */
+.preview-arena {
+  background: radial-gradient(circle at center, #1b1b3a 0%, #070710 100%);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(157, 78, 221, 0.3);
+}
+
+/* Keyframe blink for animations */
+@keyframes neon-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.pulse-glow {
+  animation: neon-pulse 2s infinite;
+}
