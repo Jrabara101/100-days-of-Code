@@ -21,3 +21,7 @@ vendor/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# SQLite Databases
+*.sqlite
+

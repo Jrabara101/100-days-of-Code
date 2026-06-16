@@ -24,3 +24,7 @@ Game/Pacman Game/config.js
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Databases
+*.sqlite
+
