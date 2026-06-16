@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RPG Dialogue Graph Traversal Engine</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-hue: 220;
+            --bg-dark: hsl(var(--primary-hue), 35%, 6%);
+            --panel-slate: hsl(var(--primary-hue), 25%, 11%);
+            --panel-slate-transparent: rgba(17, 22, 38, 0.7);
+            --border-blue: hsl(var(--primary-hue), 25%, 22%);
+            --border-focus: hsl(200, 95%, 45%);
+            --accent-cyan: hsl(198, 93%, 60%);
+            --accent-gold: hsl(38, 92%, 54%);
+            --text-light: hsl(210, 38%, 95%);
+            --text-muted: hsl(215, 16%, 65%);
+            --text-dark: hsl(220, 20%, 10%);
+            --glow-cyan: 0 0 15px hsla(198, 93%, 60%, 0.3);
+            --glow-gold: 0 0 15px hsla(38, 92%, 54%, 0.3);
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-blue) transparent;
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-blue);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-cyan);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(180deg, hsl(220, 35%, 4%) 0%, var(--bg-dark) 100%);
+            background-size: 24px 24px, 100% 100%;
+            color: var(--text-light);
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 32px;
+            width: 1050px;
+            max-width: 95vw;
+            margin: 20px auto;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                width: 680px;
+                gap: 24px;
+            }
+        }
+
+        /* --- TITLE HEADER --- */
+        header {
+            width: 100%;
+            max-width: 1050px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            margin-bottom: 8px;
+        }
+
+        header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+            margin: 0;
+            background: linear-gradient(90deg, var(--text-light) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header h1 span {
+            font-size: 0.75rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            color: var(--accent-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 2px 8px;
+            border-radius: 12px;
+            letter-spacing: 1px;
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Sound Toggle Button */
+        .sound-btn {
+            background: var(--panel-slate);
+            border: 1px solid var(--border-blue);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sound-btn.enabled {
+            color: var(--accent-cyan);
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .sound-btn:hover {
+            border-color: var(--accent-cyan);
+            background: hsl(var(--primary-hue), 25%, 15%);
+        }
+
+        /* --- 1. RPG DIALOGUE STAGE PANEL --- */
+        .story-container {
+            width: 100%;
+            height: 310px;
+            background: linear-gradient(180deg, var(--panel-slate) 0%, hsl(var(--primary-hue), 30%, 8%) 100%);
+            border: 1px solid var(--border-blue);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+            position: relative;
+            cursor: pointer;
+            backdrop-filter: blur(16px);
+            transition: border-color 0.2s ease;
+        }
+
+        .story-container:hover {
+            border-color: rgba(56, 189, 248, 0.25);
+        }
+
+        /* Layout with Character Profile Info */
+        .dialogue-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* Stylized SVG Character Avatar */
+        .character-portrait {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: hsl(var(--primary-hue), 25%, 16%);
+            border: 1px solid var(--border-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .story-container:hover .character-portrait {
+            border-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .portrait-svg {
+            width: 80%;
+            height: 80%;
+            stroke: var(--text-muted);
+            fill: none;
+            stroke-width: 2;
+            transition: var(--transition-smooth);
+        }
+
+        .story-container:hover .portrait-svg {
+            stroke: var(--accent-cyan);
+            filter: drop-shadow(0 0 3px var(--accent-cyan));
+        }
+
+        .speaker-info-block {
+            flex-grow: 1;
+        }
+
+        .speaker-tag {
+            font-family: 'Cinzel', serif;
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            margin: 0 0 2px 0;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+
+        .speaker-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        /* Log History Button */
+        .history-trigger-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .history-trigger-btn:hover {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--text-light);
+            border-color: var(--accent-cyan);
+        }
+
+        /* Dialogue Printing Box */
+        .dialogue-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .dialogue-text {
+            font-size: 1.12rem;
+            line-height: 1.6;
+            color: hsl(210, 25%, 88%);
+            margin: 0;
+            font-weight: 400;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            white-space: pre-wrap;
+        }
+
+        /* --- 2. MULTIPLE CHOICE SELECTION PANEL --- */
+        .choices-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 14px;
+            z-index: 10;
+            pointer-events: auto;
+        }
+        
+        button.choice-btn {
+            background: linear-gradient(90deg, rgba(30, 41, 75, 0.5) 0%, rgba(22, 31, 56, 0.5) 100%);
+            color: hsl(210, 25%, 85%);
+            border: 1px solid var(--border-blue);
+            padding: 12px 18px;
+            text-align: left;
+            font-size: 13.5px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button.choice-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--accent-cyan);
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
+
+        button.choice-btn:hover {
+            background: linear-gradient(90deg, rgba(30, 41, 75, 0.8) 0%, rgba(22, 31, 56, 0.8) 100%);
+            border-color: var(--accent-cyan);
+            color: #fff;
+            padding-left: 22px;
+            box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.05);
+        }
+
+        button.choice-btn:hover::before {
+            transform: scaleY(1);
+        }
+
+        button.choice-btn:active {
+            transform: scale(0.99);
+        }
+
+        /* Choice arrows */
+        button.choice-btn::after {
+            content: '→';
+            font-size: 14px;
+            color: var(--accent-cyan);
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: var(--transition-smooth);
+        }
+
+        button.choice-btn:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* --- NEXT DIALOGUE TICKER --- */
+        .continue-ticker {
+            position: absolute;
+            bottom: 16px;
+            right: 24px;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            letter-spacing: 1.5px;
+            animation: bobble 0.7s infinite alternate;
+            display: none;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+        }
+
+        @keyframes bobble {
+            from { transform: translateY(0); }
+            to { transform: translateY(5px); }
+        }
+
+        /* --- 3. IMMUTABLE BACKLOG OVERLAY --- */
+        .backlog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 6, 12, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .backlog-overlay.visible {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .backlog-modal {
+            width: 640px;
+            max-width: 90vw;
+            height: 480px;
+            background: var(--panel-slate);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 12px;
+            padding: 28px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.8), var(--glow-cyan);
+            animation: modalScaleUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        @keyframes modalScaleUp {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .backlog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-blue);
+            padding-bottom: 14px;
+            margin-bottom: 4px;
+        }
+
+        .backlog-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+        }
+
+        .backlog-close {
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: var(--transition-smooth);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .backlog-close:hover {
+            color: #fff;
+            border-color: var(--accent-cyan);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .backlog-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-right: 8px;
+        }
+        
+        .backlog-row {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 12px;
+            animation: fadeInRow 0.2s ease forwards;
+        }
+
+        @keyframes fadeInRow {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .backlog-speaker {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .backlog-speaker::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+        }
+
+        .backlog-text {
+            font-size: 1rem;
+            color: hsl(210, 15%, 85%);
+            line-height: 1.5;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .backlog-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        /* --- 4. ENGINE TELEMETRY PANEL (RIGHT COLUMN) --- */
+        .debug-panel {
+            background: var(--panel-slate);
+            border: 1px solid var(--border-blue);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .debug-title {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-blue);
+            padding-bottom: 10px;
+            margin: 0;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        /* Interactive Graph Viewport */
+        .graph-viewport {
+            height: 190px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: hsl(var(--primary-hue), 35%, 5%);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 0;
+        }
+
+        .graph-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            z-index: 2;
+        }
+
+        .graph-node {
+            background: hsl(var(--primary-hue), 25%, 15%);
+            border: 1px solid var(--border-blue);
+            border-radius: 6px;
+            padding: 8px 12px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            min-width: 110px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .graph-node:hover {
+            border-color: var(--accent-cyan);
+            color: var(--text-light);
+            background: hsl(var(--primary-hue), 25%, 18%);
+        }
+
+        .graph-node.active {
+            background: hsl(var(--primary-hue), 35%, 16%);
+            border-color: var(--accent-cyan);
+            color: #fff;
+            box-shadow: var(--glow-cyan);
+        }
+
+        .graph-node.active .node-id {
+            color: var(--accent-cyan);
+        }
+
+        .node-id {
+            font-weight: 700;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .node-desc {
+            font-size: 9px;
+            opacity: 0.7;
+        }
+
+        /* Graph Connections SVG */
+        .graph-svg-connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .graph-svg-connections path {
+            fill: none;
+            stroke: var(--border-blue);
+            stroke-width: 2;
+            transition: var(--transition-smooth);
+        }
+
+        .graph-svg-connections path.active-path {
+            stroke: var(--accent-cyan);
+            filter: drop-shadow(0 0 3px var(--accent-cyan));
+            stroke-width: 2.5;
+        }
+
+        /* Calibration Controls Grid */
+        .calibration-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .config-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .config-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        /* Custom Toggle Switch */
+        .toggle-switch-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .toggle-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text-muted);
+            transition: var(--transition-smooth);
+        }
+
+        .toggle-switch-wrapper.active .toggle-text {
+            color: var(--accent-cyan);
+        }
+
+        .switch-outer {
+            width: 34px;
+            height: 18px;
+            background-color: var(--border-blue);
+            border-radius: 10px;
+            position: relative;
+            transition: var(--transition-smooth);
+        }
+
+        .toggle-switch-wrapper.active .switch-outer {
+            background-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .switch-inner {
+            width: 12px;
+            height: 12px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: var(--transition-smooth);
+        }
+
+        .toggle-switch-wrapper.active .switch-inner {
+            left: 19px;
+        }
+
+        /* Locale Selection Dropdown */
+        select.locale-select {
+            background: hsl(var(--primary-hue), 25%, 15%);
+            color: white;
+            border: 1px solid var(--border-blue);
+            padding: 8px 12px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        select.locale-select:hover, select.locale-select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        /* Real-time Telemetry Monitor Console */
+        .telemetry-console {
+            background: hsl(var(--primary-hue), 35%, 4%);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            padding: 12px;
+            height: 120px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            line-height: 1.4;
+        }
+
+        .telemetry-line {
+            color: var(--text-muted);
+        }
+
+        .telemetry-time {
+            color: var(--accent-cyan);
+        }
+
+        .telemetry-event {
+            color: #cbd5e1;
+        }
+
+        .telemetry-state {
+            color: var(--accent-gold);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Dialogue Graph Engine <span>L10n & Backlog</span></h1>
+        <div class="top-controls">
+            <button class="sound-btn enabled" id="sound-toggle-btn" onclick="app.toggleSound()">
+                🔊 Sound Enabled
+            </button>
+        </div>
+    </header>
+
+    <main class="workspace">
+        <!-- LEFT COLUMN: CINEMATIC DIALOGUE CANVAS -->
+        <div class="story-container" id="interaction-plate">
+            <div>
+                <div class="dialogue-header">
+                    <div class="character-portrait" id="portrait-box">
+                        <!-- Helm/Gatekeeper vector SVG -->
+                        <svg viewBox="0 0 100 100" class="portrait-svg">
+                            <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-dasharray="3 3" opacity="0.3"/>
+                            <path d="M50 15 L25 35 V65 L50 85 L75 65 V35 Z" stroke="currentColor" stroke-linejoin="round"/>
+                            <path d="M50 15 V85" stroke="currentColor" stroke-dasharray="2 2" opacity="0.4"/>
+                            <path d="M35 48 H65" stroke="currentColor"/>
+                            <path d="M38 38 H62" stroke="currentColor" opacity="0.7"/>
+                            <path d="M43 58 L50 53 L57 58" stroke="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="speaker-info-block">
+                        <p class="speaker-tag" id="speaker-display">---</p>
+                        <p class="speaker-sub" id="speaker-role-display">NPC Telemetry</p>
+                    </div>
+                    <button class="history-trigger-btn" id="open-log-btn">
+                        📋 History Logs
+                    </button>
+                </div>
+                
+                <div class="dialogue-body">
+                    <p class="dialogue-text" id="text-display"></p>
+                </div>
+            </div>
+            
+            <div class="choices-box" id="choices-container"></div>
+            <div class="continue-ticker" id="click-ticker">▼ NEXT</div>
+        </div>
+
+        <!-- RIGHT COLUMN: TELEMETRY & CONTROLS DECK -->
+        <div class="debug-panel">
+            <p class="debug-title">Graph Traversal Telemetry</p>
+            
+            <!-- Visual Node Graph representation -->
+            <div class="graph-viewport">
+                <svg class="graph-svg-connections">
+                    <!-- Connections -->
+                    <path id="path-start-inquiry" d="M 262,45 C 262,70 131,70 131,105"/>
+                    <path id="path-start-secret" d="M 262,45 C 262,70 393,70 393,105"/>
+                </svg>
+
+                <div class="graph-row">
+                    <div class="graph-node active" id="node-start" onclick="app.forceJump('start')">
+                        <div class="node-id">start</div>
+                        <div class="node-desc">Morgan's Gates</div>
+                    </div>
+                </div>
+
+                <div class="graph-row">
+                    <div class="graph-node" id="node-inquiry_rift" onclick="app.forceJump('inquiry_rift')">
+                        <div class="node-id">inquiry_rift</div>
+                        <div class="node-desc">Castle Path</div>
+                    </div>
+                    <div class="graph-node" id="node-confront_secret" onclick="app.forceJump('confront_secret')">
+                        <div class="node-id">confront_secret</div>
+                        <div class="node-desc">Rusted Key</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calibration controls -->
+            <div class="calibration-grid">
+                <div class="config-card">
+                    <p class="config-label">Active Language</p>
+                    <select class="locale-select" id="locale-picker">
+                        <option value="en">English (EN)</option>
+                        <option value="es">Español (ES)</option>
+                    </select>
+                </div>
+                <div class="config-card">
+                    <p class="config-label">Memory Registers</p>
+                    <div class="toggle-switch-wrapper" id="flag-secret-btn" onclick="app.toggleStoryFlag('knows_secret')">
+                        <span class="toggle-text">KNOWS_SECRET</span>
+                        <div class="switch-outer">
+                            <div class="switch-inner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time logs -->
+            <div>
+                <p class="config-label" style="margin-bottom: 6px;">Live Execution Logs</p>
+                <div class="telemetry-console" id="telemetry-log"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- BACKLOG MODAL OVERLAY -->
+    <div class="backlog-overlay" id="backlog-overlay">
+        <div class="backlog-modal">
+            <div class="backlog-header">
+                <span class="backlog-title">Chronological History Stack</span>
+                <span class="backlog-close" id="close-log-btn">✕</span>
+            </div>
+            <div class="backlog-content" id="backlog-scroll-box"></div>
+        </div>
+    </div>
+
+<script>
+// --- AUDIO SYNTHESIS ENGINE (ZERO ASSETS REQUISITE) ---
+class SoundSynth {
+    constructor() {
+        this.ctx = null;
+        this.enabled = true;
+    }
+    
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+    
+    playTick() {
+        if (!this.enabled) return;
+        this.init();
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.type = 'sine';
+        // Give a slight organic variance in typewriter speed/frequencies
+        osc.frequency.setValueAtTime(350 + Math.random() * 180, this.ctx.currentTime);
+        
+        gain.gain.setValueAtTime(0.012, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.035);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.035);
+    }
+    
+    playClick() {
+        if (!this.enabled) return;
+        this.init();
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(280, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.07);
+        
+        gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.07);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.07);
+    }
+
+    playHover() {
+        if (!this.enabled) return;
+        this.init();
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(750, this.ctx.currentTime);
+        
+        gain.gain.setValueAtTime(0.004, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.03);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.03);
+    }
+}
+
+// --- 1. THE PRODUCTION-GRADE LOCALIZATION STRINGS DATABASE ---
+const LOCALE_DATABASE = {
+    'en': {
+        'speaker_morgan': 'Gatekeeper Morgan',
+        'morgan_role': 'Sentinel of the Rift Keep',
+        'morgan_start': 'Halt. The inner keep is restricted by order of the High Council. State your business or step back down the ridge road.',
+        'choice_rift': '"I seek audience with the Archmage regarding the rift."',
+        'choice_secret': '"I know what you did at the eastern wall, Morgan." (Requires Secret)',
+        'choice_restart': '[Enter the Castle Courtyard] -> Restart Loop',
+        'morgan_rift': 'The rift? The Council claims that threat is contained. Still, you have the look of an honest messenger. Pass through, but keep your steel sheathed.',
+        'morgan_secret': 'Wh-what? Keep your voice down! How did you find out about that night? Fine... take the key. Just speak of this to no one, or the ravens will feed on us both.'
+    },
+    'es': {
+        'speaker_morgan': 'Guardián Morgan',
+        'morgan_role': 'Centinela de la Fisura',
+        'morgan_start': 'Alto. El torreón interior está restringido por orden del Alto Consejo. Declare su asunto o retroceda por el camino de la cresta.',
+        'choice_rift': '"Busco audiencia con el Archimago con respecto a la fisura."',
+        'choice_secret': '"Sé lo que hiciste en el muro este, Morgan." (Requiere Secreto)',
+        'choice_restart': '[Entrar al patio del castillo] -> Reiniciar bucle',
+        'morgan_rift': '¿La fisura? El Consejo afirma que esa amenaza está contenida. Aun así, tienes el aspecto de un mensajero honesto. Pasa, pero mantén tu acero enfundado.',
+        'morgan_secret': '¿Qu-qué? ¡Baja la voz! ¿Cómo te enteraste de aquella noche? Bien... toma la llave. No hables de esto con nadie, o los cuervos se alimentarán de ambos.'
+    }
+};
+
+// --- 2. DECOUPLED NARRATIVE DIRECTED GRAPH MATRIX POOL ---
+const DIALOGUE_GRAPH = {
+    'start': {
+        speakerToken: 'speaker_morgan',
+        textToken: 'morgan_start',
+        choices: [
+            { textToken: 'choice_rift', nextNode: 'inquiry_rift' },
+            { textToken: 'choice_secret', nextNode: 'confront_secret', condition: 'knows_secret' }
+        ]
+    },
+    'inquiry_rift': {
+        speakerToken: 'speaker_morgan',
+        textToken: 'morgan_rift',
+        choices: [
+            { textToken: 'choice_restart', nextNode: 'start' }
+        ]
+    },
+    'confront_secret': {
+        speakerToken: 'speaker_morgan',
+        textToken: 'morgan_secret',
+        choices: [
+            { textToken: 'choice_restart', nextNode: 'start' }
+        ]
+    }
+};
+
+class DialogueEngineL10n {
+    constructor() {
+        this.storyState = { knows_secret: false };
+        this.historyLog = []; // Absolute Immutable Backlog Stack Storage Matrix
+        
+        this.currentLocale = 'en'; // Active Locale Pointer
+        this.currentNodeId = 'start';
+        
+        this.typewriterTimer = null;
+        this.printedLength = 0;
+        this.inputMode = 'IDLE'; 
+
+        this.sounds = new SoundSynth();
+
+        this.cacheDOMElements();
+        this.bindSystemEvents();
+        
+        // Log Initial Boot
+        this.logTelemetry("Narrative Engine Initialized");
+        this.jumpToNode('start');
+    }
+
+    cacheDOMElements() {
+        this.plate = document.getElementById('interaction-plate');
+        this.speakerDisplay = document.getElementById('speaker-display');
+        this.roleDisplay = document.getElementById('speaker-role-display');
+        this.textDisplay = document.getElementById('text-display');
+        this.choicesContainer = document.getElementById('choices-container');
+        this.ticker = document.getElementById('click-ticker');
+        this.localePicker = document.getElementById('locale-picker');
+        this.soundBtn = document.getElementById('sound-toggle-btn');
+        
+        // Backlog DOM Selectors
+        this.backlogOverlay = document.getElementById('backlog-overlay');
+        this.backlogScrollBox = document.getElementById('backlog-scroll-box');
+        this.openLogBtn = document.getElementById('open-log-btn');
+        this.closeLogBtn = document.getElementById('close-log-btn');
+    }
+
+    bindSystemEvents() {
+        // Broad canvas pointer click router interceptor
+        this.plate.addEventListener('click', (e) => {
+            if (e.target.closest('.choice-btn') || e.target.closest('#open-log-btn')) return; 
+            
+            if (this.inputMode === 'PRINTING') {
+                this.flushFullTextStream();
+            } else if (this.inputMode === 'WAITING_FOR_PROGRESSION') {
+                this.sounds.playClick();
+                this.jumpToNode('start');
+            }
+        });
+
+        // Locale Dropdown Switch Engine Configuration Listener
+        this.localePicker.onchange = (e) => {
+            this.sounds.playClick();
+            this.currentLocale = e.target.value;
+            this.logTelemetry(`Locale swapped to: ${this.currentLocale.toUpperCase()}`);
+            this.refreshActiveNodeLocalization();
+        };
+
+        // Backlog Modal Toggle Listeners
+        this.openLogBtn.onclick = () => {
+            this.sounds.playClick();
+            this.openHistoryLedgerUI();
+        };
+        this.closeLogBtn.onclick = () => {
+            this.sounds.playClick();
+            this.closeHistoryLedgerUI();
+        };
+    }
+
+    // --- 3. GRAPH TRAVERSAL & RESOLUTION ENGINE ---
+    jumpToNode(nodeId) {
+        this.currentNodeId = nodeId;
+        const node = DIALOGUE_GRAPH[nodeId];
+
+        this.choicesContainer.innerHTML = '';
+        this.ticker.style.display = 'none';
+
+        // Translate runtime asset tokens using the active localization database values
+        const speakerText = LOCALE_DATABASE[this.currentLocale][node.speakerToken];
+        const roleText = LOCALE_DATABASE[this.currentLocale]['morgan_role'];
+        const fullDialogueText = LOCALE_DATABASE[this.currentLocale][node.textToken];
+
+        this.speakerDisplay.innerText = speakerText;
+        this.roleDisplay.innerText = roleText;
+        
+        this.updateVisualGraph(nodeId);
+        this.logTelemetry(`Traversed to node: <span class="telemetry-state">${nodeId}</span>`);
+
+        this.initTypewriterStream(fullDialogueText);
+    }
+
+    refreshActiveNodeLocalization() {
+        if (this.typewriterTimer) clearInterval(this.typewriterTimer);
+        
+        const node = DIALOGUE_GRAPH[this.currentNodeId];
+        const speakerText = LOCALE_DATABASE[this.currentLocale][node.speakerToken];
+        const roleText = LOCALE_DATABASE[this.currentLocale]['morgan_role'];
+        const fullDialogueText = LOCALE_DATABASE[this.currentLocale][node.textToken];
+
+        this.speakerDisplay.innerText = speakerText;
+        this.roleDisplay.innerText = roleText;
+
+        // If language switches mid-reveal, preserve player UX by instantly displaying the full localized sentence
+        this.textDisplay.textContent = fullDialogueText;
+        this.terminateTextStream();
+    }
+
+    // --- 4. OPTIMIZED TYPEWRITER CHARACTER STREAM ---
+    initTypewriterStream(fullText) {
+        this.inputMode = 'PRINTING';
+        this.textDisplay.textContent = '';
+        this.printedLength = 0;
+
+        if (this.typewriterTimer) clearInterval(this.typewriterTimer);
+
+        let audioThrottle = 0;
+
+        this.typewriterTimer = setInterval(() => {
+            this.textDisplay.textContent += fullText[this.printedLength];
+            
+            // Play a soft tick audio blip on characters
+            if (audioThrottle % 2 === 0) {
+                this.sounds.playTick();
+            }
+            audioThrottle++;
+            
+            this.printedLength++;
+
+            if (this.printedLength >= fullText.length) {
+                this.terminateTextStream();
+            }
+        }, 16); // High-refresh pacing (approx 60 chars per second)
+    }
+
+    flushFullTextStream() {
+        clearInterval(this.typewriterTimer);
+        const fullText = LOCALE_DATABASE[this.currentLocale][DIALOGUE_GRAPH[this.currentNodeId].textToken];
+        this.textDisplay.textContent = fullText;
+        this.terminateTextStream();
+    }
+
+    terminateTextStream() {
+        clearInterval(this.typewriterTimer);
+        
+        // --- TRANSACTION BLOCK: COMMIT COMPLETED SENTENCE TO THE HISTORICAL BACKLOG ---
+        this.appendLineToImmutableHistory();
+
+        const node = DIALOGUE_GRAPH[this.currentNodeId];
+
+        if (node.choices.length > 0) {
+            this.inputMode = 'CHOICE_SELECTION';
+            this.renderBranchOptions();
+        } else {
+            this.inputMode = 'WAITING_FOR_PROGRESSION';
+            this.ticker.style.display = 'block';
+        }
+    }
+
+    // --- 5. THE IMMUTABLE BACKLOG PIPELINE ENGINE ---
+    appendLineToImmutableHistory() {
+        const node = DIALOGUE_GRAPH[this.currentNodeId];
+        
+        // Pull raw string tokens instead of compiled strings to guarantee structural data logging parity
+        const speakerKey = node.speakerToken;
+        const textKey = node.textToken;
+
+        // Duplicate entry check: don't log the same statement twice if the user toggles languages mid-frame
+        const lastEntry = this.historyLog[this.historyLog.length - 1];
+        if (lastEntry && lastEntry.textToken === textKey) return;
+
+        // Store pure configuration token pairs. The UI handles runtime translations dynamically.
+        this.historyLog.push({ speakerToken: speakerKey, textToken: textKey });
+    }
+
+    openHistoryLedgerUI() {
+        if (this.inputMode === 'PRINTING') this.flushFullTextStream();
+        
+        this.backlogScrollBox.innerHTML = '';
+
+        if (this.historyLog.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'backlog-empty';
+            emptyMsg.innerText = this.currentLocale === 'en' ? 'Backlog history is currently empty.' : 'El historial está vacío actualmente.';
+            this.backlogScrollBox.appendChild(emptyMsg);
+        } else {
+            // Process read-only loop over history arrays
+            this.historyLog.forEach(log => {
+                const speakerStr = LOCALE_DATABASE[this.currentLocale][log.speakerToken];
+                const textStr = LOCALE_DATABASE[this.currentLocale][log.textToken];
+
+                const row = document.createElement('div');
+                row.className = 'backlog-row';
+                row.innerHTML = `
+                    <div class="backlog-speaker">${speakerStr}</div>
+                    <div class="backlog-text">${textStr}</div>
+                `;
+                this.backlogScrollBox.appendChild(row);
+            });
+        }
+
+        this.backlogOverlay.style.display = 'flex';
+        this.backlogOverlay.offsetHeight; // Force DOM layout recalculation pass
+        this.backlogOverlay.classList.add('visible');
+
+        // Snap scroll positions straight to the bottom row index bounds
+        this.backlogScrollBox.scrollTop = this.backlogScrollBox.scrollHeight;
+    }
+
+    closeHistoryLedgerUI() {
+        this.backlogOverlay.classList.remove('visible');
+        setTimeout(() => { this.backlogOverlay.style.display = 'none'; }, 200);
+    }
+
+    // --- 6. CONDITIONAL CHOICE VALVE GATEKEEPING ---
+    renderBranchOptions() {
+        this.choicesContainer.innerHTML = '';
+        const node = DIALOGUE_GRAPH[this.currentNodeId];
+
+        node.choices.forEach(choice => {
+            if (choice.condition && !this.storyState[choice.condition]) return; // Condition guard check
+
+            let btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = LOCALE_DATABASE[this.currentLocale][choice.textToken];
+            
+            // Wire sound hover and click triggers
+            btn.onmouseenter = () => this.sounds.playHover();
+            btn.onclick = () => {
+                this.sounds.playClick();
+                this.jumpToNode(choice.nextNode);
+            };
+            this.choicesContainer.appendChild(btn);
+        });
+    }
+
+    toggleStoryFlag(flagKey) {
+        this.sounds.playClick();
+        this.storyState[flagKey] = !this.storyState[flagKey];
+        
+        let wrapper = document.getElementById(`flag-${flagKey === 'knows_secret' ? 'secret' : 'bribe'}-btn`);
+        
+        if (this.storyState[flagKey]) {
+            wrapper.classList.add('active');
+            this.logTelemetry(`Flag state flipped: <span class="telemetry-state">${flagKey.toUpperCase()} = TRUE</span>`);
+        } else {
+            wrapper.classList.remove('active');
+            this.logTelemetry(`Flag state flipped: <span class="telemetry-state">${flagKey.toUpperCase()} = FALSE</span>`);
+        }
+
+        this.updateGraphPaths();
+
+        if (this.inputMode === 'CHOICE_SELECTION') {
+            this.renderBranchOptions();
+        }
+    }
+
+    // Force traverse jump for debug purposes clicking nodes directly
+    forceJump(nodeId) {
+        this.sounds.playClick();
+        this.logTelemetry(`Telemetry Force-Jumped to node: ${nodeId}`);
+        this.jumpToNode(nodeId);
+    }
+
+    // Visual Graph Telemetry synchronization
+    updateVisualGraph(activeId) {
+        document.querySelectorAll('.graph-node').forEach(node => {
+            node.classList.remove('active');
+        });
+        const activeNode = document.getElementById(`node-${activeId}`);
+        if (activeNode) activeNode.classList.add('active');
+
+        this.updateGraphPaths(activeId);
+    }
+
+    updateGraphPaths(currentId = this.currentNodeId) {
+        const pathLeft = document.getElementById('path-start-inquiry');
+        const pathRight = document.getElementById('path-start-secret');
+        
+        // Remove highlighting
+        pathLeft.classList.remove('active-path');
+        pathRight.classList.remove('active-path');
+
+        if (currentId === 'start') {
+            pathLeft.classList.add('active-path');
+            // If knows_secret is active, highlight the secret route availability
+            if (this.storyState.knows_secret) {
+                pathRight.classList.add('active-path');
+            }
+        } else if (currentId === 'inquiry_rift') {
+            pathLeft.classList.add('active-path');
+        } else if (currentId === 'confront_secret') {
+            pathRight.classList.add('active-path');
+        }
+    }
+
+    toggleSound() {
+        this.sounds.enabled = !this.sounds.enabled;
+        if (this.sounds.enabled) {
+            this.soundBtn.classList.add('enabled');
+            this.soundBtn.innerText = "🔊 Sound Enabled";
+            this.sounds.playClick();
+        } else {
+            this.soundBtn.classList.remove('enabled');
+            this.soundBtn.innerText = "🔇 Sound Muted";
+        }
+    }
+
+    // Live logging window updates
+    logTelemetry(msg) {
+        const consoleEl = document.getElementById('telemetry-log');
+        if (consoleEl) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            consoleEl.innerHTML += `<div class="telemetry-line"><span class="telemetry-time">[${time}]</span> <span class="telemetry-event">${msg}</span></div>`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+    }
+}
+
+// System Core Instantiation Startup
+const app = new DialogueEngineL10n();
+</script>
+</body>
+</html>
