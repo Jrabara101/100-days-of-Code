@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Spatial Partitioning & Pathfinding Laboratory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+        :root {
+            --bg: #f8fafc;
+            --panel: #ffffff;
+            --border: #e2e8f0;
+            --accent: #789f8a; /* Muted sage green */
+            --text: #334155;
+            --text-muted: #64748b;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-weight: 300;
+        }
+
+        h1, h2, h3, .font-serif {
+            font-family: var(--font-serif);
+        }
+
+        .specimen-container {
+            background-color: #ffffff;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .lab-panel {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.02);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Console log animation styling */
+        .log-entry {
+            border-left: 2px solid var(--accent);
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body class="p-6 md:p-12 lg:p-20">
+    <div class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+        <!-- Sidebar / Architecture Controls -->
+        <div class="lg:col-span-4 space-y-6 flex flex-col h-full">
+            <header class="space-y-3">
+                <div class="text-[11px] uppercase tracking-[0.15em] text-slate-400 font-medium">Research Documentation</div>
+                <h1 class="text-3xl font-semibold tracking-tight text-slate-800 leading-tight">
+                    Spatial Partitioning<br />
+                    <span class="italic text-slate-500 font-normal">& Pathfinding Lab</span>
+                </h1>
+            </header>
+
+            <!-- Laboratory Controls Panel -->
+            <div class="lab-panel p-5 rounded-sm space-y-5 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-[#789f8a]"></div>
+                
+                <div>
+                    <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">Infinite Seed Control</h3>
+                    <div class="flex gap-2">
+                        <input id="seedInput" type="text" value="STUDY" class="w-full text-xs font-mono border border-slate-300 px-3 py-2 rounded-sm focus:outline-none focus:border-[#789f8a]" />
+                        <button onclick="dungeon.applySeedInput()" class="bg-slate-800 hover:bg-slate-700 text-white text-[10px] uppercase tracking-widest px-3 rounded-sm font-semibold">Apply</button>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100" />
+
+                <div>
+                    <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">Visual Overlay Layer</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center text-xs text-slate-600 cursor-pointer">
+                            <input type="checkbox" id="toggleBSP" class="mr-2 rounded border-slate-300 text-[#789f8a] focus:ring-[#789f8a]" checked onchange="dungeon.repaintCanvas()" />
+                            Show BSP Leaf Bounds
+                        </label>
+                        <label class="flex items-center text-xs text-slate-600 cursor-pointer">
+                            <input type="checkbox" id="togglePathfinding" class="mr-2 rounded border-slate-300 text-[#789f8a] focus:ring-[#789f8a]" checked onchange="dungeon.repaintCanvas()" />
+                            Show A* Expansion Debug
+                        </label>
+                        <label class="flex items-center text-xs text-slate-600 cursor-pointer">
+                            <input type="checkbox" id="toggleTexture" class="mr-2 rounded border-slate-300 text-[#789f8a] focus:ring-[#789f8a]" checked onchange="dungeon.repaintCanvas()" />
+                            Walkable Tile Detail
+                        </label>
+                        <label class="flex items-center text-xs text-slate-600 cursor-pointer">
+                            <input type="checkbox" id="toggleMonsterAI" class="mr-2 rounded border-slate-300 text-[#789f8a] focus:ring-[#789f8a]" checked />
+                            Monster AI Chase Active
+                        </label>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100" />
+
+                <div>
+                    <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">Render Mode</h3>
+                    <div class="flex gap-4">
+                        <label class="flex items-center text-xs text-slate-600 cursor-pointer">
+                            <input type="radio" name="renderMode" value="vector" class="mr-1 text-[#789f8a] focus:ring-[#789f8a]" checked onchange="dungeon.repaintCanvas()" />
+                            Vector Shapes
+                        </label>
+                        <label class="flex items-center text-xs text-slate-600 cursor-pointer">
+                            <input type="radio" name="renderMode" value="ascii" class="mr-1 text-[#789f8a] focus:ring-[#789f8a]" onchange="dungeon.repaintCanvas()" />
+                            Retro ASCII Glyph
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logger Console Panel -->
+            <div class="lab-panel p-4 rounded-sm flex flex-col flex-grow min-h-[160px]">
+                <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">Engine System Log</h3>
+                <div id="logConsole" class="text-[10px] font-mono text-slate-600 space-y-1.5 overflow-y-auto max-h-[180px] pr-2 flex-grow">
+                    <!-- Logs inserted dynamically -->
+                </div>
+            </div>
+
+            <button
+                class="w-full bg-white border border-slate-300 hover:border-[#789f8a] text-slate-700 hover:text-[#789f8a] py-3.5 px-6 rounded-sm shadow-sm flex items-center justify-between group"
+                onclick="dungeon.regenerate()">
+                <span class="text-xs uppercase tracking-widest font-semibold">Generate Specimen</span>
+                <svg class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500 text-[#789f8a]"
+                    fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                    <path
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main Viewport Display -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+            <!-- Terminal Header -->
+            <div class="flex items-center justify-between px-2 pb-2 border-b border-slate-200">
+                <div class="text-[11px] text-slate-400 font-medium uppercase tracking-[0.1em]">Specimen Viewport // BSP-ASTAR-LAB</div>
+                <div class="flex gap-6">
+                    <div class="text-[11px] text-slate-400">RESOLUTION: <span class="stat-value" id="stat-grid">50x50</span></div>
+                    <div class="text-[11px] text-slate-400">SEED: <span class="stat-value" id="stat-seed">#STUDY</span></div>
+                </div>
+            </div>
+
+            <!-- Map Viewport -->
+            <div class="specimen-container aspect-square w-full flex items-center justify-center p-4 lg:p-6 select-none">
+                <canvas class="w-full h-full max-w-full max-h-full border border-slate-100 cursor-crosshair" id="mapCanvas"></canvas>
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="lab-panel p-3.5 rounded-sm">
+                    <div class="text-[9px] uppercase text-slate-400 font-medium mb-1 tracking-wider">Topological Union</div>
+                    <div class="text-xs font-serif text-slate-700">100% Unified</div>
+                </div>
+                <div class="lab-panel p-3.5 rounded-sm">
+                    <div class="text-[9px] uppercase text-slate-400 font-medium mb-1 tracking-wider">Traversal Efficiency</div>
+                    <div class="text-xs font-serif text-slate-700" id="stat-efficiency">A* Optimal</div>
+                </div>
+                <div class="lab-panel p-3.5 rounded-sm">
+                    <div class="text-[9px] uppercase text-slate-400 font-medium mb-1 tracking-wider">Inspect Path Cost</div>
+                    <div class="text-xs font-serif text-[#789f8a]" id="stat-path-cost">No Path Selected</div>
+                </div>
+            </div>
+            
+            <div class="text-[11px] text-slate-400 italic px-2">
+                * Note: Use WASD / Arrow Keys to move the green Player (@). Click any floor tile on the map grid to query and render the active A* path.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DETERMINISTIC SEED-BASED PSEUDO-RANDOM NUMBER GENERATOR ---
+        class SeededPRNG {
+            constructor(seedString) {
+                this.seed = seedString;
+                this.generator = this.mulberry32(this.xmur3(seedString)());
+            }
+
+            xmur3(str) {
+                let h = 1779033703 ^ str.length;
+                for (let i = 0; i < str.length; i++) {
+                    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+                    h = h << 13 | h >>> 19;
+                }
+                return function() {
+                    h = Math.imul(h ^ h >>> 16, 2246822507);
+                    h = Math.imul(h ^ h >>> 13, 3266489909);
+                    return ((h ^= h >>> 16) >>> 0);
+                }
+            }
+
+            mulberry32(a) {
+                return function() {
+                    let t = a += 0x6D2B79F5;
+                    t = Math.imul(t ^ (t >>> 15), t | 1);
+                    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+                }
+            }
+
+            next() {
+                return this.generator();
+            }
+
+            range(min, max) {
+                return Math.floor(this.next() * (max - min + 1)) + min;
+            }
+        }
+
+        // --- BINARY SPACE PARTITIONING LEAF NODE ---
+        class BSPLeaf {
+            constructor(x, y, w, h) {
+                this.x = x; this.y = y; this.width = w; this.height = h;
+                this.leftChild = null; this.rightChild = null;
+                this.room = null;
+            }
+
+            split(minSize, prng) {
+                if (this.leftChild || this.rightChild) return false;
+
+                // Split vertically or horizontally based on aspect ratio constraints
+                let splitH = prng.next() > 0.5;
+                if (this.width / this.height >= 1.25) splitH = false;
+                else if (this.height / this.width >= 1.25) splitH = true;
+
+                let max = (splitH ? this.height : this.width) - minSize;
+                if (max <= minSize) return false;
+
+                let splitPoint = prng.range(minSize, max);
+
+                if (splitH) {
+                    this.leftChild = new BSPLeaf(this.x, this.y, this.width, splitPoint);
+                    this.rightChild = new BSPLeaf(this.x, this.y + splitPoint, this.width, this.height - splitPoint);
+                } else {
+                    this.leftChild = new BSPLeaf(this.x, this.y, splitPoint, this.height);
+                    this.rightChild = new BSPLeaf(this.x + splitPoint, this.y, this.width - splitPoint, this.height);
+                }
+                return true;
+            }
+
+            collectFinalRooms(roomCollector, gridWriter, engineContext) {
+                if (this.leftChild || this.rightChild) {
+                    if (this.leftChild) this.leftChild.collectFinalRooms(roomCollector, gridWriter, engineContext);
+                    if (this.rightChild) this.rightChild.collectFinalRooms(roomCollector, gridWriter, engineContext);
+
+                    if (this.leftChild && this.rightChild) {
+                        engineContext.carveCorridor(this.leftChild, this.rightChild);
+                    }
+                } else {
+                    // Carve a room bounding safety margins
+                    let roomW = engineContext.prng.range(4, this.width - 2);
+                    let roomH = engineContext.prng.range(4, this.height - 2);
+                    let roomX = engineContext.prng.range(1, this.width - roomW - 1);
+                    let roomY = engineContext.prng.range(1, this.height - roomH - 1);
+
+                    this.room = {
+                        x: this.x + roomX, y: this.y + roomY,
+                        w: roomW, h: roomH,
+                        cx: Math.floor(this.x + roomX + roomW / 2),
+                        cy: Math.floor(this.y + roomY + roomH / 2),
+                        area: roomW * roomH
+                    };
+
+                    gridWriter(this.room);
+                    roomCollector.push(this.room);
+                }
+            }
+
+            getRoom(prng) {
+                if (this.room) return this.room;
+                let leftRoom = this.leftChild ? this.leftChild.getRoom(prng) : null;
+                let rightRoom = this.rightChild ? this.rightChild.getRoom(prng) : null;
+                
+                if (!leftRoom && !rightRoom) return null;
+                if (!leftRoom) return rightRoom;
+                if (!rightRoom) return leftRoom;
+                return prng.next() > 0.5 ? leftRoom : rightRoom;
+            }
+
+            collectLeaves(leavesCollector) {
+                leavesCollector.push(this);
+                if (this.leftChild) this.leftChild.collectLeaves(leavesCollector);
+                if (this.rightChild) this.rightChild.collectLeaves(leavesCollector);
+            }
+        }
+
+        // --- A* PATHFINDING ALGORITHM IMPLEMENTATION ---
+        class AStarNode {
+            constructor(x, y, walkable) {
+                this.x = x;
+                this.y = y;
+                this.walkable = walkable;
+                this.g = 0;
+                this.h = 0;
+                this.f = 0;
+                this.parent = null;
+            }
+        }
+
+        class AStar {
+            static findPath(grid, start, end) {
+                const numRows = grid.length;
+                const numCols = grid[0].length;
+                
+                const nodes = Array(numRows).fill().map((_, y) => 
+                    Array(numCols).fill().map((_, x) => new AStarNode(x, y, grid[y][x] === 1))
+                );
+
+                const openSet = [];
+                const closedSet = new Set();
+                
+                const startNode = nodes[start.y][start.x];
+                const endNode = nodes[end.y][end.x];
+                
+                openSet.push(startNode);
+                
+                while (openSet.length > 0) {
+                    let lowestIdx = 0;
+                    for (let i = 1; i < openSet.length; i++) {
+                        if (openSet[i].f < openSet[lowestIdx].f) {
+                            lowestIdx = i;
+                        }
+                    }
+                    
+                    const current = openSet[lowestIdx];
+                    
+                    if (current.x === endNode.x && current.y === endNode.y) {
+                        let curr = current;
+                        const path = [];
+                        while (curr.parent) {
+                            path.push({ x: curr.x, y: curr.y });
+                            curr = curr.parent;
+                        }
+                        path.push({ x: startNode.x, y: startNode.y });
+                        return {
+                            path: path.reverse(),
+                            openSet: openSet.map(n => ({ x: n.x, y: n.y })),
+                            closedSet: Array.from(closedSet).map(key => {
+                                const [x, y] = key.split(',').map(Number);
+                                return { x, y };
+                            })
+                        };
+                    }
+                    
+                    openSet.splice(lowestIdx, 1);
+                    closedSet.add(`${current.x},${current.y}`);
+                    
+                    const neighbors = [];
+                    const dirs = [
+                        { x: 0, y: -1 }, // North
+                        { x: 0, y: 1 },  // South
+                        { x: -1, y: 0 }, // West
+                        { x: 1, y: 0 }   // East
+                    ];
+                    
+                    for (const d of dirs) {
+                        const nx = current.x + d.x;
+                        const ny = current.y + d.y;
+                        
+                        if (nx >= 0 && nx < numCols && ny >= 0 && ny < numRows) {
+                            const neighbor = nodes[ny][nx];
+                            if (neighbor.walkable && !closedSet.has(`${nx},${ny}`)) {
+                                neighbors.push(neighbor);
+                            }
+                        }
+                    }
+                    
+                    for (const neighbor of neighbors) {
+                        const tentativeG = current.g + 1;
+                        let inOpenSet = openSet.includes(neighbor);
+                        
+                        if (!inOpenSet || tentativeG < neighbor.g) {
+                            neighbor.g = tentativeG;
+                            neighbor.h = Math.abs(neighbor.x - endNode.x) + Math.abs(neighbor.y - endNode.y);
+                            neighbor.f = neighbor.g + neighbor.h;
+                            neighbor.parent = current;
+                            
+                            if (!inOpenSet) {
+                                openSet.push(neighbor);
+                            }
+                        }
+                    }
+                }
+                
+                return {
+                    path: [],
+                    openSet: openSet.map(n => ({ x: n.x, y: n.y })),
+                    closedSet: Array.from(closedSet).map(key => {
+                        const [x, y] = key.split(',').map(Number);
+                        return { x, y };
+                    })
+                };
+            }
+        }
+
+        // --- ROGUELIE MAP & INTERACTIVE CONTROLLER ---
+        class RogueDungeonLab {
+            constructor() {
+                this.canvas = document.getElementById('mapCanvas');
+                this.ctx = this.canvas.getContext('2d');
+
+                this.canvas.width = 600;
+                this.canvas.height = 600;
+
+                this.gridSize = 50;
+                this.tileSize = this.canvas.width / this.gridSize;
+                this.minLeafSize = 10;
+
+                this.player = null;
+                this.stairs = null;
+                this.monsters = [];
+                this.chests = [];
+
+                this.inspectedPath = null;
+                this.inspectedTarget = null;
+                this.pathDebugData = null;
+
+                // Setup keyboard listeners
+                window.addEventListener('keydown', (e) => this.handleKeyDown(e));
+
+                // Setup mouse click listener on canvas
+                this.canvas.addEventListener('mousedown', (e) => this.handleCanvasClick(e));
+
+                // Initialize first run
+                this.regenerate();
+            }
+
+            log(message, type = 'info') {
+                const consoleEl = document.getElementById('logConsole');
+                const timeStr = new Date().toLocaleTimeString([], { hour12: false });
+                
+                let colorClass = 'text-slate-600';
+                if (type === 'combat') colorClass = 'text-rose-600 font-medium';
+                if (type === 'loot') colorClass = 'text-amber-600 font-medium font-serif';
+                if (type === 'path') colorClass = 'text-[#789f8a]';
+                if (type === 'system') colorClass = 'text-slate-400 font-mono';
+
+                const entry = document.createElement('div');
+                entry.className = `log-entry pl-2 ${colorClass}`;
+                entry.innerHTML = `<span class="text-slate-400">[${timeStr}]</span> ${message}`;
+                
+                consoleEl.appendChild(entry);
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+
+            clearLogs() {
+                document.getElementById('logConsole').innerHTML = '';
+            }
+
+            applySeedInput() {
+                const seed = document.getElementById('seedInput').value.trim();
+                this.regenerate(seed);
+            }
+
+            regenerate(customSeed = null) {
+                // Determine seed
+                let seed = customSeed;
+                if (!seed) {
+                    const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                    seed = '';
+                    for (let i = 0; i < 6; i++) {
+                        seed += characters.charAt(Math.floor(Math.random() * characters.length));
+                    }
+                    document.getElementById('seedInput').value = seed;
+                }
+
+                document.getElementById('stat-seed').textContent = '#' + seed;
+                this.prng = new SeededPRNG(seed);
+                this.clearLogs();
+                this.log(`Instantiating PRNG engine with Seed #${seed}.`, 'system');
+
+                this.grid = Array(this.gridSize).fill().map(() => Array(this.gridSize).fill(0));
+                this.roomsList = [];
+                this.leavesList = [];
+                this.monsters = [];
+                this.chests = [];
+                this.inspectedPath = null;
+                this.inspectedTarget = null;
+                this.pathDebugData = null;
+
+                this.buildDungeonGraph();
+                this.executeSpawningPipeline();
+                this.repaintCanvas();
+
+                document.getElementById('stat-path-cost').textContent = 'No Path Selected';
+            }
+
+            buildDungeonGraph() {
+                const root = new BSPLeaf(0, 0, this.gridSize, this.gridSize);
+                const leavesPool = [root];
+
+                let splitOccurred = true;
+                while (splitOccurred) {
+                    splitOccurred = false;
+                    for (let i = 0; i < leavesPool.length; i++) {
+                        let leaf = leavesPool[i];
+                        if (!leaf.leftChild && !leaf.rightChild) {
+                            if (leaf.width > this.minLeafSize * 2 || leaf.height > this.minLeafSize * 2 || this.prng.next() > 0.3) {
+                                if (leaf.split(this.minLeafSize, this.prng)) {
+                                    leavesPool.push(leaf.leftChild, leaf.rightChild);
+                                    splitOccurred = true;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                root.collectFinalRooms(this.roomsList, (room) => {
+                    for (let x = room.x; x < room.x + room.w; x++) {
+                        for (let y = room.y; y < room.y + room.h; y++) {
+                            if (x >= 0 && x < this.gridSize && y >= 0 && y < this.gridSize) {
+                                this.grid[y][x] = 1;
+                            }
+                        }
+                    }
+                }, this);
+
+                root.collectLeaves(this.leavesList);
+                this.log(`BSP: Partitioned tree. Generated ${this.roomsList.length} rooms.`, 'system');
+            }
+
+            carveCorridor(l1, l2) {
+                let r1 = l1.getRoom(this.prng);
+                let r2 = l2.getRoom(this.prng);
+                if (!r1 || !r2) return;
+
+                let currentX = r1.cx, endX = r2.cx;
+                let currentY = r1.cy, endY = r2.cy;
+
+                let stepX = Math.sign(endX - currentX);
+                while (currentX !== endX) {
+                    this.grid[currentY][currentX] = 1;
+                    currentX += stepX;
+                }
+
+                let stepY = Math.sign(endY - currentY);
+                while (currentY !== endY) {
+                    this.grid[currentY][currentX] = 1;
+                    currentY += stepY;
+                }
+                this.grid[currentY][currentX] = 1;
+            }
+
+            // --- THREE-PASS ENTITY SPAWNING PIPELINE ---
+            executeSpawningPipeline() {
+                if (this.roomsList.length < 2) return;
+
+                // PASS 1: MAX-SEPARATION PLAYER & STAIRS
+                let startingRoom = this.roomsList[0];
+                this.player = { x: startingRoom.cx, y: startingRoom.cy };
+                this.log(`Pipeline: Placed Player at Room 1 center (${this.player.x}, ${this.player.y}).`, 'system');
+
+                let bestDistance = -1;
+                let farthestRoom = null;
+
+                for (let i = 1; i < this.roomsList.length; i++) {
+                    let targetRoom = this.roomsList[i];
+                    let dist = Math.hypot(targetRoom.cx - startingRoom.cx, targetRoom.cy - startingRoom.cy);
+                    if (dist > bestDistance) {
+                        bestDistance = dist;
+                        farthestRoom = targetRoom;
+                    }
+                }
+
+                this.stairs = { x: farthestRoom.cx, y: farthestRoom.cy };
+                this.log(`Pipeline: Locked Exit Stairs in extreme room (${this.stairs.x}, ${this.stairs.y}) [Dist: ${bestDistance.toFixed(1)}].`, 'system');
+
+                // PASS 2 & 3: VOLUMETRIC CAPACITY & GEOMETRIC WALL MASKING
+                this.roomsList.forEach((room, roomIdx) => {
+                    let maxCapacity = Math.floor(room.area / 12);
+                    let currentSpawned = 0;
+
+                    // Reduce capacity for start/end rooms to avoid direct overcrowding
+                    if (room === startingRoom || room === farthestRoom) {
+                        maxCapacity = Math.min(1, maxCapacity);
+                    }
+
+                    for (let attempt = 0; attempt < 30; attempt++) {
+                        if (currentSpawned >= maxCapacity) break;
+
+                        // Localized Jitter Pass (excluding perimeter walls)
+                        let rx = this.prng.range(room.x + 1, room.x + room.w - 2);
+                        let ry = this.prng.range(room.y + 1, room.y + room.h - 2);
+
+                        // Ensure tile is empty of player/stairs/monsters/chests
+                        if (rx === this.player.x && ry === this.player.y) continue;
+                        if (rx === this.stairs.x && ry === this.stairs.y) continue;
+                        if (this.monsters.some(m => m.x === rx && m.y === ry)) continue;
+                        if (this.chests.some(c => c.x === rx && c.y === ry)) continue;
+
+                        let rand = this.prng.next();
+                        if (rand < 0.60) {
+                            this.monsters.push({ x: rx, y: ry, hp: 10 });
+                        } else {
+                            this.chests.push({ x: rx, y: ry, looted: false });
+                        }
+                        currentSpawned++;
+                    }
+                });
+
+                this.log(`Pipeline: Spawned ${this.monsters.length} Monsters and ${this.chests.length} Chests under area budgets.`, 'system');
+            }
+
+            // --- INTERACTIVE ACTIONS & TURN CYCLE ---
+            handleKeyDown(e) {
+                // Skip inputs if focusing on seedInput
+                if (document.activeElement === document.getElementById('seedInput')) return;
+
+                let dx = 0;
+                let dy = 0;
+
+                if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') dy = -1;
+                else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') dy = 1;
+                else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') dx = -1;
+                else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') dx = 1;
+                else return; // Ignore other keys
+
+                e.preventDefault();
+                this.movePlayer(dx, dy);
+            }
+
+            handleCanvasClick(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+
+                const scaleX = this.canvas.width / rect.width;
+                const scaleY = this.canvas.height / rect.height;
+
+                const gridX = Math.floor((clickX * scaleX) / this.tileSize);
+                const gridY = Math.floor((clickY * scaleY) / this.tileSize);
+
+                if (gridX >= 0 && gridX < this.gridSize && gridY >= 0 && gridY < this.gridSize) {
+                    if (this.grid[gridY][gridX] === 1) {
+                        this.inspectedTarget = { x: gridX, y: gridY };
+                        const res = AStar.findPath(this.grid, this.player, this.inspectedTarget);
+                        this.inspectedPath = res.path;
+                        this.pathDebugData = { openSet: res.openSet, closedSet: res.closedSet };
+
+                        if (this.inspectedPath.length > 0) {
+                            this.log(`Pathfinder: Query to (${gridX}, ${gridY}) completed. Cost: ${this.inspectedPath.length - 1} steps.`, 'path');
+                            document.getElementById('stat-path-cost').textContent = `${this.inspectedPath.length - 1} Steps`;
+                        } else {
+                            this.log(`Pathfinder: Point (${gridX}, ${gridY}) unreachable.`, 'path');
+                            document.getElementById('stat-path-cost').textContent = 'Unreachable';
+                        }
+                        this.repaintCanvas();
+                    } else {
+                        this.log(`Dungeon Engine: Coordinate (${gridX}, ${gridY}) is Solid Rock.`, 'system');
+                    }
+                }
+            }
+
+            movePlayer(dx, dy) {
+                let targetX = this.player.x + dx;
+                let targetY = this.player.y + dy;
+
+                // Boundary & collision checks
+                if (targetX < 0 || targetX >= this.gridSize || targetY < 0 || targetY >= this.gridSize) return;
+
+                if (this.grid[targetY][targetX] === 1) {
+                    // Check interaction with chest
+                    let chestIdx = this.chests.findIndex(c => c.x === targetX && c.y === targetY);
+                    if (chestIdx !== -1 && !this.chests[chestIdx].looted) {
+                        this.chests[chestIdx].looted = true;
+                        this.log(`Loot: Opened chest at (${targetX}, ${targetY})! Found golden chalice.`, 'loot');
+                        this.repaintCanvas();
+                        return; // Interaction consumes turn movement
+                    }
+
+                    // Check interaction with monster (combat)
+                    let monsterIdx = this.monsters.findIndex(m => m.x === targetX && m.y === targetY);
+                    if (monsterIdx !== -1) {
+                        this.monsters[monsterIdx].hp -= 5;
+                        if (this.monsters[monsterIdx].hp <= 0) {
+                            this.log(`Combat: Defeated monster at (${targetX}, ${targetY})!`, 'combat');
+                            this.monsters.splice(monsterIdx, 1);
+                        } else {
+                            this.log(`Combat: Hit monster at (${targetX}, ${targetY}) for 5 damage! (HP: ${this.monsters[monsterIdx].hp}/10)`, 'combat');
+                        }
+                        this.executeAITurn();
+                        this.repaintCanvas();
+                        return;
+                    }
+
+                    // Check stairs
+                    if (targetX === this.stairs.x && targetY === this.stairs.y) {
+                        this.log(`System: Entered Stairs. Progressing to deeper floor level...`, 'loot');
+                        setTimeout(() => this.regenerate(), 800);
+                        return;
+                    }
+
+                    // Normal movement
+                    this.player.x = targetX;
+                    this.player.y = targetY;
+
+                    // If active path inspect, re-calculate path from new player position
+                    if (this.inspectedTarget) {
+                        const res = AStar.findPath(this.grid, this.player, this.inspectedTarget);
+                        this.inspectedPath = res.path;
+                        this.pathDebugData = { openSet: res.openSet, closedSet: res.closedSet };
+                        if (this.inspectedPath.length > 0) {
+                            document.getElementById('stat-path-cost').textContent = `${this.inspectedPath.length - 1} Steps`;
+                        } else {
+                            document.getElementById('stat-path-cost').textContent = 'Unreachable';
+                        }
+                    }
+
+                    this.executeAITurn();
+                    this.repaintCanvas();
+                } else {
+                    this.log(`System: Movement blocked by solid wall at (${targetX}, ${targetY}).`, 'system');
+                }
+            }
+
+            executeAITurn() {
+                const aiActive = document.getElementById('toggleMonsterAI').checked;
+                if (!aiActive) return;
+
+                this.monsters.forEach((monster, idx) => {
+                    // Monsters calculate path to Player using A*
+                    const res = AStar.findPath(this.grid, monster, this.player);
+                    if (res.path && res.path.length > 1) {
+                        let nextStep = res.path[1]; // Index 0 is monster's current cell
+
+                        // Prevent clumping with other monsters or stairs
+                        let cellOccupied = this.monsters.some(m => m.x === nextStep.x && m.y === nextStep.y) || 
+                                           (nextStep.x === this.stairs.x && nextStep.y === this.stairs.y);
+
+                        if (nextStep.x === this.player.x && nextStep.y === this.player.y) {
+                            this.log(`Combat: Monster at (${monster.x}, ${monster.y}) bit Player for 1 HP!`, 'combat');
+                        } else if (!cellOccupied) {
+                            monster.x = nextStep.x;
+                            monster.y = nextStep.y;
+                        }
+                    }
+                });
+            }
+
+            // --- CANVAS RENDERING PIPELINE ---
+            repaintCanvas() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                const showBSP = document.getElementById('toggleBSP').checked;
+                const showPath = document.getElementById('togglePathfinding').checked;
+                const showTexture = document.getElementById('toggleTexture').checked;
+
+                const renderMode = document.querySelector('input[name="renderMode"]:checked').value;
+
+                // 1. Draw Terrain Map Base
+                for (let y = 0; y < this.gridSize; y++) {
+                    for (let x = 0; x < this.gridSize; x++) {
+                        let cell = this.grid[y][x];
+                        let rx = x * this.tileSize;
+                        let ry = y * this.tileSize;
+
+                        if (cell === 1) {
+                            // Floor color
+                            this.ctx.fillStyle = '#f8fafc';
+                            this.ctx.fillRect(rx, ry, this.tileSize, this.tileSize);
+
+                            // Micro detail textures for premium lab journal feel
+                            if (showTexture) {
+                                // Draw a tiny 1px block details deterministically using coords
+                                if (((x * 17 + y * 23) % 29) === 0) {
+                                    this.ctx.fillStyle = '#e2e8f0';
+                                    this.ctx.fillRect(rx + 4, ry + 4, 1.5, 1.5);
+                                }
+                            }
+                        } else {
+                            // Wall color
+                            this.ctx.fillStyle = '#ffffff';
+                            this.ctx.fillRect(rx, ry, this.tileSize, this.tileSize);
+
+                            this.ctx.strokeStyle = '#f1f5f9';
+                            this.ctx.lineWidth = 0.5;
+                            this.ctx.strokeRect(rx, ry, this.tileSize, this.tileSize);
+                        }
+                    }
+                }
+
+                // 2. Draw BSP Leaf Boundaries if toggled
+                if (showBSP && this.leavesList.length > 0) {
+                    this.ctx.strokeStyle = 'rgba(120, 159, 138, 0.18)'; // Muted sage line
+                    this.ctx.lineWidth = 1;
+                    this.leavesList.forEach(leaf => {
+                        this.ctx.strokeRect(leaf.x * this.tileSize, leaf.y * this.tileSize, leaf.width * this.tileSize, leaf.height * this.tileSize);
+                    });
+                }
+
+                // 3. Draw A* Search Nodes Heatmap Expansion
+                if (showPath && this.pathDebugData) {
+                    // Closed Set (pink/magenta)
+                    this.ctx.fillStyle = 'rgba(217, 70, 239, 0.08)';
+                    this.pathDebugData.closedSet.forEach(node => {
+                        this.ctx.fillRect(node.x * this.tileSize, node.y * this.tileSize, this.tileSize, this.tileSize);
+                    });
+
+                    // Open Set (cyan)
+                    this.ctx.fillStyle = 'rgba(6, 182, 212, 0.12)';
+                    this.pathDebugData.openSet.forEach(node => {
+                        this.ctx.fillRect(node.x * this.tileSize, node.y * this.tileSize, this.tileSize, this.tileSize);
+                    });
+                }
+
+                // 4. Draw Inpected Path Line
+                if (this.inspectedPath && this.inspectedPath.length > 0) {
+                    this.ctx.strokeStyle = 'rgba(120, 159, 138, 0.7)';
+                    this.ctx.lineWidth = 2.5;
+                    this.ctx.lineCap = 'round';
+                    this.ctx.lineJoin = 'round';
+                    this.ctx.beginPath();
+                    
+                    this.inspectedPath.forEach((pt, i) => {
+                        let px = pt.x * this.tileSize + this.tileSize / 2;
+                        let py = pt.y * this.tileSize + this.tileSize / 2;
+                        if (i === 0) this.ctx.moveTo(px, py);
+                        else this.ctx.lineTo(px, py);
+                    });
+                    this.ctx.stroke();
+
+                    // Render inspected target tile highlight
+                    this.ctx.strokeStyle = '#789f8a';
+                    this.ctx.lineWidth = 1.5;
+                    this.ctx.strokeRect(this.inspectedTarget.x * this.tileSize + 1, this.inspectedTarget.y * this.tileSize + 1, this.tileSize - 2, this.tileSize - 2);
+                }
+
+                // 5. Draw Entities (Vector vs ASCII mode)
+                if (renderMode === 'vector') {
+                    // Exit Stairs
+                    if (this.stairs) {
+                        let sx = this.stairs.x * this.tileSize;
+                        let sy = this.stairs.y * this.tileSize;
+                        this.ctx.fillStyle = '#d97706'; // Amber exit color
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(sx + this.tileSize / 2, sy + 2);
+                        this.ctx.lineTo(sx + 2, sy + this.tileSize - 2);
+                        this.ctx.lineTo(sx + this.tileSize - 2, sy + this.tileSize - 2);
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                    }
+
+                    // Chests
+                    this.chests.forEach(chest => {
+                        let cx = chest.x * this.tileSize;
+                        let cy = chest.y * this.tileSize;
+                        this.ctx.fillStyle = chest.looted ? '#94a3b8' : '#0284c7'; // Muted vs sky blue
+                        this.ctx.fillRect(cx + 2, cy + 2, this.tileSize - 4, this.tileSize - 4);
+                        if (!chest.looted) {
+                            // Gold lock dot
+                            this.ctx.fillStyle = '#eab308';
+                            this.ctx.fillRect(cx + this.tileSize / 2 - 1, cy + this.tileSize / 2 - 1, 2, 2);
+                        }
+                    });
+
+                    // Monsters
+                    this.monsters.forEach(m => {
+                        let mx = m.x * this.tileSize;
+                        let my = m.y * this.tileSize;
+                        this.ctx.fillStyle = '#e11d48'; // Rose monster
+                        this.ctx.beginPath();
+                        this.ctx.arc(mx + this.tileSize / 2, my + this.tileSize / 2, this.tileSize / 2.8, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    });
+
+                    // Player
+                    if (this.player) {
+                        let px = this.player.x * this.tileSize;
+                        let py = this.player.y * this.tileSize;
+                        this.ctx.fillStyle = '#10b981'; // Emerald player
+                        this.ctx.beginPath();
+                        this.ctx.arc(px + this.tileSize / 2, py + this.tileSize / 2, this.tileSize / 2.3, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    }
+                } else {
+                    // Retro ASCII Glyph Mode
+                    this.ctx.font = `bold ${this.tileSize}px monospace`;
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+
+                    // Stairs
+                    if (this.stairs) {
+                        this.ctx.fillStyle = '#d97706';
+                        this.ctx.fillText('>', this.stairs.x * this.tileSize + this.tileSize/2, this.stairs.y * this.tileSize + this.tileSize/2);
+                    }
+
+                    // Chests
+                    this.chests.forEach(chest => {
+                        this.ctx.fillStyle = chest.looted ? '#94a3b8' : '#0284c7';
+                        this.ctx.fillText('*', chest.x * this.tileSize + this.tileSize/2, chest.y * this.tileSize + this.tileSize/2);
+                    });
+
+                    // Monsters
+                    this.monsters.forEach(m => {
+                        this.ctx.fillStyle = '#e11d48';
+                        this.ctx.fillText('M', m.x * this.tileSize + this.tileSize/2, m.y * this.tileSize + this.tileSize/2);
+                    });
+
+                    // Player
+                    if (this.player) {
+                        this.ctx.fillStyle = '#10b981';
+                        this.ctx.fillText('@', this.player.x * this.tileSize + this.tileSize/2, this.player.y * this.tileSize + this.tileSize/2);
+                    }
+                }
+            }
+        }
+
+        // --- INSTANTIATE DUNGEON CORE LAB ENGINE ---
+        const dungeon = new RogueDungeonLab();
+    </script>
+</body>
+
+</html>
