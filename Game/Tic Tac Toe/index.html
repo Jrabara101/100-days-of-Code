@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hybrid Multi-Engine Tic-Tac-Toe Core</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0b0f19; }
+        canvas { position: absolute; top: 0; left: 0; display: block; }
+        #three-canvas { z-index: 10; }
+        #phaser-container { z-index: 20; pointer-events: none; }
+        #phaser-container canvas { pointer-events: none; }
+        #hud-layer { z-index: 30; }
+    </style>
+</head>
+<body>
+
+    <div id="phaser-container" class="w-full h-full"></div>
+
+    <div id="hud-layer" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6">
+        <header class="w-full flex justify-between items-center">
+            <div class="bg-slate-900/80 border border-slate-700 p-4 rounded-xl shadow-2xl backdrop-blur pointer-events-auto animate__animated animate__fadeInDown">
+                <h1 class="text-cyan-400 font-mono text-xs uppercase tracking-widest font-bold">Engine State // Core</h1>
+                <div id="turn-display" class="text-white text-xl font-black tracking-wide mt-1">YOUR TURN [X]</div>
+            </div>
+            
+            <button onclick="orchestrator.resetBoardTransaction()" class="hvr-grow pointer-events-auto bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold px-6 py-3 rounded-xl border border-rose-500 shadow-lg text-sm tracking-wider uppercase font-mono transition-all">
+                Wipe Matrix State
+            </button>
+        </header>
+
+        <footer class="w-full flex justify-center mb-4">
+            <div id="alert-banner" class="hidden bg-cyan-500 text-slate-950 font-mono text-xs font-black px-6 py-3 rounded-full tracking-widest uppercase shadow-2xl border border-cyan-300 animate__animated animate__pulse animate__infinite">
+                Target Lock Sensation Resolved
+            </div>
+        </footer>
+    </div>
+
+<script>
+class HybridGameOrchestrator {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.scale2DTo3D = 40; // Spatial mapping coefficient scale variables transformation
+
+        // Logical Turn State Engine Matrix 
+        this.boardState = Array(9).fill(null); 
+        this.currentTurn = 'X';
+        this.isMatchActive = true;
+
+        this.winVectors = [
+            [0,1,2], [3,4,5], [6,7,8], // Rows
+            [0,3,6], [1,4,7], [2,5,8], // Columns
+            [0,4,8], [2,4,6]           // Diagonals
+        ];
+
+        this.fallingPieces = [];
+        this.ropesData = [];
+
+        this.initMatterPhysics();
+        this.initThreeWebGL();
+        this.initPhaserFX();
+        
+        // Build the dynamic grid rope ropes systems
+        this.buildPhysicalGridRopes();
+
+        this.bindInteractionRays();
+        this.executeSynchronizedTick();
+    }
+
+    // --- PHASE 1: MATTER.JS 2D RIGID BODY PHYSICS SYSTEM ---
+    initMatterPhysics() {
+        // Gravity set slightly lower to give a floaty, premium cosmic bounce feel
+        this.engine = Matter.Engine.create({ gravity: { y: 1.0 } });
+        this.world = this.engine.world;
+
+        // Build 9 static square sensor slots representing the layout cells positions
+        this.gridSensors = [];
+        const startX = this.width / 2 - 120;
+        const startY = this.height / 2 - 120;
+
+        for (let i = 0; i < 9; i++) {
+            let col = i % 3; let row = Math.floor(i / 3);
+            let x = startX + col * 120;
+            let y = startY + row * 120;
+
+            let sensor = Matter.Bodies.rectangle(x, y, 90, 90, { isStatic: true, isSensor: true });
+            sensor.gridIndex = i;
+            Matter.Composite.add(this.world, sensor);
+            this.gridSensors.push(sensor);
+        }
+
+        // Add a master baseline physical floor plane to capture dropped debris shapes objects
+        this.floor = Matter.Bodies.rectangle(this.width / 2, this.height + 50, this.width, 100, { isStatic: true });
+        Matter.Composite.add(this.world, this.floor);
+
+        // Map array collections tracking dynamic interactive body components
+        this.physicsBodyMap = new Map();
+    }
+
+    // --- PHASE 2: THREE.JS 3D RASTER LAYER ENGINE ---
+    initThreeWebGL() {
+        this.threeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        this.threeRenderer.setSize(this.width, this.height);
+        this.threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.threeRenderer.shadowMap.enabled = true;
+        this.threeRenderer.domElement.id = "three-canvas";
+        document.body.insertBefore(this.threeRenderer.domElement, document.body.firstChild);
+
+        this.threeScene = new THREE.Scene();
+        this.threeScene.background = new THREE.Color('#0b0f17');
+
+        this.threeCamera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
+        this.threeCamera.position.set(0, -5, 16);
+        this.threeCamera.lookAt(0, 0, 0);
+
+        // System Lighting Setup
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
+        this.threeScene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0x00f0ff, 0.8);
+        dirLight.position.set(5, 10, 7);
+        dirLight.castShadow = true;
+        this.threeScene.add(dirLight);
+
+        // Neon ambient fill light to give high-end color grading depth
+        const fillLight = new THREE.PointLight(0xff00aa, 1.2, 50);
+        fillLight.position.set(-5, -5, 5);
+        this.threeScene.add(fillLight);
+
+        // Build glowing visual previews for hovering state feedback
+        this.previewMeshX = new THREE.Mesh(
+            new THREE.TorusGeometry(0.7, 0.18, 8, 24),
+            new THREE.MeshStandardMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.25, roughness: 0.2, metalness: 0.8 })
+        );
+        this.previewMeshO = new THREE.Mesh(
+            new THREE.BoxGeometry(1.1, 1.1, 1.1),
+            new THREE.MeshStandardMaterial({ color: 0xff0055, transparent: true, opacity: 0.25, roughness: 0.2, metalness: 0.8 })
+        );
+        this.previewMeshX.visible = false;
+        this.previewMeshO.visible = false;
+        this.threeScene.add(this.previewMeshX, this.previewMeshO);
+    }
+
+    // --- PHASE 3: MATTER.JS GRID ROPE/STRING SYSTEM SETUP ---
+    buildPhysicalGridRopes() {
+        const segments = 10;
+        
+        // Define coordinates in Matter.js physics space relative to screen size
+        const startX = this.width / 2 - 180;
+        const endX = this.width / 2 + 180;
+        const startY = this.height / 2 - 180;
+        const endY = this.height / 2 + 180;
+
+        const v1_x = this.width / 2 - 60;
+        const v2_x = this.width / 2 + 60;
+        const h1_y = this.height / 2 - 60;
+        const h2_y = this.height / 2 + 60;
+
+        // Build vertical rope 1
+        this.createSingleRope(v1_x, startY, v1_x, endY, segments);
+        // Build vertical rope 2
+        this.createSingleRope(v2_x, startY, v2_x, endY, segments);
+        // Build horizontal rope 1
+        this.createSingleRope(startX, h1_y, endX, h1_y, segments);
+        // Build horizontal rope 2
+        this.createSingleRope(startX, h2_y, endX, h2_y, segments);
+    }
+
+    createSingleRope(x1, y1, x2, y2, segments) {
+        const bodies = [];
+        const constraints = [];
+        const meshes = [];
+
+        const dx = (x2 - x1) / segments;
+        const dy = (y2 - y1) / segments;
+        const segmentLen = Math.sqrt(dx*dx + dy*dy);
+
+        // Start anchor static body (pinned)
+        const anchorStart = Matter.Bodies.circle(x1, y1, 5, { isStatic: true, isSensor: true });
+        Matter.Composite.add(this.world, anchorStart);
+
+        // End anchor static body (pinned)
+        const anchorEnd = Matter.Bodies.circle(x2, y2, 5, { isStatic: true, isSensor: true });
+        Matter.Composite.add(this.world, anchorEnd);
+
+        // Create the dynamic intermediate nodes
+        for (let i = 1; i < segments; i++) {
+            const px = x1 + dx * i;
+            const py = y1 + dy * i;
+            const node = Matter.Bodies.circle(px, py, 6, {
+                density: 0.003,
+                friction: 0.1,
+                collisionFilter: { group: -1 } // Prevent ropes from colliding with other rope segments
+            });
+            node.initialPosition = { x: px, y: py };
+            Matter.Composite.add(this.world, node);
+            bodies.push(node);
+        }
+
+        // Chain the bodies together with high-tension springs
+        const allNodes = [anchorStart, ...bodies, anchorEnd];
+        for (let i = 0; i < allNodes.length - 1; i++) {
+            const constraint = Matter.Constraint.create({
+                bodyA: allNodes[i],
+                bodyB: allNodes[i+1],
+                stiffness: 0.92,
+                damping: 0.08,
+                length: segmentLen
+            });
+            Matter.Composite.add(this.world, constraint);
+            constraints.push(constraint);
+        }
+
+        // Create visual representation in Three.js (Cylinder segments)
+        const cylinderMaterial = new THREE.MeshStandardMaterial({
+            color: 0x111827,
+            emissive: 0x4f46e5, // Glowing cosmic purple gridlines
+            roughness: 0.2,
+            metalness: 0.9
+        });
+
+        for (let i = 0; i < segments; i++) {
+            const geometry = new THREE.CylinderGeometry(0.06, 0.06, 1, 8);
+            const mesh = new THREE.Mesh(geometry, cylinderMaterial);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            this.threeScene.add(mesh);
+            meshes.push({
+                mesh: mesh,
+                nodeA: allNodes[i],
+                nodeB: allNodes[i+1]
+            });
+        }
+
+        // Render anchor brackets as metallic posts
+        const postMaterial = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9, roughness: 0.1 });
+        const postGeom = new THREE.CylinderGeometry(0.12, 0.12, 0.4, 16);
+        
+        [anchorStart, anchorEnd].forEach(anchor => {
+            const post = new THREE.Mesh(postGeom, postMaterial);
+            const a3dX = (anchor.position.x - this.width / 2) / this.scale2DTo3D;
+            const a3dY = -(anchor.position.y - this.height / 2) / this.scale2DTo3D;
+            post.position.set(a3dX, a3dY, 0.1);
+            post.rotation.x = Math.PI / 2;
+            this.threeScene.add(post);
+        });
+
+        this.ropesData.push({ bodies, constraints, meshes, anchorStart, anchorEnd });
+    }
+
+    // --- PHASE 4: TRANSPARENT PHASER 3 PARTICLES ENGINE LAYER ---
+    initPhaserFX() {
+        const self = this;
+        const phaserConfig = {
+            type: Phaser.AUTO,
+            width: this.width, height: this.height,
+            parent: 'phaser-container',
+            transparent: true,
+            scenes: { preload: function() {
+                // Procedurally drawn dot textures to prevent external image requests
+                let canvas = this.textures.createCanvas('spark', 8, 8);
+                let ctx = canvas.context;
+                let grad = ctx.createRadialGradient(4,4,0, 4,4,4);
+                grad.addColorStop(0, 'rgba(255,255,255,1)');
+                grad.addColorStop(1, 'rgba(0,240,255,0)');
+                ctx.fillStyle = grad; ctx.fillRect(0,0,8,8); canvas.refresh();
+
+                let canvasCyan = this.textures.createCanvas('spark-cyan', 8, 8);
+                let ctxC = canvasCyan.context;
+                let gradC = ctxC.createRadialGradient(4,4,0, 4,4,4);
+                gradC.addColorStop(0, 'rgba(0,240,255,1)');
+                gradC.addColorStop(1, 'rgba(0,240,255,0)');
+                ctxC.fillStyle = gradC; ctxC.fillRect(0,0,8,8); canvasCyan.refresh();
+
+                let canvasRose = this.textures.createCanvas('spark-rose', 8, 8);
+                let ctxR = canvasRose.context;
+                let gradR = ctxR.createRadialGradient(4,4,0, 4,4,4);
+                gradR.addColorStop(0, 'rgba(255,0,85,1)');
+                gradR.addColorStop(1, 'rgba(255,0,85,0)');
+                ctxR.fillStyle = gradR; ctxR.fillRect(0,0,8,8); canvasRose.refresh();
+            }, create: function() {
+                self.phaserSceneContext = this;
+            }}
+        };
+        this.phaserApp = new Phaser.Game(phaserConfig);
+    }
+
+    // --- PHASE 5: VIEWPORT INTERACTION GATES (THE RAYCASTER PLOTTER) ---
+    bindInteractionRays() {
+        this.raycaster = new THREE.Raycaster();
+        this.mouseVector = new THREE.Vector2();
+
+        // Create 9 invisible 3D plane bounds targets to map ray mouse vectors into 2D spaces
+        this.rayPlatesGroup = [];
+        const startX = -3; const startY = 3;
+
+        for (let i = 0; i < 9; i++) {
+            let col = i % 3; let row = Math.floor(i / 3);
+            let plate = new THREE.Mesh(
+                new THREE.PlaneGeometry(2.2, 2.2),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            plate.position.set(startX + col * 3, startY - row * 3, 0);
+            plate.gridIndex = i;
+            this.threeScene.add(plate);
+            this.rayPlatesGroup.push(plate);
+        }
+
+        window.addEventListener('pointerdown', (e) => this.handlePointerIntersection(e));
+        window.addEventListener('pointermove', (e) => this.handlePointerMove(e));
+    }
+
+    handlePointerMove(e) {
+        if (!this.isMatchActive || this.currentTurn !== 'X') {
+            this.previewMeshX.visible = false;
+            this.previewMeshO.visible = false;
+            return;
+        }
+
+        this.mouseVector.x = (e.clientX / this.width) * 2 - 1;
+        this.mouseVector.y = -(e.clientY / this.height) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouseVector, this.threeCamera);
+        const hitMatches = this.raycaster.intersectObjects(this.rayPlatesGroup);
+
+        if (hitMatches.length > 0) {
+            let index = hitMatches[0].object.gridIndex;
+            if (this.boardState[index] === null) {
+                let targetSensor = this.gridSensors[index];
+                let x3d = (targetSensor.position.x - this.width / 2) / this.scale2DTo3D;
+                let y3d = -(targetSensor.position.y - this.height / 2) / this.scale2DTo3D;
+
+                if (this.currentTurn === 'X') {
+                    this.previewMeshX.position.set(x3d, y3d, 0.1);
+                    this.previewMeshX.visible = true;
+                    this.previewMeshO.visible = false;
+                } else {
+                    this.previewMeshO.position.set(x3d, y3d, 0.1);
+                    this.previewMeshO.visible = true;
+                    this.previewMeshX.visible = false;
+                }
+                return;
+            }
+        }
+        this.previewMeshX.visible = false;
+        this.previewMeshO.visible = false;
+    }
+
+    handlePointerIntersection(e) {
+        if (!this.isMatchActive || this.currentTurn !== 'X') return;
+
+        this.mouseVector.x = (e.clientX / this.width) * 2 - 1;
+        this.mouseVector.y = -(e.clientY / this.height) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouseVector, this.threeCamera);
+        const hitMatches = this.raycaster.intersectObjects(this.rayPlatesGroup);
+
+        if (hitMatches.length > 0) {
+            let index = hitMatches[0].object.gridIndex;
+            if (this.boardState[index] === null) {
+                this.previewMeshX.visible = false;
+                this.previewMeshO.visible = false;
+                this.executeMoveTransaction(index, 'X');
+                
+                if (!this.evaluateMatchLifecycle()) {
+                    this.currentTurn = 'O';
+                    this.syncHUDLabel();
+                    // AI decision tree computation pipeline launch delay
+                    setTimeout(() => this.executeAIAutomationTurn(), 1000);
+                }
+            }
+        }
+    }
+
+    executeMoveTransaction(index, token) {
+        this.boardState[index] = token;
+
+        // Fetch sensor spatial dimensions map values
+        let targetSensor = this.gridSensors[index];
+
+        // 1. Matter.js Physics body instantiation
+        let physicalPiece = Matter.Bodies.circle(targetSensor.position.x, targetSensor.position.y - 450, 32, {
+            friction: 0.1, 
+            restitution: 0.45,
+            density: 0.008 // Give the piece enough mass to stretch and shake the cables
+        });
+        Matter.Composite.add(this.world, physicalPiece);
+
+        // 2. Three.js Visual mesh representation compilation
+        let meshGeometry = token === 'X' 
+            ? new THREE.TorusGeometry(0.7, 0.18, 8, 24) 
+            : new THREE.BoxGeometry(1.1, 1.1, 1.1);
+        
+        let meshMaterial = new THREE.MeshStandardMaterial({
+            color: token === 'X' ? 0x00f0ff : 0xff0055,
+            roughness: 0.15, 
+            metalness: 0.85,
+            emissive: token === 'X' ? 0x003344 : 0x440011
+        });
+        
+        let pieceMesh = new THREE.Mesh(meshGeometry, meshMaterial);
+        pieceMesh.castShadow = true;
+        pieceMesh.receiveShadow = true;
+        this.threeScene.add(pieceMesh);
+
+        // Track in active coordinate transformation loop maps
+        this.physicsBodyMap.set(physicalPiece, pieceMesh);
+
+        // Store details in falling piece list for capture tracking
+        this.fallingPieces.push({
+            body: physicalPiece,
+            mesh: pieceMesh,
+            targetIndex: index,
+            token: token,
+            hasConstraint: false,
+            constraint: null
+        });
+    }
+
+    executeAIAutomationTurn() {
+        if (!this.isMatchActive) return;
+
+        // Simple choice tree lookup scanner loop logic
+        let openSlots = this.boardState.map((val, idx) => val === null ? idx : null).filter(v => v !== null);
+        
+        if (openSlots.length > 0) {
+            let choice = openSlots[Math.floor(Math.random() * openSlots.length)];
+            this.executeMoveTransaction(choice, 'O');
+
+            if (!this.evaluateMatchLifecycle()) {
+                this.currentTurn = 'X';
+                this.syncHUDLabel();
+            }
+        }
+    }
+
+    triggerImpactFX(pixelX, pixelY, token) {
+        if (!this.phaserSceneContext) return;
+
+        const texture = token === 'X' ? 'spark-cyan' : 'spark-rose';
+
+        // Instantiate a quick particle burst over the active transparent layout scene
+        let emitter = this.phaserSceneContext.add.particles(pixelX, pixelY, texture, {
+            speed: { min: 60, max: 160 },
+            angle: { min: 0, max: 360 },
+            scale: { start: 1.8, end: 0 },
+            lifespan: 800,
+            quantity: 25,
+            emitting: false
+        });
+        emitter.explode();
+    }
+
+    spawnTrailParticle(pixelX, pixelY, token) {
+        if (!this.phaserSceneContext) return;
+        const texture = token === 'X' ? 'spark-cyan' : 'spark-rose';
+        this.phaserSceneContext.add.particles(pixelX, pixelY, texture, {
+            speed: { min: 10, max: 25 },
+            scale: { start: 1.0, end: 0 },
+            lifespan: 250,
+            quantity: 1,
+            emitting: false
+        }).explode();
+    }
+
+    // --- PHASE 6: THE ENGINE LIFESTEP SYNCHRONIZATION POOL ---
+    executeSynchronizedTick() {
+        // Step the internal mathematical 2D physics matrix simulation limits values
+        Matter.Engine.update(this.engine, 1000 / 60);
+
+        // 1. Transform and map game piece vectors across coordinate boundaries
+        this.physicsBodyMap.forEach((mesh3D, body2D) => {
+            let world3DX = (body2D.position.x - this.width / 2) / this.scale2DTo3D;
+            let world3DY = -(body2D.position.y - this.height / 2) / this.scale2DTo3D;
+
+            mesh3D.position.set(world3DX, world3DY, 0.1);
+            mesh3D.rotation.z = -body2D.angle;
+            mesh3D.rotation.x += 0.012; // Continuous micro rotation for premium rendering depth
+            mesh3D.rotation.y += 0.008;
+        });
+
+        // 2. Synchronize and render bending physics ropes in Three.js on every frame
+        this.ropesData.forEach(rope => {
+            rope.meshes.forEach(seg => {
+                const posA = seg.nodeA.position;
+                const posB = seg.nodeB.position;
+
+                // Project 2D coordinates into WebGL 3D coordinates
+                const x3dA = (posA.x - this.width / 2) / this.scale2DTo3D;
+                const y3dA = -(posA.y - this.height / 2) / this.scale2DTo3D;
+
+                const x3dB = (posB.x - this.width / 2) / this.scale2DTo3D;
+                const y3dB = -(posB.y - this.height / 2) / this.scale2DTo3D;
+
+                const dx = x3dB - x3dA;
+                const dy = y3dB - y3dA;
+                const length = Math.sqrt(dx*dx + dy*dy);
+
+                // Update segment cylinder position, scaling and alignment rotation
+                seg.mesh.position.set((x3dA + x3dB)/2, (y3dA + y3dB)/2, 0);
+                seg.mesh.scale.set(1, length, 1);
+                seg.mesh.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+            });
+        });
+
+        // 3. Monitor active falling pieces and capture them with slot springs
+        this.fallingPieces.forEach(item => {
+            let targetSensor = this.gridSensors[item.targetIndex];
+
+            // If not yet caught, check distance or height to snap spring capture constraint
+            if (!item.hasConstraint) {
+                // Emit trailing visual particles as it falls
+                this.spawnTrailParticle(item.body.position.x, item.body.position.y, item.token);
+
+                let dx = item.body.position.x - targetSensor.position.x;
+                let dy = item.body.position.y - targetSensor.position.y;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+
+                if (distance < 90 || item.body.position.y >= targetSensor.position.y) {
+                    // Create capture spring constraint (soft elastic spring to make it bounce)
+                    let constraint = Matter.Constraint.create({
+                        pointA: { x: targetSensor.position.x, y: targetSensor.position.y },
+                        bodyB: item.body,
+                        stiffness: 0.045,
+                        damping: 0.1,
+                        length: 0
+                    });
+                    Matter.Composite.add(this.world, constraint);
+                    item.constraint = constraint;
+                    item.hasConstraint = true;
+
+                    // Trigger the 2D transparent Phaser explosion and flash the HUD
+                    this.triggerImpactFX(targetSensor.position.x, targetSensor.position.y, item.token);
+                }
+            }
+        });
+
+        // Frame update calls
+        this.threeRenderer.render(this.threeScene, this.threeCamera);
+        requestAnimationFrame(() => this.executeSynchronizedTick());
+    }
+
+    evaluateMatchLifecycle() {
+        let isWon = this.winVectors.some(v => {
+            return this.boardState[v[0]] && this.boardState[v[0]] === this.boardState[v[1]] && this.boardState[v[0]] === this.boardState[v[2]];
+        });
+
+        if (isWon) {
+            this.isMatchActive = false;
+            let displayNode = document.getElementById('turn-display');
+            displayNode.innerText = `VICTORY ROUTINE OUTCOME: ${this.currentTurn} WINS`;
+            displayNode.className = "text-yellow-400 text-xl font-black tracking-wide mt-1 animate__animated animate__jackInTheBox";
+            return true;
+        }
+
+        if (this.boardState.every(slot => slot !== null)) {
+            this.isMatchActive = false;
+            let displayNode = document.getElementById('turn-display');
+            displayNode.innerText = "SYS MATRIX EXECUTION STALEMATE // DRAW";
+            displayNode.className = "text-slate-400 text-xl font-black tracking-wide mt-1 animate__animated animate__flash";
+            return true;
+        }
+
+        return false;
+    }
+
+    syncHUDLabel() {
+        let displayNode = document.getElementById('turn-display');
+        displayNode.innerText = this.currentTurn === 'X' ? "YOUR TURN [X]" : "AI CALCULATING MATRIX [O]";
+        displayNode.className = `text-xl font-black tracking-wide mt-1 animate__animated animate__flipInX ${this.currentTurn === 'X' ? 'text-cyan-400' : 'text-rose-500'}`;
+        
+        let alertBanner = document.getElementById('alert-banner');
+        alertBanner.classList.remove('hidden');
+        setTimeout(() => alertBanner.classList.add('hidden'), 600);
+    }
+
+    resetBoardTransaction() {
+        // Clear all active pieces, springs and geometries
+        this.fallingPieces.forEach(item => {
+            this.threeScene.remove(item.mesh);
+            Matter.Composite.remove(this.world, item.body);
+            if (item.constraint) {
+                Matter.Composite.remove(this.world, item.constraint);
+            }
+        });
+
+        this.fallingPieces = [];
+        this.physicsBodyMap.clear();
+        this.boardState.fill(null);
+        this.currentTurn = 'X';
+        this.isMatchActive = true;
+        this.syncHUDLabel();
+
+        // Instantly reset the elastic ropes back to their tensioned origin states
+        this.ropesData.forEach(rope => {
+            rope.bodies.forEach(node => {
+                Matter.Body.setPosition(node, node.initialPosition);
+                Matter.Body.setVelocity(node, { x: 0, y: 0 });
+                Matter.Body.setAngularVelocity(node, 0);
+            });
+        });
+    }
+}
+
+// Global Application Core Configuration Boots Setup Paths
+let orchestrator;
+window.onload = () => { orchestrator = new HybridGameOrchestrator(); };
+</script>
+</body>
+</html>

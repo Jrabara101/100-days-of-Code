@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Staff Architected RTS Command Engine</title>
+    <style>
+        :root {
+            --bg: #07090e; --panel: #0f131a; --border: #222d3d;
+            --marine-blue: #38bdf8; --selected-glow: #00ffcc; --text: #eceff4;
+            --enemy-red: #f43f5e;
+        }
+
+        body {
+            margin: 0; padding: 0; background-color: var(--bg); color: var(--text);
+            font-family: monospace; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; height: 100vh; overflow: hidden;
+            user-select: none; touch-action: none;
+        }
+
+        .hud-top {
+            width: 700px; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; font-weight: bold; font-size: 12px; color: var(--marine-blue);
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+
+        canvas {
+            background-color: #0b0e14; border: 2px solid var(--border);
+            border-radius: 4px; box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+        }
+
+        .instructions { font-size: 11px; color: #4c566a; margin-top: 8px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="hud-top">
+        <div>TACTICAL COMMAND INTERFACE v1.10</div>
+        <div id="hud-stats">STRIKE FORCE: 18 | HOSTILES: 12</div>
+        <div id="selection-count">SELECTED ACTIVE UNITS: 00</div>
+    </div>
+    
+    <canvas id="rtsCanvas" width="700" height="420"></canvas>
+    
+    <div class="instructions">Left-Click & Drag to Draw Selection Box | Right-Click to Order Group Movement</div>
+
+<script>
+class RTSUnitEntity {
+    constructor(x, y, team) {
+        this.x = x; this.y = y;
+        this.vx = 0; this.vy = 0;
+        
+        // Target Vector Anchors
+        this.targetX = x; this.targetY = y;
+        this.hasTarget = false;
+
+        // Kinematic Constraints Matrix
+        this.maxSpeed = 2.2;
+        this.maxForce = 0.15;
+        this.radius = 8;
+        this.radiusSquared = 64;
+        this.separationRadiusSquared = 289; // Strict tracking ring buffer boundaries (17px squared)
+
+        this.team = team; // 'player' or 'enemy'
+        this.color = team === 'player' ? 'var(--marine-blue)' : 'var(--enemy-red)';
+        this.isSelected = false;
+
+        // Combat Mechanics
+        this.health = 100;
+        this.maxHealth = 100;
+        this.scanRange = 140;
+        this.combatRange = 80;
+        this.fireCooldown = 0;
+        this.fireRate = 45; // Cooldown cycles between laser bursts
+        this.damage = 15;
+        this.combatTarget = null;
+    }
+
+    // --- ACCELERATION STEERING VECTOR LOGIC ---
+    computeSteeringBehaviors(allUnitsPool, projectiles) {
+        let accelX = 0; let accelY = 0;
+
+        if (this.fireCooldown > 0) this.fireCooldown--;
+
+        // 1. Scan for and acquire enemy combat targets within range
+        if (this.combatTarget && (this.combatTarget.health <= 0 || Math.hypot(this.combatTarget.x - this.x, this.combatTarget.y - this.y) > this.scanRange * 1.5)) {
+            this.combatTarget = null;
+        }
+
+        if (!this.combatTarget) {
+            let nearestEnemy = null;
+            let nearestDist = Infinity;
+            allUnitsPool.forEach(other => {
+                if (other.team !== this.team && other.health > 0) {
+                    let dist = Math.hypot(other.x - this.x, other.y - this.y);
+                    if (dist < this.scanRange && dist < nearestDist) {
+                        nearestDist = dist;
+                        nearestEnemy = other;
+                    }
+                }
+            });
+            this.combatTarget = nearestEnemy;
+        }
+
+        // 2. State-driven target selection routing
+        let curTargetX = this.targetX;
+        let curTargetY = this.targetY;
+        let shouldMove = this.hasTarget;
+
+        if (this.team === 'enemy') {
+            if (this.combatTarget) {
+                curTargetX = this.combatTarget.x;
+                curTargetY = this.combatTarget.y;
+                shouldMove = true;
+            }
+        } else {
+            // Player unit auto-retaliate behavior when idle
+            if (!this.hasTarget && this.combatTarget) {
+                curTargetX = this.combatTarget.x;
+                curTargetY = this.combatTarget.y;
+                shouldMove = true;
+            }
+        }
+
+        // 3. Combat Laser Engagements
+        if (this.combatTarget) {
+            let dist = Math.hypot(this.combatTarget.x - this.x, this.combatTarget.y - this.y);
+            if (dist <= this.combatRange) {
+                shouldMove = false; // Halt to fire weapon payload
+                if (this.fireCooldown === 0) {
+                    this.combatTarget.health -= this.damage;
+                    projectiles.push({
+                        startX: this.x,
+                        startY: this.y,
+                        endX: this.combatTarget.x,
+                        endY: this.combatTarget.y,
+                        color: this.team === 'player' ? 'rgba(0, 255, 204, 0.8)' : 'rgba(244, 63, 94, 0.8)',
+                        duration: 8,
+                        maxDuration: 8
+                    });
+                    this.fireCooldown = this.fireRate;
+                }
+            }
+        }
+
+        // 4. Seek Steering Calculation
+        if (shouldMove) {
+            let dx = curTargetX - this.x;
+            let dy = curTargetY - this.y;
+            let dist = Math.hypot(dx, dy);
+
+            if (dist > 4) {
+                let desiredVx = (dx / dist) * this.maxSpeed;
+                let desiredVy = (dy / dist) * this.maxSpeed;
+
+                let seekX = desiredVx - this.vx;
+                let seekY = desiredVy - this.vy;
+
+                accelX += this.clamp(seekX, this.maxForce);
+                accelY += this.clamp(seekY, this.maxForce);
+            } else {
+                if (!this.combatTarget) {
+                    this.hasTarget = false;
+                }
+                this.vx = 0; this.vy = 0;
+            }
+        }
+
+        // 5. Localized Reynolds Separation Avoidance
+        let separationForceX = 0; let separationForceY = 0;
+        let neighborsCount = 0;
+
+        allUnitsPool.forEach(neighbor => {
+            if (neighbor === this || neighbor.health <= 0) return;
+
+            let dx = this.x - neighbor.x;
+            let dy = this.y - neighbor.y;
+            let distSq = (dx * dx) + (dy * dy);
+
+            if (distSq > 0 && distSq < this.separationRadiusSquared) {
+                let dist = Math.sqrt(distSq);
+                separationForceX += (dx / dist) / dist;
+                separationForceY += (dy / dist) / dist;
+                neighborsCount++;
+            }
+        });
+
+        if (neighborsCount > 0) {
+            separationForceX /= neighborsCount;
+            separationForceY /= neighborsCount;
+
+            accelX += this.clamp(separationForceX * 1.5, this.maxForce * 1.2);
+            accelY += this.clamp(separationForceY * 1.5, this.maxForce * 1.2);
+        }
+
+        this.vx += accelX; this.vy += accelY;
+        this.vx = this.clamp(this.vx, this.maxSpeed);
+        this.vy = this.clamp(this.vy, this.maxSpeed);
+
+        this.x += this.vx; this.y += this.vy;
+    }
+
+    clamp(val, max) {
+        let mag = Math.abs(val);
+        if (mag > max) return (val / mag) * max;
+        return val;
+    }
+}
+
+class StrategyPrototypeEngine {
+    constructor() {
+        this.canvas = document.getElementById('rtsCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.hudSelection = document.getElementById('selection-count');
+
+        this.units = [];
+        this.projectiles = [];
+        this.explosions = [];
+        this.selectionBox = null;
+        
+        this.matchEnded = false;
+        this.matchResetTimer = 0;
+
+        this.seedInitialPlatoons();
+        this.bindStrategicInputStreams();
+        this.executePipelineTick();
+    }
+
+    seedInitialPlatoons() {
+        // Player Units (Strike Force)
+        for (let i = 0; i < 18; i++) {
+            let spawnX = 60 + (i % 3) * 24;
+            let spawnY = 120 + Math.floor(i / 3) * 24;
+            this.units.push(new RTSUnitEntity(spawnX, spawnY, 'player'));
+        }
+
+        // Enemy Units (Hostile Fleet)
+        for (let i = 0; i < 12; i++) {
+            let spawnX = 520 + (i % 3) * 24;
+            let spawnY = 120 + Math.floor(i / 3) * 24;
+            this.units.push(new RTSUnitEntity(spawnX, spawnY, 'enemy'));
+        }
+    }
+
+    bindStrategicInputStreams() {
+        this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        this.canvas.addEventListener('pointerdown', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            if (e.button === 0) {
+                this.selectionBox = { startX: clickX, startY: clickY, currentX: clickX, currentY: clickY, active: true };
+            } else if (e.button === 2) {
+                this.broadcastGroupMovementOrder(clickX, clickY);
+            }
+        });
+
+        this.canvas.addEventListener('pointermove', (e) => {
+            if (!this.selectionBox || !this.selectionBox.active) return;
+            const rect = this.canvas.getBoundingClientRect();
+            this.selectionBox.currentX = e.clientX - rect.left;
+            this.selectionBox.currentY = e.clientY - rect.top;
+            
+            this.evaluateRealTimeBoxSelection();
+        });
+
+        document.addEventListener('pointerup', () => {
+            if (this.selectionBox) this.selectionBox.active = false;
+        });
+    }
+
+    evaluateRealTimeBoxSelection() {
+        let xMin = Math.min(this.selectionBox.startX, this.selectionBox.currentX);
+        let xMax = Math.max(this.selectionBox.startX, this.selectionBox.currentX);
+        let yMin = Math.min(this.selectionBox.startY, this.selectionBox.currentY);
+        let yMax = Math.max(this.selectionBox.startY, this.selectionBox.currentY);
+
+        let singleClickThreshold = 4;
+        let isDragBox = (xMax - xMin > singleClickThreshold || yMax - yMin > singleClickThreshold);
+
+        let activeCount = 0;
+
+        this.units.forEach(unit => {
+            if (unit.team !== 'player') {
+                unit.isSelected = false;
+                return;
+            }
+
+            if (isDragBox) {
+                if (unit.x >= xMin && unit.x <= xMax && unit.y >= yMin && unit.y <= yMax) {
+                    unit.isSelected = true;
+                    activeCount++;
+                } else {
+                    unit.isSelected = false;
+                }
+            } else {
+                let clickDist = Math.hypot(this.selectionBox.startX - unit.x, this.selectionBox.startY - unit.y);
+                if (clickDist <= unit.radius * 1.5) {
+                    unit.isSelected = true;
+                    activeCount++;
+                }
+            }
+        });
+
+        this.hudSelection.innerText = `SELECTED ACTIVE UNITS: ${activeCount.toString().padStart(2, '0')}`;
+    }
+
+    broadcastGroupMovementOrder(tx, ty) {
+        let selectedSubPool = this.units.filter(u => u.isSelected);
+        if (selectedSubPool.length === 0) return;
+
+        let unitsPerRow = Math.ceil(Math.sqrt(selectedSubPool.length));
+        let spacingOffset = 22;
+
+        selectedSubPool.forEach((unit, index) => {
+            let rowIdx = Math.floor(index / unitsPerRow);
+            let colIdx = index % unitsPerRow;
+
+            unit.targetX = tx + (colIdx - (unitsPerRow / 2)) * spacingOffset;
+            unit.targetY = ty + (rowIdx - (Math.ceil(selectedSubPool.length / unitsPerRow) / 2)) * spacingOffset;
+            unit.hasTarget = true;
+            unit.combatTarget = null; // Clear combat target when explicitly ordered to relocate
+        });
+    }
+
+    // --- MAIN PIPELINE EXECUTION ENGINE TICK RATE ---
+    executePipelineTick() {
+        if (this.matchEnded) {
+            this.matchResetTimer--;
+            if (this.matchResetTimer <= 0) {
+                this.units = [];
+                this.projectiles = [];
+                this.explosions = [];
+                this.seedInitialPlatoons();
+                this.matchEnded = false;
+            }
+        }
+
+        // 1. Advance logical system steering mechanics matrices
+        this.units.forEach(unit => {
+            if (unit.health > 0) {
+                unit.computeSteeringBehaviors(this.units, this.projectiles);
+            }
+        });
+
+        // 2. Handle unit death and trigger explosion particle emitters
+        this.units.forEach(unit => {
+            if (unit.health <= 0) {
+                for (let i = 0; i < 12; i++) {
+                    let angle = Math.random() * Math.PI * 2;
+                    let speed = 0.5 + Math.random() * 2.0;
+                    this.explosions.push({
+                        x: unit.x,
+                        y: unit.y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        color: unit.team === 'player' ? '#38bdf8' : '#f43f5e',
+                        alpha: 1.0,
+                        decay: 0.02 + Math.random() * 0.03
+                    });
+                }
+            }
+        });
+
+        // Filter active units
+        this.units = this.units.filter(unit => unit.health > 0);
+
+        // 3. Update active laser trails
+        this.projectiles.forEach(p => p.duration--);
+        this.projectiles = this.projectiles.filter(p => p.duration > 0);
+
+        // 4. Update active explosion particles
+        this.explosions.forEach(exp => {
+            exp.x += exp.vx;
+            exp.y += exp.vy;
+            exp.alpha -= exp.decay;
+        });
+        this.explosions = this.explosions.filter(exp => exp.alpha > 0);
+
+        // 5. Evaluate remaining side counts for match resets
+        let playerAlive = this.units.some(u => u.team === 'player');
+        let enemyAlive = this.units.some(u => u.team === 'enemy');
+        if (!playerAlive || !enemyAlive) {
+            if (!this.matchEnded) {
+                this.matchEnded = true;
+                this.matchResetTimer = 180;
+            }
+        }
+
+        // Update HUD display labels
+        let playerCount = this.units.filter(u => u.team === 'player').length;
+        let enemyCount = this.units.filter(u => u.team === 'enemy').length;
+        let selectedCount = this.units.filter(u => u.isSelected).length;
+
+        const hudStats = document.getElementById('hud-stats');
+        if (hudStats) {
+            hudStats.innerText = `STRIKE FORCE: ${playerCount.toString().padStart(2, '0')} | HOSTILES: ${enemyCount.toString().padStart(2, '0')}`;
+        }
+        this.hudSelection.innerText = `SELECTED ACTIVE UNITS: ${selectedCount.toString().padStart(2, '0')}`;
+
+        // 6. Repaint active graphical workspace layer configurations
+        this.renderCanvasView();
+
+        requestAnimationFrame(() => this.executePipelineTick());
+    }
+
+    renderCanvasView() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Render Layer Pass 1: Plot Grid Topography Background Guidelines
+        this.ctx.strokeStyle = 'rgba(34, 45, 61, 0.25)';
+        this.ctx.lineWidth = 1;
+        for (let x = 0; x < this.canvas.width; x += 40) {
+            this.ctx.beginPath(); this.ctx.moveTo(x, 0); this.ctx.lineTo(x, this.canvas.height); this.ctx.stroke();
+        }
+        for (let y = 0; y < this.canvas.height; y += 40) {
+            this.ctx.beginPath(); this.ctx.moveTo(0, y); this.ctx.lineTo(this.canvas.width, y); this.ctx.stroke();
+        }
+
+        // Render Layer Pass 2: Plot Laser Fire Projectile Vectors
+        this.projectiles.forEach(p => {
+            this.ctx.strokeStyle = p.color;
+            this.ctx.lineWidth = (p.duration / p.maxDuration) * 2.5;
+            this.ctx.beginPath();
+            this.ctx.moveTo(p.startX, p.startY);
+            this.ctx.lineTo(p.endX, p.endY);
+            this.ctx.stroke();
+        });
+
+        // Render Layer Pass 3: Draw Independent Mechanized Combat Units
+        this.units.forEach(unit => {
+            if (unit.isSelected) {
+                this.ctx.strokeStyle = 'var(--selected-glow)';
+                this.ctx.lineWidth = 1.5;
+                this.ctx.beginPath();
+                this.ctx.arc(unit.x, unit.y, unit.radius + 4, 0, Math.PI * 2);
+                this.ctx.stroke();
+            }
+
+            this.ctx.fillStyle = unit.color;
+            this.ctx.beginPath();
+            this.ctx.arc(unit.x, unit.y, unit.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Draw directional weapon facing vectors indicator lines
+            let headingAngle = Math.atan2(unit.vy, unit.vx);
+            if (unit.vx === 0 && unit.vy === 0) {
+                if (unit.combatTarget) {
+                    headingAngle = Math.atan2(unit.combatTarget.y - unit.y, unit.combatTarget.x - unit.x);
+                } else {
+                    headingAngle = -Math.PI / 2; // Default facing up when idle
+                }
+            }
+            
+            this.ctx.strokeStyle = '#04060a';
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.moveTo(unit.x, unit.y);
+            this.ctx.lineTo(unit.x + Math.cos(headingAngle) * 6, unit.y + Math.sin(headingAngle) * 6);
+            this.ctx.stroke();
+
+            // Health bar HUD displays for damaged fleet assets
+            if (unit.health < unit.maxHealth) {
+                let barW = unit.radius * 2;
+                let barH = 3;
+                let barX = unit.x - unit.radius;
+                let barY = unit.y - unit.radius - 6;
+
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                this.ctx.fillRect(barX, barY, barW, barH);
+
+                let healthPct = unit.health / unit.maxHealth;
+                this.ctx.fillStyle = unit.team === 'player' ? 'var(--selected-glow)' : 'var(--enemy-red)';
+                this.ctx.fillRect(barX, barY, barW * healthPct, barH);
+            }
+        });
+
+        // Render Layer Pass 4: Draw Interactive Dragging Selection Box Graphics
+        if (this.selectionBox && this.selectionBox.active) {
+            this.ctx.strokeStyle = 'rgba(0, 255, 204, 0.6)';
+            this.ctx.lineWidth = 1;
+            this.ctx.fillStyle = 'rgba(0, 255, 204, 0.05)';
+            
+            let w = this.selectionBox.currentX - this.selectionBox.startX;
+            let h = this.selectionBox.currentY - this.selectionBox.startY;
+            
+            this.ctx.fillRect(this.selectionBox.startX, this.selectionBox.startY, w, h);
+            this.ctx.strokeRect(this.selectionBox.startX, this.selectionBox.startY, w, h);
+        }
+
+        // Render Layer Pass 5: Draw Particle Explosions
+        this.explosions.forEach(exp => {
+            this.ctx.fillStyle = exp.color;
+            this.ctx.globalAlpha = exp.alpha;
+            this.ctx.beginPath();
+            this.ctx.arc(exp.x, exp.y, 2, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+        this.ctx.globalAlpha = 1.0;
+
+        // Render Layer Pass 6: Match End Redeployment Overlay
+        if (this.matchEnded) {
+            this.ctx.fillStyle = 'rgba(7, 9, 14, 0.75)';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+            this.ctx.fillStyle = 'var(--text)';
+            this.ctx.font = 'bold 16px monospace';
+            this.ctx.textAlign = 'center';
+            let statusLabel = this.units.some(u => u.team === 'player') ? 'STRIKE FORCE VICTORIOUS' : 'HOSTILES ACQUIRED THE FIELD';
+            this.ctx.fillText(statusLabel, this.canvas.width / 2, this.canvas.height / 2 - 8);
+            
+            this.ctx.fillStyle = 'var(--marine-blue)';
+            this.ctx.font = '12px monospace';
+            this.ctx.fillText(`REDEPLOYING BATTLEGROUND IN ${Math.ceil(this.matchResetTimer / 60)}...`, this.canvas.width / 2, this.canvas.height / 2 + 18);
+            
+            this.ctx.textAlign = 'left';
+        }
+    }
+}
+
+// System Core Startup Driver initialization
+const app = new StrategyPrototypeEngine();
+</script>
+</body>
+</html>

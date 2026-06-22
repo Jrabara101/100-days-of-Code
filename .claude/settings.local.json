@@ -46,7 +46,9 @@
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); e=d.get\\('result',{}\\).get\\('entries'\\) or []; print\\('CONTRACT IS LIVE — instance entry found, latest ledger', d['result']['latestLedger']\\) if e else print\\('Response:', json.dumps\\(d\\)\\)\")",
       "Bash(curl -s \"https://api.stellar.expert/explorer/testnet/contract/CBXJGV4KEDN6WOBFU2P2J4MVSFS673ELQHXKB5RYMIGI3WWQ52O4J6D7\")",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('CONTRACT FOUND ✓'\\); print\\(' created:', d.get\\('created'\\)\\); print\\(' payments/calls:', d.get\\('payments'\\)\\); print\\(' wasm hash:', \\(d.get\\('validation'\\) or {}\\).get\\('wasm'\\) or d.get\\('hash',''\\)\\)\")",
-      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" \"https://api.stellar.expert/explorer/testnet/contract/CBXJGV4KEDN6WOBFU2P2J4MVSFS673ELQHXKB5RYMIGI3WWQ52O4J6D7\")"
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" \"https://api.stellar.expert/explorer/testnet/contract/CBXJGV4KEDN6WOBFU2P2J4MVSFS673ELQHXKB5RYMIGI3WWQ52O4J6D7\")",
+      "Bash(git -C \"c:/Users/Admin/100-days-of-Code\" log --oneline -5)",
+      "Bash(git -C \"c:/Users/Admin/word-scramble-stellar\" log --oneline -5)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Admin\\100-days-of-Code\\Javascript and CSS\\Day 16\\Image Slider\\image"
