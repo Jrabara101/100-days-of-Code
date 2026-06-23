@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Hybrid Multi-Engine Chess Core Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" rel="stylesheet" />
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+        }
+
+        #three-canvas {
+            z-index: 10;
+        }
+
+        #phaser-container {
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        #hud-layer {
+            z-index: 30;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        .neo-button {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .neo-button:hover {
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-full" id="phaser-container"></div>
+    <div class="absolute inset-0 pointer-events-none flex flex-col justify-between p-8" id="hud-layer">
+        <header class="w-full flex justify-between items-start">
+            <div
+                class="glass-panel p-6 rounded-2xl shadow-2xl pointer-events-auto animate__animated animate__fadeInDown">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                    <h1 class="text-amber-400 font-mono text-[10px] uppercase tracking-[0.3em] font-bold">Strategic
+                        Operation // Matrix</h1>
+                </div>
+                <div class="text-white text-2xl font-black tracking-tight leading-none uppercase" id="turn-display">
+                    White Operator
+                </div>
+                <div class="mt-4 flex gap-4 text-[10px] font-mono text-slate-400 tracking-wider">
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-600">STK:</span> 0x64_FLAT
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-600">Z-ID:</span> HW_ACCEL
+                    </div>
+                </div>
+            </div>
+            <button
+                class="neo-button pointer-events-auto text-slate-950 font-black px-8 py-4 rounded-xl text-[11px] tracking-[0.2em] uppercase font-mono border border-amber-400/50"
+                onclick="orchestrator.rebootBoardMatrix()">
+                Reset Engine State
+            </button>
+        </header>
+        <main class="flex-grow flex items-end justify-start">
+            <div class="glass-panel w-80 p-4 rounded-xl pointer-events-auto opacity-60 hover:opacity-100 transition-opacity animate__animated animate__fadeInLeft"
+                id="terminal-log">
+                <div class="text-[10px] font-mono text-amber-500/70 mb-2 uppercase tracking-widest">System Telemetry
+                </div>
+                <div class="text-[10px] font-mono text-slate-300 space-y-1 h-32 overflow-hidden flex flex-col justify-end"
+                    id="log-content">
+                    <div>&gt; Initializing Matrix Registry...</div>
+                    <div>&gt; WebGL Stage: Connected</div>
+                    <div>&gt; Matter.js Solver: Online</div>
+                    <div>&gt; Phaser Particle Pipeline: Ready</div>
+                </div>
+            </div>
+        </main>
+        <footer class="w-full flex justify-center mt-6">
+            <div class="hidden bg-amber-500 text-slate-950 font-mono text-[11px] font-black px-10 py-4 rounded-full tracking-[0.25em] uppercase shadow-[0_0_40px_rgba(245,158,11,0.4)] border border-amber-300 animate__animated"
+                id="alert-banner">
+                Target Captured // Debris Materialized
+            </div>
+        </footer>
+    </div>
+    <script>
+        /**
+         * HybridChessOrchestrator
+         * Staff Architecture: Decoupled Multi-Engine Stack
+         * Single Source of Truth: 64-Element Flat Data Array
+         */
+        class HybridChessOrchestrator {
+            constructor() {
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.boardScale = 1.25;
+
+                // --- SINGLE SOURCE OF TRUTH (THE ENGINE CORE) ---
+                this.boardData = Array(64).fill(null);
+                this.activeTurn = 'W';
+                this.selectedTileIndex = null;
+
+                this.initChessDataMatrix();
+                this.initMatterEngine();
+                this.initThreeWebGL();
+                this.initPhaserFX();
+                this.bindRaycastInterceptors();
+                this.executeSynchronizedLifecycleLoop();
+
+                window.addEventListener('resize', () => this.handleWindowResize());
+            }
+
+            initChessDataMatrix() {
+                const backRow = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
+                // Black pieces (lowercase)
+                for (let i = 0; i < 8; i++) this.boardData[i] = backRow[i].toLowerCase();
+                for (let i = 8; i < 16; i++) this.boardData[i] = 'p';
+                // White pieces (uppercase)
+                for (let i = 48; i < 56; i++) this.boardData[i] = 'P';
+                for (let i = 56; i < 64; i++) this.boardData[i] = backRow[i - 56];
+            }
+
+            // --- ENGINE 1: MATTER.JS (PHYSICS) ---
+            initMatterEngine() {
+                this.matterEngine = Matter.Engine.create({ gravity: { y: 0.8 } });
+                this.matterWorld = this.matterEngine.world;
+
+                // Establish boundaries to keep debris contained
+                const floor = Matter.Bodies.rectangle(this.width / 2, this.height + 50, this.width * 2, 100, { isStatic: true });
+                const leftWall = Matter.Bodies.rectangle(-50, this.height / 2, 100, this.height * 2, { isStatic: true });
+                const rightWall = Matter.Bodies.rectangle(this.width + 50, this.height / 2, 100, this.height * 2, { isStatic: true });
+
+                Matter.Composite.add(this.matterWorld, [floor, leftWall, rightWall]);
+                this.activePhysicsPool = new Map();
+            }
+
+            // --- ENGINE 2: THREE.JS (3D VIEWPORT) ---
+            initThreeWebGL() {
+                this.renderer3D = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance", alpha: true });
+                this.renderer3D.setSize(this.width, this.height);
+                this.renderer3D.setPixelRatio(window.devicePixelRatio);
+                this.renderer3D.shadowMap.enabled = true;
+                this.renderer3D.domElement.id = "three-canvas";
+                document.body.insertBefore(this.renderer3D.domElement, document.body.firstChild);
+
+                this.scene3D = new THREE.Scene();
+                this.scene3D.background = null;
+
+                this.camera3D = new THREE.PerspectiveCamera(40, this.width / this.height, 0.1, 1000);
+                this.camera3D.position.set(0, -9, 11);
+                this.camera3D.lookAt(0, -1, 0);
+
+                // Lighting
+                const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+                const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
+                mainLight.position.set(5, -10, 10);
+                mainLight.castShadow = true;
+                mainLight.shadow.mapSize.width = 1024;
+                mainLight.shadow.mapSize.height = 1024;
+
+                const rimLight = new THREE.PointLight(0x3b82f6, 1.5, 50);
+                rimLight.position.set(-5, 5, 5);
+
+                this.scene3D.add(ambient, mainLight, rimLight);
+
+                this.buildWebGLBoard();
+                this.syncDataTo3D();
+            }
+
+            buildWebGLBoard() {
+                this.boardTiles = [];
+                const boardGroup = new THREE.Group();
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        const isDark = (row + col) % 2 === 1;
+                        const geo = new THREE.BoxGeometry(this.boardScale * 0.96, this.boardScale * 0.96, 0.2);
+                        const mat = new THREE.MeshStandardMaterial({
+                            color: isDark ? 0x0f172a : 0x1e293b,
+                            roughness: 0.4,
+                            metalness: 0.2,
+                            emissive: new THREE.Color(0x000000),
+                            emissiveIntensity: 0
+                        });
+                        const tile = new THREE.Mesh(geo, mat);
+                        tile.position.set((col - 3.5) * this.boardScale, -(row - 3.5) * this.boardScale, 0);
+                        tile.receiveShadow = true;
+                        boardGroup.add(tile);
+                        this.boardTiles.push(tile);
+                    }
+                }
+                this.scene3D.add(boardGroup);
+            }
+
+            createPieceMesh(char, isWhite) {
+                const group = new THREE.Group();
+
+                // High-fidelity materials referencing visual design
+                const mainMat = new THREE.MeshStandardMaterial({
+                    color: isWhite ? 0xffffff : 0x18181b, // Pure glossy white vs matte obsidian black
+                    metalness: isWhite ? 0.15 : 0.3,
+                    roughness: isWhite ? 0.1 : 0.4
+                });
+
+                const emissiveMat = new THREE.MeshStandardMaterial({
+                    color: 0x000000,
+                    emissive: 0xd97706,
+                    emissiveIntensity: 2.0
+                });
+
+                // Shared Base Structure
+                const baseGeo = new THREE.CylinderGeometry(0.35, 0.4, 0.15, 32);
+                const base = new THREE.Mesh(baseGeo, mainMat);
+                base.position.y = 0.075;
+                group.add(base);
+
+                // Glowing Amber Accent
+                const ringGeo = new THREE.TorusGeometry(0.32, 0.03, 16, 32);
+                const ring = new THREE.Mesh(ringGeo, emissiveMat);
+                ring.position.y = 0.18;
+                ring.rotation.x = Math.PI / 2;
+                group.add(ring);
+
+                let bodyGeo;
+                let headMesh;
+
+                // Refined Role Meshes
+                if (char === 'p') {
+                    bodyGeo = new THREE.CylinderGeometry(0.15, 0.3, 0.4, 32);
+                    const body = new THREE.Mesh(bodyGeo, mainMat);
+                    body.position.y = 0.4;
+                    group.add(body);
+
+                    const headGeo = new THREE.SphereGeometry(0.18, 32, 32);
+                    headMesh = new THREE.Mesh(headGeo, mainMat);
+                    headMesh.position.y = 0.7;
+                    group.add(headMesh);
+                } else if (char === 'r') {
+                    bodyGeo = new THREE.CylinderGeometry(0.25, 0.3, 0.6, 32);
+                    const body = new THREE.Mesh(bodyGeo, mainMat);
+                    body.position.y = 0.5;
+                    group.add(body);
+
+                    // Crenellated battlement approximation
+                    const topGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.2, 8);
+                    headMesh = new THREE.Mesh(topGeo, mainMat);
+                    headMesh.position.y = 0.9;
+                    group.add(headMesh);
+
+                    const indentGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.22, 16);
+                    const indent = new THREE.Mesh(indentGeo, mainMat);
+                    indent.position.y = 0.95;
+                    group.add(indent);
+                } else if (char === 'n') {
+                    bodyGeo = new THREE.CylinderGeometry(0.2, 0.3, 0.5, 32);
+                    const body = new THREE.Mesh(bodyGeo, mainMat);
+                    body.position.y = 0.45;
+                    group.add(body);
+
+                    const topGeo = new THREE.CylinderGeometry(0.15, 0.2, 0.5, 16);
+                    headMesh = new THREE.Mesh(topGeo, mainMat);
+                    headMesh.position.set(0, 0.8, 0.1);
+                    headMesh.rotation.x = Math.PI / 4;
+                    group.add(headMesh);
+                } else if (char === 'b') {
+                    bodyGeo = new THREE.CylinderGeometry(0.15, 0.3, 0.7, 32);
+                    const body = new THREE.Mesh(bodyGeo, mainMat);
+                    body.position.y = 0.55;
+                    group.add(body);
+
+                    const topGeo = new THREE.SphereGeometry(0.18, 32, 32);
+                    topGeo.scale(1, 1.4, 1);
+                    headMesh = new THREE.Mesh(topGeo, mainMat);
+                    headMesh.position.y = 0.98;
+                    group.add(headMesh);
+
+                    const tipGeo = new THREE.SphereGeometry(0.06, 16, 16);
+                    const tip = new THREE.Mesh(tipGeo, mainMat);
+                    tip.position.y = 1.25;
+                    group.add(tip);
+                } else if (char === 'q') {
+                    bodyGeo = new THREE.CylinderGeometry(0.2, 0.35, 0.9, 32);
+                    const body = new THREE.Mesh(bodyGeo, mainMat);
+                    body.position.y = 0.65;
+                    group.add(body);
+
+                    const crownGeo = new THREE.CylinderGeometry(0.25, 0.15, 0.2, 16);
+                    headMesh = new THREE.Mesh(crownGeo, mainMat);
+                    headMesh.position.y = 1.2;
+                    group.add(headMesh);
+
+                    const orbGeo = new THREE.SphereGeometry(0.1, 16, 16);
+                    const orb = new THREE.Mesh(orbGeo, mainMat);
+                    orb.position.y = 1.35;
+                    group.add(orb);
+                } else if (char === 'k') {
+                    bodyGeo = new THREE.CylinderGeometry(0.25, 0.35, 1.0, 32);
+                    const body = new THREE.Mesh(bodyGeo, mainMat);
+                    body.position.y = 0.7;
+                    group.add(body);
+
+                    const crownGeo = new THREE.CylinderGeometry(0.28, 0.2, 0.2, 16);
+                    headMesh = new THREE.Mesh(crownGeo, mainMat);
+                    headMesh.position.y = 1.3;
+                    group.add(headMesh);
+
+                    const crossVGeo = new THREE.BoxGeometry(0.08, 0.3, 0.08);
+                    const crossV = new THREE.Mesh(crossVGeo, mainMat);
+                    crossV.position.y = 1.55;
+                    group.add(crossV);
+
+                    const crossHGeo = new THREE.BoxGeometry(0.2, 0.08, 0.08);
+                    const crossH = new THREE.Mesh(crossHGeo, mainMat);
+                    crossH.position.y = 1.55;
+                    group.add(crossH);
+                }
+
+                group.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                return group;
+            }
+
+            syncDataTo3D() {
+                if (this.piecesMap) {
+                    this.piecesMap.forEach(mesh => this.scene3D.remove(mesh));
+                }
+                this.piecesMap = new Map();
+
+                this.boardData.forEach((type, i) => {
+                    if (!type) return;
+
+                    const col = i % 8;
+                    const row = Math.floor(i / 8);
+                    const isWhite = type === type.toUpperCase();
+                    const char = type.toLowerCase();
+
+                    const mesh = this.createPieceMesh(char, isWhite);
+
+                    // Position on top of the tile (z = 0.1)
+                    mesh.position.set((col - 3.5) * this.boardScale, -(row - 3.5) * this.boardScale, 0.1);
+                    mesh.rotation.x = Math.PI / 2;
+
+                    // Adjust facing direction based on color
+                    if (!isWhite) {
+                        mesh.rotation.y = Math.PI;
+                    }
+
+                    this.scene3D.add(mesh);
+                    this.piecesMap.set(i, mesh);
+                });
+            }
+
+            // --- ENGINE 3: PHASER 3 (2D EFFECTS) ---
+            initPhaserFX() {
+                const self = this;
+                const config = {
+                    type: Phaser.AUTO,
+                    width: this.width,
+                    height: this.height,
+                    parent: 'phaser-container',
+                    transparent: true,
+                    scene: {
+                        preload: function () {
+                            const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+                            graphics.fillStyle(0xffffff);
+                            graphics.fillCircle(4, 4, 4);
+                            graphics.generateTexture('particle', 8, 8);
+                        },
+                        create: function () {
+                            self.phaserScene = this;
+                        }
+                    }
+                };
+                this.phaserGame = new Phaser.Game(config);
+            }
+
+            // --- INTER-ENGINE PROJECTION (RAYCASTING) ---
+            bindRaycastInterceptors() {
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+                this.hitPlanes = [];
+
+                for (let i = 0; i < 64; i++) {
+                    const col = i % 8;
+                    const row = Math.floor(i / 8);
+                    const mesh = new THREE.Mesh(
+                        new THREE.PlaneGeometry(this.boardScale, this.boardScale),
+                        new THREE.MeshBasicMaterial({ visible: false })
+                    );
+                    mesh.position.set((col - 3.5) * this.boardScale, -(row - 3.5) * this.boardScale, 0.1);
+                    mesh.userData.index = i;
+                    this.scene3D.add(mesh);
+                    this.hitPlanes.push(mesh);
+                }
+
+                window.addEventListener('pointerdown', (e) => this.onBoardPointer(e));
+            }
+
+            onBoardPointer(e) {
+                if (e.target.id !== "three-canvas") return;
+
+                this.mouse.x = (e.clientX / this.width) * 2 - 1;
+                this.mouse.y = -(e.clientY / this.height) * 2 + 1;
+
+                this.raycaster.setFromCamera(this.mouse, this.camera3D);
+                const hits = this.raycaster.intersectObjects(this.hitPlanes);
+
+                if (hits.length > 0) {
+                    this.processInteraction(hits[0].object.userData.index);
+                }
+            }
+
+            highlightValidMoves(fromIndex) {
+                this.clearTileHighlights();
+                const piece = this.boardData[fromIndex];
+                if (!piece) return;
+                const isWhite = piece === piece.toUpperCase();
+                const glowColor = isWhite ? 0xd97706 : 0x3b82f6; // Amber for white, blue for black
+
+                for (let to = 0; to < 64; to++) {
+                    if (this.isValidMove(fromIndex, to)) {
+                        const tile = this.boardTiles[to];
+                        if (tile) {
+                            tile.material.emissive.setHex(glowColor);
+                            tile.material.emissiveIntensity = 0.8;
+                        }
+                    }
+                }
+            }
+
+            clearTileHighlights() {
+                if (!this.boardTiles) return;
+                this.boardTiles.forEach(tile => {
+                    tile.material.emissive.setHex(0x000000);
+                    tile.material.emissiveIntensity = 0;
+                });
+            }
+
+            isValidMove(from, to) {
+                const piece = this.boardData[from];
+                if (!piece) return false;
+
+                const isWhite = piece === piece.toUpperCase();
+                const char = piece.toLowerCase();
+
+                const fromRow = Math.floor(from / 8);
+                const fromCol = from % 8;
+                const toRow = Math.floor(to / 8);
+                const toCol = to % 8;
+
+                const dRow = toRow - fromRow;
+                const dCol = toCol - fromCol;
+
+                // Basic check: can't move to the same square
+                if (from === to) return false;
+
+                // Basic check: can't capture own piece
+                const targetPiece = this.boardData[to];
+                if (targetPiece) {
+                    const isTargetWhite = targetPiece === targetPiece.toUpperCase();
+                    if (isWhite === isTargetWhite) return false;
+                }
+
+                switch (char) {
+                    case 'p': // Pawn
+                        const direction = isWhite ? -1 : 1;
+                        const startRow = isWhite ? 6 : 1;
+
+                        // 1 square forward
+                        if (dCol === 0 && dRow === direction) {
+                            return targetPiece === null;
+                        }
+                        // 2 squares forward on first move
+                        if (dCol === 0 && dRow === 2 * direction && fromRow === startRow) {
+                            const stepSquare = from + direction * 8;
+                            return targetPiece === null && this.boardData[stepSquare] === null;
+                        }
+                        // Diagonal capture
+                        if (Math.abs(dCol) === 1 && dRow === direction) {
+                            return targetPiece !== null;
+                        }
+                        return false;
+
+                    case 'n': // Knight
+                        const absDRow = Math.abs(dRow);
+                        const absDCol = Math.abs(dCol);
+                        return (absDRow === 2 && absDCol === 1) || (absDRow === 1 && absDCol === 2);
+
+                    case 'b': // Bishop
+                        if (Math.abs(dRow) !== Math.abs(dCol)) return false;
+                        return this.isPathClear(fromRow, fromCol, toRow, toCol);
+
+                    case 'r': // Rook
+                        if (fromRow !== toRow && fromCol !== toCol) return false;
+                        return this.isPathClear(fromRow, fromCol, toRow, toCol);
+
+                    case 'q': // Queen
+                        if (Math.abs(dRow) !== Math.abs(dCol) && fromRow !== toRow && fromCol !== toCol) return false;
+                        return this.isPathClear(fromRow, fromCol, toRow, toCol);
+
+                    case 'k': // King
+                        return Math.abs(dRow) <= 1 && Math.abs(dCol) <= 1;
+
+                    default:
+                        return false;
+                }
+            }
+
+            isPathClear(fromRow, fromCol, toRow, toCol) {
+                const dRow = toRow - fromRow;
+                const dCol = toCol - fromCol;
+                const stepRow = dRow === 0 ? 0 : (dRow > 0 ? 1 : -1);
+                const stepCol = dCol === 0 ? 0 : (dCol > 0 ? 1 : -1);
+
+                let r = fromRow + stepRow;
+                let c = fromCol + stepCol;
+
+                while (r !== toRow || c !== toCol) {
+                    const idx = r * 8 + c;
+                    if (this.boardData[idx] !== null) return false;
+                    r += stepRow;
+                    c += stepCol;
+                }
+                return true;
+            }
+
+            processInteraction(index) {
+                const piece = this.boardData[index];
+
+                if (this.selectedTileIndex === null) {
+                    if (!piece) return;
+                    const isWhite = piece === piece.toUpperCase();
+                    if ((this.activeTurn === 'W' && !isWhite) || (this.activeTurn === 'B' && isWhite)) return;
+
+                    this.selectedTileIndex = index;
+                    this.piecesMap.get(index).scale.set(1.4, 1.4, 1.4);
+                    this.highlightValidMoves(index);
+                    this.log(`> Node Selected: index_${index}`);
+                } else {
+                    if (index === this.selectedTileIndex) {
+                        this.clearTileHighlights();
+                        this.syncDataTo3D();
+                        this.selectedTileIndex = null;
+                        return;
+                    }
+
+                    // Switch selection if they clicked another of their own pieces
+                    if (piece) {
+                        const isMovingWhite = this.boardData[this.selectedTileIndex] === this.boardData[this.selectedTileIndex].toUpperCase();
+                        const isTargetWhite = piece === piece.toUpperCase();
+                        if (isMovingWhite === isTargetWhite) {
+                            this.clearTileHighlights();
+                            this.syncDataTo3D();
+                            this.selectedTileIndex = index;
+                            this.piecesMap.get(index).scale.set(1.4, 1.4, 1.4);
+                            this.highlightValidMoves(index);
+                            this.log(`> Node Selected: index_${index}`);
+                            return;
+                        }
+                    }
+
+                    // Move validation
+                    if (this.isValidMove(this.selectedTileIndex, index)) {
+                        this.clearTileHighlights();
+                        this.executeMove(this.selectedTileIndex, index);
+                        this.selectedTileIndex = null;
+                    } else {
+                        this.log(`> Invalid move attempt: index_${this.selectedTileIndex} -> index_${index}`);
+                    }
+                }
+            }
+
+            executeMove(from, to) {
+                const movingPiece = this.boardData[from];
+                const targetPiece = this.boardData[to];
+
+                // Logic check: Friendlies
+                if (targetPiece) {
+                    const isMovingWhite = movingPiece === movingPiece.toUpperCase();
+                    const isTargetWhite = targetPiece === targetPiece.toUpperCase();
+                    if (isMovingWhite === isTargetWhite) {
+                        this.syncDataTo3D();
+                        return;
+                    }
+
+                    // Capture Sequence
+                    this.captureDebris(to);
+                    this.showAlert();
+                }
+
+                // Apply to Matrix (with Pawn Promotion)
+                if (movingPiece === 'P' && Math.floor(to / 8) === 0) {
+                    this.boardData[to] = 'Q';
+                    this.log(`> Promotion: White Pawn promoted to Queen at index_${to}`);
+                } else if (movingPiece === 'p' && Math.floor(to / 8) === 7) {
+                    this.boardData[to] = 'q';
+                    this.log(`> Promotion: Black Pawn promoted to Queen at index_${to}`);
+                } else {
+                    this.boardData[to] = movingPiece;
+                }
+                this.boardData[from] = null;
+
+                // Trigger FX
+                const col = to % 8;
+                const row = Math.floor(to / 8);
+                this.fireBurst(col, row);
+
+                this.activeTurn = this.activeTurn === 'W' ? 'B' : 'W';
+                this.updateHUD();
+                this.syncDataTo3D();
+                this.log(`> Transaction: index_${from} -> index_${to}`);
+            }
+
+            captureDebris(index) {
+                const mesh = this.piecesMap.get(index);
+                if (!mesh) return;
+
+                const col = index % 8;
+                const row = Math.floor(index / 8);
+
+                // Convert 3D position to Screen Pixels for Matter.js
+                const vector = new THREE.Vector3((col - 3.5) * this.boardScale, -(row - 3.5) * this.boardScale, 0.5);
+                vector.project(this.camera3D);
+
+                const x = (vector.x * 0.5 + 0.5) * this.width;
+                const y = (-vector.y * 0.5 + 0.5) * this.height;
+
+                const body = Matter.Bodies.circle(x, y, 20, {
+                    restitution: 0.6,
+                    friction: 0.1,
+                    angularVelocity: (Math.random() - 0.5) * 0.2
+                });
+
+                Matter.Composite.add(this.matterWorld, body);
+                this.activePhysicsPool.set(body, mesh);
+                this.piecesMap.delete(index);
+            }
+
+            fireBurst(col, row) {
+                if (!this.phaserScene) return;
+
+                const vector = new THREE.Vector3((col - 3.5) * this.boardScale, -(row - 3.5) * this.boardScale, 0.5);
+                vector.project(this.camera3D);
+
+                const x = (vector.x * 0.5 + 0.5) * this.width;
+                const y = (-vector.y * 0.5 + 0.5) * this.height;
+
+                const particles = this.phaserScene.add.particles(x, y, 'particle', {
+                    speed: { min: 100, max: 250 },
+                    scale: { start: 1, end: 0 },
+                    alpha: { start: 1, end: 0 },
+                    lifespan: 800,
+                    quantity: 20,
+                    tint: this.activeTurn === 'W' ? 0xf59e0b : 0x3b82f6,
+                    emitting: false
+                });
+                particles.explode();
+                setTimeout(() => particles.destroy(), 1000);
+            }
+
+            executeSynchronizedLifecycleLoop() {
+                Matter.Engine.update(this.matterEngine, 16.66);
+
+                // Map Physics to 3D
+                this.activePhysicsPool.forEach((mesh, body) => {
+                    const worldX = (body.position.x / this.width) * 2 - 1;
+                    const worldY = -(body.position.y / this.height) * 2 + 1;
+
+                    const pos = new THREE.Vector3(worldX, worldY, 0.5).unproject(this.camera3D);
+                    mesh.position.set(pos.x, pos.y, 0.5);
+
+                    // Adjust rotation for the new group orientation
+                    mesh.rotation.y = -body.angle;
+                    mesh.rotation.x = Math.PI / 2;
+                });
+
+                this.renderer3D.render(this.scene3D, this.camera3D);
+                requestAnimationFrame(() => this.executeSynchronizedLifecycleLoop());
+            }
+
+            handleWindowResize() {
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.renderer3D.setSize(this.width, this.height);
+                this.camera3D.aspect = this.width / this.height;
+                this.camera3D.updateProjectionMatrix();
+                this.phaserGame.scale.resize(this.width, this.height);
+            }
+
+            updateHUD() {
+                const display = document.getElementById('turn-display');
+                display.innerText = this.activeTurn === 'W' ? "White Operator" : "Black Operator";
+                display.className = `text-2xl font-black tracking-tight leading-none uppercase animate__animated animate__headShake ${this.activeTurn === 'W' ? 'text-white' : 'text-blue-400'}`;
+            }
+
+            showAlert() {
+                const banner = document.getElementById('alert-banner');
+                banner.classList.remove('hidden');
+                banner.classList.add('animate__slideInUp');
+                setTimeout(() => {
+                    banner.classList.add('animate__fadeOutDown');
+                    setTimeout(() => {
+                        banner.classList.add('hidden');
+                        banner.classList.remove('animate__slideInUp', 'animate__fadeOutDown');
+                    }, 1000);
+                }, 2000);
+            }
+
+            log(msg) {
+                const log = document.getElementById('log-content');
+                const entry = document.createElement('div');
+                entry.textContent = msg;
+                log.appendChild(entry);
+                if (log.children.length > 8) log.removeChild(log.firstChild);
+            }
+
+            rebootBoardMatrix() {
+                this.activePhysicsPool.forEach(mesh => this.scene3D.remove(mesh));
+                this.activePhysicsPool.clear();
+                this.clearTileHighlights();
+                this.boardData.fill(null);
+                this.initChessDataMatrix();
+                this.activeTurn = 'W';
+                this.selectedTileIndex = null;
+                this.updateHUD();
+                this.syncDataTo3D();
+                this.log("> Engine Rebooted: Matrix Reset");
+            }
+        }
+
+        let orchestrator;
+        window.onload = () => { orchestrator = new HybridChessOrchestrator(); };
+    </script>
+</body>
+
+</html>
