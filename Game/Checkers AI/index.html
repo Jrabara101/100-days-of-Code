@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hybrid Multi-Engine Checkers AI Architecture</title>
+    <!-- CSS / Tailwind / Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;950&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: #05070c; 
+            font-family: 'Inter', sans-serif;
+        }
+        canvas { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            display: block; 
+        }
+        #three-canvas { 
+            z-index: 10; 
+        }
+        #phaser-container { 
+            z-index: 20; 
+            pointer-events: none; 
+        }
+        #phaser-container canvas { 
+            pointer-events: none; 
+        }
+        #hud-layer { 
+            z-index: 30; 
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(16, 185, 129, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.2);
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(16, 185, 129, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Phaser Transparent Canvas Container -->
+    <div id="phaser-container" class="w-full h-full absolute inset-0"></div>
+
+    <!-- HUD Overlay Layer -->
+    <div id="hud-layer" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6">
+        <!-- Top Header -->
+        <header class="w-full flex justify-between items-start pointer-events-auto">
+            <div class="bg-slate-950/90 border border-emerald-500/30 p-4 rounded-lg shadow-2xl backdrop-blur flex flex-col animate__animated animate__fadeInDown">
+                <h1 class="text-emerald-400 font-orbitron text-xs uppercase tracking-widest font-black flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Adversarial Tactical OS
+                </h1>
+                <div id="turn-display" class="text-white text-md font-black tracking-wide mt-1 font-orbitron">
+                    HUMAN PLAYER TURN [RED]
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-950/95 border border-slate-800 p-2.5 rounded-lg shadow-2xl backdrop-blur flex gap-4 font-mono text-xs text-slate-300">
+                    <button onclick="orchestrator.toggleCameraView()" class="hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-bold uppercase cursor-pointer">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        Camera Tilt
+                    </button>
+                </div>
+                
+                <button onclick="orchestrator.purgeBoardMatrix()" class="hvr-grow cursor-pointer bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-black px-5 py-3 rounded border border-emerald-400 shadow-xl text-xs tracking-widest uppercase font-orbitron transition-all">
+                    Wipe State Matrix
+                </button>
+            </div>
+        </header>
+
+        <!-- Warning banner triggered by rules violation -->
+        <div class="flex justify-center my-auto">
+            <div id="alert-banner" class="hidden bg-red-950/90 text-red-400 font-orbitron text-xs font-black px-6 py-3 rounded-lg shadow-2xl border border-red-500/40 animate__animated animate__bounceIn">
+                COMBAT WARNING // JUMP IS MANDATORY
+            </div>
+        </div>
+
+        <!-- Footer Stats Widget & Logs -->
+        <footer class="w-full flex justify-between items-end pointer-events-auto">
+            <!-- Translucent Sidebar Panel -->
+            <div class="bg-slate-950/90 border border-emerald-500/20 p-4 rounded-lg shadow-2xl backdrop-blur w-72 flex flex-col gap-3 text-slate-300 font-mono text-xs animate__animated animate__fadeInLeft">
+                <div class="border-b border-emerald-500/20 pb-2 flex justify-between items-center">
+                    <span class="text-emerald-400 font-bold uppercase font-orbitron tracking-wider">Tactical Matrix</span>
+                    <span id="ai-depth" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px]">AI DEPTH: 4 PLIES</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>RED CHIPS (HUMAN):</span>
+                    <span id="score-human" class="text-red-400 font-black text-sm">12</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>CREAM CHIPS (AI):</span>
+                    <span id="score-ai" class="text-slate-100 font-black text-sm">12</span>
+                </div>
+                <div class="border-t border-emerald-500/20 pt-2">
+                    <div class="text-emerald-400 font-bold uppercase mb-1 font-orbitron tracking-wider text-[10px]">Operations Log</div>
+                    <div id="log-container" class="h-28 overflow-y-auto pr-1 flex flex-col gap-1 text-[10px] text-slate-400 font-mono">
+                        <div class="text-emerald-500/60 font-bold">// ADVERSARIAL OS INITIALIZED</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side bin footprint annotation -->
+            <div class="bg-slate-950/60 border border-slate-800/80 px-3 py-2 rounded text-[10px] text-slate-500 font-mono">
+                SECURE STATE ISOLATION ENGINE // MATTER.JS DEBRIS BIN ONLINE
+            </div>
+        </footer>
+    </div>
+
+<script>
+class HybridCheckersAIOrchestrator {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.boardSpacing = 1.15; // Spatial spacing scaling coefficient
+
+        // Camera type view mode tracker
+        this.cameraType = 'perspective';
+        this.cameraTargetPos = null;
+
+        // --- SINGLE SOURCE OF TRUTH CONCURRENT MATRIX DATA STATE ---
+        // Flat 32-element array representing dark legal playable squares exclusively.
+        // Index mapping layout:
+        // Row 0: indices 0, 1, 2, 3 (cols 1, 3, 5, 7)
+        // Row 1: indices 4, 5, 6, 7 (cols 0, 2, 4, 6)
+        // ...
+        // 1 = Red Human Unit, 2 = Cream AI Unit
+        // -1 = Human King, -2 = AI King
+        this.boardData = Array(32).fill(null);
+        this.activeTurn = 1; // 1 = Human Red, 2 = AI Cream
+        
+        // Multi-jump and movement tracking
+        this.selectedCellIndex = null;
+        this.multiJumpPieceIndex = null; 
+
+        // Initial setup sequence
+        this.initDataMatrixState();
+        this.initMatterRigidBodyCore();
+        this.initThreeRenderer();
+        
+        // Initialize raycaster groups early to prevent undefined errors in buildWebGLBoardTiles
+        this.rayInterceptorsGroup = [];
+        this.buildWebGLBoardTiles();
+        
+        this.initPhaserFX();
+        this.bindRaycastInterceptors();
+        this.syncDataBufferTo3DViewport();
+        this.update3DBinPosition();
+        this.syncHUDViewDisplay();
+
+        // Start requestAnimationFrame lifecycle
+        this.executeLifecycleStepLoop();
+    }
+
+    initDataMatrixState() {
+        this.boardData.fill(null);
+        // Initialize top 3 rows with AI chips (indices 0 to 11)
+        for (let i = 0; i < 12; i++) this.boardData[i] = 2;
+        // Initialize bottom 3 rows with Human chips (indices 20 to 31)
+        for (let i = 20; i < 32; i++) this.boardData[i] = 1;
+    }
+
+    // --- SUB-SYSTEM 1: MATTER.JS 2D PHYSICS CORE ENGINE ---
+    initMatterRigidBodyCore() {
+        this.matterEngine = Matter.Engine.create({ gravity: { y: 1.2 } });
+        this.matterWorld = this.matterEngine.world;
+
+        // Establish Matter.js static debris bin walls at bottom right
+        const binX = this.width - 150;
+        const binY = this.height - 150;
+        const binWidth = 220;
+        const binHeight = 100;
+        const wallThickness = 20;
+
+        this.binFloor = Matter.Bodies.rectangle(binX, binY + binHeight/2, binWidth, wallThickness, { isStatic: true });
+        this.binLeftWall = Matter.Bodies.rectangle(binX - binWidth/2 + wallThickness/2, binY, wallThickness, binHeight, { isStatic: true });
+        this.binRightWall = Matter.Bodies.rectangle(binX + binWidth/2 - wallThickness/2, binY, wallThickness, binHeight, { isStatic: true });
+
+        Matter.Composite.add(this.matterWorld, [this.binFloor, this.binLeftWall, this.binRightWall]);
+
+        this.activePhysicsPool = new Map(); // Pairs Matter.js dynamic bodies with Three.js meshes
+    }
+
+    // --- SUB-SYSTEM 2: THREE.JS HIGH-REFRESH WEBGL DRAW VIEWPORT ---
+    initThreeRenderer() {
+        this.renderer3D = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer3D.setSize(this.width, this.height);
+        this.renderer3D.shadowMap.enabled = true;
+        this.renderer3D.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.threeCanvasId = "three-canvas";
+        this.renderer3D.domElement.id = this.threeCanvasId;
+        document.body.insertBefore(this.renderer3D.domElement, document.body.firstChild);
+
+        this.scene3D = new THREE.Scene();
+        this.scene3D.background = new THREE.Color('#030508');
+
+        this.camera3D = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
+        this.camera3D.position.set(0, -6.8, 8.5);
+        this.camera3D.lookAt(0, -0.2, 0);
+
+        // Cyber-synthwave lighting array setup
+        this.scene3D.add(new THREE.AmbientLight(0xffffff, 0.4));
+        
+        // Emerald operations light
+        const emeraldLight = new THREE.DirectionalLight(0x10b981, 0.9);
+        emeraldLight.position.set(4, -6, 8);
+        emeraldLight.castShadow = true;
+        emeraldLight.shadow.mapSize.width = 1024;
+        emeraldLight.shadow.mapSize.height = 1024;
+        this.scene3D.add(emeraldLight);
+
+        // Magenta glow point light
+        const magentaLight = new THREE.PointLight(0xec4899, 1.5, 25);
+        magentaLight.position.set(-5, 5, 5);
+        this.scene3D.add(magentaLight);
+
+        // Cyan accent point light
+        const cyanLight = new THREE.PointLight(0x06b6d4, 1.2, 20);
+        cyanLight.position.set(5, 5, 4);
+        this.scene3D.add(cyanLight);
+
+        // Decorative background space grid
+        const gridHelper = new THREE.GridHelper(30, 30, 0x10b981, 0x1e293b);
+        gridHelper.position.set(0, 0, -0.6);
+        gridHelper.rotation.x = Math.PI / 2;
+        this.scene3D.add(gridHelper);
+
+        // Global shared assets to prevent memory leaks
+        this.geometries = {
+            tile: new THREE.BoxGeometry(this.boardSpacing, this.boardSpacing, 0.12),
+            piece: new THREE.CylinderGeometry(0.38, 0.38, 0.15, 32)
+        };
+
+        this.materials = {
+            tileDark: new THREE.MeshStandardMaterial({
+                color: 0x0f172a, roughness: 0.6, metalness: 0.2
+            }),
+            tileLight: new THREE.MeshStandardMaterial({
+                color: 0x020617, roughness: 0.8, metalness: 0.0
+            }),
+            tileHover: new THREE.MeshStandardMaterial({
+                color: 0x1e293b, roughness: 0.4, metalness: 0.4, emissive: 0x064e3b
+            }),
+            tileSelected: new THREE.MeshStandardMaterial({
+                color: 0x0f172a, roughness: 0.3, metalness: 0.5, emissive: 0x065f46
+            }),
+            pieceRed: new THREE.MeshStandardMaterial({
+                color: 0xef4444, roughness: 0.3, metalness: 0.6
+            }),
+            pieceCream: new THREE.MeshStandardMaterial({
+                color: 0xf8fafc, roughness: 0.3, metalness: 0.6
+            }),
+            pieceRedKing: new THREE.MeshStandardMaterial({
+                color: 0xb91c1c, roughness: 0.2, metalness: 0.8, emissive: 0x500505
+            }),
+            pieceCreamKing: new THREE.MeshStandardMaterial({
+                color: 0xe2e8f0, roughness: 0.2, metalness: 0.8, emissive: 0x1e293b
+            })
+        };
+
+        this.visualPiecesGroup = new Map();
+        
+        window.addEventListener('resize', () => this.handleWindowResize());
+    }
+
+    buildWebGLBoardTiles() {
+        let activeSquareIndexCounter = 0;
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                let isPlayableDarkCell = (row + col) % 2 === 1;
+                
+                let boardTileMesh = new THREE.Mesh(
+                    this.geometries.tile, 
+                    isPlayableDarkCell ? this.materials.tileDark : this.materials.tileLight
+                );
+                boardTileMesh.position.set((col - 3.5) * this.boardSpacing, -(row - 3.5) * this.boardSpacing, 0);
+                boardTileMesh.receiveShadow = true;
+                this.scene3D.add(boardTileMesh);
+
+                if (isPlayableDarkCell) {
+                    boardTileMesh.matrixIndexPointer = activeSquareIndexCounter;
+                    this.rayInterceptorsGroup.push(boardTileMesh);
+                    activeSquareIndexCounter++;
+                }
+            }
+        }
+
+        // Cyber neon outlines
+        const borderGeo = new THREE.BoxGeometry(8 * this.boardSpacing + 0.15, 8 * this.boardSpacing + 0.15, 0.08);
+        const borderMat = new THREE.MeshStandardMaterial({
+            color: 0x1e293b, roughness: 0.4, metalness: 0.8
+        });
+        const borderMesh = new THREE.Mesh(borderGeo, borderMat);
+        borderMesh.position.set(0, 0, -0.08);
+        this.scene3D.add(borderMesh);
+
+        const edges = new THREE.EdgesGeometry(borderGeo);
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.5 }));
+        line.position.copy(borderMesh.position);
+        this.scene3D.add(line);
+    }
+
+    update3DBinPosition() {
+        if (!this.bin3DGroup) {
+            this.bin3DGroup = new THREE.Group();
+            this.scene3D.add(this.bin3DGroup);
+
+            const floorGeo = new THREE.BoxGeometry(4.2, 0.2, 1.2);
+            const wallGeo = new THREE.BoxGeometry(0.2, 1.6, 1.2);
+            
+            const wireframeMat = new THREE.MeshBasicMaterial({
+                color: 0x10b981, wireframe: true, transparent: true, opacity: 0.3
+            });
+            const solidMat = new THREE.MeshStandardMaterial({
+                color: 0x064e3b, transparent: true, opacity: 0.15, roughness: 0.5, metalness: 0.8
+            });
+
+            this.binFloorMesh = new THREE.Mesh(floorGeo, solidMat);
+            this.binLeftWallMesh = new THREE.Mesh(wallGeo, solidMat);
+            this.binRightWallMesh = new THREE.Mesh(wallGeo, solidMat);
+
+            this.binFloorMesh.add(new THREE.Mesh(floorGeo, wireframeMat));
+            this.binLeftWallMesh.add(new THREE.Mesh(wallGeo, wireframeMat));
+            this.binRightWallMesh.add(new THREE.Mesh(wallGeo, wireframeMat));
+
+            this.bin3DGroup.add(this.binFloorMesh);
+            this.bin3DGroup.add(this.binLeftWallMesh);
+            this.bin3DGroup.add(this.binRightWallMesh);
+        }
+
+        const binX = this.width - 150;
+        const binY = this.height - 150;
+        const binWidth = 220;
+        const binHeight = 100;
+        const wallThickness = 20;
+
+        const floor3D = this.get3DCoordsFromScreen(binX, binY + binHeight/2, -1.2);
+        const left3D = this.get3DCoordsFromScreen(binX - binWidth/2 + wallThickness/2, binY, -1.2);
+        const right3D = this.get3DCoordsFromScreen(binX + binWidth/2 - wallThickness/2, binY, -1.2);
+
+        this.binFloorMesh.position.copy(floor3D);
+        this.binLeftWallMesh.position.copy(left3D);
+        this.binRightWallMesh.position.copy(right3D);
+    }
+
+    get2DCoordsFrom3DIndex(index) {
+        let activeCounter = 0;
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                if ((row + col) % 2 === 1) {
+                    if (activeCounter === index) return { row, col };
+                    activeCounter++;
+                }
+            }
+        }
+        return { row: 0, col: 0 };
+    }
+
+    get3DIndexFrom2DCoords(row, col) {
+        if ((row + col) % 2 !== 1) return -1;
+        if (row < 0 || row > 7 || col < 0 || col > 7) return -1;
+        let activeCounter = 0;
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                if ((r + c) % 2 === 1) {
+                    if (r === row && c === col) return activeCounter;
+                    activeCounter++;
+                }
+            }
+        }
+        return -1;
+    }
+
+    createPieceMesh(tokenValue) {
+        let isHuman = Math.abs(tokenValue) === 1;
+        let isKing = tokenValue < 0;
+
+        let pieceGroup = new THREE.Group();
+        let mat = isHuman 
+            ? (isKing ? this.materials.pieceRedKing : this.materials.pieceRed)
+            : (isKing ? this.materials.pieceCreamKing : this.materials.pieceCream);
+
+        // Base cylinder
+        let mesh1 = new THREE.Mesh(this.geometries.piece, mat);
+        mesh1.castShadow = true;
+        mesh1.receiveShadow = true;
+        pieceGroup.add(mesh1);
+
+        if (isKing) {
+            // Stack second cylinder
+            let mesh2 = new THREE.Mesh(this.geometries.piece, mat);
+            mesh2.position.y = 0.12; // Cylinders stand vertical along Y locally
+            mesh2.castShadow = true;
+            mesh2.receiveShadow = true;
+            pieceGroup.add(mesh2);
+
+            // Glowing crown ring
+            let crownGeo = new THREE.TorusGeometry(0.2, 0.04, 8, 24);
+            let crownMat = new THREE.MeshStandardMaterial({
+                color: 0xf59e0b, metalness: 0.9, roughness: 0.1, emissive: 0xd97706
+            });
+            let crownMesh = new THREE.Mesh(crownGeo, crownMat);
+            crownMesh.rotation.x = Math.PI / 2;
+            crownMesh.position.y = 0.22;
+            pieceGroup.add(crownMesh);
+        }
+
+        pieceGroup.rotation.x = Math.PI / 2;
+        return pieceGroup;
+    }
+
+    syncDataBufferTo3DViewport() {
+        // Clear previous meshes
+        this.visualPiecesGroup.forEach(group => this.scene3D.remove(group));
+        this.visualPiecesGroup.clear();
+
+        this.boardData.forEach((tokenValue, index) => {
+            if (!tokenValue) return;
+
+            let { row, col } = this.get2DCoordsFrom3DIndex(index);
+            let pieceGroup = this.createPieceMesh(tokenValue);
+            pieceGroup.position.set((col - 3.5) * this.boardSpacing, -(row - 3.5) * this.boardSpacing, 0.16);
+            
+            this.scene3D.add(pieceGroup);
+            this.visualPiecesGroup.set(index, pieceGroup);
+        });
+
+        // Update score counters
+        let countHuman = 0;
+        let countAI = 0;
+        this.boardData.forEach(cell => {
+            if (cell !== null) {
+                if (Math.abs(cell) === 1) countHuman++;
+                if (Math.abs(cell) === 2) countAI++;
+            }
+        });
+        document.getElementById('score-human').innerText = countHuman;
+        document.getElementById('score-ai').innerText = countAI;
+    }
+
+    // --- SUB-SYSTEM 3: TRANSPARENT PHASER FX EMITTER LAYER ---
+    initPhaserFX() {
+        const self = this;
+        const phaserConfig = {
+            type: Phaser.AUTO,
+            width: this.width,
+            height: this.height,
+            parent: 'phaser-container',
+            transparent: true,
+            scene: {
+                preload: function() {
+                    // Create base textures
+                    let canvas = this.textures.createCanvas('spark', 10, 10);
+                    let ctx = canvas.context;
+                    let radialGrad = ctx.createRadialGradient(5,5,0, 5,5,5);
+                    radialGrad.addColorStop(0, 'rgba(16,185,129,1)');
+                    radialGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = radialGrad; 
+                    ctx.fillRect(0,0,10,10); 
+                    canvas.refresh();
+                },
+                create: function() {
+                    self.phaserSceneContext = this;
+                }
+            }
+        };
+        this.phaserApp = new Phaser.Game(phaserConfig);
+    }
+
+    // --- SUB-SYSTEM 4: 3D CAMERA RAYCAST POINTER INTERCEPTOR MATRIX ---
+    bindRaycastInterceptors() {
+        window.addEventListener('pointerdown', (e) => this.processRaycastClickTrace(e));
+        window.addEventListener('pointermove', (e) => this.processRaycastHoverTrace(e));
+    }
+
+    processRaycastClickTrace(e) {
+        if (e.target.id !== this.threeCanvasId) return;
+
+        this.pointerVector.x = (e.clientX / this.width) * 2 - 1;
+        this.pointerVector.y = -(e.clientY / this.height) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.pointerVector, this.camera3D);
+        const intersectMatches = this.raycaster.intersectObjects(this.rayInterceptorsGroup);
+
+        if (intersectMatches.length > 0) {
+            let selectedMatrixIndex = intersectMatches[0].object.matrixIndexPointer;
+            this.handleSelectionTransaction(selectedMatrixIndex);
+        }
+    }
+
+    processRaycastHoverTrace(e) {
+        if (e.target.id !== this.threeCanvasId) return;
+
+        this.pointerVector.x = (e.clientX / this.width) * 2 - 1;
+        this.pointerVector.y = -(e.clientY / this.height) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.pointerVector, this.camera3D);
+        const intersectMatches = this.raycaster.intersectObjects(this.rayInterceptorsGroup);
+
+        this.rayInterceptorsGroup.forEach(tile => {
+            tile.material = this.materials.tileDark;
+        });
+
+        if (intersectMatches.length > 0) {
+            let tile = intersectMatches[0].object;
+            if (this.selectedCellIndex === null || tile.matrixIndexPointer !== this.selectedCellIndex) {
+                tile.material = this.materials.tileHover;
+            }
+        }
+        
+        if (this.selectedCellIndex !== null) {
+            let selectedTile = this.rayInterceptorsGroup.find(t => t.matrixIndexPointer === this.selectedCellIndex);
+            if (selectedTile) selectedTile.material = this.materials.tileSelected;
+        }
+    }
+
+    handleSelectionTransaction(index) {
+        if (this.activeTurn !== 1) return; // Freeze click inputs when AI evaluates moves
+        let token = this.boardData[index];
+
+        if (this.selectedCellIndex === null) {
+            // First Click: Selection validation
+            if (!token || Math.abs(token) !== 1) return;
+
+            // If a multi-jump sequence is in progress, human must select only the active multi-jump piece
+            if (this.multiJumpPieceIndex !== null && index !== this.multiJumpPieceIndex) {
+                this.showHUDWarning("MUST CONTINUE MULTI-JUMP");
+                return;
+            }
+
+            this.selectedCellIndex = index;
+            let group = this.visualPiecesGroup.get(index);
+            if (group) group.position.z = 0.4; // lift up to highlight
+        } else {
+            // Second Click: Move execution
+            if (index === this.selectedCellIndex) {
+                // Deselect only if not in the middle of a multi-jump
+                if (this.multiJumpPieceIndex === null) {
+                    this.syncDataBufferTo3DViewport();
+                    this.selectedCellIndex = null;
+                }
+                return;
+            }
+
+            // Enforce mandatory jump rules
+            let humanJumps = this.getAllAvailableJumps(1, this.boardData);
+            if (humanJumps.length > 0) {
+                if (this.multiJumpPieceIndex !== null && this.selectedCellIndex !== this.multiJumpPieceIndex) {
+                    this.syncDataBufferTo3DViewport();
+                    this.selectedCellIndex = null;
+                    return;
+                }
+                let isValidJump = humanJumps.some(j => j.src === this.selectedCellIndex && j.dest === index);
+                if (!isValidJump) {
+                    this.showHUDWarning("JUMP IS MANDATORY");
+                    this.syncDataBufferTo3DViewport();
+                    this.selectedCellIndex = null;
+                    return;
+                }
+            }
+
+            let validation = this.validateActionPath(this.selectedCellIndex, index, this.boardData);
+            if (validation) {
+                let srcIndex = this.selectedCellIndex;
+                let isJump = this.executeMoveCommand(srcIndex, index);
+                this.logMove("Human", srcIndex, index);
+
+                if (isJump) {
+                    // Check if further jumps are possible for this piece
+                    let subJumps = this.getAvailableJumpsForPiece(index, this.boardData);
+                    if (subJumps.length > 0) {
+                        this.multiJumpPieceIndex = index;
+                        this.selectedCellIndex = index; // Lock selection on this piece
+                        this.showHUDWarning("MULTI-JUMP AVAILABLE");
+                        
+                        let group = this.visualPiecesGroup.get(index);
+                        if (group) group.position.z = 0.4;
+                        return;
+                    }
+                }
+
+                // Move ended, reset state and change turn
+                this.multiJumpPieceIndex = null;
+                this.selectedCellIndex = null;
+
+                this.activeTurn = 2;
+                this.syncHUDViewDisplay();
+                setTimeout(() => this.executeAdversarialAISearch(), 800);
+            } else {
+                this.syncDataBufferTo3DViewport();
+                this.selectedCellIndex = null;
+            }
+        }
+    }
+
+    validateActionPath(src, dest, buffer) {
+        let piece = buffer[src];
+        let target = buffer[dest];
+        if (target !== null) return null; // Space must be empty
+        if (!piece) return null;
+
+        let srcCoords = this.get2DCoordsFrom3DIndex(src);
+        let destCoords = this.get2DCoordsFrom3DIndex(dest);
+
+        let rowDelta = destCoords.row - srcCoords.row;
+        let colDelta = destCoords.col - srcCoords.col;
+        let absRowDelta = Math.abs(rowDelta);
+        let absColDelta = Math.abs(colDelta);
+
+        if (absColDelta !== absRowDelta) return null; // Movements must be diagonal
+
+        let isKing = piece < 0;
+        let pieceType = Math.abs(piece); // 1 = Human, 2 = AI
+
+        // Direction limits for normal pieces
+        if (!isKing) {
+            if (pieceType === 1 && rowDelta > 0) return null; // Human moves up (smaller row indices)
+            if (pieceType === 2 && rowDelta < 0) return null; // AI moves down (larger row indices)
+        }
+
+        if (absRowDelta === 1) {
+            return { type: 'slide', jumpIndex: null };
+        } else if (absRowDelta === 2) {
+            let midRow = srcCoords.row + rowDelta / 2;
+            let midCol = srcCoords.col + colDelta / 2;
+            let midIndex = this.get3DIndexFrom2DCoords(midRow, midCol);
+            if (midIndex === -1) return null;
+
+            let midPiece = buffer[midIndex];
+            if (midPiece !== null && Math.abs(midPiece) !== pieceType) {
+                return { type: 'jump', jumpIndex: midIndex };
+            }
+        }
+
+        return null;
+    }
+
+    getAvailableJumpsForPiece(index, buffer) {
+        let jumps = [];
+        let piece = buffer[index];
+        if (!piece) return jumps;
+
+        let coords = this.get2DCoordsFrom3DIndex(index);
+        let directions = [
+            { r: -2, c: -2 }, { r: -2, c: 2 },
+            { r: 2, c: -2 }, { r: 2, c: 2 }
+        ];
+
+        for (let dir of directions) {
+            let dRow = coords.row + dir.r;
+            let dCol = coords.col + dir.c;
+            if (dRow >= 0 && dRow < 8 && dCol >= 0 && dCol < 8) {
+                let destIndex = this.get3DIndexFrom2DCoords(dRow, dCol);
+                if (destIndex !== -1) {
+                    let validation = this.validateActionPath(index, destIndex, buffer);
+                    if (validation && validation.type === 'jump') {
+                        jumps.push({ src: index, dest: destIndex, jumpIndex: validation.jumpIndex });
+                    }
+                }
+            }
+        }
+        return jumps;
+    }
+
+    getAllAvailableJumps(sideToken, buffer) {
+        let allJumps = [];
+        for (let i = 0; i < 32; i++) {
+            let piece = buffer[i];
+            if (piece !== null && Math.abs(piece) === sideToken) {
+                allJumps.push(...this.getAvailableJumpsForPiece(i, buffer));
+            }
+        }
+        return allJumps;
+    }
+
+    executeMoveCommand(src, dest) {
+        let pieceToken = this.boardData[src];
+        let srcCoords = this.get2DCoordsFrom3DIndex(src);
+        let destCoords = this.get2DCoordsFrom3DIndex(dest);
+        
+        let validation = this.validateActionPath(src, dest, this.boardData);
+        let isJump = validation && validation.type === 'jump';
+
+        if (isJump && validation.jumpIndex !== null) {
+            this.divertMeshToPhysicsEngine(validation.jumpIndex);
+            this.boardData[validation.jumpIndex] = null; // Clear from array
+            
+            // Particle explosion at capture location
+            let capCoords = this.get2DCoordsFrom3DIndex(validation.jumpIndex);
+            this.triggerExplosionFX(capCoords.col, capCoords.row, 'red');
+        }
+
+        // Commit state movement
+        this.boardData[dest] = pieceToken;
+        this.boardData[src] = null;
+
+        // Verify King promotion
+        let becameKing = false;
+        if (pieceToken === 1 && destCoords.row === 0) {
+            this.boardData[dest] = -1;
+            becameKing = true;
+            this.logMessage("Human unit promoted to KING!");
+        } else if (pieceToken === 2 && destCoords.row === 7) {
+            this.boardData[dest] = -2;
+            becameKing = true;
+            this.logMessage("AI unit promoted to KING!");
+        }
+
+        // Visual feedback explosion
+        this.triggerExplosionFX(destCoords.col, destCoords.row, becameKing ? 'gold' : 'blue');
+        
+        this.syncDataBufferTo3DViewport();
+        return isJump;
+    }
+
+    divertMeshToPhysicsEngine(matrixIndex) {
+        let deadMesh = this.visualPiecesGroup.get(matrixIndex);
+        if (!deadMesh) return;
+
+        let start3DPos = new THREE.Vector3();
+        // Extract 3D position from pieces map
+        deadMesh.getWorldPosition(start3DPos);
+
+        // Project 3D space to 2D pixels coordinate
+        let screenCoords = this.getScreenCoordsOf3DPoint(start3DPos);
+
+        // Instantiate Matter.js physical body at matching pixel position
+        let fallBody = Matter.Bodies.circle(screenCoords.x, screenCoords.y, 18, {
+            friction: 0.15,
+            restitution: 0.5,
+            density: 0.01
+        });
+        Matter.Composite.add(this.matterWorld, fallBody);
+
+        this.activePhysicsPool.set(fallBody, deadMesh);
+        this.visualPiecesGroup.delete(matrixIndex); // De-register from active matrix board meshes
+
+        // Physics Impulse parameters: Throw piece in an arc towards the right side bin
+        const binX = this.width - 150;
+        const binY = this.height - 150;
+        
+        let dx = binX - screenCoords.x;
+        let dy = binY - screenCoords.y;
+        
+        let velocityX = dx * 0.012 + (Math.random() - 0.5) * 1.5;
+        let velocityY = -12 - Math.random() * 4;
+
+        Matter.Body.setVelocity(fallBody, { x: velocityX, y: velocityY });
+        this.logMessage(`Piece ${matrixIndex} captured & thrown to physics chamber!`);
+    }
+
+    triggerExplosionFX(col, row, type) {
+        if (!this.phaserSceneContext) return;
+
+        let tile3DPos = new THREE.Vector3(
+            (col - 3.5) * this.boardSpacing,
+            -(row - 3.5) * this.boardSpacing,
+            0.16
+        );
+        let screenCoords = this.getScreenCoordsOf3DPoint(tile3DPos);
+
+        let colorVal = 'rgba(16,185,129,1)'; // Default green
+        let count = 15;
+        let scaleVal = 1.0;
+
+        if (type === 'red') {
+            colorVal = 'rgba(239,68,68,1)';
+            count = 25;
+        } else if (type === 'gold') {
+            colorVal = 'rgba(245,158,11,1)';
+            count = 35;
+            scaleVal = 1.6;
+        }
+
+        let textureKey = 'spark_' + type;
+        if (!this.phaserSceneContext.textures.exists(textureKey)) {
+            let canvas = this.phaserSceneContext.textures.createCanvas(textureKey, 10, 10);
+            let ctx = canvas.context;
+            let grad = ctx.createRadialGradient(5, 5, 0, 5, 5, 5);
+            grad.addColorStop(0, colorVal);
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 10, 10);
+            canvas.refresh();
+        }
+
+        let emitter = this.phaserSceneContext.add.particles(screenCoords.x, screenCoords.y, textureKey, {
+            speed: { min: 60, max: 150 },
+            angle: { min: 0, max: 360 },
+            scale: { start: scaleVal * 1.8, end: 0 },
+            lifespan: 550,
+            quantity: count,
+            emitting: false
+        });
+        emitter.explode();
+
+        this.phaserSceneContext.time.delayedCall(600, () => {
+            emitter.destroy();
+        });
+    }
+
+    // --- SUB-SYSTEM 5: RECURSIVE ADVERSARIAL COMPUTER ENGINE (MINIMAX ALPHA-BROW) ---
+    executeAdversarialAISearch() {
+        let optimalMoveDecision = this.recurseAlphaBetaSpace(this.boardData, 0, -Infinity, Infinity, true);
+        
+        if (optimalMoveDecision && optimalMoveDecision.src !== undefined) {
+            let isJump = this.executeMoveCommand(optimalMoveDecision.src, optimalMoveDecision.dest);
+            this.logMove("AI", optimalMoveDecision.src, optimalMoveDecision.dest);
+
+            if (isJump) {
+                // If a jump was executed, evaluate sequential jumps for this exact piece
+                let subJumps = this.getAvailableJumpsForPiece(optimalMoveDecision.dest, this.boardData);
+                if (subJumps.length > 0) {
+                    this.showHUDWarning("AI COMBAT MULTI-JUMP");
+                    setTimeout(() => this.executeAdversarialAISearch(), 800);
+                    return;
+                }
+            }
+        } else {
+            this.endGame("HUMAN WINS! AI HAS NO VALID ACTIONS.");
+            return;
+        }
+
+        // Return turn back to Human
+        this.activeTurn = 1;
+        this.syncHUDViewDisplay();
+
+        // Evaluate human state options
+        let humanMoves = this.compileAllLegalBufferMoves(this.boardData, 1);
+        if (humanMoves.length === 0) {
+            this.endGame("AI WINS! HUMAN HAS NO VALID ACTIONS.");
+        }
+    }
+
+    recurseAlphaBetaSpace(tempBuffer, depth, alpha, beta, isMaximizingAI) {
+        if (depth >= 4) {
+            return { score: this.evaluateStaticBufferUtilityMetrics(tempBuffer) };
+        }
+
+        let sideToken = isMaximizingAI ? 2 : 1;
+        let generatedMoves = this.compileAllLegalBufferMoves(tempBuffer, sideToken);
+
+        if (generatedMoves.length === 0) {
+            return { score: isMaximizingAI ? -10000 + depth : 10000 - depth };
+        }
+
+        let bestActionNode = { score: isMaximizingAI ? -Infinity : Infinity };
+
+        for (let move of generatedMoves) {
+            let bufferClone = [...tempBuffer];
+            this.mutateBufferInline(bufferClone, move.src, move.dest);
+
+            let nextIsMaximizing = isMaximizingAI;
+            let validation = this.validateActionPath(move.src, move.dest, tempBuffer);
+            let keepTurn = false;
+
+            if (validation && validation.type === 'jump') {
+                let subJumps = this.getAvailableJumpsForPiece(move.dest, bufferClone);
+                if (subJumps.length > 0) {
+                    keepTurn = true;
+                }
+            }
+
+            if (!keepTurn) {
+                nextIsMaximizing = !isMaximizingAI;
+            }
+
+            let resultNode = this.recurseAlphaBetaSpace(bufferClone, depth + 1, alpha, beta, nextIsMaximizing);
+
+            if (isMaximizingAI) {
+                if (resultNode.score > bestActionNode.score) {
+                    bestActionNode = { score: resultNode.score, src: move.src, dest: move.dest };
+                }
+                alpha = Math.max(alpha, bestActionNode.score);
+            } else {
+                if (resultNode.score < bestActionNode.score) {
+                    bestActionNode = { score: resultNode.score, src: move.src, dest: move.dest };
+                }
+                beta = Math.min(beta, bestActionNode.score);
+            }
+
+            if (beta <= alpha) break; // Pruning
+        }
+
+        return bestActionNode;
+    }
+
+    compileAllLegalBufferMoves(buffer, sideToken) {
+        let jumps = this.getAllAvailableJumps(sideToken, buffer);
+        if (jumps.length > 0) return jumps; // Mandatory jumps rule
+
+        let slides = [];
+        for (let i = 0; i < 32; i++) {
+            let piece = buffer[i];
+            if (piece !== null && Math.abs(piece) === sideToken) {
+                let coords = this.get2DCoordsFrom3DIndex(i);
+                let directions = [
+                    { r: -1, c: -1 }, { r: -1, c: 1 },
+                    { r: 1, c: -1 }, { r: 1, c: 1 }
+                ];
+                for (let dir of directions) {
+                    let dRow = coords.row + dir.r;
+                    let dCol = coords.col + dir.c;
+                    if (dRow >= 0 && dRow < 8 && dCol >= 0 && dCol < 8) {
+                        let destIndex = this.get3DIndexFrom2DCoords(dRow, dCol);
+                        if (destIndex !== -1) {
+                            let validation = this.validateActionPath(i, destIndex, buffer);
+                            if (validation && validation.type === 'slide') {
+                                slides.push({ src: i, dest: destIndex });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return slides;
+    }
+
+    mutateBufferInline(buffer, src, dest) {
+        let piece = buffer[src];
+        let validation = this.validateActionPath(src, dest, buffer);
+        
+        buffer[dest] = piece;
+        buffer[src] = null;
+
+        if (validation && validation.type === 'jump' && validation.jumpIndex !== null) {
+            buffer[validation.jumpIndex] = null;
+        }
+
+        // Apply promotions inside virtual lookahead copies too
+        let destCoords = this.get2DCoordsFrom3DIndex(dest);
+        if (piece === 1 && destCoords.row === 0) {
+            buffer[dest] = -1;
+        } else if (piece === 2 && destCoords.row === 7) {
+            buffer[dest] = -2;
+        }
+    }
+
+    evaluateStaticBufferUtilityMetrics(buffer) {
+        let score = 0;
+        for (let i = 0; i < 32; i++) {
+            let piece = buffer[i];
+            if (piece === null) continue;
+
+            let val = 0;
+            let isKing = piece < 0;
+            let type = Math.abs(piece);
+
+            if (isKing) {
+                val = 175;
+            } else {
+                val = 100;
+                let coords = this.get2DCoordsFrom3DIndex(i);
+                if (type === 2) {
+                    val += coords.row * 10; // AI rewards advancement down
+                } else {
+                    val += (7 - coords.row) * 10; // Human rewards advancement up
+                }
+            }
+
+            // Center squares board weighting
+            let coords = this.get2DCoordsFrom3DIndex(i);
+            if (coords.col >= 2 && coords.col <= 5 && coords.row >= 2 && coords.row <= 5) {
+                val += 15;
+            }
+
+            if (type === 2) {
+                score += val;
+            } else {
+                score -= val;
+            }
+        }
+        return score;
+    }
+
+    // --- COORDINATE PROJECTION UTILITIES (Three.js <=> Pixels) ---
+    getScreenCoordsOf3DPoint(vector3D) {
+        let tempV = vector3D.clone();
+        tempV.project(this.camera3D);
+        let x = (tempV.x * 0.5 + 0.5) * this.width;
+        let y = (tempV.y * -0.5 + 0.5) * this.height;
+        return { x, y };
+    }
+
+    get3DCoordsFromScreen(x, y, targetZ = 0.16) {
+        let normX = (x / this.width) * 2 - 1;
+        let normY = -(y / this.height) * 2 + 1;
+        
+        let ray = new THREE.Raycaster();
+        ray.setFromCamera(new THREE.Vector2(normX, normY), this.camera3D);
+        
+        let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -targetZ);
+        let intersection = new THREE.Vector3();
+        ray.ray.intersectPlane(plane, intersection);
+        return intersection;
+    }
+
+    // --- SUB-SYSTEM 6: MASTER TICKER LIFE-STEP SCHEDULER PIPELINE ---
+    executeLifecycleStepLoop() {
+        // Advance Matter.js physics engine state variables
+        Matter.Engine.update(this.matterEngine, 1000 / 60);
+
+        // Map and project Matter.js bodies back to 3D pieces
+        this.activePhysicsPool.forEach((mesh3D, body2D) => {
+            // Clean up bodies falling past lower window bound
+            if (body2D.position.y > this.height + 150) {
+                Matter.Composite.remove(this.matterWorld, body2D);
+                this.scene3D.remove(mesh3D);
+                this.activePhysicsPool.delete(body2D);
+                return;
+            }
+
+            if (!body2D.zHeight) body2D.zHeight = 0.16;
+            if (body2D.zHeight > -1.2) {
+                body2D.zHeight -= 0.04;
+            }
+
+            let pos3D = this.get3DCoordsFromScreen(body2D.position.x, body2D.position.y, body2D.zHeight);
+            mesh3D.position.copy(pos3D);
+            mesh3D.rotation.z = -body2D.angle;
+            
+            if (!body2D.rotX) {
+                body2D.rotX = Math.PI/2 + (Math.random() - 0.5) * 0.5;
+                body2D.rotY = (Math.random() - 0.5) * 0.5;
+            }
+            mesh3D.rotation.x = body2D.rotX + body2D.angle * 0.4;
+            mesh3D.rotation.y = body2D.rotY + body2D.angle * 0.2;
+        });
+
+        // Float selected pieces in real-time
+        if (this.selectedCellIndex !== null && this.visualPiecesGroup.has(this.selectedCellIndex)) {
+            let group = this.visualPiecesGroup.get(this.selectedCellIndex);
+            group.position.z = 0.36 + Math.sin(Date.now() * 0.006) * 0.08;
+        }
+
+        // Camera viewpoint interpolation transitions
+        if (this.cameraTargetPos) {
+            this.camera3D.position.lerp(this.cameraTargetPos, 0.08);
+            let lookAtTarget = new THREE.Vector3(0, -0.2, 0);
+            if (this.cameraType === 'topdown') {
+                lookAtTarget.set(0, 0, 0);
+            }
+            this.camera3D.lookAt(lookAtTarget);
+        }
+
+        // Paint frame elements to WebGL canvas
+        this.renderer3D.render(this.scene3D, this.camera3D);
+        requestAnimationFrame(() => this.executeLifecycleStepLoop());
+    }
+
+    // --- UI/UX TRANSITION INTERFACE METHODS ---
+    syncHUDViewDisplay() {
+        let node = document.getElementById('turn-display');
+        node.innerText = this.activeTurn === 1 ? "HUMAN PLAYER TURN [RED]" : "AI CALCULATING GAME GRAPH [CREAM]";
+        node.className = `text-md font-black tracking-wide mt-1 font-orbitron animate__animated animate__flipInX ${this.activeTurn === 1 ? 'text-emerald-400' : 'text-amber-500'}`;
+    }
+
+    showHUDWarning(text) {
+        let banner = document.getElementById('alert-banner');
+        banner.innerText = `COMBAT WARNING // ${text}`;
+        banner.classList.remove('hidden');
+        
+        // Remove previous timeout if present
+        if (this.bannerTimeout) clearTimeout(this.bannerTimeout);
+        this.bannerTimeout = setTimeout(() => banner.classList.add('hidden'), 2000);
+    }
+
+    logMove(actor, src, dest) {
+        let srcCoords = this.get2DCoordsFrom3DIndex(src);
+        let destCoords = this.get2DCoordsFrom3DIndex(dest);
+        let actorTag = actor.toUpperCase();
+        
+        let msg = `${actorTag}: [R${srcCoords.row} C${srcCoords.col}] → [R${destCoords.row} C${destCoords.col}]`;
+        this.logMessage(msg);
+    }
+
+    logMessage(msg) {
+        let logNode = document.getElementById('log-container');
+        let line = document.createElement('div');
+        line.innerText = `> ${msg}`;
+        logNode.appendChild(line);
+        logNode.scrollTop = logNode.scrollHeight;
+    }
+
+    toggleCameraView() {
+        if (this.cameraType === 'perspective') {
+            this.cameraType = 'topdown';
+            this.cameraTargetPos = new THREE.Vector3(0, 0, 9.8);
+        } else {
+            this.cameraType = 'perspective';
+            this.cameraTargetPos = new THREE.Vector3(0, -6.8, 8.5);
+        }
+        this.logMessage(`Camera view altered to ${this.cameraType.toUpperCase()}`);
+    }
+
+    endGame(message) {
+        this.logMessage(`GAME OVER: ${message}`);
+        this.showHUDWarning(message);
+        this.activeTurn = 0; // Lock inputs
+    }
+
+    purgeBoardMatrix() {
+        // Explode particles on all tiles
+        for (let i = 0; i < 32; i++) {
+            let coords = this.get2DCoordsFrom3DIndex(i);
+            this.triggerExplosionFX(coords.col, coords.row, 'blue');
+        }
+
+        // Clean physics pool
+        this.activePhysicsPool.forEach(mesh => this.scene3D.remove(mesh));
+        this.activePhysicsPool.clear();
+
+        this.initDataMatrixState();
+        this.activeTurn = 1;
+        this.selectedCellIndex = null;
+        this.multiJumpPieceIndex = null;
+        
+        this.syncHUDViewDisplay();
+        this.syncDataBufferTo3DViewport();
+        this.logMessage("State matrix wiped. Game restarted.");
+    }
+
+    handleWindowResize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+
+        this.camera3D.aspect = this.width / this.height;
+        this.camera3D.updateProjectionMatrix();
+        this.renderer3D.setSize(this.width, this.height);
+
+        if (this.phaserApp) {
+            this.phaserApp.scale.resize(this.width, this.height);
+        }
+
+        // Update physics bin body coordinates
+        const binX = this.width - 150;
+        const binY = this.height - 150;
+        const binWidth = 220;
+        const binHeight = 100;
+        const wallThickness = 20;
+
+        Matter.Body.setPosition(this.binFloor, { x: binX, y: binY + binHeight/2 });
+        Matter.Body.setPosition(this.binLeftWall, { x: binX - binWidth/2 + wallThickness/2, y: binY });
+        Matter.Body.setPosition(this.binRightWall, { x: binX + binWidth/2 - wallThickness/2, y: binY });
+
+        // Update 3D bin visual mesh
+        this.update3DBinPosition();
+    }
+}
+
+// Instantiate Global Orchestrator
+let orchestrator;
+window.onload = () => { 
+    orchestrator = new HybridCheckersAIOrchestrator(); 
+};
+</script>
+</body>
+</html>
