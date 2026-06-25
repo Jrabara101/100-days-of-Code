@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>Hybrid Multi-Engine Hex-Grid Strategic Numbers Core</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" rel="stylesheet"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #04060a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+        canvas { position: absolute; top: 0; left: 0; display: block; }
+        #three-canvas { z-index: 10; }
+        #phaser-container { z-index: 20; pointer-events: none; }
+        #hud-layer { z-index: 30; }
+        
+        /* Custom scrollbar for HUD if needed */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        
+        .cyber-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .energy-bar-bg {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        #energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22d3ee, #3b82f6);
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+<div class="w-full h-full" id="phaser-container"></div>
+<div class="absolute inset-0 pointer-events-none flex flex-col justify-between p-8" id="hud-layer">
+<header class="w-full flex justify-between items-start">
+<div class="cyber-panel p-5 rounded-2xl pointer-events-auto animate__animated animate__fadeInDown max-w-xs">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+<h1 class="text-cyan-400 font-mono text-[10px] uppercase tracking-[0.2em] font-bold">Grid Matrix Protocol v4.2</h1>
+</div>
+<div class="text-white text-xl font-light tracking-tight" id="pool-display">ENERGY: 100 / 100</div>
+<div class="energy-bar-bg">
+<div id="energy-fill"></div>
+</div>
+</div>
+<div class="flex flex-col gap-3 items-end pointer-events-auto">
+<button class="hvr-grow bg-white/5 text-cyan-400 px-5 py-3 rounded-xl border border-white/10 text-[10px] tracking-[0.15em] uppercase font-mono transition-all hover:bg-white/10 active:scale-95 backdrop-blur-md" onclick="orchestrator.rebootStrategicMap()">
+                    Reset Topology
+                </button>
+<div class="cyber-panel px-4 py-2 rounded-xl text-[9px] text-slate-400 font-mono uppercase tracking-widest border border-white/5">
+                    Engines: <span class="text-cyan-500">Three.js</span> • <span class="text-blue-500">Phaser</span> • <span class="text-purple-500">Matter</span>
+</div>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center pointer-events-none">
+<!-- Central HUD markers if needed -->
+</main>
+<footer class="w-full flex flex-col items-center gap-4">
+<div class="hidden cyber-panel text-cyan-400 font-mono text-[11px] font-bold px-8 py-3 rounded-full tracking-[0.25em] uppercase shadow-2xl border border-cyan-400/30 animate__animated animate__flash animate__infinite" id="alert-banner">
+                Quantum Link Cascade Initialized
+            </div>
+<div class="w-full max-w-2xl cyber-panel p-4 rounded-2xl flex justify-between items-center pointer-events-auto">
+<div class="flex gap-6">
+<div class="flex flex-col">
+<span class="text-[9px] text-slate-400 uppercase tracking-tighter">System Load</span>
+<span class="text-xs text-white font-mono font-light">STABLE (60FPS)</span>
+</div>
+<div class="flex flex-col border-l border-white/10 pl-6">
+<span class="text-[9px] text-slate-400 uppercase tracking-tighter">Active Fragments</span>
+<span class="text-xs text-white font-mono font-light" id="debris-count">0</span>
+</div>
+</div>
+<div class="text-[10px] text-slate-400 font-mono font-light">
+                    AXIAL COORDINATE SYSTEM (Q,R) // CARTESIAN PROJECTION
+                </div>
+</div>
+</footer>
+</div>
+<script>
+const hexVertexShader = `
+varying vec2 v_texCoord;
+void main() {
+    v_texCoord = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+const hexFragmentShader = `
+precision highp float;
+
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform vec3 u_flashColor;
+uniform float u_flashIntensity;
+
+// Simplex 2D noise for organic texture variation
+vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+
+float snoise(vec2 v){
+  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+           -0.577350269189626, 0.024390243902439);
+  vec2 i  = floor(v + dot(v, C.yy) );
+  vec2 x0 = v -   i + dot(i, C.xx);
+  vec2 i1;
+  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i = mod(i, 289.0);
+  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+  + i.x + vec3(0.0, i1.x, 1.0 ));
+  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+    dot(x12.zw,x12.zw)), 0.0);
+  m = m*m ;
+  m = m*m ;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+  vec3 g;
+  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    
+    // Carbon Fiber Pattern
+    float scale = 40.0;
+    vec2 pattern_uv = uv * scale;
+    float stripe = step(0.5, fract(pattern_uv.x + step(0.5, fract(pattern_uv.y)) * 0.5));
+    float carbon = mix(0.05, 0.1, stripe);
+    
+    // Animate glow based on time and noise
+    float noise = snoise(uv * 3.0 + u_time * 0.2) * 0.5 + 0.5;
+    
+    // Circular pulse from center
+    float dist = distance(uv, vec2(0.5));
+    float pulse = sin(u_time * 2.0 - dist * 10.0) * 0.5 + 0.5;
+    pulse *= (1.0 - dist);
+    
+    // Tactical Cyan Emissive
+    vec3 baseColor = vec3(0.01, 0.02, 0.05); // Deep slate
+    vec3 glowColor = vec3(0.13, 0.83, 0.93); // Cyan 400
+    
+    // Combine layers
+    vec3 finalColor = baseColor + (carbon * 0.2);
+    finalColor += glowColor * pulse * 0.3;
+    finalColor += glowColor * noise * 0.15;
+    
+    // Edge highlight
+    float edge = smoothstep(0.45, 0.5, abs(uv.x - 0.5)) + smoothstep(0.45, 0.5, abs(uv.y - 0.5));
+    finalColor += glowColor * edge * 0.1;
+    
+    // Flash intensity for interaction
+    finalColor += u_flashColor * u_flashIntensity;
+
+    gl_FragColor = vec4(finalColor, 1.0);
+}
+`;
+
+class HybridHexGridStrategyEngine {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.hexRadius3D = 1.0; 
+        this.scale3DTo2D = 42;  
+
+        this.energyReserve = 100;
+        this.maxEnergy = 100;
+        this.clock = new THREE.Clock();
+
+        // --- SINGLE SOURCE OF TRUTH DATA CORE ---
+        this.hexGridMap = new Map();
+        this.globalUniforms = {
+            u_time: { value: 0.0 },
+            u_resolution: { value: new THREE.Vector2(this.width, this.height) },
+            u_mouse: { value: new THREE.Vector2(0, 0) }
+        };
+
+        this.initMatterPhysicsCore();
+        this.initThreeWebGLStage();
+        this.initPhaserFXLayer();
+        this.buildProceduralHexTopology(3); 
+        this.bindRaycastPointerInterceptors();
+        this.bootSynchronizedMasterTicker();
+        
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    initMatterPhysicsCore() {
+        this.matterEngine = Matter.Engine.create({ gravity: { y: 1.2 } });
+        this.matterWorld = this.matterEngine.world;
+
+        this.floorPlane = Matter.Bodies.rectangle(this.width / 2, this.height + 100, this.width * 2, 200, { isStatic: true });
+        Matter.Composite.add(this.matterWorld, this.floorPlane);
+
+        this.dynamicDebrisPool = new Map(); 
+    }
+
+    initThreeWebGLStage() {
+        this.renderer3D = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer3D.setSize(this.width, this.height);
+        this.renderer3D.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer3D.domElement.id = "three-canvas";
+        document.body.insertBefore(this.renderer3D.domElement, document.body.firstChild);
+
+        this.scene3D = new THREE.Scene();
+        this.scene3D.background = new THREE.Color('#030712');
+
+        this.camera3D = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
+        this.camera3D.position.set(0, -10, 14);
+        this.camera3D.lookAt(0, 0, 0);
+
+        this.scene3D.add(new THREE.AmbientLight(0xffffff, 0.15));
+        
+        const topLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        topLight.position.set(5, 5, 10);
+        this.scene3D.add(topLight);
+
+        const neonLight = new THREE.PointLight(0x22d3ee, 2, 20);
+        neonLight.position.set(0, 0, 5);
+        this.scene3D.add(neonLight);
+    }
+
+    initPhaserFXLayer() {
+        const self = this;
+        const phaserConfig = {
+            type: Phaser.AUTO,
+            width: this.width,
+            height: this.height,
+            parent: 'phaser-container',
+            transparent: true,
+            scene: {
+                preload: function() {},
+                create: function() {
+                    self.phaserSceneContext = this;
+                }
+            },
+            fps: { target: 60 }
+        };
+        this.phaserApp = new Phaser.Game(phaserConfig);
+    }
+
+    buildProceduralHexTopology(radiusRange) {
+        for (let q = -radiusRange; q <= radiusRange; q++) {
+            let r1 = Math.max(-radiusRange, -q - radiusRange);
+            let r2 = Math.min(radiusRange, -q + radiusRange);
+            
+            for (let r = r1; r <= r2; r++) {
+                this.instantiateHexNode(q, r);
+            }
+        }
+    }
+
+    instantiateHexNode(q, r) {
+        const cX = this.hexRadius3D * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
+        const cY = -this.hexRadius3D * (3/2 * r);
+
+        const hexShape = new THREE.Shape();
+        for (let i = 0; i < 6; i++) {
+            let angle = (Math.PI / 3) * i + (Math.PI / 6);
+            let x = Math.cos(angle) * this.hexRadius3D * 0.94;
+            let y = Math.sin(angle) * this.hexRadius3D * 0.94;
+            if (i === 0) hexShape.moveTo(x, y); else hexShape.lineTo(x, y);
+        }
+        
+        const extrusionSettings = { depth: 0.4, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.05, bevelSegments: 2 };
+        const hexGeometry = new THREE.ExtrudeGeometry(hexShape, extrusionSettings);
+        
+        const hexMaterial = new THREE.ShaderMaterial({
+            vertexShader: hexVertexShader,
+            fragmentShader: hexFragmentShader,
+            uniforms: {
+                u_time: this.globalUniforms.u_time,
+                u_resolution: this.globalUniforms.u_resolution,
+                u_mouse: this.globalUniforms.u_mouse,
+                u_flashColor: { value: new THREE.Color(0x000000) },
+                u_flashIntensity: { value: 0.0 }
+            }
+        });
+        
+        const hexMesh = new THREE.Mesh(hexGeometry, hexMaterial);
+        hexMesh.position.set(cX, cY, 0);
+        this.scene3D.add(hexMesh);
+
+        const coordinateKey = `${q},${r}`;
+        this.hexGridMap.set(coordinateKey, {
+            q: q, r: r,
+            x3D: cX, y3D: cY,
+            value: Math.floor(Math.random() * 5) + 1,
+            mesh: hexMesh,
+            text2DObject: null
+        });
+    }
+
+    bindRaycastPointerInterceptors() {
+        this.raycaster = new THREE.Raycaster();
+        this.pointerVector = new THREE.Vector2();
+
+        window.addEventListener('pointerdown', (e) => {
+            if (e.target.id !== "three-canvas") return;
+
+            this.pointerVector.x = (e.clientX / this.width) * 2 - 1;
+            this.pointerVector.y = -(e.clientY / this.height) * 2 + 1;
+
+            this.raycaster.setFromCamera(this.pointerVector, this.camera3D);
+            
+            let meshesPool = Array.from(this.hexGridMap.values()).map(node => node.mesh);
+            const hitMatches = this.raycaster.intersectObjects(meshesPool);
+
+            if (hitMatches.length > 0) {
+                let matchedMesh = hitMatches[0].object;
+                let targetDataNode = Array.from(this.hexGridMap.values()).find(n => n.mesh === matchedMesh);
+                if (targetDataNode) this.executeTacticalNodeClick(targetDataNode);
+            }
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            this.globalUniforms.u_mouse.value.set(
+                e.clientX / this.width,
+                1.0 - (e.clientY / this.height)
+            );
+        });
+    }
+
+    executeTacticalNodeClick(node) {
+        if (this.energyReserve < 10) {
+            this.spawnFloatingNumberPop(node.x3D, node.y3D, "LOW ENERGY", "#ef4444");
+            return;
+        }
+        
+        this.energyReserve -= 10;
+        node.value += 2;
+        this.flashMeshColorIntensity(node.mesh, 0x22d3ee);
+
+        const neighborhoodOffsets = [
+            {q:1, r:0}, {q:1, r:-1}, {q:0, r:-1},
+            {q:-1, r:0}, {q:-1, r:1}, {q:0, r:1}
+        ];
+
+        neighborhoodOffsets.forEach(offset => {
+            let nQ = node.q + offset.q;
+            let nR = node.r + offset.r;
+            let targetKey = `${nQ},${nR}`;
+
+            if (this.hexGridMap.has(targetKey)) {
+                let neighborNode = this.hexGridMap.get(targetKey);
+                neighborNode.value += 1;
+                this.flashMeshColorIntensity(neighborNode.mesh, 0x3b82f6);
+                this.spawnFloatingNumberPop(neighborNode.x3D, neighborNode.y3D, "+1", "#60a5fa");
+            }
+        });
+
+        this.spawnFloatingNumberPop(node.x3D, node.y3D, "+2 CORE", "#22d3ee");
+        
+        const banner = document.getElementById('alert-banner');
+        banner.classList.remove('hidden');
+        setTimeout(() => banner.classList.add('hidden'), 1000);
+
+        this.evaluateConquestDestructionThresholds();
+        this.syncHUDView();
+    }
+
+    evaluateConquestDestructionThresholds() {
+        this.hexGridMap.forEach((node, key) => {
+            if (node.value >= 10) {
+                this.divertMeshToRigidBodyDebris(key);
+                this.spawnFloatingNumberPop(node.x3D, node.y3D, "DETONATION", "#f43f5e");
+                this.energyReserve = Math.min(this.maxEnergy, this.energyReserve + 15);
+            }
+        });
+    }
+
+    divertMeshToRigidBodyDebris(gridKey) {
+        let node = this.hexGridMap.get(gridKey);
+        if (!node) return;
+
+        let screenPixelX = (this.width / 2) + (node.x3D * this.scale3DTo2D);
+        let screenPixelY = (this.height / 2) - (node.y3D * this.scale3DTo2D);
+
+        let dynamicDebrisCircle = Matter.Bodies.polygon(screenPixelX, screenPixelY, 6, 25, {
+            restitution: 0.6,
+            friction: 0.05,
+            render: { fillStyle: '#ef4444' }
+        });
+        
+        Matter.Body.setVelocity(dynamicDebrisCircle, { 
+            x: (Math.random() - 0.5) * 20, 
+            y: -10 - Math.random() * 10 
+        });
+        Matter.Body.setAngularVelocity(dynamicDebrisCircle, (Math.random() - 0.5) * 0.4);
+        
+        Matter.Composite.add(this.matterWorld, dynamicDebrisCircle);
+        this.dynamicDebrisPool.set(dynamicDebrisCircle, node.mesh);
+
+        if (node.text2DObject) node.text2DObject.destroy();
+        this.hexGridMap.delete(gridKey);
+        
+        document.getElementById('debris-count').innerText = this.dynamicDebrisPool.size;
+    }
+
+    spawnFloatingNumberPop(x3D, y3D, textString, hexColorString) {
+        if (!this.phaserSceneContext) return;
+
+        let screenX = (this.width / 2) + (x3D * this.scale3DTo2D);
+        let screenY = (this.height / 2) - (y3D * this.scale3DTo2D);
+
+        let popText = this.phaserSceneContext.add.text(screenX, screenY, textString, {
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+            fontSize: '14px', 
+            fontWeight: '900', 
+            color: hexColorString,
+            stroke: '#000000', 
+            strokeThickness: 3
+        }).setOrigin(0.5);
+
+        this.phaserSceneContext.tweens.add({
+            targets: popText,
+            y: screenY - 80,
+            alpha: 0,
+            duration: 1200,
+            ease: 'Cubic.out',
+            onComplete: () => popText.destroy()
+        });
+    }
+
+    flashMeshColorIntensity(mesh, colorHex) {
+        if (mesh.material && mesh.material.uniforms) {
+            mesh.material.uniforms.u_flashColor.value.setHex(colorHex);
+            mesh.material.uniforms.u_flashIntensity.value = 1.0;
+            
+            setTimeout(() => {
+                if (mesh.material && mesh.material.uniforms) {
+                    mesh.material.uniforms.u_flashIntensity.value = 0.0;
+                }
+            }, 300);
+        }
+    }
+
+    bootSynchronizedMasterTicker() {
+        const frameTickPipelinePass = () => {
+            Matter.Engine.update(this.matterEngine, 1000 / 60);
+            
+            this.globalUniforms.u_time.value = this.clock.getElapsedTime();
+
+            // Update debris fragments
+            this.dynamicDebrisPool.forEach((meshWebGL3D, rigidBody2D) => {
+                let spatialX = (rigidBody2D.position.x - this.width / 2) / this.scale3DTo2D;
+                let spatialY = -(rigidBody2D.position.y - this.height / 2) / this.scale3DTo2D;
+
+                meshWebGL3D.position.set(spatialX, spatialY, 1.0); // Z=1 to keep above grid
+                meshWebGL3D.rotation.z = -rigidBody2D.angle;
+                meshWebGL3D.rotation.y += 0.05;
+                
+                // Slowly fade out debris that falls off screen
+                if (rigidBody2D.position.y > this.height + 100) {
+                    this.scene3D.remove(meshWebGL3D);
+                    Matter.Composite.remove(this.matterWorld, rigidBody2D);
+                    this.dynamicDebrisPool.delete(rigidBody2D);
+                    document.getElementById('debris-count').innerText = this.dynamicDebrisPool.size;
+                }
+            });
+
+            // Update hex labels
+            this.hexGridMap.forEach((node) => {
+                let screenX = (this.width / 2) + (node.x3D * this.scale3DTo2D);
+                let screenY = (this.height / 2) - (node.y3D * this.scale3DTo2D);
+
+                if (!node.text2DObject) {
+                    node.text2DObject = this.phaserSceneContext.add.text(screenX, screenY, node.value.toString(), {
+                        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                        fontSize: '16px', 
+                        fontWeight: '900', 
+                        color: '#ffffff',
+                        stroke: '#0f172a', 
+                        strokeThickness: 4
+                    }).setOrigin(0.5);
+                } else {
+                    node.text2DObject.setText(node.value.toString());
+                    node.text2DObject.setPosition(screenX, screenY);
+                }
+            });
+
+            this.renderer3D.render(this.scene3D, this.camera3D);
+            requestAnimationFrame(frameTickPipelinePass);
+        };
+        requestAnimationFrame(frameTickPipelinePass);
+    }
+
+    syncHUDView() {
+        document.getElementById('pool-display').innerText = `ENERGY: ${this.energyReserve} / ${this.maxEnergy}`;
+        document.getElementById('energy-fill').style.width = `${(this.energyReserve / this.maxEnergy) * 100}%`;
+    }
+
+    handleResize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        
+        this.camera3D.aspect = this.width / this.height;
+        this.camera3D.updateProjectionMatrix();
+        this.renderer3D.setSize(this.width, this.height);
+        this.phaserApp.scale.resize(this.width, this.height);
+        
+        this.globalUniforms.u_resolution.value.set(this.width, this.height);
+        Matter.Body.setPosition(this.floorPlane, { x: this.width / 2, y: this.height + 100 });
+    }
+
+    rebootStrategicMap() {
+        this.dynamicDebrisPool.forEach((mesh) => this.scene3D.remove(mesh));
+        this.dynamicDebrisPool.clear();
+
+        this.hexGridMap.forEach(node => {
+            this.scene3D.remove(node.mesh);
+            if (node.text2DObject) node.text2DObject.destroy();
+        });
+        this.hexGridMap.clear();
+
+        this.energyReserve = 100;
+        this.buildProceduralHexTopology(3);
+        this.syncHUDView();
+        document.getElementById('debris-count').innerText = "0";
+    }
+}
+
+let orchestrator;
+window.onload = () => { orchestrator = new HybridHexGridStrategyEngine(); };
+</script>
+</body></html>
