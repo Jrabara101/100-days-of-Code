@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Syndicate Terminal // Sector Logistics Command</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #04020a;
+            font-family: 'Share Tech Mono', monospace;
+            user-select: none;
+        }
+        canvas { display: block; }
+        #pixi-view-anchor { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #tactical-hud-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        
+        /* Cyberpunk styling scrollbar */
+        .log-container::-webkit-scrollbar { width: 4px; }
+        .log-container::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        .log-container::-webkit-scrollbar-thumb { background: #8b5cf6; border-radius: 2px; }
+        
+        /* Scanline Overlay effect */
+        .scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(8, 4, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(139, 92, 246, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Screen overlays -->
+    <div class="scanlines"></div>
+    <div id="pixi-view-anchor"></div>
+
+    <div id="tactical-hud-layer">
+        
+        <!-- Left Command Panel -->
+        <div class="absolute left-6 top-6 bottom-6 w-96 glass-panel p-5 rounded-xl flex flex-col justify-between pointer-events-auto animate__animated animate__fadeInLeft">
+            
+            <div>
+                <!-- Header -->
+                <header class="border-b border-violet-900/60 pb-3 mb-4 flex justify-between items-center">
+                    <div>
+                        <h1 class="text-violet-400 font-bold text-sm tracking-widest font-orbitron">SYNDICATE TERMINAL</h1>
+                        <p class="text-[10px] text-violet-600 font-mono mt-0.5 tracking-wider">SECTOR LOGISTICS COMMAND v2.5</p>
+                    </div>
+                    <div id="save-indicator" class="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded animate__animated animate__flash animate__infinite hidden">
+                        AUTO-SAVED
+                    </div>
+                </header>
+
+                <!-- Resource Economy Panels -->
+                <div class="space-y-4 text-xs mb-5">
+                    <div>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span class="flex items-center gap-1">⚡ CORE ENERGY NETWORK</span>
+                            <span id="txt-energy" class="text-cyan-400 font-bold font-orbitron">100 / 100</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-950/80 rounded border border-violet-950/50 overflow-hidden">
+                            <div id="bar-energy" class="h-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.8)] transition-all duration-300" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span class="flex items-center gap-1">🛠️ TITANIUM HARVEST</span>
+                            <span id="txt-titanium" class="text-emerald-400 font-bold font-orbitron">0 units</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-950/80 rounded border border-violet-950/50 overflow-hidden">
+                            <div id="bar-titanium" class="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)] transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span class="flex items-center gap-1">🔥 QUANTUM PLASMA FUEL</span>
+                            <span id="txt-fuel" class="text-amber-500 font-bold font-orbitron">0 L</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-950/80 rounded border border-violet-950/50 overflow-hidden">
+                            <div id="bar-fuel" class="h-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.8)] transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategic Statistics -->
+                <div class="bg-violet-950/15 border border-violet-900/40 rounded-lg p-3 text-[11px] space-y-1.5 text-violet-300 font-mono mb-5">
+                    <div class="flex justify-between"><span>Power Grid Status:</span><span id="stat-power-grid" class="text-cyan-400 font-bold">STABLE</span></div>
+                    <div class="flex justify-between"><span>Active Harvester Nodes:</span><span id="stat-nodes" class="text-white">0 / 23</span></div>
+                    <div class="flex justify-between"><span>Titanium Rate:</span><span id="stat-titanium-rate" class="text-emerald-400 font-bold">+0 / sec</span></div>
+                    <div class="flex justify-between"><span>Quantum Fuel Rate:</span><span id="stat-fuel-rate" class="text-amber-400 font-bold">+0 / sec</span></div>
+                    <div class="flex justify-between"><span>Active Drones:</span><span id="stat-drones" class="text-purple-400">0 in transit</span></div>
+                </div>
+
+                <!-- Construction Blueprint Grid -->
+                <div class="space-y-2.5">
+                    <h2 class="text-xs font-bold text-violet-400 tracking-widest font-orbitron uppercase mb-2">Blueprints // Operations</h2>
+                    
+                    <button id="btn-build-titanium" onclick="orchestrator.buildSelectedNode('TITANIUM_RIG')" class="w-full bg-slate-950 hover:bg-violet-950/30 text-emerald-400 border border-emerald-950 hover:border-emerald-800 disabled:opacity-40 disabled:hover:bg-slate-950 disabled:hover:border-emerald-950 p-2.5 rounded-lg text-xs tracking-wider uppercase text-left flex justify-between items-center transition-all duration-200">
+                        <span class="flex flex-col">
+                            <span class="font-bold">Deploy Titanium Rig</span>
+                            <span class="text-[9px] text-slate-500 lowercase">requires titanium deposit</span>
+                        </span>
+                        <span class="text-slate-400 border border-violet-950 px-2 py-0.5 rounded bg-slate-900">-25 N-rg</span>
+                    </button>
+                    
+                    <button id="btn-build-fuel" onclick="orchestrator.buildSelectedNode('PLASMA_REFINER')" class="w-full bg-slate-950 hover:bg-violet-950/30 text-amber-500 border border-amber-950 hover:border-amber-700 disabled:opacity-40 disabled:hover:bg-slate-950 disabled:hover:border-amber-950 p-2.5 rounded-lg text-xs tracking-wider uppercase text-left flex justify-between items-center transition-all duration-200">
+                        <span class="flex flex-col">
+                            <span class="font-bold">Erect Plasma Refiner</span>
+                            <span class="text-[9px] text-slate-500 lowercase">requires plasma deposit</span>
+                        </span>
+                        <span class="text-slate-400 border border-violet-950 px-2 py-0.5 rounded bg-slate-900">-40 N-rg</span>
+                    </button>
+                    
+                    <button id="btn-build-transmitter" onclick="orchestrator.buildSelectedNode('POWER_TRANSMITTER')" class="w-full bg-slate-950 hover:bg-violet-950/30 text-cyan-400 border border-cyan-950 hover:border-cyan-700 disabled:opacity-40 disabled:hover:bg-slate-950 disabled:hover:border-cyan-950 p-2.5 rounded-lg text-xs tracking-wider uppercase text-left flex justify-between items-center transition-all duration-200">
+                        <span class="flex flex-col">
+                            <span class="font-bold">Deploy Power Transmitter</span>
+                            <span class="text-[9px] text-slate-500 lowercase">places on empty cells</span>
+                        </span>
+                        <span class="text-slate-400 border border-violet-950 px-2 py-0.5 rounded bg-slate-900">-15 N-rg</span>
+                    </button>
+
+                    <button id="btn-clear-node" onclick="orchestrator.clearSelectedCell()" class="w-full bg-slate-950 hover:bg-red-950/20 text-rose-500 border border-rose-950 hover:border-rose-700 disabled:opacity-40 p-2 rounded-lg text-xs tracking-wider uppercase text-left flex justify-between items-center transition-all duration-200">
+                        <span class="font-bold">Deconstruct Selected Node</span>
+                        <span class="text-slate-400 border border-violet-950 px-2 py-0.5 rounded bg-slate-900">-5 N-rg</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bottom Terminal Logs -->
+            <div class="flex flex-col h-40 border-t border-violet-950/70 pt-3 mt-4">
+                <div class="text-[10px] text-violet-500 font-orbitron uppercase tracking-wider mb-1 flex justify-between">
+                    <span>SYSTEM CORE TICKER</span>
+                    <span id="gamepad-status" class="text-rose-500 animate-pulse">Gamepad Disconnected</span>
+                </div>
+                <div id="log-feed" class="log-container flex-grow overflow-y-auto text-[9px] font-mono text-violet-400 space-y-1.5 pr-1">
+                    <!-- Logs populated here -->
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Right Side Settings & Controls Info Overlay -->
+        <div class="absolute right-6 top-6 w-80 glass-panel p-4 rounded-xl pointer-events-auto flex flex-col gap-4 animate__animated animate__fadeInRight">
+            <div>
+                <h3 class="text-xs font-bold text-violet-400 tracking-widest font-orbitron mb-2 uppercase">GRID HARVEST LEGEND</h3>
+                <div class="grid grid-cols-2 gap-2 text-[10px] text-violet-300">
+                    <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#10b981] inline-block shadow-[0_0_5px_#10b981]"></span> Titanium Deposit</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#f59e0b] inline-block shadow-[0_0_5px_#f59e0b]"></span> Hydrogen Pocket</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#00ffff] inline-block shadow-[0_0_5px_#00ffff]"></span> Space Elevator</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#a855f7] inline-block shadow-[0_0_5px_#a855f7]"></span> Transmitter</div>
+                </div>
+            </div>
+
+            <div class="border-t border-violet-950/60 pt-3">
+                <h3 class="text-xs font-bold text-violet-400 tracking-widest font-orbitron mb-1.5 uppercase">SYSTEM CONTROLS</h3>
+                <div class="text-[10px] text-slate-400 space-y-1">
+                    <div class="flex justify-between"><span>Mouse:</span><span class="text-violet-300">Click cells to select/harvest</span></div>
+                    <div class="flex justify-between"><span>Gamepad L-Stick:</span><span class="text-violet-300">Navigate cursor grid</span></div>
+                    <div class="flex justify-between"><span>Gamepad (A)/(B)/(X):</span><span class="text-violet-300">Build Rig/Refiner/Cable</span></div>
+                    <div class="flex justify-between"><span>Gamepad (Y):</span><span class="text-violet-300">Deconstruct Node</span></div>
+                </div>
+            </div>
+
+            <div class="border-t border-violet-950/60 pt-3 flex flex-wrap gap-2 justify-between">
+                <button onclick="orchestrator.audio.toggleMute()" class="px-2 py-1 bg-violet-950/40 hover:bg-violet-900/60 border border-violet-800 text-violet-300 rounded text-[10px] tracking-wider uppercase transition-all duration-200">
+                    🔊 Audio Toggle
+                </button>
+                <button onclick="orchestrator.saveState()" class="px-2 py-1 bg-violet-950/40 hover:bg-violet-900/60 border border-violet-800 text-violet-300 rounded text-[10px] tracking-wider uppercase transition-all duration-200">
+                    💾 Save State
+                </button>
+                <button onclick="orchestrator.wipeState()" class="px-2 py-1 bg-rose-950/30 hover:bg-rose-900/40 border border-rose-900 text-rose-400 rounded text-[10px] tracking-wider uppercase transition-all duration-200">
+                    ☢️ Wipe System
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert Notification Panel -->
+        <footer class="absolute bottom-6 left-1/2 -translate-x-1/2 flex justify-center w-full max-w-sm">
+            <div id="alert-banner" class="hidden w-full text-center bg-cyan-500 text-slate-950 font-mono text-[10px] font-black px-6 py-3 rounded-lg tracking-widest uppercase shadow-[0_0_20px_rgba(6,182,212,0.6)] border border-cyan-300 animate__animated animate__pulse animate__infinite">
+                LOGISTICS BROADCAST // INITIALIZING TERMINAL
+            </div>
+        </footer>
+    </div>
+
+<script>
+// --- AUDIO SYNTHESIS ENGINE (WEB AUDIO API) ---
+class CyberneticAudioEngine {
+    constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.ambientHumOsc = null;
+        this.ambientHumGain = null;
+    }
+
+    init() {
+        if (this.ctx) return;
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Start background ambient hum
+        this.startAmbientHum();
+    }
+
+    startAmbientHum() {
+        if (!this.ctx || this.muted) return;
+        try {
+            // High-precision reactor hum synthesis
+            this.ambientHumOsc = this.ctx.createOscillator();
+            this.ambientHumGain = this.ctx.createGain();
+            
+            // Sub-harmonic hum mix (Sine 55Hz + Triangle 110Hz harmonics)
+            this.ambientHumOsc.type = 'sine';
+            this.ambientHumOsc.frequency.setValueAtTime(55, this.ctx.currentTime); // Low A1 note
+            
+            // Volume LFO (to make it breath/pulse)
+            const lfo = this.ctx.createOscillator();
+            const lfoGain = this.ctx.createGain();
+            lfo.frequency.value = 0.15; // 0.15 Hz oscillation
+            lfoGain.gain.value = 0.03; // Volume variance
+            
+            this.ambientHumGain.gain.value = 0.06; // Base volume
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(this.ambientHumGain.gain);
+            this.ambientHumOsc.connect(this.ambientHumGain);
+            this.ambientHumGain.connect(this.ctx.destination);
+            
+            this.ambientHumOsc.start(0);
+            lfo.start(0);
+        } catch(e) {
+            console.error("Audio error: ", e);
+        }
+    }
+
+    playBlip() {
+        if (!this.ctx || this.muted) return;
+        this.init();
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(900, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(450, this.ctx.currentTime + 0.08);
+            
+            gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.08);
+        } catch(e){}
+    }
+
+    playDeploy() {
+        if (!this.ctx || this.muted) return;
+        this.init();
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(750, this.ctx.currentTime + 0.25);
+            
+            gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.25);
+        } catch(e){}
+    }
+
+    playDeconstruct() {
+        if (!this.ctx || this.muted) return;
+        this.init();
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.3);
+            
+            gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.3);
+        } catch(e){}
+    }
+
+    playPowerLoss() {
+        if (!this.ctx || this.muted) return;
+        this.init();
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+            osc.frequency.linearRampToValueAtTime(60, this.ctx.currentTime + 0.5);
+            
+            gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.5);
+        } catch(e){}
+    }
+
+    playPowerRestored() {
+        if (!this.ctx || this.muted) return;
+        this.init();
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.35);
+            
+            gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.35);
+        } catch(e){}
+    }
+
+    toggleMute() {
+        this.muted = !this.muted;
+        if (this.muted) {
+            if (this.ambientHumGain) {
+                this.ambientHumGain.disconnect();
+                this.ambientHumGain = null;
+            }
+        } else {
+            if (this.ctx) {
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                this.startAmbientHum();
+            } else {
+                this.init();
+            }
+        }
+    }
+}
+
+// --- MAIN STRATEGY GAME ENGINE CORE ---
+class HybridResourceManagerEngine {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.gridColumns = 6;
+        this.gridRows = 4;
+        this.nodeSpacing = 110;
+
+        // Sound Engine
+        this.audio = new CyberneticAudioEngine();
+
+        // Cursor Selection State
+        this.selectedCellIndex = 0;
+
+        // Inventory Pools
+        this.resources = { energy: 100, maxEnergy: 100, titanium: 0, fuel: 0 };
+        this.productionRates = { titanium: 0, fuel: 0 };
+
+        // Flat 24-element Node Matrix Setup
+        this.sectorGrid = Array(this.gridColumns * this.gridRows).fill(null);
+        
+        // Procedural Planet Deposits Layout Configuration
+        this.depositTypes = Array(this.gridColumns * this.gridRows).fill(null);
+        this.seedDeposits();
+
+        // Initialize Space Elevator in Slot 0 (Command Hub)
+        this.sectorGrid[0] = {
+            type: 'SPACE_ELEVATOR',
+            powered: true,
+            index: 0
+        };
+
+        // Drone Vector Logistics System
+        this.drones = []; // Active cargo drones in transit
+        this.droneSpeed = 0.015; // Speed multiplier along vector segments
+
+        // Power Grid BFS Connection Topology Parent References
+        this.powerGridTreeEdges = []; // Pairs of node indices representing active electrical cables
+
+        // UI log cache limit
+        this.maxLogItems = 45;
+
+        // Bootstrapping Engine Lifecycles
+        this.initPixiGraphics2D();
+        this.bindHardwareGamepadInput();
+        this.syncSystemState();
+        
+        this.bootSimulationClock();
+        this.bootSynchronizedMasterTicker();
+
+        // Try state rehydration
+        this.loadState();
+        this.logMessage("GRID LOGISTICS TERMINAL LOADED SUCCESSFULLY.");
+    }
+
+    seedDeposits() {
+        // Procedurally distribute Titanium crystals and Hydrogen plasma vents across the sector
+        // Making sure they are spread out so transmitters are required to reach them.
+        this.depositTypes[3] = 'TITANIUM';
+        this.depositTypes[5] = 'FUEL';
+        this.depositTypes[10] = 'FUEL';
+        this.depositTypes[11] = 'TITANIUM';
+        this.depositTypes[14] = 'TITANIUM';
+        this.depositTypes[17] = 'FUEL';
+        this.depositTypes[19] = 'TITANIUM';
+        this.depositTypes[22] = 'FUEL';
+        this.depositTypes[23] = 'TITANIUM';
+    }
+
+    // --- ENGINE 1: PIXIJS HIGH-PERFORMANCE 2D GRAPHICS MATRIX ---
+    initPixiGraphics2D() {
+        this.pixiApp = new PIXI.Application({
+            width: this.width, height: this.height,
+            backgroundColor: 0x07040f, antialias: true,
+            resolution: Math.min(window.devicePixelRatio, 2)
+        });
+        document.getElementById('pixi-view-anchor').appendChild(this.pixiApp.view);
+
+        // Grid coordinate layout offsets centering
+        this.gridContainerGroup = new PIXI.Container();
+        this.pixiApp.stage.addChild(this.gridContainerGroup);
+
+        this.linesContainer = new PIXI.Graphics(); // Cable rendering layer
+        this.gridContainerGroup.addChild(this.linesContainer);
+
+        this.dronesContainer = new PIXI.Container(); // Drones rendering layer
+        this.gridContainerGroup.addChild(this.dronesContainer);
+
+        this.nodeVisualSpriteRegistry = new Map(); // Flat logic indices mapped straight to active PixiJS shape composites
+        this.floatingTextContainer = new PIXI.Container(); // Cargo arrival numbers
+        this.pixiApp.stage.addChild(this.floatingTextContainer);
+
+        this.centerGridContainer();
+        this.buildProceduralSectorTopology();
+        this.recreateNodeSprites();
+
+        // Handle Resize events
+        window.addEventListener('resize', () => {
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
+            this.pixiApp.renderer.resize(this.width, this.height);
+            this.centerGridContainer();
+        });
+    }
+
+    centerGridContainer() {
+        // Keeps grid perfectly offset to the right of the tactical HUD panel
+        const startX = (this.width / 2) - ((this.gridColumns - 1) * this.nodeSpacing) / 2 + 100;
+        const startY = (this.height / 2) - ((this.gridRows - 1) * this.nodeSpacing) / 2;
+        this.gridContainerGroup.x = startX;
+        this.gridContainerGroup.y = startY;
+    }
+
+    buildProceduralSectorTopology() {
+        for (let index = 0; index < this.gridColumns * this.gridRows; index++) {
+            let col = index % this.gridColumns;
+            let row = Math.floor(index / this.gridColumns);
+
+            // Container representing grid cell position
+            let cellGroup = new PIXI.Container();
+            cellGroup.x = col * this.nodeSpacing;
+            cellGroup.y = row * this.nodeSpacing;
+
+            // Background plot bounding frame
+            let cellBack = new PIXI.Graphics();
+            cellBack.lineStyle(1.5, 0x1f1936, 0.6);
+            cellBack.beginFill(0x0a0614, 0.65);
+            cellBack.drawRect(-42, -42, 84, 84);
+            cellBack.endFill();
+            cellGroup.addChild(cellBack);
+
+            // If it is a deposit cell, render decorative layout patterns
+            const deposit = this.depositTypes[index];
+            if (deposit === 'TITANIUM') {
+                // Crystal node background decoration
+                let crystalDeco = new PIXI.Graphics();
+                crystalDeco.beginFill(0x10b981, 0.15);
+                crystalDeco.drawPolygon([-15, 0, 0, -25, 15, 0, 0, 25]);
+                crystalDeco.endFill();
+                cellGroup.addChild(crystalDeco);
+            } else if (deposit === 'FUEL') {
+                // Fuel thermal pocket background decoration
+                let fuelDeco = new PIXI.Graphics();
+                fuelDeco.lineStyle(1, 0xf59e0b, 0.15);
+                fuelDeco.drawCircle(0, 0, 20);
+                fuelDeco.drawCircle(0, 0, 10);
+                cellGroup.addChild(fuelDeco);
+            }
+
+            // Cell Interactions mapping
+            cellGroup.eventMode = 'static';
+            cellGroup.cursor = 'pointer';
+            cellGroup.on('pointerdown', () => {
+                this.audio.init();
+                this.selectCell(index);
+            });
+
+            this.gridContainerGroup.addChild(cellGroup);
+        }
+
+        // Create Grid Selector Cursor Graphic
+        this.selectorCursor = new PIXI.Graphics();
+        this.drawSelectorFrame(0x00ffff);
+        this.gridContainerGroup.addChild(this.selectorCursor);
+    }
+
+    drawSelectorFrame(color) {
+        this.selectorCursor.clear();
+        this.selectorCursor.lineStyle(2, color, 0.95);
+        // Draw bracket selector UI corners
+        const s = 45; const l = 10;
+        // Top Left
+        this.selectorCursor.moveTo(-s, -s + l); this.selectorCursor.lineTo(-s, -s); this.selectorCursor.lineTo(-s + l, -s);
+        // Top Right
+        this.selectorCursor.moveTo(s, -s + l); this.selectorCursor.lineTo(s, -s); this.selectorCursor.lineTo(s - l, -s);
+        // Bottom Left
+        this.selectorCursor.moveTo(-s, s - l); this.selectorCursor.lineTo(-s, s); this.selectorCursor.lineTo(-s + l, s);
+        // Bottom Right
+        this.selectorCursor.moveTo(s, s - l); this.selectorCursor.lineTo(s, s); this.selectorCursor.lineTo(s - l, s);
+    }
+
+    selectCell(index) {
+        this.selectedCellIndex = index;
+        let col = index % this.gridColumns;
+        let row = Math.floor(index / this.gridColumns);
+        
+        // Snap selector cursor coordinates
+        this.selectorCursor.x = col * this.nodeSpacing;
+        this.selectorCursor.y = row * this.nodeSpacing;
+        
+        // Manual harvest trigger if click on built extractor
+        if (this.sectorGrid[index] && this.sectorGrid[index].powered) {
+            let node = this.sectorGrid[index];
+            if (node.type === 'TITANIUM_RIG') {
+                this.resources.titanium += 1;
+                this.spawnFloatText(col * this.nodeSpacing, row * this.nodeSpacing, "+1 Ti", 0x10b981);
+                this.audio.playBlip();
+            } else if (node.type === 'PLASMA_REFINER') {
+                this.resources.fuel += 0.5;
+                this.spawnFloatText(col * this.nodeSpacing, row * this.nodeSpacing, "+0.5 Fuel", 0xf59e0b);
+                this.audio.playBlip();
+            }
+        } else {
+            this.audio.playBlip();
+        }
+        
+        this.syncSystemState();
+    }
+
+    recreateNodeSprites() {
+        // Clear all previous sprites inside visual registry safely
+        this.nodeVisualSpriteRegistry.forEach(group => this.gridContainerGroup.removeChild(group));
+        this.nodeVisualSpriteRegistry.clear();
+
+        for (let index = 0; index < this.sectorGrid.length; index++) {
+            const node = this.sectorGrid[index];
+            if (!node) continue;
+
+            let col = index % this.gridColumns;
+            let row = Math.floor(index / this.gridColumns);
+
+            let nodeGroup = new PIXI.Container();
+            nodeGroup.x = col * this.nodeSpacing;
+            nodeGroup.y = row * this.nodeSpacing;
+
+            let mainGraphic = new PIXI.Graphics();
+            let glowGraphic = new PIXI.Graphics();
+            let overlayText = new PIXI.Text('', { fontFamily: 'monospace', fontSize: 9, fill: 0xffffff });
+            overlayText.anchor.set(0.5);
+            overlayText.y = 30;
+
+            const isPowered = node.powered;
+            
+            if (node.type === 'SPACE_ELEVATOR') {
+                // Command Hub / Space Elevator Core Visualization
+                glowGraphic.beginFill(0x00ffff, 0.15);
+                glowGraphic.drawCircle(0, 0, 36);
+                glowGraphic.endFill();
+                nodeGroup.addChild(glowGraphic);
+
+                mainGraphic.lineStyle(2, 0x00ffff, 1);
+                mainGraphic.beginFill(0x091e2b, 0.95);
+                mainGraphic.drawRect(-26, -26, 52, 52);
+                mainGraphic.drawCircle(0, 0, 14);
+                mainGraphic.endFill();
+                nodeGroup.addChild(mainGraphic);
+
+                // Vertical elevator energy column extending offscreen
+                let beam = new PIXI.Graphics();
+                beam.lineStyle(2.5, 0x00ffff, 0.45);
+                beam.moveTo(0, -600);
+                beam.lineTo(0, 600);
+                nodeGroup.addChild(beam);
+
+            } else if (node.type === 'TITANIUM_RIG') {
+                // Green mining platform structure
+                let color = isPowered ? 0x10b981 : 0xef4444;
+                glowGraphic.beginFill(color, 0.12);
+                glowGraphic.drawCircle(0, 0, 26);
+                glowGraphic.endFill();
+                nodeGroup.addChild(glowGraphic);
+
+                mainGraphic.lineStyle(1.8, color, 1);
+                mainGraphic.beginFill(0x0a140f, 0.9);
+                // Draw Hexagonal Frame
+                const points = [];
+                for (let i = 0; i < 6; i++) {
+                    let angle = (i * Math.PI) / 3;
+                    points.push(22 * Math.cos(angle), 22 * Math.sin(angle));
+                }
+                mainGraphic.drawPolygon(points);
+                mainGraphic.drawCircle(0, 0, 6);
+                mainGraphic.endFill();
+                nodeGroup.addChild(mainGraphic);
+
+                // Add spinning inner blades container reference
+                let rotor = new PIXI.Graphics();
+                rotor.lineStyle(1.5, color, 0.85);
+                rotor.moveTo(-15, 0); rotor.lineTo(15, 0);
+                rotor.moveTo(0, -15); rotor.lineTo(0, 15);
+                nodeGroup.addChild(rotor);
+                nodeGroup.rotorElement = rotor;
+
+            } else if (node.type === 'PLASMA_REFINER') {
+                // Amber quantum refinery chamber
+                let color = isPowered ? 0xf59e0b : 0xef4444;
+                glowGraphic.beginFill(color, 0.12);
+                glowGraphic.drawCircle(0, 0, 26);
+                glowGraphic.endFill();
+                nodeGroup.addChild(glowGraphic);
+
+                mainGraphic.lineStyle(1.8, color, 1);
+                mainGraphic.beginFill(0x161005, 0.9);
+                // Draw Triangle Core
+                mainGraphic.drawPolygon([0, -25, 22, 14, -22, 14]);
+                mainGraphic.drawRect(-6, -6, 12, 12);
+                mainGraphic.endFill();
+                nodeGroup.addChild(mainGraphic);
+
+                // Glowing inner core pulsing animation tag
+                let chamber = new PIXI.Graphics();
+                chamber.beginFill(color, 0.7);
+                chamber.drawCircle(0, 4, 5);
+                chamber.endFill();
+                nodeGroup.addChild(chamber);
+                nodeGroup.chamberElement = chamber;
+
+            } else if (node.type === 'POWER_TRANSMITTER') {
+                // Purple transmitter dish
+                let color = isPowered ? 0xa855f7 : 0xef4444;
+                glowGraphic.beginFill(color, 0.15);
+                glowGraphic.drawCircle(0, 0, 24);
+                glowGraphic.endFill();
+                nodeGroup.addChild(glowGraphic);
+
+                mainGraphic.lineStyle(1.5, color, 1);
+                mainGraphic.beginFill(0x10051a, 0.9);
+                // Diamond configuration
+                mainGraphic.drawPolygon([0, -24, 18, 0, 0, 24, -18, 0]);
+                mainGraphic.endFill();
+                nodeGroup.addChild(mainGraphic);
+
+                let dishRing = new PIXI.Graphics();
+                dishRing.lineStyle(1, color, 0.75);
+                dishRing.drawCircle(0, 0, 11);
+                nodeGroup.addChild(dishRing);
+                nodeGroup.dishRingElement = dishRing;
+            }
+
+            // Power warning flash graphic
+            if (!isPowered) {
+                let powerOffIcon = new PIXI.Graphics();
+                powerOffIcon.lineStyle(1.5, 0xef4444, 1);
+                powerOffIcon.beginFill(0x270707, 0.9);
+                powerOffIcon.drawPolygon([0, -18, 12, 6, -12, 6]);
+                powerOffIcon.endFill();
+                
+                let warningText = new PIXI.Text('!', { fontFamily: 'monospace', fontSize: 13, fill: 0xef4444, fontWeight: 'bold' });
+                warningText.anchor.set(0.5);
+                warningText.y = 1;
+                powerOffIcon.addChild(warningText);
+                
+                powerOffIcon.y = -22;
+                nodeGroup.addChild(powerOffIcon);
+            }
+
+            this.gridContainerGroup.addChild(nodeGroup);
+            this.nodeVisualSpriteRegistry.set(index, nodeGroup);
+        }
+    }
+
+    // --- ENGINE 2: HARDWARE COMMAND POLLING GATES (GAMEPAD API) ---
+    bindHardwareGamepadInput() {
+        this.gamepadStateCache = { activeCursorIndex: 0, pollTimelineTicker: 0, isConnected: false };
+        
+        window.addEventListener("gamepadconnected", (e) => {
+            this.gamepadStateCache.isConnected = true;
+            document.getElementById('gamepad-status').innerText = "Gamepad Online // " + e.gamepad.id.substring(0, 16);
+            document.getElementById('gamepad-status').className = "text-emerald-400 font-bold";
+            this.logMessage("HARDWARE: GAMEPAD LINKED SUCCESSFULLY.");
+        });
+
+        window.addEventListener("gamepaddisconnected", () => {
+            this.gamepadStateCache.isConnected = false;
+            document.getElementById('gamepad-status').innerText = "Gamepad Disconnected";
+            document.getElementById('gamepad-status').className = "text-rose-500 animate-pulse";
+            this.logMessage("HARDWARE: GAMEPAD DETACHED FROM MODULE.");
+        });
+    }
+
+    processGamepadHardwareSampling() {
+        if (!navigator.getGamepads) return;
+        const controllers = navigator.getGamepads();
+        let activePad = controllers[0];
+        if (!activePad) return;
+
+        this.gamepadStateCache.pollTimelineTicker++;
+        
+        // High frequency button checks (instant action trigger checks)
+        this.checkGamepadButtons(activePad);
+
+        if (this.gamepadStateCache.pollTimelineTicker >= 12) { // 12-frame cursor step debounce window
+            let axisX = activePad.axes[0];
+            let axisY = activePad.axes[1];
+            
+            // Check D-Pad inputs
+            let dpadUp = activePad.buttons[12]?.pressed;
+            let dpadDown = activePad.buttons[13]?.pressed;
+            let dpadLeft = activePad.buttons[14]?.pressed;
+            let dpadRight = activePad.buttons[15]?.pressed;
+
+            let col = this.selectedCellIndex % this.gridColumns;
+            let row = Math.floor(this.selectedCellIndex / this.gridColumns);
+
+            let moved = false;
+
+            if (axisY < -0.5 || dpadUp) {
+                if (row > 0) { row--; moved = true; }
+            } else if (axisY > 0.5 || dpadDown) {
+                if (row < this.gridRows - 1) { row++; moved = true; }
+            }
+
+            if (axisX < -0.5 || dpadLeft) {
+                if (col > 0) { col--; moved = true; }
+            } else if (axisX > 0.5 || dpadRight) {
+                if (col < this.gridColumns - 1) { col++; moved = true; }
+            }
+
+            if (moved) {
+                this.gamepadStateCache.pollTimelineTicker = 0;
+                this.selectCell(row * this.gridColumns + col);
+            }
+        }
+    }
+
+    checkGamepadButtons(gamepad) {
+        // Button A (index 0) -> Build Titanium Rig
+        // Button B (index 1) -> Build Plasma Refiner
+        // Button X (index 2) -> Build Power Transmitter
+        // Button Y (index 3) -> Deconstruct node
+        if (!this.gamepadButtonCooldown) this.gamepadButtonCooldown = Array(4).fill(false);
+
+        const actions = ['TITANIUM_RIG', 'PLASMA_REFINER', 'POWER_TRANSMITTER', 'CLEAR'];
+        
+        for (let buttonIdx = 0; buttonIdx < 4; buttonIdx++) {
+            let isPressed = gamepad.buttons[buttonIdx]?.pressed;
+            if (isPressed && !this.gamepadButtonCooldown[buttonIdx]) {
+                this.gamepadButtonCooldown[buttonIdx] = true;
+                
+                // Trigger operation
+                const actionType = actions[buttonIdx];
+                if (actionType === 'CLEAR') {
+                    this.clearSelectedCell();
+                } else {
+                    this.buildSelectedNode(actionType);
+                }
+                
+                // Small cooldown reset delay
+                setTimeout(() => { this.gamepadButtonCooldown[buttonIdx] = false; }, 300);
+            }
+        }
+    }
+
+    // --- POWER GRID MATRIX BFS RESOLVER ---
+    resolvePowerGridTopology() {
+        // Reset all nodes to unpowered state
+        for (let i = 0; i < this.sectorGrid.length; i++) {
+            if (this.sectorGrid[i]) {
+                this.sectorGrid[i].powered = (i === 0); // Elevator has direct self-power
+            }
+        }
+
+        this.powerGridTreeEdges = [];
+        const queue = [0];
+        const visited = new Set([0]);
+        const parentMap = {};
+
+        while (queue.length > 0) {
+            let curr = queue.shift();
+            
+            // Check adjacency and range connectivity limits
+            for (let other = 0; other < this.sectorGrid.length; other++) {
+                if (!this.sectorGrid[other] || visited.has(other)) continue;
+
+                let colA = curr % this.gridColumns; let rowA = Math.floor(curr / this.gridColumns);
+                let colB = other % this.gridColumns; let rowB = Math.floor(other / this.gridColumns);
+                
+                let gridDist = Math.sqrt((colA - colB)**2 + (rowA - rowB)**2);
+
+                // Range calculations: Transmitters reach 2.2 units. All others require adjacent 1.5 units.
+                const reach = (this.sectorGrid[curr].type === 'POWER_TRANSMITTER' || this.sectorGrid[other].type === 'POWER_TRANSMITTER') ? 2.2 : 1.5;
+
+                if (gridDist <= reach) {
+                    this.sectorGrid[other].powered = true;
+                    visited.add(other);
+                    queue.push(other);
+                    parentMap[other] = curr;
+                    
+                    // Register energy routing line
+                    this.powerGridTreeEdges.push({ from: curr, to: other });
+                }
+            }
+        }
+
+        // Store BFS parent map to trace drone cargo conveyors routing
+        this.parentTreeRouteMap = parentMap;
+
+        // Render electrical grid paths dynamically
+        this.redrawElectricalConveyorCables();
+    }
+
+    redrawElectricalConveyorCables() {
+        this.linesContainer.clear();
+
+        // 1. Draw glowing active energy cables
+        this.powerGridTreeEdges.forEach(edge => {
+            let fromCol = edge.from % this.gridColumns; let fromRow = Math.floor(edge.from / this.gridColumns);
+            let toCol = edge.to % this.gridColumns; let toRow = Math.floor(edge.to / this.gridColumns);
+
+            let fromX = fromCol * this.nodeSpacing; let fromY = fromRow * this.nodeSpacing;
+            let toX = toCol * this.nodeSpacing; let toY = toRow * this.nodeSpacing;
+
+            // Render glowing dual colored matrix lines (inner core, outer glow)
+            this.linesContainer.lineStyle(4, 0x00ffff, 0.15);
+            this.linesContainer.moveTo(fromX, fromY);
+            this.linesContainer.lineTo(toX, toY);
+
+            this.linesContainer.lineStyle(1.2, 0x00ffff, 0.65);
+            this.linesContainer.moveTo(fromX, fromY);
+            this.linesContainer.lineTo(toX, toY);
+        });
+
+        // 2. Draw disconnected/unpowered structures dotted red lines
+        // Finding built nodes that are not in the BFS powered set
+        for (let i = 0; i < this.sectorGrid.length; i++) {
+            const node = this.sectorGrid[i];
+            if (!node || node.powered || i === 0) continue;
+
+            // Search for closest built node to draw a broken red line to
+            let closestBuiltIdx = -1;
+            let minD = 9999;
+            for (let j = 0; j < this.sectorGrid.length; j++) {
+                if (i === j || !this.sectorGrid[j]) continue;
+                let colA = i % this.gridColumns; let rowA = Math.floor(i / this.gridColumns);
+                let colB = j % this.gridColumns; let rowB = Math.floor(j / this.gridColumns);
+                let d = Math.sqrt((colA - colB)**2 + (rowA - rowB)**2);
+                if (d < minD) { minD = d; closestBuiltIdx = j; }
+            }
+
+            if (closestBuiltIdx !== -1) {
+                let colA = i % this.gridColumns; let rowA = Math.floor(i / this.gridColumns);
+                let colB = closestBuiltIdx % this.gridColumns; let rowB = Math.floor(closestBuiltIdx / this.gridColumns);
+
+                this.linesContainer.lineStyle(1, 0xef4444, 0.35);
+                this.linesContainer.moveTo(colA * this.nodeSpacing, rowA * this.nodeSpacing);
+                this.linesContainer.lineTo(colB * this.nodeSpacing, rowB * this.nodeSpacing);
+            }
+        }
+    }
+
+    // --- BLUEPRINT PLACEMENT BLUEPRINTS PROCESSORS ---
+    buildSelectedNode(type) {
+        let index = this.selectedCellIndex;
+        let cost = 0;
+        
+        if (type === 'TITANIUM_RIG') cost = 25;
+        if (type === 'PLASMA_REFINER') cost = 40;
+        if (type === 'POWER_TRANSMITTER') cost = 15;
+
+        // Validations checks
+        if (index === 0) {
+            this.logMessage("OPERATION DENIED: COMMAND ARCH CORE CANNOT BE MODIFIED.");
+            return;
+        }
+        if (this.sectorGrid[index] !== null) {
+            this.logMessage(`OPERATION DENIED: CELL INDEX ${index} IS CURRENTLY OCCUPIED.`);
+            return;
+        }
+        if (this.resources.energy < cost) {
+            this.logMessage("RESOURCE FAILURE: INSUFFICIENT ENERGY CHARGE.");
+            return;
+        }
+
+        // Check deposit compatibility
+        const deposit = this.depositTypes[index];
+        if (type === 'TITANIUM_RIG' && deposit !== 'TITANIUM') {
+            this.logMessage("OPERATION ERROR: TITANIUM RIG REQUIRES A TITANIUM CRYSTAL DEPOSIT.");
+            return;
+        }
+        if (type === 'PLASMA_REFINER' && deposit !== 'FUEL') {
+            this.logMessage("OPERATION ERROR: PLASMA REFINER REQUIRES A HYDROGEN GAS POCKET.");
+            return;
+        }
+        if (type === 'POWER_TRANSMITTER' && deposit !== null) {
+            this.logMessage("OPERATION ERROR: POWER TRANSMITTERS MUST BE CONSTRUCTED ON EMPTY TILE PLOTS.");
+            return;
+        }
+
+        // Deduct energy & commit state configuration
+        this.resources.energy -= cost;
+        this.sectorGrid[index] = {
+            type: type,
+            powered: false, // Evaluated immediately on BFS solver pass
+            index: index
+        };
+
+        this.audio.playDeploy();
+        this.logMessage(`BUILD SEQUENCE: DEPLOYED ${type.replace('_', ' ')} AT SECTOR [${index % this.gridColumns}, ${Math.floor(index / this.gridColumns)}]`);
+        
+        // Solve grid power connections layout
+        this.resolvePowerGridTopology();
+        this.recreateNodeSprites();
+        this.syncSystemState();
+        this.saveState();
+    }
+
+    clearSelectedCell() {
+        let index = this.selectedCellIndex;
+        const node = this.sectorGrid[index];
+
+        if (index === 0) {
+            this.logMessage("OPERATION DENIED: CENTRAL SPACE ELEVATOR CORE PROTECTED.");
+            return;
+        }
+        if (!node) {
+            this.logMessage("OPERATION DENIED: SECTOR TARGET IS EMPTY.");
+            return;
+        }
+        if (this.resources.energy < 5) {
+            this.logMessage("RESOURCE FAILURE: INSUFFICIENT ENERGY CHARGE TO DECONSTRUCT.");
+            return;
+        }
+
+        // Deduct deconstruction cost
+        this.resources.energy -= 5;
+        this.sectorGrid[index] = null;
+
+        // Clear active drones associated with this harvester source coordinates
+        this.drones = this.drones.filter(drone => drone.sourceIndex !== index);
+
+        this.audio.playDeconstruct();
+        this.logMessage(`DECONSTRUCT: REMOVED ${node.type.replace('_', ' ')} AT SECTOR [${index % this.gridColumns}, ${Math.floor(index / this.gridColumns)}]`);
+        
+        this.resolvePowerGridTopology();
+        this.recreateNodeSprites();
+        this.syncSystemState();
+        this.saveState();
+    }
+
+    // --- ENGINE 3: HEADLESS ASYNCHRONOUS SIMULATION CLOCK ENGINE (MACROECONOMY) ---
+    bootSimulationClock() {
+        // Runs simulation progression independent of visual rendering rates (2Hz tick step)
+        this.simulationTimerId = setInterval(() => {
+            let activeTitaniumRigs = 0;
+            let activeFuelRefiners = 0;
+            
+            // Loop through active powered extractors
+            this.sectorGrid.forEach((node, index) => {
+                if (!node || !node.powered) return;
+                
+                let col = index % this.gridColumns;
+                let row = Math.floor(index / this.gridColumns);
+
+                if (node.type === 'TITANIUM_RIG') {
+                    activeTitaniumRigs++;
+                    this.spawnLogisticsDrone(index, 'TITANIUM', 5);
+                } else if (node.type === 'PLASMA_REFINER') {
+                    activeFuelRefiners++;
+                    this.spawnLogisticsDrone(index, 'FUEL', 2);
+                }
+            });
+
+            // Update local economy statistics displays
+            this.productionRates.titanium = activeTitaniumRigs * 5;
+            this.productionRates.fuel = activeFuelRefiners * 2;
+
+            // Re-charge grid energy pools continuously
+            this.resources.energy = Math.min(this.resources.maxEnergy, this.resources.energy + 2);
+
+            this.syncSystemState();
+        }, 1500);
+    }
+
+    // --- DRONE SPAWNING & shortest BFS path tracing ---
+    spawnLogisticsDrone(sourceIndex, type, cargoAmount) {
+        // Path trace from harvester back to space elevator (index 0) using parent links
+        const path = [];
+        let curr = sourceIndex;
+
+        // Trace routing links
+        while (curr !== undefined) {
+            path.push(curr);
+            curr = this.parentTreeRouteMap[curr];
+        }
+
+        // If path is valid and connects to space elevator, spawn a vector drone
+        if (path.length > 0 && path[path.length - 1] === 0) {
+            // Reverse path to move from harvester source -> elevator destination
+            path.reverse(); 
+
+            let droneId = Math.random().toString(36).substr(2, 6);
+            
+            // Initialize visual PixiJS graphics sphere
+            let droneG = new PIXI.Graphics();
+            let color = type === 'TITANIUM' ? 0x10b981 : 0xf59e0b;
+            
+            // Draw drone core with alpha glow
+            droneG.beginFill(color, 0.45);
+            droneG.drawCircle(0, 0, 8);
+            droneG.endFill();
+            droneG.beginFill(0xffffff, 0.9);
+            droneG.drawCircle(0, 0, 4);
+            droneG.endFill();
+
+            // Set start pixel coordinates
+            let col = sourceIndex % this.gridColumns;
+            let row = Math.floor(sourceIndex / this.gridColumns);
+            droneG.x = col * this.nodeSpacing;
+            droneG.y = row * this.nodeSpacing;
+
+            this.dronesContainer.addChild(droneG);
+
+            this.drones.push({
+                id: droneId,
+                type: type,
+                amount: cargoAmount,
+                sourceIndex: sourceIndex,
+                path: path,
+                pathIndex: 0,
+                progress: 0,
+                sprite: droneG
+            });
+            
+            document.getElementById('stat-drones').innerText = `${this.drones.length} in transit`;
+        }
+    }
+
+    // --- UNIFIED MASTER ANIMATION TICKER LOOP ---
+    bootSynchronizedMasterTicker() {
+        const unifiedFrame = () => {
+            // 1. Process Hardware gamepad sampling inputs
+            this.processGamepadHardwareSampling();
+
+            // 2. Continuous rotations/pulses over active nodes components graphics
+            this.nodeVisualSpriteRegistry.forEach((nodeGroup, index) => {
+                const node = this.sectorGrid[index];
+                if (!node) return;
+
+                if (node.powered) {
+                    // Rotor spin for Rigs
+                    if (nodeGroup.rotorElement) {
+                        nodeGroup.rotorElement.rotation += 0.08;
+                    }
+                    // Pulsing chamber fill for Refiners
+                    if (nodeGroup.chamberElement) {
+                        let pulse = 0.8 + Math.sin(Date.now() * 0.01) * 0.2;
+                        nodeGroup.chamberElement.scale.set(pulse);
+                    }
+                    // Rotating dish ring for Transmitters
+                    if (nodeGroup.dishRingElement) {
+                        nodeGroup.dishRingElement.scale.set(0.9 + Math.sin(Date.now() * 0.005) * 0.15);
+                    }
+                }
+            });
+
+            // 3. Update logistics cargo drones positions & path vectors
+            for (let d = this.drones.length - 1; d >= 0; d--) {
+                let drone = this.drones[d];
+                drone.progress += this.droneSpeed;
+
+                // Path coordinates node indices segments
+                let currSegIdx = drone.path[drone.pathIndex];
+                let nextSegIdx = drone.path[drone.pathIndex + 1];
+
+                let fromCol = currSegIdx % this.gridColumns; let fromRow = Math.floor(currSegIdx / this.gridColumns);
+                let toCol = nextSegIdx % this.gridColumns; let toRow = Math.floor(nextSegIdx / this.gridColumns);
+
+                let fromX = fromCol * this.nodeSpacing; let fromY = fromRow * this.nodeSpacing;
+                let toX = toCol * this.nodeSpacing; let toY = toRow * this.nodeSpacing;
+
+                // Linear interpolation math
+                let curX = fromX + (toX - fromX) * drone.progress;
+                let curY = fromY + (toY - fromY) * drone.progress;
+
+                drone.sprite.x = curX;
+                drone.sprite.y = curY;
+
+                // Draw tiny particles trails behind active drones
+                if (Math.random() < 0.15) {
+                    this.spawnTrailParticle(curX, curY, drone.type);
+                }
+
+                if (drone.progress >= 1.0) {
+                    drone.progress = 0;
+                    drone.pathIndex++;
+
+                    // Check path destination arrivals
+                    if (drone.pathIndex >= drone.path.length - 1) {
+                        // Remove sprite from rendering list
+                        this.dronesContainer.removeChild(drone.sprite);
+                        
+                        // Process cargo credits
+                        if (drone.type === 'TITANIUM') {
+                            this.resources.titanium += drone.amount;
+                            this.spawnFloatText(0, 0, `+${drone.amount} Titanium`, 0x10b981);
+                        } else if (drone.type === 'FUEL') {
+                            this.resources.fuel += drone.amount;
+                            this.spawnFloatText(0, 0, `+${drone.amount} Fuel`, 0xf59e0b);
+                        }
+
+                        // Pulse Space Elevator sprite
+                        let seSprite = this.nodeVisualSpriteRegistry.get(0);
+                        if (seSprite) {
+                            seSprite.scale.set(1.15);
+                            setTimeout(() => seSprite.scale.set(1.0), 90);
+                        }
+                        
+                        this.drones.splice(d, 1);
+                        document.getElementById('stat-drones').innerText = `${this.drones.length} in transit`;
+                        this.syncSystemState();
+                    }
+                }
+            }
+
+            // Update floating texts vectors animations
+            for (let f = this.floatingTextContainer.children.length - 1; f >= 0; f--) {
+                let txt = this.floatingTextContainer.children[f];
+                txt.y -= 0.6;
+                txt.alpha -= 0.015;
+                if (txt.alpha <= 0) {
+                    this.floatingTextContainer.removeChild(txt);
+                }
+            }
+
+            requestAnimationFrame(unifiedFrame);
+        };
+        requestAnimationFrame(unifiedFrame);
+    }
+
+    spawnTrailParticle(x, y, type) {
+        let p = new PIXI.Graphics();
+        let color = type === 'TITANIUM' ? 0x10b981 : 0xf59e0b;
+        p.beginFill(color, 0.4);
+        p.drawCircle(0, 0, Math.random() * 2 + 1);
+        p.endFill();
+        p.x = x; p.y = y;
+        this.dronesContainer.addChild(p);
+
+        // Animate fade & clear
+        let timer = setInterval(() => {
+            p.alpha -= 0.05;
+            if (p.alpha <= 0) {
+                this.dronesContainer.removeChild(p);
+                clearInterval(timer);
+            }
+        }, 30);
+    }
+
+    spawnFloatText(gridX, gridY, text, color) {
+        let style = new PIXI.TextStyle({
+            fontFamily: 'Share Tech Mono',
+            fontSize: 10,
+            fill: color,
+            fontWeight: 'bold',
+            dropShadow: true,
+            dropShadowColor: 0x000000,
+            dropShadowDistance: 1
+        });
+        
+        let t = new PIXI.Text(text, style);
+        t.anchor.set(0.5);
+        
+        // Offset to match coordinate mapping of parent group layout
+        t.x = this.gridContainerGroup.x + gridX;
+        t.y = this.gridContainerGroup.y + gridY - 25;
+        t.alpha = 1.0;
+
+        this.floatingTextContainer.addChild(t);
+    }
+
+    // --- STATE SYNC & DASHBOARD PRESENTATION BINDINGS ---
+    syncSystemState() {
+        // Resources Numerical text
+        document.getElementById('txt-energy').innerText = `${Math.floor(this.resources.energy)} / ${this.resources.maxEnergy}`;
+        document.getElementById('txt-titanium').innerText = `${this.resources.titanium} units`;
+        document.getElementById('txt-fuel').innerText = `${Math.floor(this.resources.fuel)} L`;
+
+        // HUD percentage visual bars widths adjustments
+        document.getElementById('bar-energy').style.width = `${(this.resources.energy / this.resources.maxEnergy) * 100}%`;
+        document.getElementById('bar-titanium').style.width = `${Math.min(100, (this.resources.titanium / 250) * 100)}%`;
+        document.getElementById('bar-fuel').style.width = `${Math.min(100, (this.resources.fuel / 100) * 100)}%`;
+
+        // Action Buttons Enabled state checking
+        const activeNodeCount = this.sectorGrid.filter(n => n !== null).length;
+        document.getElementById('stat-nodes').innerText = `${activeNodeCount} / ${this.sectorGrid.length}`;
+        
+        document.getElementById('stat-titanium-rate').innerText = `+${this.productionRates.titanium} / cycle`;
+        document.getElementById('stat-fuel-rate').innerText = `+${this.productionRates.fuel} / cycle`;
+
+        // Connectivity indicators
+        const unpoweredActiveNodes = this.sectorGrid.filter(n => n !== null && !n.powered).length;
+        if (unpoweredActiveNodes > 0) {
+            document.getElementById('stat-power-grid').innerText = "ALERT // UNPOWERED SECTORS";
+            document.getElementById('stat-power-grid').className = "text-rose-500 font-bold animate-pulse";
+        } else {
+            document.getElementById('stat-power-grid').innerText = "ONLINE";
+            document.getElementById('stat-power-grid').className = "text-cyan-400 font-bold";
+        }
+
+        // Blueprint actions cost locks validation
+        const selIdx = this.selectedCellIndex;
+        const depositType = this.depositTypes[selIdx];
+        const cellOccupied = this.sectorGrid[selIdx] !== null;
+
+        document.getElementById('btn-build-titanium').disabled = (this.resources.energy < 25 || cellOccupied || depositType !== 'TITANIUM' || selIdx === 0);
+        document.getElementById('btn-build-fuel').disabled = (this.resources.energy < 40 || cellOccupied || depositType !== 'FUEL' || selIdx === 0);
+        document.getElementById('btn-build-transmitter').disabled = (this.resources.energy < 15 || cellOccupied || depositType !== null || selIdx === 0);
+        document.getElementById('btn-clear-node').disabled = (this.resources.energy < 5 || !cellOccupied || selIdx === 0);
+    }
+
+    logMessage(msg) {
+        const feed = document.getElementById('log-feed');
+        if (!feed) return;
+
+        const time = new Date().toTimeString().split(' ')[0];
+        const item = document.createElement('div');
+        item.className = "border-l border-violet-800/40 pl-1.5 py-0.5 hover:bg-violet-950/10 transition-colors";
+        item.innerHTML = `<span class="text-violet-600 font-bold">[${time}]</span> <span class="tracking-wide">${msg}</span>`;
+
+        feed.appendChild(item);
+        feed.scrollTop = feed.scrollHeight;
+
+        // Clean excess listings items
+        while (feed.children.length > this.maxLogItems) {
+            feed.removeChild(feed.firstChild);
+        }
+    }
+
+    // --- LOCALSTORAGE PERSISTENCY ACTIONS ---
+    saveState() {
+        try {
+            // Compress flat grid structures
+            const state = {
+                grid: this.sectorGrid.map(n => n ? { type: n.type, index: n.index } : null),
+                resources: this.resources,
+                logs: Array.from(document.getElementById('log-feed').children).map(c => c.innerHTML).slice(-10) // Cache last 10 log entries
+            };
+            localStorage.setItem('syndicate_core_grid_save', JSON.stringify(state));
+            
+            // Trigger temporary saved indicator flashing
+            const ind = document.getElementById('save-indicator');
+            ind.classList.remove('hidden');
+            setTimeout(() => ind.classList.add('hidden'), 1500);
+        } catch(e) {
+            console.error("Save failure: ", e);
+        }
+    }
+
+    loadState() {
+        try {
+            const raw = localStorage.getItem('syndicate_core_grid_save');
+            if (!raw) {
+                // Populate fresh Grid Connections Solver
+                this.resolvePowerGridTopology();
+                return;
+            }
+
+            const state = JSON.parse(raw);
+            this.resources = state.resources;
+            
+            // Re-hydrate sector nodes configurations
+            this.sectorGrid = state.grid.map((n, idx) => {
+                if (idx === 0) return { type: 'SPACE_ELEVATOR', powered: true, index: 0 };
+                return n ? { type: n.type, powered: false, index: n.index } : null;
+            });
+
+            // Rehydrate log lines if present
+            const feed = document.getElementById('log-feed');
+            if (state.logs && feed) {
+                feed.innerHTML = '';
+                state.logs.forEach(html => {
+                    const item = document.createElement('div');
+                    item.className = "border-l border-violet-800/40 pl-1.5 py-0.5 hover:bg-violet-950/10";
+                    item.innerHTML = html;
+                    feed.appendChild(item);
+                });
+            }
+
+            this.resolvePowerGridTopology();
+            this.recreateNodeSprites();
+            this.syncSystemState();
+            
+            let banner = document.getElementById('alert-banner');
+            banner.innerText = "SYSTEM RESTORED // CACHE STATE LOADED";
+            banner.classList.remove('hidden');
+            setTimeout(() => banner.classList.add('hidden'), 1600);
+            
+            this.logMessage("SYSTEM DATA REHYDRATED FROM LOCAL STORAGE.");
+        } catch (e) {
+            console.error("State recovery error: ", e);
+            this.resolvePowerGridTopology();
+        }
+    }
+
+    wipeState() {
+        localStorage.removeItem('syndicate_core_grid_save');
+        this.audio.playPowerLoss();
+        
+        // Reset sector grid back to command baseline
+        this.sectorGrid = Array(this.gridColumns * this.gridRows).fill(null);
+        this.sectorGrid[0] = { type: 'SPACE_ELEVATOR', powered: true, index: 0 };
+        this.resources = { energy: 100, maxEnergy: 100, titanium: 0, fuel: 0 };
+        this.drones.forEach(d => this.dronesContainer.removeChild(d.sprite));
+        this.drones = [];
+
+        this.resolvePowerGridTopology();
+        this.recreateNodeSprites();
+        this.syncSystemState();
+        
+        this.logMessage("GRID WIPE COMPLETE. ALL SLOTS FACTORY RESET.");
+    }
+}
+
+// Global Core Infrastructure Activation Boot Paths Driver
+let orchestrator;
+window.onload = () => { orchestrator = new HybridResourceManagerEngine(); };
+</script>
+</body>
+</html>
