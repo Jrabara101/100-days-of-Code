@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Retro Turn-Based Tactics Pixel Shooter Engine</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PixiJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
+    <!-- RPGUI for retro retro layout components -->
+    <link rel="stylesheet" href="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.css"/>
+    <script src="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.js"></script>
+    <!-- Animate.css for entrance animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Hover.css for micro-interactions -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #070a13; font-family: monospace; }
+        canvas { display: block; }
+        #pixi-combat-stage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #rpg-desktop-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        .rpgui-container { background: rgba(7, 10, 19, 0.95) !important; border-image: url(https://unpkg.com/rpgui@1.0.3/dist/img/border-image-golden.png) 14 repeat !important; }
+        .scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 4px;
+            z-index: 20;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="rpgui-content">
+
+    <div id="pixi-combat-stage"></div>
+    <div class="scanlines"></div>
+
+    <div id="rpg-desktop-hud">
+        <!-- Control Console Panel -->
+        <div class="rpgui-container absolute left-6 top-6 w-80 p-5 pointer-events-auto shadow-2xl animate__animated animate__fadeInDown">
+            <header class="border-b border-amber-500/40 pb-2 mb-3">
+                <h2 class="text-amber-500 font-bold text-xs tracking-widest font-mono">STRIKE_SQUAD.OS</h2>
+                <p class="text-[9px] text-slate-400 font-mono mt-0.5">TACTICAL ENCOUNTER CONTROLLER</p>
+            </header>
+
+            <div class="space-y-2 font-mono text-[11px] text-slate-300">
+                <div class="flex justify-between"><span>🧑 Active Marine:</span><span class="text-cyan-400 font-bold">Squad Leader</span></div>
+                <div class="flex justify-between"><span>❤️ Marine Health:</span><span id="txt-hp" class="text-emerald-400 font-bold">100 / 100</span></div>
+                <div class="flex justify-between"><span>⚡ Action Points (AP):</span><span id="txt-ap" class="text-amber-400 font-bold">2 / 2</span></div>
+                <div class="flex justify-between border-t border-amber-500/30 pt-1"><span>👽 Hostile Targets:</span><span id="txt-enemies" class="text-rose-500 font-bold">2 Remaining</span></div>
+            </div>
+
+            <hr class="rpgui-hr" />
+
+            <div class="flex flex-col gap-2 mt-2">
+                <button onclick="orchestrator.activateCombatFiringMode()" class="rpgui-button hvr-grow w-full text-center" type="button" id="btn-fire">
+                    <p class="text-xs font-bold text-slate-200">Initialize Laser Strike</p>
+                </button>
+                <button onclick="orchestrator.terminatePlayerTurnPhase()" class="rpgui-button hvr-grow w-full text-center" type="button" id="btn-end">
+                    <p class="text-xs font-bold text-slate-200">Relinquish Turn Phase</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Combat Banner Notification -->
+        <footer class="absolute bottom-12 left-1/2 -translate-x-1/2 flex justify-center w-full max-w-lg">
+            <div id="combat-banner" class="hidden w-full text-center bg-cyan-500 text-slate-950 font-mono text-[10px] font-black px-6 py-3 rounded shadow-2xl border border-cyan-300 animate__animated animate__pulse animate__infinite">
+                OPERATIONAL ALERT // WEAPON RANGE CONFIRMED
+            </div>
+        </footer>
+    </div>
+
+<script>
+// --- SUB-SYSTEM: A* / DIJKSTRA GRAPH SOLVER ---
+class AStarSolver {
+    constructor(gridSize, mapDataGrid, playerUnit, enemiesPool) {
+        this.gridSize = gridSize;
+        this.mapDataGrid = mapDataGrid;
+        this.playerUnit = playerUnit;
+        this.enemiesPool = enemiesPool;
+    }
+
+    // Check if cell is walkable. If targetIndex is specified, it is treated as walkable
+    isWalkable(index, targetIndex = -1) {
+        if (index < 0 || index >= this.gridSize * this.gridSize) return false;
+        if (this.mapDataGrid[index] === 1) return false; // Obstacle
+        if (index === targetIndex) return true; // Target node is always walkable for search purposes
+        if (this.playerUnit.index === index) return false; // Player block
+        if (this.enemiesPool.some(e => e.index === index)) return false; // Enemy block
+        return true;
+    }
+
+    getNeighbors(index, targetIndex = -1) {
+        const neighbors = [];
+        const row = Math.floor(index / this.gridSize);
+        const col = index % this.gridSize;
+
+        // Orthogonal connections (Up, Down, Left, Right)
+        if (row > 0) neighbors.push(index - this.gridSize);
+        if (row < this.gridSize - 1) neighbors.push(index + this.gridSize);
+        if (col > 0) neighbors.push(index - 1);
+        if (col < this.gridSize - 1) neighbors.push(index + 1);
+
+        return neighbors.filter(n => this.isWalkable(n, targetIndex));
+    }
+
+    // Orthogonal A* Solver
+    findPath(startIndex, targetIndex) {
+        if (startIndex === targetIndex) return [startIndex];
+        if (this.mapDataGrid[targetIndex] === 1) return null; // Cannot end path inside cover blocks
+
+        const openSet = [startIndex];
+        const cameFrom = new Map();
+
+        const gScore = new Map();
+        gScore.set(startIndex, 0);
+
+        const fScore = new Map();
+        fScore.set(startIndex, this.heuristic(startIndex, targetIndex));
+
+        while (openSet.length > 0) {
+            // Find node in openSet with lowest fScore
+            openSet.sort((a, b) => (gScore.get(a) + this.heuristic(a, targetIndex)) - (gScore.get(b) + this.heuristic(b, targetIndex)));
+            const current = openSet.shift();
+
+            if (current === targetIndex) {
+                return this.reconstructPath(cameFrom, current);
+            }
+
+            const neighbors = this.getNeighbors(current, targetIndex);
+            for (const neighbor of neighbors) {
+                const tentativeGScore = (gScore.get(current) ?? Infinity) + 1;
+                if (tentativeGScore < (gScore.get(neighbor) ?? Infinity)) {
+                    cameFrom.set(neighbor, current);
+                    gScore.set(neighbor, tentativeGScore);
+                    if (!openSet.includes(neighbor)) {
+                        openSet.push(neighbor);
+                    }
+                }
+            }
+        }
+
+        return null; // Path blocked or unreachable
+    }
+
+    heuristic(index1, index2) {
+        const r1 = Math.floor(index1 / this.gridSize);
+        const c1 = index1 % this.gridSize;
+        const r2 = Math.floor(index2 / this.gridSize);
+        const c2 = index2 % this.gridSize;
+        return Math.abs(r1 - r2) + Math.abs(c1 - c2); // Manhattan distance heuristic
+    }
+
+    reconstructPath(cameFrom, current) {
+        const totalPath = [current];
+        while (cameFrom.has(current)) {
+            current = cameFrom.get(current);
+            totalPath.unshift(current);
+        }
+        return totalPath;
+    }
+
+    // Dijkstra traversal to find all reachable nodes within cost limit
+    getReachableNodes(startIndex, maxCost) {
+        const reachable = new Map(); // index -> path cost
+        const queue = [{ index: startIndex, cost: 0 }];
+        reachable.set(startIndex, 0);
+
+        while (queue.length > 0) {
+            const { index, cost } = queue.shift();
+
+            if (cost >= maxCost) continue;
+
+            const neighbors = this.getNeighbors(index, -1);
+            for (const neighbor of neighbors) {
+                const nextCost = cost + 1;
+                if (!reachable.has(neighbor) || nextCost < reachable.get(neighbor)) {
+                    reachable.set(neighbor, nextCost);
+                    queue.push({ index: neighbor, cost: nextCost });
+                }
+            }
+        }
+
+        reachable.delete(startIndex); // Start node itself is not a movement target
+        return reachable;
+    }
+}
+
+class HybridTacticsEngine {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.gridSize = 8;
+        this.cellSpacing = 72;
+
+        // --- SINGLE SOURCE OF TRUTH DATA MATRIX ---
+        // 0 = Walkable Floor, 1 = Solid Concrete Cover Block
+        this.mapDataGrid = Array(this.gridSize * this.gridSize).fill(0);
+        
+        this.actionPoints = 2;
+        this.playerMovementRange = 4; // Max steps per move action
+        this.isFiringModeActive = false;
+        this.sequenceQueueLocked = false;
+        this.turnOwner = 'player'; // 'player' or 'enemy'
+
+        // Entity Components
+        this.playerUnit = { index: 44, hp: 100, maxHp: 100 };
+        this.enemiesPool = [
+            { index: 11, hp: 30, maxHp: 30, id: 'alien_alpha' },
+            { index: 14, hp: 30, maxHp: 30, id: 'alien_beta' }
+        ];
+
+        // Pathfinding Solver Setup
+        this.pathSolver = new AStarSolver(this.gridSize, this.mapDataGrid, this.playerUnit, this.enemiesPool);
+        this.reachableCells = new Map();
+
+        this.initPixiCanvasStage();
+        this.generateProceduralObstacles();
+        this.recalculateReachableCells();
+        this.repaintCombatArenaGrid();
+        this.syncHUDViewDisplay();
+    }
+
+    // --- SUB-SYSTEM 1: PIXIJS HIGH-PERFORMANCE WEBGL 2D BASE STAGE ---
+    initPixiCanvasStage() {
+        this.pixiApp = new PIXI.Application({
+            width: this.width, height: this.height,
+            backgroundColor: 0x070d19, antialias: true,
+            resolution: Math.min(window.devicePixelRatio, 2)
+        });
+        document.getElementById('pixi-combat-stage').appendChild(this.pixiApp.view);
+
+        this.viewportGroupContainer = new PIXI.Container();
+        this.pixiApp.stage.addChild(this.viewportGroupContainer);
+
+        this.tileMeshRegistry = new Map();
+        this.entitySpriteRegistry = new Map();
+        
+        window.addEventListener('resize', () => {
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
+            this.pixiApp.renderer.resize(this.width, this.height);
+            this.repaintCombatArenaGrid();
+        });
+    }
+
+    generateProceduralObstacles() {
+        // Hardcode concrete obstacles
+        const staticObstacleIndices = [19, 20, 27, 28, 35, 36];
+        staticObstacleIndices.forEach(idx => this.mapDataGrid[idx] = 1);
+    }
+
+    recalculateReachableCells() {
+        if (this.turnOwner === 'player' && this.actionPoints > 0 && !this.isFiringModeActive) {
+            this.reachableCells = this.pathSolver.getReachableNodes(this.playerUnit.index, this.playerMovementRange);
+        } else {
+            this.reachableCells = new Map();
+        }
+    }
+
+    // --- REPAINT DRAW BLITTING PIPELINE (DATA-TO-VIEW MIRRORING) ---
+    repaintCombatArenaGrid() {
+        this.viewportGroupContainer.removeChildren();
+        this.tileMeshRegistry.clear();
+        this.entitySpriteRegistry.clear();
+
+        const startX = (this.width / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+        const startY = (this.height / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+
+        // Render Ground Grid Blocks
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize; col++) {
+                let index = (row * this.gridSize) + col;
+                let cellValue = this.mapDataGrid[index];
+
+                let tileGraphics = new PIXI.Graphics();
+                
+                // Styling based on reachable/obstacle state
+                if (this.reachableCells.has(index)) {
+                    // Cyan glow border & translucent background for reachable cells
+                    tileGraphics.lineStyle(2, 0x06b6d4, 0.7);
+                    tileGraphics.beginFill(0x0891b2, 0.2);
+                    tileGraphics.drawRect(0, 0, 66, 66);
+                    tileGraphics.endFill();
+                } else if (cellValue === 1) {
+                    // Obsidian rock blocks (cover block)
+                    tileGraphics.lineStyle(1.5, 0xef4444, 0.25);
+                    tileGraphics.beginFill(0x1e293b, 0.95);
+                    tileGraphics.drawRect(0, 0, 66, 66);
+                    tileGraphics.endFill();
+                    
+                    // Draw a visual center core to emphasize solidity
+                    tileGraphics.beginFill(0x475569, 0.5);
+                    tileGraphics.drawRect(16, 16, 34, 34);
+                    tileGraphics.endFill();
+                } else {
+                    // Empty walkable slate tile
+                    tileGraphics.lineStyle(1.5, 0x1e293b, 0.4);
+                    tileGraphics.beginFill(0x0f172a, 0.9);
+                    tileGraphics.drawRect(0, 0, 66, 66);
+                    tileGraphics.endFill();
+                }
+
+                tileGraphics.x = startX + col * this.cellSpacing;
+                tileGraphics.y = startY + row * this.cellSpacing;
+
+                // Bind pointer interactivity
+                tileGraphics.eventMode = 'static';
+                tileGraphics.cursor = 'pointer';
+                tileGraphics.on('pointerdown', () => this.handleTileInteractionClick(index));
+                tileGraphics.on('pointerover', () => this.handleTileHover(index));
+                tileGraphics.on('pointerout', () => this.handleTileHoverOut(index));
+
+                this.viewportGroupContainer.addChild(tileGraphics);
+                this.tileMeshRegistry.set(index, tileGraphics);
+            }
+        }
+
+        // Render Entity Layer Actors
+        // A. Draw Player Marine avatar
+        let pCoords = this.get2DCoordinatesFromIndex(this.playerUnit.index);
+        let playerSprite = new PIXI.Graphics();
+        playerSprite.beginFill(0x06b6d4); // Cyan Marine
+        playerSprite.drawCircle(33, 33, 16);
+        playerSprite.endFill();
+        
+        // Dynamic Player details (health bar outline/indicator)
+        playerSprite.lineStyle(1, 0xffffff, 0.8);
+        playerSprite.drawCircle(33, 33, 20);
+
+        playerSprite.x = startX + pCoords.col * this.cellSpacing;
+        playerSprite.y = startY + pCoords.row * this.cellSpacing;
+        this.viewportGroupContainer.addChild(playerSprite);
+        this.entitySpriteRegistry.set('PLAYER', playerSprite);
+
+        // B. Draw Hostile Target Mobs
+        this.enemiesPool.forEach(enemy => {
+            let eCoords = this.get2DCoordinatesFromIndex(enemy.index);
+            let enemyContainer = new PIXI.Container();
+            
+            let enemySprite = new PIXI.Graphics();
+            enemySprite.beginFill(0xf43f5e); // Crimson Alien
+            enemySprite.drawRect(18, 18, 30, 30);
+            enemySprite.endFill();
+            
+            // Draw visual core
+            enemySprite.beginFill(0xffffff, 0.3);
+            enemySprite.drawRect(26, 26, 14, 14);
+            enemySprite.endFill();
+
+            enemyContainer.addChild(enemySprite);
+
+            // Health Bar under enemy
+            let hpBar = new PIXI.Graphics();
+            hpBar.beginFill(0x334155);
+            hpBar.drawRect(12, 54, 42, 4);
+            hpBar.endFill();
+            
+            let hpRatio = Math.max(0, enemy.hp / enemy.maxHp);
+            hpBar.beginFill(0xf43f5e);
+            hpBar.drawRect(12, 54, 42 * hpRatio, 4);
+            hpBar.endFill();
+            enemyContainer.addChild(hpBar);
+
+            enemyContainer.x = startX + eCoords.col * this.cellSpacing;
+            enemyContainer.y = startY + eCoords.row * this.cellSpacing;
+            this.viewportGroupContainer.addChild(enemyContainer);
+            this.entitySpriteRegistry.set(enemy.id, enemyContainer);
+        });
+
+        // Initialize persistent path preview & reticle graphics layer
+        this.previewGraphics = new PIXI.Graphics();
+        this.viewportGroupContainer.addChild(this.previewGraphics);
+    }
+
+    get2DCoordinatesFromIndex(index) {
+        return { col: index % this.gridSize, row: Math.floor(index / this.gridSize) };
+    }
+
+    // --- TRANSACTION MODULE: INTERCEPT COMBAT ROUTERS GATES ---
+    handleTileInteractionClick(clickedIndex) {
+        if (this.sequenceQueueLocked || this.actionPoints <= 0 || this.turnOwner !== 'player') return;
+
+        if (this.isFiringModeActive) {
+            let targetEnemy = this.enemiesPool.find(e => e.index === clickedIndex);
+            if (targetEnemy) {
+                this.executeCombatEngagementStrike(targetEnemy);
+            } else {
+                this.cancelWeaponLockState();
+            }
+        } else {
+            if (this.reachableCells.has(clickedIndex)) {
+                this.executeTacticalMoveSequence(clickedIndex);
+            }
+        }
+    }
+
+    // --- LOGICAL MOVEMENT TRANSLATION PASS (WITH CELL-BY-CELL ANIMATION) ---
+    executeTacticalMoveSequence(destinationIndex) {
+        const path = this.pathSolver.findPath(this.playerUnit.index, destinationIndex);
+        if (!path || path.length <= 1) {
+            return;
+        }
+
+        this.actionPoints--;
+        this.sequenceQueueLocked = true;
+        this.previewGraphics.clear();
+        this.syncHUDViewDisplay();
+
+        const sprite = this.entitySpriteRegistry.get('PLAYER');
+        const startX = (this.width / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+        const startY = (this.height / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+
+        let stepIndex = 0;
+
+        const moveStep = () => {
+            if (stepIndex >= path.length - 1) {
+                // Movement fully completed
+                this.playerUnit.index = destinationIndex;
+                this.sequenceQueueLocked = false;
+                this.recalculateReachableCells();
+                this.repaintCombatArenaGrid();
+                this.syncHUDViewDisplay();
+                return;
+            }
+
+            const currentIdx = path[stepIndex];
+            const nextIdx = path[stepIndex + 1];
+            
+            // Advance logic coordinate
+            this.playerUnit.index = nextIdx;
+
+            const nextCoords = this.get2DCoordinatesFromIndex(nextIdx);
+            const targetX = startX + nextCoords.col * this.cellSpacing;
+            const targetY = startY + nextCoords.row * this.cellSpacing;
+
+            this.tweenSpritePosition(sprite, targetX, targetY, 150).then(() => {
+                stepIndex++;
+                moveStep();
+            });
+        };
+
+        moveStep();
+    }
+
+    // Linear interpolation position tweening with easing
+    tweenSpritePosition(sprite, targetX, targetY, duration) {
+        return new Promise(resolve => {
+            const startX = sprite.x;
+            const startY = sprite.y;
+            const startTime = performance.now();
+
+            const update = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = progress * (2 - progress); // Ease Out Quad
+
+                sprite.x = startX + (targetX - startX) * ease;
+                sprite.y = startY + (targetY - startY) * ease;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    resolve();
+                }
+            };
+
+            requestAnimationFrame(update);
+        });
+    }
+
+    // --- BALISTIC MARGIN MARCHING CALCULATIONS (LINE OF SIGHT VECTOR ENGINE) ---
+    executeCombatEngagementStrike(enemyTargetNode) {
+        this.actionPoints--;
+        this.isFiringModeActive = false;
+        this.sequenceQueueLocked = true;
+        this.syncHUDViewDisplay();
+        document.getElementById('combat-banner').classList.add('hidden');
+
+        let originCoords = this.get2DCoordinatesFromIndex(this.playerUnit.index);
+        let targetCoords = this.get2DCoordinatesFromIndex(enemyTargetNode.index);
+
+        const startX = (this.width / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+        const startY = (this.height / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+
+        // Draw Player laser blast line
+        let laserBeamGraphics = new PIXI.Graphics();
+        laserBeamGraphics.lineStyle(4, 0x06b6d4, 1.0);
+        laserBeamGraphics.moveTo(startX + originCoords.col * this.cellSpacing + 33, startY + originCoords.row * this.cellSpacing + 33);
+        laserBeamGraphics.lineTo(startX + targetCoords.col * this.cellSpacing + 33, startY + targetCoords.row * this.cellSpacing + 33);
+        this.viewportGroupContainer.addChild(laserBeamGraphics);
+
+        // Flash target damage
+        enemyTargetNode.hp -= 30;
+
+        setTimeout(() => {
+            this.viewportGroupContainer.removeChild(laserBeamGraphics);
+            
+            if (enemyTargetNode.hp <= 0) {
+                let targetIdx = this.enemiesPool.indexOf(enemyTargetNode);
+                if (targetIdx !== -1) this.enemiesPool.splice(targetIdx, 1);
+            }
+
+            this.sequenceQueueLocked = false;
+            this.recalculateReachableCells();
+            this.repaintCombatArenaGrid();
+            this.evaluateMatchLifecycleVictory();
+            this.syncHUDViewDisplay();
+        }, 400);
+    }
+
+    activateCombatFiringMode() {
+        if (this.sequenceQueueLocked || this.actionPoints <= 0 || this.turnOwner !== 'player') return;
+        this.isFiringModeActive = true;
+
+        this.recalculateReachableCells();
+        this.repaintCombatArenaGrid();
+
+        let banner = document.getElementById('combat-banner');
+        banner.innerText = "COMMAND OVERLAY // WEAPON RANGE CONFIRMED";
+        banner.classList.remove('hidden');
+
+        // Draw active weapon range fields onto grid blocks visually via map selections loops tint modifications
+        this.enemiesPool.forEach(enemy => {
+            let tileGraphics = this.tileMeshRegistry.get(enemy.index);
+            if (tileGraphics) {
+                tileGraphics.tint = 0xffa0a0; // Tint enemy squares red to show target acquisition
+            }
+        });
+    }
+
+    cancelWeaponLockState() {
+        this.isFiringModeActive = false;
+        document.getElementById('combat-banner').classList.add('hidden');
+        this.recalculateReachableCells();
+        this.repaintCombatArenaGrid();
+    }
+
+    // --- TURN CONTROL & SIMPLE ENEMY TURN SIMULATOR ---
+    terminatePlayerTurnPhase() {
+        if (this.sequenceQueueLocked || this.turnOwner !== 'player') return;
+        
+        this.cancelWeaponLockState();
+        this.turnOwner = 'enemy';
+        this.sequenceQueueLocked = true;
+        this.syncHUDViewDisplay();
+
+        this.showTemporaryBanner('OPPONENT PHASE // EXECUTING MOB AGGRESSION', 'bg-rose-600 border-rose-400 text-slate-100');
+
+        setTimeout(() => {
+            this.executeEnemyTurnChain();
+        }, 1200);
+    }
+
+    executeEnemyTurnChain() {
+        let enemyIndex = 0;
+
+        const processNextEnemy = () => {
+            if (enemyIndex >= this.enemiesPool.length) {
+                // Enemy turn fully done, return control
+                this.turnOwner = 'player';
+                this.actionPoints = 2;
+                this.sequenceQueueLocked = false;
+                this.recalculateReachableCells();
+                this.repaintCombatArenaGrid();
+                this.syncHUDViewDisplay();
+                this.showTemporaryBanner('YOUR PHASE // SQUAD READY', 'bg-cyan-500 border-cyan-300 text-slate-950');
+                return;
+            }
+
+            const enemy = this.enemiesPool[enemyIndex];
+            // Find path towards the Player Unit using A* Solver
+            const path = this.pathSolver.findPath(enemy.index, this.playerUnit.index);
+
+            if (path && path.length > 2) {
+                // Limit movement up to 2 steps and don't overwrite the player cell
+                const stepsToTake = Math.min(path.length - 2, 2);
+                const destinationIndex = path[stepsToTake];
+                
+                // Animate move
+                const sprite = this.entitySpriteRegistry.get(enemy.id);
+                const startX = (this.width / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+                const startY = (this.height / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+                
+                let stepCount = 0;
+                
+                const moveEnemyStep = () => {
+                    if (stepCount >= stepsToTake) {
+                        enemy.index = destinationIndex;
+                        checkAttackAdjacent();
+                        return;
+                    }
+                    
+                    const nextIdx = path[stepCount + 1];
+                    enemy.index = nextIdx; // Update logical coordinate position
+                    const nextCoords = this.get2DCoordinatesFromIndex(nextIdx);
+                    const targetX = startX + nextCoords.col * this.cellSpacing;
+                    const targetY = startY + nextCoords.row * this.cellSpacing;
+                    
+                    this.tweenSpritePosition(sprite, targetX, targetY, 150).then(() => {
+                        stepCount++;
+                        moveEnemyStep();
+                    });
+                };
+                
+                moveEnemyStep();
+            } else {
+                checkAttackAdjacent();
+            }
+
+            function checkAttackAdjacent() {
+                // If adjacent, attack the player
+                const dx = Math.abs(Math.floor(enemy.index / 8) - Math.floor(orchestrator.playerUnit.index / 8));
+                const dy = Math.abs((enemy.index % 8) - (orchestrator.playerUnit.index % 8));
+                
+                if (dx + dy === 1) {
+                    // Draw laser attack line from enemy to player
+                    const startX = (orchestrator.width / 2) - ((orchestrator.gridSize - 1) * orchestrator.cellSpacing) / 2;
+                    const startY = (orchestrator.height / 2) - ((orchestrator.gridSize - 1) * orchestrator.cellSpacing) / 2;
+                    
+                    const eCoords = orchestrator.get2DCoordinatesFromIndex(enemy.index);
+                    const pCoords = orchestrator.get2DCoordinatesFromIndex(orchestrator.playerUnit.index);
+
+                    let laserBeam = new PIXI.Graphics();
+                    laserBeam.lineStyle(4, 0xf43f5e, 1.0); // Crimson Laser
+                    laserBeam.moveTo(startX + eCoords.col * orchestrator.cellSpacing + 33, startY + eCoords.row * orchestrator.cellSpacing + 33);
+                    laserBeam.lineTo(startX + pCoords.col * orchestrator.cellSpacing + 33, startY + pCoords.row * orchestrator.cellSpacing + 33);
+                    orchestrator.viewportGroupContainer.addChild(laserBeam);
+
+                    orchestrator.playerUnit.hp -= 20;
+                    orchestrator.showTemporaryBanner('CRITICAL WARNING // SQUAD DAMAGE TAKEN', 'bg-rose-950 border-rose-600 text-rose-100 animate-shake');
+
+                    setTimeout(() => {
+                        orchestrator.viewportGroupContainer.removeChild(laserBeam);
+                        orchestrator.repaintCombatArenaGrid();
+                        orchestrator.syncHUDViewDisplay();
+                        
+                        if (orchestrator.playerUnit.hp <= 0) {
+                            orchestrator.triggerDefeatSequence();
+                        } else {
+                            enemyIndex++;
+                            setTimeout(processNextEnemy, 400);
+                        }
+                    }, 400);
+                } else {
+                    enemyIndex++;
+                    setTimeout(processNextEnemy, 400);
+                }
+            }
+        };
+
+        processNextEnemy();
+    }
+
+    // --- REALTIME HOVER PREVIEW CONTROLS ---
+    handleTileHover(index) {
+        if (this.sequenceQueueLocked || this.turnOwner !== 'player') return;
+
+        const startX = (this.width / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+        const startY = (this.height / 2) - ((this.gridSize - 1) * this.cellSpacing) / 2;
+
+        this.previewGraphics.clear();
+
+        if (this.isFiringModeActive) {
+            // Draw red crosshair over enemies in range
+            if (this.enemiesPool.some(e => e.index === index)) {
+                let coords = this.get2DCoordinatesFromIndex(index);
+                let cx = startX + coords.col * this.cellSpacing + 33;
+                let cy = startY + coords.row * this.cellSpacing + 33;
+                
+                this.previewGraphics.lineStyle(2.5, 0xf43f5e, 1.0);
+                this.previewGraphics.drawCircle(cx, cy, 22);
+                this.previewGraphics.moveTo(cx - 28, cy); this.previewGraphics.lineTo(cx - 12, cy);
+                this.previewGraphics.moveTo(cx + 12, cy); this.previewGraphics.lineTo(cx + 28, cy);
+                this.previewGraphics.moveTo(cx, cy - 28); this.previewGraphics.lineTo(cx, cy - 12);
+                this.previewGraphics.moveTo(cx, cy + 12); this.previewGraphics.lineTo(cx, cy + 28);
+            }
+        } else {
+            // Draw pathfinding movement trail for reachable tiles
+            if (this.reachableCells.has(index)) {
+                const path = this.pathSolver.findPath(this.playerUnit.index, index);
+                if (path && path.length > 1) {
+                    this.previewGraphics.lineStyle(3, 0x22d3ee, 0.7);
+                    
+                    for (let i = 0; i < path.length; i++) {
+                        let coords = this.get2DCoordinatesFromIndex(path[i]);
+                        let x = startX + coords.col * this.cellSpacing + 33;
+                        let y = startY + coords.row * this.cellSpacing + 33;
+
+                        // Highlight cells along the movement path
+                        this.previewGraphics.beginFill(0x22d3ee, 0.25);
+                        this.previewGraphics.drawRect(startX + coords.col * this.cellSpacing, startY + coords.row * this.cellSpacing, 66, 66);
+                        this.previewGraphics.endFill();
+
+                        if (i === 0) {
+                            this.previewGraphics.moveTo(x, y);
+                        } else {
+                            this.previewGraphics.lineTo(x, y);
+                        }
+                    }
+
+                    // Add concentric gold target dots to the destination cell
+                    let lastCoords = this.get2DCoordinatesFromIndex(path[path.length - 1]);
+                    let lx = startX + lastCoords.col * this.cellSpacing + 33;
+                    let ly = startY + lastCoords.row * this.cellSpacing + 33;
+                    this.previewGraphics.lineStyle(2.5, 0xfacc15, 1.0);
+                    this.previewGraphics.drawCircle(lx, ly, 8);
+                }
+            }
+        }
+    }
+
+    handleTileHoverOut(index) {
+        if (!this.sequenceQueueLocked) {
+            this.previewGraphics.clear();
+        }
+    }
+
+    // --- GAME LIFE CYCLE OUTCOMES ---
+    evaluateMatchLifecycleVictory() {
+        if (this.enemiesPool.length === 0) {
+            this.sequenceQueueLocked = true;
+            this.showTemporaryBanner('SYS OPERATIONAL SUCCESS // SECTOR SECURED', 'bg-cyan-500 border-cyan-300 text-slate-950 font-black py-5 text-2xl');
+            setTimeout(() => {
+                alert("STRIKE SUCCESS! All target sectors cleared.");
+                location.reload();
+            }, 2500);
+        }
+    }
+
+    triggerDefeatSequence() {
+        this.sequenceQueueLocked = true;
+        this.showTemporaryBanner('CRITICAL FAILURE // SQUAD ELIMINATED', 'bg-rose-950 border-rose-600 text-rose-100 font-black py-5 text-2xl animate-pulse');
+        setTimeout(() => {
+            alert("DEFEAT! Sector lost to hostile forces.");
+            location.reload();
+        }, 2500);
+    }
+
+    // Banner alert system
+    showTemporaryBanner(text, classes) {
+        let banner = document.getElementById('combat-banner');
+        banner.className = `w-full text-center font-mono text-[11px] font-black px-6 py-4 rounded shadow-2xl border ${classes}`;
+        banner.innerText = text;
+        banner.classList.remove('hidden');
+
+        // Clear if not in infinite loop
+        if (!classes.includes('animate__infinite') && !classes.includes('infinite') && !this.sequenceQueueLocked) {
+            setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 3000);
+        }
+    }
+
+    syncHUDViewDisplay() {
+        document.getElementById('txt-ap').innerText = `${this.actionPoints} / 2`;
+        document.getElementById('txt-hp').innerText = `${Math.max(0, this.playerUnit.hp)} / 100`;
+        document.getElementById('txt-enemies').innerText = `${this.enemiesPool.length} Remaining`;
+        
+        const isMyTurn = (this.turnOwner === 'player' && !this.sequenceQueueLocked);
+        document.getElementById('btn-fire').disabled = (this.actionPoints <= 0 || !isMyTurn);
+        document.getElementById('btn-end').disabled = !isMyTurn;
+    }
+}
+
+// Instantiate tactics application container
+let orchestrator;
+window.onload = () => { orchestrator = new HybridTacticsEngine(); };
+</script>
+</body>
+</html>

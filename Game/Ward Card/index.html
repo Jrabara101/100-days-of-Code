@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tactical War Card Game AI - Staff Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PixiJS v7 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
+    <!-- RPGUI -->
+    <link rel="stylesheet" href="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.css"/>
+    <script src="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.js"></script>
+    <!-- Animate.css & Hover.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <!-- Google Font for sleek sci-fi monospace dashboard -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: #140e05; 
+            font-family: 'Share Tech Mono', monospace; 
+        }
+        canvas { display: block; }
+        #pixi-view-canvas { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 10; 
+        }
+        #rpg-desktop-hud { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 30; 
+            pointer-events: none; 
+        }
+        .rpgui-container { 
+            background: rgba(22, 14, 5, 0.95) !important; 
+            border-image: url(https://unpkg.com/rpgui@1.0.3/dist/img/border-image-wooden.png) 14 repeat !important; 
+        }
+        /* Custom styled controls for pointer-events */
+        .interactive-hud { pointer-events: auto; }
+        /* Glowing text elements */
+        .neon-glow-cyan {
+            text-shadow: 0 0 5px rgba(34, 211, 238, 0.6), 0 0 10px rgba(34, 211, 238, 0.4);
+        }
+        .neon-glow-rose {
+            text-shadow: 0 0 5px rgba(251, 113, 133, 0.6), 0 0 10px rgba(251, 113, 133, 0.4);
+        }
+        .neon-glow-amber {
+            text-shadow: 0 0 5px rgba(245, 158, 11, 0.6), 0 0 10px rgba(245, 158, 11, 0.4);
+        }
+    </style>
+</head>
+<body class="rpgui-content">
+
+    <div id="pixi-view-canvas"></div>
+
+    <div id="rpg-desktop-hud">
+        <!-- Control Panel -->
+        <div class="rpgui-container absolute left-6 top-6 w-80 p-5 interactive-hud shadow-2xl animate__animated animate__fadeInDown border-4">
+            <header class="border-b-2 border-amber-900/40 pb-2 mb-3">
+                <h2 class="text-amber-500 font-bold text-sm tracking-widest">TACTICAL_WAR_AI.SYS</h2>
+                <p class="text-[10px] text-slate-400 mt-0.5">HEURISTIC ADVERSARIAL COMBAT CORE</p>
+            </header>
+
+            <div class="space-y-3 text-[13px] text-slate-300">
+                <div class="flex justify-between items-center">
+                    <span>🃏 Player Reserve:</span>
+                    <span id="txt-human-deck" class="text-cyan-400 font-bold neon-glow-cyan text-sm">26 cards</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>🤖 Adversary Reserve:</span>
+                    <span id="txt-ai-deck" class="text-rose-400 font-bold neon-glow-rose text-sm">26 cards</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-amber-900/30 pt-2">
+                    <span>⚔️ Current Prize Pool:</span>
+                    <span id="txt-pool" class="text-amber-400 font-bold neon-glow-amber text-sm">0 cards</span>
+                </div>
+            </div>
+
+            <hr class="rpgui-hr" />
+
+            <div class="flex flex-col gap-2 mt-2">
+                <button onclick="orchestrator.executeAutoTurn()" class="rpgui-button hvr-grow w-full text-center" type="button" id="btn-deploy">
+                    <p class="text-[11px] font-bold text-slate-200 uppercase tracking-wider">Auto Deploy Card</p>
+                </button>
+                <button onclick="orchestrator.restartGame()" class="rpgui-button hvr-grow w-full text-center" type="button" id="btn-restart">
+                    <p class="text-[11px] font-bold text-slate-200 uppercase tracking-wider">Re-shingle Deck</p>
+                </button>
+            </div>
+            
+            <div class="mt-4 text-[9px] text-amber-700/80 leading-relaxed text-center select-none font-sans">
+                CLICK DIRECTLY ON A HIGHLIGHTED DECK CARD AT THE BOTTOM TO MANUALLY COMMIT ASSETS.
+            </div>
+        </div>
+
+        <!-- Banner for WAR Alert -->
+        <footer class="absolute bottom-24 left-1/2 -translate-x-1/2 flex justify-center w-full max-w-lg">
+            <div id="war-banner" class="hidden w-full text-center bg-red-950/95 text-red-400 font-bold text-sm px-6 py-4 rounded-lg tracking-widest uppercase shadow-2xl border-2 border-red-600 animate__animated animate__pulse animate__infinite">
+                ⚠️ ALERT: TACTICAL DRAW DETECTED // PREPARE FOR WAR ⚠️
+            </div>
+        </footer>
+    </div>
+
+<script>
+// --- WEB AUDIO API SYNTHESIZER MODULE ---
+class WebAudioSynth {
+    constructor() {
+        this.ctx = null;
+    }
+    
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+    
+    playDraw() {
+        this.init();
+        if (!this.ctx) return;
+        
+        let bufferSize = this.ctx.sampleRate * 0.12;
+        let buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        let data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        
+        let noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        let filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1200, this.ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.12);
+
+        let gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start();
+    }
+    
+    playFlip() {
+        this.init();
+        if (!this.ctx) return;
+
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(450, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.06);
+
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.07);
+    }
+    
+    playClash(playerWins) {
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const freqs = playerWins ? [261.63, 329.63, 392.00, 523.25] : [261.63, 311.13, 392.00, 466.16]; // C Maj vs C Min7
+        
+        freqs.forEach((freq, idx) => {
+            let osc = this.ctx.createOscillator();
+            let gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+            
+            gain.gain.setValueAtTime(0.08, now + idx * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35 + idx * 0.04);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.04);
+            osc.stop(now + 0.45 + idx * 0.04);
+        });
+    }
+    
+    playWar() {
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        
+        // Classic warning sirens
+        for (let j = 0; j < 2; j++) {
+            let osc = this.ctx.createOscillator();
+            let gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            
+            let startT = now + j * 0.3;
+            osc.frequency.setValueAtTime(180, startT);
+            osc.frequency.linearRampToValueAtTime(320, startT + 0.15);
+            osc.frequency.linearRampToValueAtTime(180, startT + 0.3);
+
+            let filter = this.ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(500, startT);
+
+            gain.gain.setValueAtTime(0.05, startT);
+            gain.gain.exponentialRampToValueAtTime(0.001, startT + 0.3);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start(startT);
+            osc.stop(startT + 0.3);
+        }
+    }
+    
+    playGameOver(win) {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const freqs = win ? [523.25, 659.25, 783.99, 1046.50] : [220.00, 196.00, 174.61, 130.81];
+        
+        freqs.forEach((freq, idx) => {
+            let osc = this.ctx.createOscillator();
+            let gain = this.ctx.createGain();
+            osc.type = win ? 'triangle' : 'sawtooth';
+            
+            let startT = now + idx * 0.18;
+            osc.frequency.setValueAtTime(freq, startT);
+            
+            gain.gain.setValueAtTime(0.12, startT);
+            gain.gain.exponentialRampToValueAtTime(0.001, startT + 0.7);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start(startT);
+            osc.stop(startT + 0.8);
+        });
+    }
+}
+
+// --- TWEEN / ANIMATION CONROLLER MODULE ---
+class PixiTweenController {
+    constructor() {
+        this.activeTweens = [];
+    }
+    
+    // Smooth interpolations
+    add(target, props, durationMs, easeFunc = (t) => t, onComplete = null) {
+        let startProps = {};
+        for (let key in props) {
+            startProps[key] = target[key];
+        }
+        let startTime = Date.now();
+        let tween = {
+            target,
+            startProps,
+            endProps: props,
+            startTime,
+            durationMs,
+            easeFunc,
+            onComplete
+        };
+        this.activeTweens.push(tween);
+        return tween;
+    }
+    
+    update() {
+        let now = Date.now();
+        for (let i = this.activeTweens.length - 1; i >= 0; i--) {
+            let t = this.activeTweens[i];
+            let elapsed = now - t.startTime;
+            let progress = Math.min(elapsed / t.durationMs, 1.0);
+            let eased = t.easeFunc(progress);
+            
+            for (let key in t.endProps) {
+                t.target[key] = t.startProps[key] + (t.endProps[key] - t.startProps[key]) * eased;
+            }
+            
+            if (progress >= 1.0) {
+                this.activeTweens.splice(i, 1);
+                if (t.onComplete) t.onComplete();
+            }
+        }
+    }
+    
+    hasActiveTweens() {
+        return this.activeTweens.length > 0;
+    }
+
+    clear() {
+        this.activeTweens = [];
+    }
+}
+
+// --- HIGH PERFORMANCE VECTOR PARTICLES ---
+class ParticleSystem {
+    constructor(container) {
+        this.container = container;
+        this.particles = [];
+    }
+    
+    emit(x, y, color = 0xd4af37, count = 25) {
+        for (let i = 0; i < count; i++) {
+            let p = new PIXI.Graphics();
+            p.beginFill(color);
+            // Dynamic particle size
+            p.drawCircle(0, 0, Math.random() * 3 + 1);
+            p.endFill();
+            
+            p.x = x;
+            p.y = y;
+            
+            // Random direction velocity
+            let angle = Math.random() * Math.PI * 2;
+            let speed = Math.random() * 6 + 3;
+            p.vx = Math.cos(angle) * speed;
+            p.vy = Math.sin(angle) * speed;
+            
+            p.alpha = 1.0;
+            p.decay = Math.random() * 0.02 + 0.015;
+            p.scale.set(Math.random() * 0.6 + 0.6);
+            
+            this.container.addChild(p);
+            this.particles.push(p);
+        }
+    }
+    
+    update() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            let p = this.particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.15; // Gravity
+            p.alpha -= p.decay;
+            p.scale.x -= 0.01;
+            p.scale.y -= 0.01;
+            
+            if (p.alpha <= 0 || p.scale.x <= 0) {
+                this.container.removeChild(p);
+                this.particles.splice(i, 1);
+            }
+        }
+    }
+
+    clear() {
+        this.particles.forEach(p => this.container.removeChild(p));
+        this.particles = [];
+    }
+}
+
+// --- PRIMARY HYBRID STATE ORCHESTRATOR ---
+class HybridCardWarEngine {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        
+        // Layout Configs
+        this.cardWidth = 85;
+        this.cardHeight = 125;
+        this.cardLayoutSpacing = 110;
+        this.suitColors = {
+            '♥': 0xd32f2f, // Deep Red
+            '♦': 0xd32f2f,
+            '♣': 0x2b2b2b, // Charcoal Black
+            '♠': 0x2b2b2b
+        };
+        
+        // Single Source Of Truth data arrays
+        this.humanDeck = [];
+        this.aiDeck = [];
+        this.prizePool = [];
+
+        this.humanActiveHand = [];
+        this.aiActiveHand = [];
+
+        this.inputLockoutActive = false;
+        
+        // Initialize Modules
+        this.sound = new WebAudioSynth();
+        this.tweens = new PixiTweenController();
+        
+        this.initPixiCanvasStage();
+        this.particles = new ParticleSystem(this.particleLayer);
+        
+        this.generateStandardDeckGraph();
+        this.syncHUDViewDisplay();
+        
+        // Start engine tick loop
+        this.bootMasterTickerPipeline();
+
+        // Responsive resizing
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    // --- PRESENTATION LAYER: PIXIJS CANVAS INIT ---
+    initPixiCanvasStage() {
+        this.pixiApp = new PIXI.Application({
+            width: this.width, 
+            height: this.height,
+            backgroundColor: 0x140e05, 
+            antialias: true,
+            resolution: Math.min(window.devicePixelRatio, 2),
+            autoDensity: true
+        });
+        document.getElementById('pixi-view-canvas').appendChild(this.pixiApp.view);
+
+        // Layers Setup
+        this.bgLayer = new PIXI.Container();
+        this.particleLayer = new PIXI.Container();
+        this.cardLayer = new PIXI.Container();
+        
+        this.pixiApp.stage.addChild(this.bgLayer);
+        this.pixiApp.stage.addChild(this.particleLayer);
+        this.pixiApp.stage.addChild(this.cardLayer);
+
+        this.visualCardSpriteRegistry = new Map(); // Map card.id -> Pixi Card Container
+        
+        this.renderTabletopMarkings();
+    }
+
+    renderTabletopMarkings() {
+        this.bgLayer.removeChildren();
+
+        // Felt-like center background graphics
+        let feltBG = new PIXI.Graphics();
+        feltBG.beginFill(0x18120a);
+        feltBG.drawRect(0, 0, this.width, this.height);
+        feltBG.endFill();
+        this.bgLayer.addChild(feltBG);
+
+        // Gold bordered battle arena grid lines
+        let centerBox = new PIXI.Graphics();
+        centerBox.lineStyle(2, 0xd4af37, 0.15);
+        centerBox.beginFill(0x1c140a, 0.5);
+        centerBox.drawRoundedRect((this.width / 2) - 170, (this.height / 2) - 100, 340, 200, 16);
+        centerBox.endFill();
+        this.bgLayer.addChild(centerBox);
+
+        // Arena text labels
+        let labelStyle = new PIXI.TextStyle({
+            fontFamily: 'Share Tech Mono',
+            fontSize: 10,
+            fill: 0xd4af37,
+            alpha: 0.35,
+            letterSpacing: 4
+        });
+
+        let labelAI = new PIXI.Text("ADVERSARY SLOT", labelStyle);
+        labelAI.anchor.set(0.5);
+        labelAI.x = this.width / 2 + 70;
+        labelAI.y = this.height / 2 - 80;
+        labelAI.alpha = 0.4;
+        this.bgLayer.addChild(labelAI);
+
+        let labelPlayer = new PIXI.Text("PLAYER SLOT", labelStyle);
+        labelPlayer.anchor.set(0.5);
+        labelPlayer.x = this.width / 2 - 70;
+        labelPlayer.y = this.height / 2 + 80;
+        labelPlayer.alpha = 0.4;
+        this.bgLayer.addChild(labelPlayer);
+
+        // Render stationary reserve deck slots
+        this.renderReserveDeckSlots();
+    }
+
+    renderReserveDeckSlots() {
+        let slotStyle = new PIXI.Graphics();
+        slotStyle.lineStyle(1.5, 0xd4af37, 0.15);
+        slotStyle.beginFill(0x0a0603, 0.3);
+        
+        // Player reserve slot
+        slotStyle.drawRoundedRect(80 - this.cardWidth/2, (this.height - 110) - this.cardHeight/2, this.cardWidth, this.cardHeight, 8);
+        // AI reserve slot
+        slotStyle.drawRoundedRect(80 - this.cardWidth/2, 110 - this.cardHeight/2, this.cardWidth, this.cardHeight, 8);
+        
+        slotStyle.endFill();
+        this.bgLayer.addChild(slotStyle);
+
+        // Static label slots
+        let labelStyle = new PIXI.TextStyle({
+            fontFamily: 'Share Tech Mono',
+            fontSize: 9,
+            fill: 0xd4af37,
+            alpha: 0.3
+        });
+
+        let lblP = new PIXI.Text("RESERVE", labelStyle);
+        lblP.anchor.set(0.5);
+        lblP.x = 80;
+        lblP.y = this.height - 110;
+        lblP.alpha = 0.3;
+        
+        let lblA = new PIXI.Text("RESERVE", labelStyle);
+        lblA.anchor.set(0.5);
+        lblA.x = 80;
+        lblA.y = 110;
+        lblA.alpha = 0.3;
+        
+        this.bgLayer.addChild(lblP, lblA);
+    }
+
+    // --- GAME ENGINE LOGIC & DECK GRAPH BUILDER ---
+    generateStandardDeckGraph() {
+        let linearMasterDeck = [];
+        const suits = ['♥', '♦', '♣', '♠'];
+        
+        for (let s of suits) {
+            for (let val = 2; val <= 14; val++) {
+                linearMasterDeck.push({
+                    val: val,
+                    suit: s,
+                    id: `card_${s}_${val}_${Math.random().toString(36).substr(2, 4)}` // Unique run-time identifier
+                });
+            }
+        }
+
+        // Fisher-Yates Shuffling matrix
+        for (let i = linearMasterDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [linearMasterDeck[i], linearMasterDeck[j]] = [linearMasterDeck[j], linearMasterDeck[i]];
+        }
+
+        // Divide structural deck clean into two halves
+        this.humanDeck = linearMasterDeck.slice(0, 26);
+        this.aiDeck = linearMasterDeck.slice(26, 52);
+
+        this.replenishActiveHands();
+    }
+
+    replenishActiveHands() {
+        // Draw up to 3 cards to populate tactical hands
+        while (this.humanActiveHand.length < 3 && this.humanDeck.length > 0) {
+            this.humanActiveHand.push(this.humanDeck.pop());
+            this.sound.playDraw();
+        }
+        while (this.aiActiveHand.length < 3 && this.aiDeck.length > 0) {
+            this.aiActiveHand.push(this.aiDeck.pop());
+        }
+
+        this.repaintCardSpritesLayout();
+    }
+
+    // --- BLIT REPAINT AND CARD PRIMITIVE BUILDER ---
+    repaintCardSpritesLayout() {
+        // Clear layout cards (exclude animated center ones during combat)
+        this.visualCardSpriteRegistry.forEach((sprite, id) => {
+            if (sprite.parent === this.cardLayer && !sprite.isLockedInCombat) {
+                this.cardLayer.removeChild(sprite);
+                this.visualCardSpriteRegistry.delete(id);
+            }
+        });
+
+        const baseCenterScreenX = this.width / 2;
+
+        // 1. Draw Player interactive selection hand
+        this.humanActiveHand.forEach((card, idx) => {
+            let sprite = this.createCardVisualPrimitive(card.val, card.suit, true);
+            sprite.x = baseCenterScreenX + (idx - 1) * this.cardLayoutSpacing;
+            sprite.y = this.height - 110;
+            sprite.cardData = card;
+
+            // Make interactive
+            sprite.eventMode = 'static';
+            sprite.cursor = 'pointer';
+            
+            // Hover scale effect
+            sprite.on('pointerover', () => {
+                if (this.inputLockoutActive) return;
+                this.tweens.add(sprite, { y: this.height - 130 }, 150, (t) => t * (2 - t));
+                this.tweens.add(sprite.scale, { x: 1.08, y: 1.08 }, 150, (t) => t * (2 - t));
+            });
+            sprite.on('pointerout', () => {
+                if (this.inputLockoutActive) return;
+                this.tweens.add(sprite, { y: this.height - 110 }, 150, (t) => t * (2 - t));
+                this.tweens.add(sprite.scale, { x: 1.0, y: 1.0 }, 150, (t) => t * (2 - t));
+            });
+
+            // Action commit callback
+            sprite.on('pointerdown', () => this.handleHumanCardCommitTransaction(idx));
+
+            this.cardLayer.addChild(sprite);
+            this.visualCardSpriteRegistry.set(card.id, sprite);
+        });
+
+        // 2. Draw Adversary AI hand (rendered face down)
+        this.aiActiveHand.forEach((card, idx) => {
+            let sprite = this.createCardVisualPrimitive(card.val, card.suit, false);
+            sprite.x = baseCenterScreenX + (idx - 1) * this.cardLayoutSpacing;
+            sprite.y = 110;
+            sprite.cardData = card;
+
+            this.cardLayer.addChild(sprite);
+            this.visualCardSpriteRegistry.set(card.id, sprite);
+        });
+
+        // 3. Render Pile Count Visual Indicators if cards remain
+        this.repaintReserveDecksGraphic();
+    }
+
+    repaintReserveDecksGraphic() {
+        // Player deck stack indicator
+        if (this.humanDeck.length > 0) {
+            let stackGraphic = this.createCardVisualPrimitive(0, '', false);
+            stackGraphic.x = 80;
+            stackGraphic.y = this.height - 110;
+            // Draw multiple offsets to represent stack height
+            stackGraphic.children[0].alpha = 0.7;
+            this.cardLayer.addChild(stackGraphic);
+        }
+
+        // AI deck stack indicator
+        if (this.aiDeck.length > 0) {
+            let stackGraphic = this.createCardVisualPrimitive(0, '', false);
+            stackGraphic.x = 80;
+            stackGraphic.y = 110;
+            stackGraphic.children[0].alpha = 0.7;
+            this.cardLayer.addChild(stackGraphic);
+        }
+    }
+
+    createCardVisualPrimitive(value, suit, isFaceUp) {
+        let cardContainer = new PIXI.Container();
+
+        // 1. Draw subtle card shadow drop
+        let shadow = new PIXI.Graphics();
+        shadow.beginFill(0x000000, 0.4);
+        shadow.drawRoundedRect(-this.cardWidth/2 + 3, -this.cardHeight/2 + 3, this.cardWidth, this.cardHeight, 8);
+        shadow.endFill();
+        cardContainer.addChild(shadow);
+
+        // 2. Card base graphics
+        let bg = new PIXI.Graphics();
+        
+        if (isFaceUp) {
+            // Antique cream background
+            bg.beginFill(0xfcfaf2);
+            bg.drawRoundedRect(-this.cardWidth/2, -this.cardHeight/2, this.cardWidth, this.cardHeight, 8);
+            
+            // Gold border
+            bg.lineStyle(1.5, 0xd4af37, 0.85);
+            bg.drawRoundedRect(-this.cardWidth/2 + 3, -this.cardHeight/2 + 3, this.cardWidth - 6, this.cardHeight - 6, 6);
+            
+            // Thin inner border
+            bg.lineStyle(0.5, 0xd4af37, 0.4);
+            bg.drawRoundedRect(-this.cardWidth/2 + 6, -this.cardHeight/2 + 6, this.cardWidth - 12, this.cardHeight - 12, 4);
+            
+            bg.endFill();
+            cardContainer.addChild(bg);
+
+            // Display values mapping
+            let dispValue = value;
+            if (value === 11) dispValue = 'J';
+            if (value === 12) dispValue = 'Q';
+            if (value === 13) dispValue = 'K';
+            if (value === 14) dispValue = 'A';
+
+            let suitCol = this.suitColors[suit] || 0x222222;
+
+            // Value indicators (Top Left / Bottom Right)
+            let indexStyle = new PIXI.TextStyle({
+                fontFamily: 'Share Tech Mono', fontSize: 13, fontWeight: 'bold', fill: suitCol
+            });
+
+            let tlVal = new PIXI.Text(`${dispValue}\n${suit}`, indexStyle);
+            tlVal.x = -this.cardWidth/2 + 8;
+            tlVal.y = -this.cardHeight/2 + 8;
+            cardContainer.addChild(tlVal);
+
+            let brVal = new PIXI.Text(`${dispValue}\n${suit}`, indexStyle);
+            brVal.anchor.set(1.0);
+            brVal.x = this.cardWidth/2 - 8;
+            brVal.y = this.cardHeight/2 - 8;
+            brVal.rotation = Math.PI; // Inverted
+            cardContainer.addChild(brVal);
+
+            // Large center graphic suit
+            let centerStyle = new PIXI.TextStyle({
+                fontFamily: 'Courier New', fontSize: 34, fill: suitCol
+            });
+            let centerText = new PIXI.Text(suit, centerStyle);
+            centerText.anchor.set(0.5);
+            centerText.x = 0;
+            centerText.y = 5;
+            cardContainer.addChild(centerText);
+
+        } else {
+            // Elegant crimson card back
+            bg.beginFill(0x8a1c1c);
+            bg.drawRoundedRect(-this.cardWidth/2, -this.cardHeight/2, this.cardWidth, this.cardHeight, 8);
+            
+            // Gold border
+            bg.lineStyle(1.5, 0xd4af37, 0.7);
+            bg.drawRoundedRect(-this.cardWidth/2 + 3, -this.cardHeight/2 + 3, this.cardWidth - 6, this.cardHeight - 6, 6);
+            
+            // Gold geometric cross hatch center pattern
+            bg.lineStyle(0.8, 0xd4af37, 0.25);
+            bg.moveTo(-this.cardWidth/2 + 10, -this.cardHeight/2 + 15);
+            bg.lineTo(this.cardWidth/2 - 10, this.cardHeight/2 - 15);
+            bg.moveTo(this.cardWidth/2 - 10, -this.cardHeight/2 + 15);
+            bg.lineTo(-this.cardWidth/2 + 10, this.cardHeight/2 - 15);
+
+            // Mid circle emblem
+            bg.drawCircle(0, 0, 16);
+            bg.endFill();
+            cardContainer.addChild(bg);
+
+            // Runic cross inside emblem
+            let emblemInner = new PIXI.Graphics();
+            emblemInner.lineStyle(1.2, 0xd4af37, 0.55);
+            emblemInner.drawCircle(0, 0, 8);
+            cardContainer.addChild(emblemInner);
+        }
+
+        return cardContainer;
+    }
+
+    // --- TRANSACTION MODULE: DECISION LAYER INTERCEPTORS ---
+    handleHumanCardCommitTransaction(handIndex) {
+        if (this.inputLockoutActive) return;
+        this.inputLockoutActive = true;
+        this.sound.init(); // Initialize audio context on first interactive click
+
+        // Commit Human Card State
+        let humanCard = this.humanActiveHand.splice(handIndex, 1)[0];
+
+        // --- ADVERSARIAL AI DEPLOYMENT MATRIX ---
+        let aiCard = this.executeAdversarialAIMove(humanCard.val);
+
+        // Animate combat slides
+        this.animateCombatDeployment(humanCard, aiCard);
+    }
+
+    executeAdversarialAIMove(humanVal) {
+        // Greedy Evaluation matrix
+        let scoredHand = this.aiActiveHand.map((card, idx) => ({ ...card, idx: idx }));
+        // Sort lowest values first
+        scoredHand.sort((a, b) => a.val - b.val);
+
+        // Find the lowest card that beats player's card
+        let optimalNode = scoredHand.find(node => node.val > humanVal);
+        
+        let chosenIndex = 0;
+        if (optimalNode) {
+            // Winning greedy path
+            chosenIndex = optimalNode.idx;
+        } else {
+            // Strategic sacrifice path: play the lowest value asset to save the strong cards
+            chosenIndex = scoredHand[0].idx;
+        }
+
+        return this.aiActiveHand.splice(chosenIndex, 1)[0];
+    }
+
+    // --- DECOUPLED ASYNCHRONOUS VISUAL PRESENTATION ---
+    animateCombatDeployment(humanCard, aiCard) {
+        // Redraw remaining hand cards
+        this.repaintCardSpritesLayout();
+
+        // 1. Setup human active card sprite
+        let humanSprite = this.createCardVisualPrimitive(humanCard.val, humanCard.suit, true);
+        humanSprite.x = this.width / 2 - 110;
+        humanSprite.y = this.height - 110;
+        humanSprite.isLockedInCombat = true;
+        this.cardLayer.addChild(humanSprite);
+
+        // 2. Setup AI active card sprite (starts face down)
+        let aiSprite = this.createCardVisualPrimitive(aiCard.val, aiCard.suit, false);
+        aiSprite.x = this.width / 2 + 110;
+        aiSprite.y = 110;
+        aiSprite.isLockedInCombat = true;
+        this.cardLayer.addChild(aiSprite);
+
+        // Slide sound
+        this.sound.playDraw();
+
+        // Animate both cards sliding to active combat arena slots
+        let targetX_H = this.width / 2 - 65;
+        let targetY_H = this.height / 2;
+
+        let targetX_A = this.width / 2 + 65;
+        let targetY_A = this.height / 2;
+
+        // Tween Human Card
+        this.tweens.add(humanSprite, { x: targetX_H, y: targetY_H }, 500, (t) => t * (2 - t));
+        
+        // Tween AI Card with FLIP mid-way
+        this.tweens.add(aiSprite, { x: targetX_A, y: targetY_A }, 500, (t) => t * (2 - t), () => {
+            // Flip AI Card when it reaches center
+            this.sound.playFlip();
+            this.tweens.add(aiSprite.scale, { x: 0 }, 150, (t) => t * t, () => {
+                // Change card primitive to Face Up
+                let tempX = aiSprite.x;
+                let tempY = aiSprite.y;
+                this.cardLayer.removeChild(aiSprite);
+
+                aiSprite = this.createCardVisualPrimitive(aiCard.val, aiCard.suit, true);
+                aiSprite.x = tempX;
+                aiSprite.y = tempY;
+                aiSprite.isLockedInCombat = true;
+                aiSprite.scale.x = 0;
+                this.cardLayer.addChild(aiSprite);
+
+                this.tweens.add(aiSprite.scale, { x: 1.0 }, 150, (t) => t * (2 - t), () => {
+                    // Slide completed, cards locked. Pause briefly, then clash!
+                    setTimeout(() => {
+                        this.executeClashInteraction(humanCard, aiCard, humanSprite, aiSprite);
+                    }, 400);
+                });
+            });
+        });
+    }
+
+    executeClashInteraction(humanCard, aiCard, humanSprite, aiSprite) {
+        // Clash Impact sound and particles
+        let isHumanWin = humanCard.val > aiCard.val;
+        let isTie = humanCard.val === aiCard.val;
+
+        this.sound.playClash(isHumanWin && !isTie);
+        
+        // Particle sparks at center clash point
+        let midX = (humanSprite.x + aiSprite.x) / 2;
+        let midY = (humanSprite.y + aiSprite.y) / 2;
+        this.particles.emit(midX, midY, isTie ? 0xcc3333 : 0xd4af37, 30);
+
+        // Subtle camera shake on impact
+        this.shakeScreenStage(6, 250);
+
+        // Lock prize elements to buffer
+        this.prizePool.push(humanCard, aiCard);
+
+        setTimeout(() => {
+            // Sweep cards to target destinations (winner's reserves or center prize stack)
+            let destX = 80;
+            let destY = this.height - 110; // Defaults to player deck
+
+            if (isTie) {
+                // Draw WAR penalty cards immediately if reserves exist
+                this.sound.playWar();
+                
+                // Sweep current cards to the top prize pool offset
+                destX = this.width / 2;
+                destY = this.height / 2 - 140;
+            } else if (aiCard.val > humanCard.val) {
+                destY = 110; // AI deck
+            }
+
+            // Sweep animation
+            this.tweens.add(humanSprite, { x: destX, y: destY, alpha: 0.1 }, 600, (t) => t * t);
+            this.tweens.add(aiSprite, { x: destX, y: destY, alpha: 0.1 }, 600, (t) => t * t, () => {
+                // Clean visual clones from layout stage
+                this.cardLayer.removeChild(humanSprite, aiSprite);
+
+                // Run rule evaluation state changes
+                this.evaluateCombatRoundOutcome(humanCard.val, aiCard.val);
+            });
+        }, 1200);
+    }
+
+    evaluateCombatRoundOutcome(humanVal, aiVal) {
+        if (humanVal > aiVal) {
+            // Player wins collection pool
+            this.humanDeck.unshift(...this.prizePool);
+            this.prizePool = [];
+        } else if (aiVal > humanVal) {
+            // AI wins collection pool
+            this.aiDeck.unshift(...this.prizePool);
+            this.prizePool = [];
+        } else {
+            // WAR cascade: banner warnings and penalty cards
+            let banner = document.getElementById('war-banner');
+            banner.classList.remove('hidden');
+
+            // Draw sacrifice penalty cards from reserves if both can supply
+            if (this.humanDeck.length > 1 && this.aiDeck.length > 1) {
+                let hPenalty = this.humanDeck.pop();
+                let aPenalty = this.aiDeck.pop();
+                
+                this.prizePool.push(hPenalty, aPenalty);
+
+                // Animate drawing penalty cards face-down to the prize stack
+                this.animatePenaltyDeals(hPenalty, aPenalty);
+            }
+
+            setTimeout(() => { banner.classList.add('hidden'); }, 1400);
+        }
+
+        this.evaluateMatchLifecycle();
+        this.replenishActiveHands();
+        this.syncHUDViewDisplay();
+
+        // Release Lockout
+        this.inputLockoutActive = false;
+    }
+
+    animatePenaltyDeals(hPenalty, aPenalty) {
+        // Draw physical face-down representations sliding to prize stack coordinate
+        let targetX = this.width / 2;
+        let targetY = this.height / 2 - 140;
+
+        let psP = this.createCardVisualPrimitive(0, '', false);
+        psP.x = 80;
+        psP.y = this.height - 110;
+        this.cardLayer.addChild(psP);
+
+        let psA = this.createCardVisualPrimitive(0, '', false);
+        psA.x = 80;
+        psA.y = 110;
+        this.cardLayer.addChild(psA);
+
+        this.tweens.add(psP, { x: targetX, y: targetY, rotation: 0.1 }, 600, (t) => t * (2 - t), () => {
+            this.cardLayer.removeChild(psP);
+        });
+        this.tweens.add(psA, { x: targetX, y: targetY, rotation: -0.1 }, 600, (t) => t * (2 - t), () => {
+            this.cardLayer.removeChild(psA);
+        });
+    }
+
+    evaluateMatchLifecycle() {
+        // Enforce deck-depleted victory checks
+        let pTotal = this.humanDeck.length + this.humanActiveHand.length;
+        let aTotal = this.aiDeck.length + this.aiActiveHand.length;
+
+        if (pTotal === 0) {
+            this.terminateArenaSession(false);
+        } else if (aTotal === 0) {
+            this.terminateArenaSession(true);
+        }
+    }
+
+    terminateArenaSession(isPlayerVictor) {
+        this.inputLockoutActive = true;
+        document.getElementById('btn-deploy').disabled = true;
+        
+        let header = document.getElementById('txt-pool');
+        header.innerText = "MATCH COMPLETED";
+        
+        this.sound.playGameOver(isPlayerVictor);
+
+        setTimeout(() => {
+            alert(isPlayerVictor 
+                ? "🏆 VICTORY ACHIEVED! The Adversary's deck has been fully depleted."
+                : "🤖 FAILURE DECLARED! The AI adversary has captured all card reserves."
+            );
+        }, 300);
+    }
+
+    executeAutoTurn() {
+        if (this.inputLockoutActive) return;
+        
+        // Auto-play the first card from the player's active choice hand
+        if (this.humanActiveHand.length > 0) {
+            this.handleHumanCardCommitTransaction(0);
+        }
+    }
+
+    // --- GAME SHAKE / SCREEN SHAKE FX ---
+    shakeScreenStage(magnitude, durationMs) {
+        const startX = this.pixiApp.stage.x;
+        const startY = this.pixiApp.stage.y;
+        const startTime = Date.now();
+
+        const shake = () => {
+            let elapsed = Date.now() - startTime;
+            if (elapsed < durationMs) {
+                // Random offset
+                this.pixiApp.stage.x = startX + (Math.random() * 2 - 1) * magnitude;
+                this.pixiApp.stage.y = startY + (Math.random() * 2 - 1) * magnitude;
+                requestAnimationFrame(shake);
+            } else {
+                // Reset coordinates
+                this.pixiApp.stage.x = startX;
+                this.pixiApp.stage.y = startY;
+            }
+        };
+        requestAnimationFrame(shake);
+    }
+
+    // --- INTERACTIVE SYSTEM CONTROLS ---
+    restartGame() {
+        this.tweens.clear();
+        this.particles.clear();
+        this.cardLayer.removeChildren();
+        this.visualCardSpriteRegistry.clear();
+
+        this.humanDeck = [];
+        this.aiDeck = [];
+        this.prizePool = [];
+        this.humanActiveHand = [];
+        this.aiActiveHand = [];
+        
+        this.inputLockoutActive = false;
+        document.getElementById('btn-deploy').disabled = false;
+
+        this.generateStandardDeckGraph();
+        this.syncHUDViewDisplay();
+        
+        this.sound.playDraw();
+    }
+
+    handleResize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.pixiApp.renderer.resize(this.width, this.height);
+        this.renderTabletopMarkings();
+        this.repaintCardSpritesLayout();
+    }
+
+    // --- MAIN TICKER ENGINE TICK PIPELINE ---
+    bootMasterTickerPipeline() {
+        const tick = () => {
+            // Update custom tween engine
+            this.tweens.update();
+            
+            // Update particles vectors
+            this.particles.update();
+
+            // Continuous micro hover animation on Player Hand Cards (bobbing UX)
+            this.visualCardSpriteRegistry.forEach((sprite, id) => {
+                let card = sprite.cardData;
+                // If it is in Player Hand and not actively in a battle, apply micro-float
+                if (card && this.humanActiveHand.includes(card) && !sprite.isLockedInCombat) {
+                    let originY = this.height - 110;
+                    let targetHoverY = sprite.y;
+                    
+                    // Only apply bobbing if it is sitting near baseline (not hovering/clicked)
+                    if (Math.abs(targetHoverY - originY) < 10) {
+                        let offsetIdx = this.humanActiveHand.indexOf(card);
+                        sprite.y = originY + Math.sin(Date.now() * 0.004 + offsetIdx * 1.5) * 2.5;
+                    }
+                }
+            });
+
+            requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    }
+
+    syncHUDViewDisplay() {
+        document.getElementById('txt-human-deck').innerText = `${this.humanDeck.length + this.humanActiveHand.length} cards`;
+        document.getElementById('txt-ai-deck').innerText = `${this.aiDeck.length + this.aiActiveHand.length} cards`;
+        document.getElementById('txt-pool').innerText = `${this.prizePool.length} cards`;
+    }
+}
+
+// Global System Instance
+let orchestrator;
+window.onload = () => {
+    orchestrator = new HybridCardWarEngine();
+};
+</script>
+</body>
+</html>
