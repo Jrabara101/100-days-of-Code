@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>3D Cozy Voxel Sandbox Base Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <link href="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" rel="stylesheet"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #080b11; font-family: monospace; }
+        canvas { display: block; image-rendering: pixelated; }
+        #three-voxel-stage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: auto; }
+        #rpg-desktop-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        .rpgui-container { background: rgba(15, 23, 42, 0.95) !important; border-image: url(https://unpkg.com/rpgui@1.0.3/dist/img/border-image-golden.png) 14 repeat !important; }
+        .active-mode { border: 2px solid #f59e0b !important; box-shadow: 0 0 15px rgba(245, 158, 11, 0.6); }
+        .rpgui-button { margin: 1px 0 !important; }
+        
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 25;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            font-family: Arial, sans-serif;
+            pointer-events: none;
+            display: none;
+        }
+
+        .rpgui-container::-webkit-scrollbar { width: 8px; }
+        .rpgui-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); border-left: 1px solid #4a4a4a; }
+        .rpgui-container::-webkit-scrollbar-thumb { background: #8c8c8c; border: 1px solid #1a1a1a; }
+    </style>
+</head>
+<body class="rpgui-content">
+<!-- Full Screen WebGL Canvas behind the HTML overlay -->
+<div id="three-voxel-stage"></div>
+<div id="crosshair">+</div>
+
+<!-- Tailwind Glassmorphic Lobby Overlay -->
+<div id="lobby-overlay" class="absolute inset-0 z-40 flex items-center justify-center pointer-events-auto bg-slate-950/30 backdrop-blur-[3px] transition-all duration-700">
+    <div class="max-w-md w-full bg-slate-950/75 border border-slate-700/50 backdrop-blur-xl p-8 rounded-2xl shadow-2xl text-center font-mono animate__animated animate__fadeInUp">
+        <h1 class="text-amber-500 text-3xl font-black tracking-wider uppercase mb-2 drop-shadow-md">Minecraft Web World</h1>
+        <p class="text-xs text-slate-300 tracking-wide mb-6">A cozy 3D procedural sandbox powered by Instanced WebGL and chiptune melodies.</p>
+        
+        <div class="space-y-3">
+            <button class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-6 rounded-xl border-b-4 border-amber-800 transition duration-150 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg text-sm uppercase" onclick="engine.startSandboxPlay()">
+                Start Voxel Sandbox
+            </button>
+            
+            <button class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 px-6 rounded-xl border border-slate-700 transition duration-150 text-xs uppercase" onclick="engine.toggleAudio()">
+                🎵 Start Music
+            </button>
+        </div>
+        
+        <div class="mt-6 text-[10px] text-slate-500 border-t border-slate-800/50 pt-4">
+            MOVE MOUSE FOR PARALLAX VIEW EFFECT
+        </div>
+    </div>
+</div>
+
+<!-- Voxel Play HUD (Hidden during Lobby Mode) -->
+<div id="rpg-desktop-hud" class="opacity-0 transition-all duration-700">
+    <!-- Left Panel: Inventory & Control Panel -->
+    <div class="rpgui-container absolute left-6 top-6 w-[360px] max-h-[92vh] overflow-y-auto p-5 pointer-events-auto shadow-2xl">
+        <header class="border-b border-amber-500/40 pb-2 mb-3">
+            <h2 class="text-amber-500 font-bold text-sm tracking-widest font-mono uppercase">Voxel_3D.OS</h2>
+            <p class="text-[9px] text-slate-400 font-mono mt-0.5">3D INSTANCED ENGINE V3.1</p>
+        </header>
+
+        <!-- Ambient Info Widget -->
+        <div class="mb-3 bg-slate-900/60 p-2.5 rounded border border-cyan-500/30 text-[10px] space-y-1.5 text-slate-300 font-mono">
+            <div class="flex justify-between items-center">
+                <span>🍃 Wind:</span>
+                <span class="text-emerald-400 font-bold" id="env-wind">2.4 m/s (Breeze)</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span>🕒 In-game Time:</span>
+                <span class="text-yellow-400 font-bold" id="env-time">08:00 AM</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span>🌡️ Weather:</span>
+                <span class="text-cyan-300 font-bold" id="env-weather">Sunny</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-slate-700/50 pt-1.5">
+                <span>🎮 Cam Mode:</span>
+                <span class="text-pink-400 font-bold" id="env-camera">Orbit (God) Mode</span>
+            </div>
+        </div>
+
+        <!-- Controls Selector -->
+        <div class="mb-3 flex items-center justify-between gap-1 text-[10px]">
+            <span class="text-slate-400">Controls:</span>
+            <button class="bg-amber-600 text-white px-3 py-1 rounded text-[9px] font-bold border border-amber-500 shadow-md hover:bg-amber-500" onclick="engine.toggleCameraMode()">
+                Toggle Camera View
+            </button>
+        </div>
+
+        <!-- Clock Settings -->
+        <div class="mb-3 flex items-center justify-between gap-1 text-[10px]">
+            <span class="text-slate-400">Time Speed:</span>
+            <div class="flex gap-1" id="speed-controls">
+                <button class="bg-slate-800 hover:bg-slate-700 text-white px-2 py-0.5 rounded text-[9px] font-bold border border-slate-600" onclick="engine.setTimeSpeed(0)">Pause</button>
+                <button class="bg-amber-600 text-white px-2 py-0.5 rounded text-[9px] font-bold border border-amber-500 active-mode" id="speed-1x-btn" onclick="engine.setTimeSpeed(1)">1x</button>
+                <button class="bg-slate-800 hover:bg-slate-700 text-white px-2 py-0.5 rounded text-[9px] font-bold border border-slate-600" id="speed-5x-btn" onclick="engine.setTimeSpeed(5)">5x</button>
+            </div>
+        </div>
+
+        <!-- Resource Counts -->
+        <div class="space-y-1 font-mono text-[10px] text-slate-300">
+            <p class="text-[9px] text-amber-500/70 font-bold uppercase tracking-wider mb-1">Resources:</p>
+            <div class="grid grid-cols-3 gap-1">
+                <div class="flex justify-between items-center bg-slate-900/50 p-1 px-1.5 rounded">
+                    <span>🧱 Stn:</span><span class="text-slate-400 font-bold" id="txt-stone">20</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900/50 p-1 px-1.5 rounded">
+                    <span>🪵 Wd:</span><span class="text-amber-600 font-bold" id="txt-wood">15</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900/50 p-1 px-1.5 rounded">
+                    <span>🪚 Plk:</span><span class="text-yellow-600 font-bold" id="txt-planks">8</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900/50 p-1 px-1.5 rounded">
+                    <span>🔥 Fur:</span><span class="text-slate-400 font-bold" id="txt-furnace">0</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900/50 p-1 px-1.5 rounded">
+                    <span>💎 Dia:</span><span class="text-cyan-400 font-bold" id="txt-diamond">0</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900/50 p-1 px-1.5 rounded">
+                    <span>⛏️ Pick:</span><span class="text-slate-200 font-bold" id="txt-pickaxe">1</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900/50 p-1 px-1.5 rounded">
+                    <span>🌱 Sap:</span><span class="text-emerald-400 font-bold" id="txt-sapling">2</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900/50 p-1 px-1.5 rounded">
+                    <span>🌸 Seed:</span><span class="text-pink-400 font-bold" id="txt-seed">3</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900/50 p-1 px-1.5 rounded">
+                    <span>💧 Wtr:</span><span class="text-blue-400 font-bold" id="txt-water">1</span>
+                </div>
+            </div>
+        </div>
+        
+        <hr class="rpgui-hr my-2"/>
+
+        <!-- Audio & Weather Control Panel -->
+        <div class="grid grid-cols-2 gap-2 mb-2">
+            <button class="rpgui-button hvr-shrink w-full text-center" style="padding:4px;" onclick="engine.toggleAudio()" type="button">
+                <span class="text-[9px] font-bold text-amber-500" id="audio-btn-txt-hud">🎵 Start Music</span>
+            </button>
+            <button class="rpgui-button hvr-shrink w-full text-center" style="padding:4px;" onclick="engine.cycleWeather()" type="button">
+                <span class="text-[9px] font-bold text-cyan-400">☀️ Cycle Weather</span>
+            </button>
+        </div>
+
+        <!-- Crafting Bench -->
+        <div class="space-y-1 mb-2">
+            <p class="text-[9px] text-amber-500/80 font-bold tracking-wider uppercase">Crafting Bench:</p>
+            <div class="grid grid-cols-2 gap-1" id="crafting-palette">
+                <button class="rpgui-button hvr-shrink w-full text-center" onclick="engine.craftItem('PLANKS')" style="padding:4px;" type="button">
+                    <p class="text-[9px] font-bold text-yellow-600">🪚 Planks (x4) <span class="text-[8px] text-slate-400 block">-1 Wood</span></p>
+                </button>
+                <button class="rpgui-button hvr-shrink w-full text-center" onclick="engine.craftItem('PICKAXE')" style="padding:4px;" type="button">
+                    <p class="text-[9px] font-bold text-slate-300">⛏️ Pickaxe <span class="text-[8px] text-slate-400 block">-2 Stone, -1 Wood</span></p>
+                </button>
+                <button class="rpgui-button hvr-shrink w-full text-center" onclick="engine.craftItem('FURNACE')" style="padding:4px;" type="button">
+                    <p class="text-[9px] font-bold text-gray-400">🔥 Furnace <span class="text-[8px] text-slate-400 block">-4 Stone</span></p>
+                </button>
+                <button class="rpgui-button hvr-shrink w-full text-center" onclick="engine.craftItem('SAPLING')" style="padding:4px;" type="button">
+                    <p class="text-[9px] font-bold text-emerald-500">🌱 Sapling (x2) <span class="text-[8px] text-slate-400 block">-2 Planks</span></p>
+                </button>
+                <button class="rpgui-button hvr-shrink w-full text-center" onclick="engine.craftItem('SEED')" style="padding:4px;" type="button">
+                    <p class="text-[9px] font-bold text-pink-500">🌸 Seeds (x3) <span class="text-[8px] text-slate-400 block">-1 Stone</span></p>
+                </button>
+                <button class="rpgui-button hvr-shrink w-full text-center" onclick="engine.craftItem('WATER_BUCKET')" style="padding:4px;" type="button">
+                    <p class="text-[9px] font-bold text-blue-400">💧 Water Bucket <span class="text-[8px] text-slate-400 block">-3 Stone</span></p>
+                </button>
+            </div>
+        </div>
+
+        <hr class="rpgui-hr my-2"/>
+
+        <!-- Tool Palette -->
+        <div class="space-y-1">
+            <p class="text-[9px] text-amber-500/80 font-bold tracking-wider uppercase">Active Directive:</p>
+            <div class="flex flex-col gap-1" id="fabrication-palette">
+                <button class="rpgui-button hvr-grow w-full text-center active-mode" data-mode="MINE" type="button">
+                    <p class="text-xs font-bold text-slate-200">🪓 Excavate (Mine)</p>
+                </button>
+                <div class="grid grid-cols-2 gap-1">
+                    <button class="rpgui-button hvr-grow w-full text-center" data-mode="BUILD_STONE" style="padding:3px;" type="button">
+                        <p class="text-[9px] font-bold text-slate-300">🧱 Place Stone</p>
+                    </button>
+                    <button class="rpgui-button hvr-grow w-full text-center" data-mode="BUILD_WOOD" style="padding:3px;" type="button">
+                        <p class="text-[9px] font-bold text-amber-600">🪵 Place Wood</p>
+                    </button>
+                    <button class="rpgui-button hvr-grow w-full text-center" data-mode="BUILD_PLANK" style="padding:3px;" type="button">
+                        <p class="text-[9px] font-bold text-yellow-600">🪚 Place Plank</p>
+                    </button>
+                    <button class="rpgui-button hvr-grow w-full text-center" data-mode="BUILD_FURNACE" style="padding:3px;" type="button">
+                        <p class="text-[9px] font-bold text-gray-400">🔥 Place Furnace</p>
+                    </button>
+                    <button class="rpgui-button hvr-grow w-full text-center" data-mode="BUILD_WATER" style="padding:3px;" type="button">
+                        <p class="text-[9px] font-bold text-blue-400">💧 Place Water</p>
+                    </button>
+                    <button class="rpgui-button hvr-grow w-full text-center" data-mode="BUILD_SAPLING" style="padding:3px;" type="button">
+                        <p class="text-[9px] font-bold text-emerald-400">🌱 Plant Sapling</p>
+                    </button>
+                    <button class="rpgui-button hvr-grow w-full text-center" data-mode="BUILD_SEED" style="padding:3px;" type="button">
+                        <p class="text-[9px] font-bold text-pink-400">🌸 Plant Flower</p>
+                    </button>
+                    <button class="rpgui-button hvr-grow w-full text-center" data-mode="SPAWN_ANIMAL" style="padding:3px;" type="button">
+                        <p class="text-[9px] font-bold text-orange-400">🦊 Spawn Animal</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-slate-700/50 text-[8px] text-slate-500 font-mono text-center">
+            ORBIT VIEW: CLICK TO MINE/BUILD. DRAG TO ROTATE.<br>
+            FPS VIEW: CLICK SCREEN TO LOCK MOUSE, WASD + SPACE.
+        </div>
+    </div>
+
+    <!-- Bottom Center Feedback Banner -->
+    <footer class="absolute bottom-10 left-1/2 -translate-x-1/2 flex justify-center w-full max-w-sm">
+        <div class="hidden w-full text-center bg-teal-800 text-teal-100 font-mono text-[9px] font-bold px-6 py-2.5 rounded shadow-2xl border border-teal-500 animate__animated animate__pulse animate__infinite" id="craft-banner">
+            WORLD_STATE_UPDATE: GEOMETRY_MUTATED
+        </div>
+    </footer>
+</div>
+
+<script>
+// --- WEB AUDIO API AMBIENT CHIPTUNE SYNTHESIZER ---
+class CozySynth {
+    constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.isMuted = true;
+        this.bassSequenceTimer = null;
+        this.melodyTimer = null;
+        this.chordProgressions = [
+            [130.81, 196.00, 261.63], // C major (C3, G3, C4)
+            [174.61, 261.63, 349.23], // F major (F3, C4, F4)
+            [196.00, 293.66, 392.00], // G major (G3, D4, G4)
+            [110.00, 164.81, 220.00]  // A minor (A2, E3, A3)
+        ];
+        this.scale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25]; // C major pentatonic
+        this.currentProgressionIdx = 0;
+    }
+
+    init() {
+        if (this.ctx) return;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioContextClass();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(0.12, this.ctx.currentTime); // Cozy low volume
+        this.masterGain.connect(this.ctx.destination);
+    }
+
+    startMusicLoop() {
+        this.init();
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+        this.isMuted = false;
+        this.startBassProgression();
+        this.startMelodyArpeggiator();
+    }
+
+    stopMusicLoop() {
+        this.isMuted = true;
+        if (this.bassSequenceTimer) clearInterval(this.bassSequenceTimer);
+        if (this.melodyTimer) clearInterval(this.melodyTimer);
+    }
+
+    startBassProgression() {
+        const playChord = () => {
+            if (this.isMuted) return;
+            const chords = this.chordProgressions[this.currentProgressionIdx];
+            chords.forEach(freq => {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.08, this.ctx.currentTime + 1.5);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 7.5);
+                
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                
+                osc.start();
+                osc.stop(this.ctx.currentTime + 8);
+            });
+            this.currentProgressionIdx = (this.currentProgressionIdx + 1) % this.chordProgressions.length;
+        };
+
+        playChord();
+        this.bassSequenceTimer = setInterval(playChord, 8000);
+    }
+
+    startMelodyArpeggiator() {
+        const playMelodyNode = () => {
+            if (this.isMuted) return;
+            if (Math.random() > 0.4) {
+                const note = this.scale[Math.floor(Math.random() * this.scale.length)];
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(note, this.ctx.currentTime);
+                
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.05, this.ctx.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 2.0);
+                
+                const delay = this.ctx.createDelay();
+                delay.delayTime.setValueAtTime(0.35, this.ctx.currentTime);
+                const feedback = this.ctx.createGain();
+                feedback.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                
+                gain.connect(delay);
+                delay.connect(feedback);
+                feedback.connect(delay);
+                delay.connect(this.masterGain);
+                
+                osc.start();
+                osc.stop(this.ctx.currentTime + 2.5);
+            }
+            
+            const nextStep = [400, 800, 1200][Math.floor(Math.random() * 3)];
+            this.melodyTimer = setTimeout(playMelodyNode, nextStep);
+        };
+        
+        playMelodyNode();
+    }
+
+    playSFX(type) {
+        if (!this.ctx || this.isMuted) return;
+        
+        const now = this.ctx.currentTime;
+        if (type === 'MINE') {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(500, now);
+            osc.frequency.exponentialRampToValueAtTime(120, now + 0.12);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            osc.start();
+            osc.stop(now + 0.18);
+        } else if (type === 'PLACE') {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(140, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.18);
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            osc.start();
+            osc.stop(now + 0.22);
+        } else if (type === 'CRAFT') {
+            [523.25, 659.25, 783.99].forEach((freq, idx) => {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                gain.gain.setValueAtTime(0.08, now + idx * 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.2);
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                osc.start(now + idx * 0.08);
+                osc.stop(now + idx * 0.08 + 0.25);
+            });
+        }
+    }
+}
+
+
+// --- 3D VOXEL SANDBOX ENGINE USING INSTANCEDMESH ---
+class HybridVoxelSandboxEngine {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        
+        // Voxel Grid dimensions
+        this.gridSizeX = 24;
+        this.gridSizeY = 12;
+        this.gridSizeZ = 24;
+        
+        // Offset for centering the grid around (0,0,0)
+        this.shiftX = -Math.floor(this.gridSizeX / 2);
+        this.shiftZ = -Math.floor(this.gridSizeZ / 2);
+        
+        // Environment Details
+        this.windSpeed = 1.0;
+        this.windPhase = 0;
+        this.mobs = [];
+        this.stars = [];
+        this.clouds = [];
+        
+        this.timeSpeedFactor = 1.0;
+        this.gameHour = 8.0; 
+        this.gameDay = 1;
+        this.weatherState = 'SUNNY'; 
+        this.weatherModes = ['SUNNY', 'RAINY', 'SNOWY'];
+        
+        // State Map and Instanced Indexes
+        this.voxelWorldGrid = new Map(); // "x,y,z" -> { type, instanceId }
+        this.instanceIdToCoordMap = new Map(); // "type_instanceId" -> "x,y,z"
+        
+        // Water Spread Ticks
+        this.waterTicks = 0;
+        
+        // Interaction State
+        this.gameState = 'LOBBY'; // LOBBY or SANDBOX
+        this.cameraMode = 'ORBIT'; // ORBIT or FPS
+        
+        // Parallax and Orbit angles for Lobby mode
+        this.orbitTime = 0;
+        this.mouseX = 0;
+        this.mouseY = 0;
+
+        this.inventory = { 
+            stone: 20, 
+            wood: 15, 
+            planks: 8,
+            furnace: 0,
+            diamond: 0,
+            pickaxe: 1,
+            sapling: 2,
+            seed: 3,
+            water: 1
+        };
+        
+        this.currentOperationMode = 'MINE';
+        
+        this.player = {
+            position: new THREE.Vector3(0, 8.5, 0),
+            velocity: new THREE.Vector3(),
+            vy: 0,
+            onGround: false,
+            height: 1.8
+        };
+        
+        this.keys = {};
+        
+        this.synth = new CozySynth();
+        
+        this.initThreeEngine();
+        this.generateBlockTextures();
+        this.initInstancedMeshes();
+        this.initControls();
+        this.generateProceduralWorld();
+        this.spawn3DClouds();
+        this.spawnTwinklingStars();
+        this.syncHUDViewDisplay();
+        this.setupKeyboardBinds();
+        
+        window.addEventListener('resize', () => this.onResize());
+        window.addEventListener('mousemove', (e) => this.onMouseMove(e));
+        
+        this.clock = new THREE.Clock();
+        this.animate = this.animate.bind(this);
+        requestAnimationFrame(this.animate);
+    }
+
+    initThreeEngine() {
+        const container = document.getElementById('three-voxel-stage');
+        
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x87CEEB);
+        this.scene.fog = new THREE.FogExp2(0x87CEEB, 0.02);
+        
+        this.camera = new THREE.PerspectiveCamera(60, this.width / this.height, 0.1, 1000);
+        this.camera.position.set(0, 12, 25);
+        
+        this.renderer = new THREE.WebGLRenderer({ antialias: false });
+        this.renderer.setSize(this.width, this.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(this.renderer.domElement);
+        
+        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        this.scene.add(this.ambientLight);
+        
+        this.sunLight = new THREE.DirectionalLight(0xffffff, 0.85);
+        this.sunLight.position.set(25, 45, 15);
+        this.sunLight.castShadow = true;
+        
+        this.sunLight.shadow.mapSize.width = 512;
+        this.sunLight.shadow.mapSize.height = 512;
+        this.sunLight.shadow.camera.near = 0.5;
+        this.sunLight.shadow.camera.far = 150;
+        const d = 25;
+        this.sunLight.shadow.camera.left = -d;
+        this.sunLight.shadow.camera.right = d;
+        this.sunLight.shadow.camera.top = d;
+        this.sunLight.shadow.camera.bottom = -d;
+        this.sunLight.shadow.bias = -0.0005;
+        this.scene.add(this.sunLight);
+        
+        this.moonLight = new THREE.DirectionalLight(0x90b0ff, 0.0);
+        this.moonLight.position.set(-25, -45, -15);
+        this.scene.add(this.moonLight);
+        
+        // Main block Group
+        this.worldGroup = new THREE.Group();
+        this.scene.add(this.worldGroup);
+        
+        // Star & Cloud Scenery
+        this.sceneryGroup = new THREE.Group();
+        this.scene.add(this.sceneryGroup);
+        
+        this.starsGroup = new THREE.Group();
+        this.scene.add(this.starsGroup);
+    }
+
+    initControls() {
+        this.orbitControls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        this.orbitControls.enableDamping = true;
+        this.orbitControls.dampingFactor = 0.08;
+        this.orbitControls.target.set(0, 3, 0);
+        this.orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;
+        
+        this.fpsControls = new THREE.PointerLockControls(this.camera, document.body);
+        this.scene.add(this.fpsControls.getObject());
+        
+        this.fpsControls.addEventListener('lock', () => {
+            document.getElementById('crosshair').style.display = 'block';
+            document.getElementById('env-camera').innerText = "First Person View";
+        });
+        
+        this.fpsControls.addEventListener('unlock', () => {
+            document.getElementById('crosshair').style.display = 'none';
+            if (this.cameraMode === 'FPS') {
+                this.setCameraMode('ORBIT');
+            }
+        });
+        
+        this.raycaster = new THREE.Raycaster();
+        
+        this.pointerStartX = 0;
+        this.pointerStartY = 0;
+        
+        this.renderer.domElement.addEventListener('pointerdown', (e) => {
+            this.pointerStartX = e.clientX;
+            this.pointerStartY = e.clientY;
+        });
+        
+        this.renderer.domElement.addEventListener('pointerup', (e) => {
+            if (this.gameState !== 'SANDBOX') return;
+            const deltaX = Math.abs(e.clientX - this.pointerStartX);
+            const deltaY = Math.abs(e.clientY - this.pointerStartY);
+            
+            if (deltaX < 5 && deltaY < 5) {
+                this.executeClickRaycast(e);
+            }
+        });
+    }
+
+    setupKeyboardBinds() {
+        window.addEventListener('keydown', (e) => {
+            this.keys[e.key.toLowerCase()] = true;
+            if (e.key === ' ' && this.cameraMode === 'FPS' && this.player.onGround && this.gameState === 'SANDBOX') {
+                this.player.vy = 0.22; 
+                this.player.onGround = false;
+            }
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            this.keys[e.key.toLowerCase()] = false;
+        });
+    }
+
+    onMouseMove(e) {
+        // Track coordinate scale for parallax background
+        this.mouseX = (e.clientX / window.innerWidth) - 0.5;
+        this.mouseY = (e.clientY / window.innerHeight) - 0.5;
+    }
+
+    // --- TEXTURES BUILDER (NEARESTFILTER RETRO DETAILS) ---
+    generateBlockTextures() {
+        this.textures = {};
+        
+        const generate = (name, drawFn) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 16;
+            canvas.height = 16;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+            drawFn(ctx);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.magFilter = THREE.NearestFilter;
+            tex.minFilter = THREE.NearestFilter;
+            this.textures[name] = tex;
+        };
+
+        generate('dirt', (ctx) => {
+            ctx.fillStyle = '#5c2c16'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = '#401e0e';
+            for(let i=0; i<20; i++) ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+        });
+
+        generate('grass_top', (ctx) => {
+            ctx.fillStyle = '#22c55e'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = '#16a34a'; 
+            for(let i=0; i<30; i++) ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+            ctx.fillStyle = '#4ade80'; 
+            for(let i=0; i<10; i++) ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+        });
+
+        generate('grass_side', (ctx) => {
+            ctx.fillStyle = '#5c2c16'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = '#401e0e';
+            for(let i=0; i<15; i++) ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+            ctx.fillStyle = '#22c55e'; ctx.fillRect(0, 0, 16, 4);
+            ctx.fillStyle = '#16a34a'; ctx.fillRect(0, 3, 16, 1);
+            for(let x=0; x<16; x+=2) {
+                ctx.fillStyle = Math.random() > 0.4 ? '#22c55e' : '#16a34a';
+                ctx.fillRect(x, 4, 1, Math.floor(Math.random()*3)+1);
+            }
+        });
+
+        generate('stone', (ctx) => {
+            ctx.fillStyle = '#64748b'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = '#94a3b8'; ctx.fillRect(0,0,16,1); ctx.fillRect(0,0,1,16);
+            ctx.fillStyle = '#475569'; ctx.fillRect(0,15,16,1); ctx.fillRect(15,0,1,16);
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(3, 4, 2, 1); ctx.fillRect(10, 10, 3, 1);
+        });
+
+        generate('wood_side', (ctx) => {
+            ctx.fillStyle = '#78350f'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = '#451a03'; ctx.fillRect(1,0,2,16); ctx.fillRect(13,0,2,16);
+            ctx.fillStyle = '#b45309'; ctx.fillRect(3,0,10,16);
+            ctx.fillStyle = '#78350f'; ctx.fillRect(5,3,1,6); ctx.fillRect(9,8,1,5);
+        });
+
+        generate('wood_top', (ctx) => {
+            ctx.fillStyle = '#b45309'; ctx.fillRect(0,0,16,16);
+            ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1;
+            ctx.strokeRect(2, 2, 12, 12); ctx.strokeRect(5, 5, 6, 6);
+            ctx.fillStyle = '#451a03'; ctx.fillRect(7, 7, 2, 2);
+        });
+
+        generate('leaves', (ctx) => {
+            ctx.fillStyle = '#15803d'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = '#166534';
+            for(let i=0; i<30; i++) ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 2, 2);
+            ctx.fillStyle = '#22c55e';
+            for(let i=0; i<15; i++) ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+        });
+
+        generate('plank', (ctx) => {
+            ctx.fillStyle = '#d97706'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(0, 5, 16, 1); ctx.fillRect(0, 11, 16, 1);
+            ctx.fillRect(5, 0, 1, 5); ctx.fillRect(11, 5, 1, 6); ctx.fillRect(4, 11, 1, 5);
+        });
+
+        generate('diamond', (ctx) => {
+            ctx.fillStyle = '#64748b'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = '#22d3ee'; 
+            ctx.fillRect(3, 4, 2, 2); ctx.fillRect(11, 3, 2, 1);
+            ctx.fillRect(5, 10, 2, 2); ctx.fillRect(12, 11, 2, 1);
+            ctx.fillStyle = '#ecfeff'; 
+            ctx.fillRect(3, 4, 1, 1); ctx.fillRect(5, 10, 1, 1);
+        });
+
+        generate('furnace_front', (ctx) => {
+            ctx.fillStyle = '#475569'; ctx.fillRect(0,0,16,16);
+            ctx.strokeRect(0, 0, 16, 16);
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(3, 8, 10, 6);
+            ctx.fillStyle = '#ea580c'; ctx.fillRect(5, 10, 6, 4); 
+            ctx.fillStyle = '#facc15'; ctx.fillRect(7, 12, 2, 2);
+        });
+
+        generate('water', (ctx) => {
+            ctx.fillStyle = 'rgba(29, 78, 216, 0.75)'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = 'rgba(96, 165, 250, 0.9)';
+            ctx.fillRect(1, 3, 3, 1); ctx.fillRect(10, 7, 4, 1);
+        });
+
+        generate('glass', (ctx) => {
+            ctx.fillStyle = 'rgba(186, 230, 253, 0.3)'; ctx.fillRect(0,0,16,16);
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.fillRect(2, 2, 2, 1); ctx.fillRect(11, 11, 2, 1);
+        });
+
+        generate('flower', (ctx) => {
+            ctx.fillStyle = '#16a34a'; ctx.fillRect(7, 4, 2, 12); 
+            ctx.fillStyle = '#ef4444'; 
+            ctx.fillRect(5, 2, 6, 3); ctx.fillRect(6, 1, 4, 5);
+            ctx.fillStyle = '#facc15'; 
+            ctx.fillRect(7, 3, 2, 2);
+        });
+
+        generate('sapling', (ctx) => {
+            ctx.fillStyle = '#78350f'; ctx.fillRect(7, 8, 2, 8); 
+            ctx.fillStyle = '#22c55e'; 
+            ctx.fillRect(5, 5, 6, 3); ctx.fillRect(6, 3, 4, 2);
+        });
+        
+        // Materials lists per block type
+        this.materials = {};
+        
+        const buildStandardMat = (tex) => {
+            return new THREE.MeshLambertMaterial({ map: tex });
+        };
+        
+        const gTop = buildStandardMat(this.textures['grass_top']);
+        const gSide = buildStandardMat(this.textures['grass_side']);
+        const gBot = buildStandardMat(this.textures['dirt']);
+        this.materials['GRASS'] = [gSide, gSide, gTop, gBot, gSide, gSide]; 
+        
+        const wTop = buildStandardMat(this.textures['wood_top']);
+        const wSide = buildStandardMat(this.textures['wood_side']);
+        this.materials['WOOD'] = [wSide, wSide, wTop, wTop, wSide, wSide];
+        
+        this.materials['LEAVES'] = new THREE.MeshLambertMaterial({
+            map: this.textures['leaves'],
+            transparent: true,
+            alphaTest: 0.5
+        });
+        
+        this.materials['PLANK'] = buildStandardMat(this.textures['plank']);
+        this.materials['STONE'] = buildStandardMat(this.textures['stone']);
+        this.materials['DIAMOND'] = buildStandardMat(this.textures['diamond']);
+        
+        const fFront = buildStandardMat(this.textures['furnace_front']);
+        const fSide = this.materials['STONE'];
+        this.materials['FURNACE'] = [fSide, fSide, fSide, fSide, fFront, fSide];
+        this.materials['DIRT'] = buildStandardMat(this.textures['dirt']);
+        
+        this.materials['WATER'] = new THREE.MeshLambertMaterial({
+            map: this.textures['water'],
+            transparent: true,
+            opacity: 0.65,
+            color: 0x2288ff
+        });
+        
+        this.materials['GLASS'] = new THREE.MeshLambertMaterial({
+            map: this.textures['glass'],
+            transparent: true,
+            opacity: 0.4
+        });
+    }
+
+    // --- INSTANCEDMESH LAYOUT INITIALIZATION ---
+    initInstancedMeshes() {
+        this.instancedMeshes = {};
+        const maxCapacity = 5000; // Capacity limit per type
+        
+        const blockTypes = ['GRASS', 'DIRT', 'STONE', 'WOOD', 'LEAVES', 'PLANK', 'DIAMOND', 'FURNACE', 'WATER', 'GLASS'];
+        const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+        
+        blockTypes.forEach(type => {
+            const mats = this.materials[type];
+            const instMesh = new THREE.InstancedMesh(boxGeo, mats, maxCapacity);
+            instMesh.count = 0; // Starts empty
+            instMesh.castShadow = true;
+            instMesh.receiveShadow = true;
+            instMesh.frustumCulled = false; // Disable culling on the instances for stable dynamic world modifications
+            instMesh.userData = { blockType: type };
+            
+            this.worldGroup.add(instMesh);
+            this.instancedMeshes[type] = instMesh;
+        });
+        
+        // Sparse plants geometry list
+        this.plantsGroup = new THREE.Group();
+        this.worldGroup.add(this.plantsGroup);
+    }
+
+    placeBlock3D(x, y, z, type) {
+        const key = `${x},${y},${z}`;
+        
+        // Remove existing block at coordinate if present
+        if (this.voxelWorldGrid.has(key)) {
+            this.removeBlock3D(x, y, z);
+        }
+        
+        if (type === 'FLOWER' || type === 'SAPLING') {
+            // Flowers/saplings are simple double-sided plane meshes
+            const planeGeo = new THREE.PlaneGeometry(0.85, 0.85);
+            const planeMat = new THREE.MeshBasicMaterial({
+                map: this.textures[type.toLowerCase()],
+                transparent: true,
+                alphaTest: 0.5,
+                side: THREE.DoubleSide
+            });
+            const mesh = new THREE.Group();
+            const p1 = new THREE.Mesh(planeGeo, planeMat);
+            const p2 = p1.clone();
+            p2.rotation.y = Math.PI / 2;
+            mesh.add(p1);
+            mesh.add(p2);
+            mesh.position.set(x, y, z);
+            
+            mesh.userData = { voxelCoord: { x, y, z }, voxelType: type };
+            this.plantsGroup.add(mesh);
+            
+            this.voxelWorldGrid.set(key, { type, mesh });
+            return;
+        }
+        
+        // Add to InstancedMesh
+        const instMesh = this.instancedMeshes[type];
+        if (!instMesh) return;
+        
+        const instanceId = instMesh.count;
+        instMesh.count++;
+        
+        const matrix = new THREE.Matrix4();
+        matrix.setPosition(x, y, z);
+        instMesh.setMatrixAt(instanceId, matrix);
+        
+        this.voxelWorldGrid.set(key, { type, instanceId, spread: 4 });
+        this.instanceIdToCoordMap.set(`${type}_${instanceId}`, key);
+        
+        instMesh.instanceMatrix.needsUpdate = true;
+    }
+
+    removeBlock3D(x, y, z) {
+        const key = `${x},${y},${z}`;
+        if (!this.voxelWorldGrid.has(key)) return;
+        
+        const data = this.voxelWorldGrid.get(key);
+        const { type } = data;
+        
+        if (type === 'FLOWER' || type === 'SAPLING') {
+            this.plantsGroup.remove(data.mesh);
+            this.voxelWorldGrid.delete(key);
+            this.spawnCubeMineFX(x, y, z);
+            return;
+        }
+        
+        const instMesh = this.instancedMeshes[type];
+        const instanceId = data.instanceId;
+        const lastIdx = instMesh.count - 1;
+        
+        if (instanceId !== lastIdx) {
+            // Swap last matrix element into slot of deleted item
+            const lastMatrix = new THREE.Matrix4();
+            instMesh.getMatrixAt(lastIdx, lastMatrix);
+            instMesh.setMatrixAt(instanceId, lastMatrix);
+            
+            // Re-route coordinate mappings for the swapped element
+            const lastKey = this.instanceIdToCoordMap.get(`${type}_${lastIdx}`);
+            if (lastKey) {
+                const lastCell = this.voxelWorldGrid.get(lastKey);
+                if (lastCell) {
+                    lastCell.instanceId = instanceId;
+                    this.instanceIdToCoordMap.set(`${type}_${instanceId}`, lastKey);
+                }
+            }
+        }
+        
+        this.voxelWorldGrid.delete(key);
+        this.instanceIdToCoordMap.delete(`${type}_${lastIdx}`);
+        
+        instMesh.count--;
+        instMesh.instanceMatrix.needsUpdate = true;
+        
+        this.spawnCubeMineFX(x, y, z);
+    }
+
+    // --- COZY PROCEDURAL WORLD MAP ASSEMBLY ---
+    generateProceduralWorld() {
+        for (let x = 0; x < this.gridSizeX; x++) {
+            for (let z = 0; z < this.gridSizeZ; z++) {
+                const gx = x + this.shiftX;
+                const gz = z + this.shiftZ;
+                
+                for (let y = 0; y < this.gridSizeY; y++) {
+                    let type = 'AIR';
+                    
+                    if (y <= 2) {
+                        type = 'STONE';
+                    } else if (y === 3) {
+                        type = 'DIRT';
+                    } else if (y === 4) {
+                        // Grass layer, with some procedural empty spots filled with water
+                        const noise = Math.sin(gx * 0.4) * Math.cos(gz * 0.4);
+                        if (noise > 0.4) {
+                            type = 'WATER';
+                        } else {
+                            type = 'GRASS';
+                        }
+                    } else {
+                        // Bedrock deep diamond generation
+                        if (y <= 1 && Math.random() < 0.08) {
+                            type = 'DIAMOND';
+                        }
+                    }
+                    
+                    if (type !== 'AIR') {
+                        this.placeBlock3D(gx, y, gz, type);
+                    }
+                }
+            }
+        }
+        
+        // Procedurally spawn three detailed oak trees on top of the grass
+        this.spawnTree3D(-4, 5, -3);
+        this.spawnTree3D(4, 5, 3);
+        this.spawnTree3D(-3, 5, 4);
+        
+        // Spawn background plants
+        this.placeBlock3D(1, 5, -2, 'FLOWER');
+        this.placeBlock3D(-2, 5, 2, 'SAPLING');
+        
+        // Spawn 3D Animated Animals
+        this.spawn3DAnimal(2, 5, 2, 'SHEEP');
+        this.spawn3DAnimal(-5, 5, -3, 'PIG');
+        this.spawn3DAnimal(3, 5, -4, 'CHICKEN');
+        this.spawn3DAnimal(-2, 5, 3, 'FOX');
+    }
+
+    spawnTree3D(x, y, z) {
+        // Trunk blocks
+        for (let th = 0; th < 4; th++) {
+            this.placeBlock3D(x, y + th, z, 'WOOD');
+        }
+        
+        // Leaf cluster canopy
+        const leafY = y + 3;
+        for (let lx = -2; lx <= 2; lx++) {
+            for (let lz = -2; lz <= 2; lz++) {
+                for (let ly = 0; ly <= 2; ly++) {
+                    const tx = x + lx;
+                    const ty = leafY + ly;
+                    const tz = z + lz;
+                    const isTrunk = (tx === x && tz === z && ty <= y + 3);
+                    if (!isTrunk) {
+                        const dist = Math.abs(lx) + Math.abs(lz) + Math.abs(ly - 1);
+                        if (dist <= 3) {
+                            this.placeBlock3D(tx, ty, tz, 'LEAVES');
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // --- COZY 3D ANIMAL GRAPHICS DESIGN ---
+    spawn3DAnimal(x, y, z, type) {
+        const mob = new THREE.Group();
+        mob.userData = { type, state: 'WANDER', timer: 100, animPhase: Math.random() * 20, vx: 0, vz: 0, isSleeping: false };
+        
+        let bodyGeo, matColor;
+        let headGeo, snoutGeo;
+        
+        if (type === 'SHEEP') {
+            bodyGeo = new THREE.BoxGeometry(0.8, 0.6, 1.1);
+            matColor = 0xf8fafc;
+            headGeo = new THREE.BoxGeometry(0.38, 0.38, 0.38);
+        } else if (type === 'PIG') {
+            bodyGeo = new THREE.BoxGeometry(0.7, 0.5, 1.0);
+            matColor = 0xf472b6;
+            headGeo = new THREE.BoxGeometry(0.36, 0.36, 0.36);
+            snoutGeo = new THREE.BoxGeometry(0.18, 0.12, 0.1);
+        } else if (type === 'CHICKEN') {
+            bodyGeo = new THREE.BoxGeometry(0.4, 0.4, 0.5);
+            matColor = 0xffffff;
+            headGeo = new THREE.BoxGeometry(0.24, 0.3, 0.24);
+        } else { // FOX
+            bodyGeo = new THREE.BoxGeometry(0.45, 0.35, 1.0);
+            matColor = 0xea580c;
+            headGeo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+            snoutGeo = new THREE.BoxGeometry(0.15, 0.12, 0.2);
+        }
+        
+        const bodyMat = new THREE.MeshLambertMaterial({ color: matColor });
+        const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+        bodyMesh.position.y = 0.5; 
+        bodyMesh.castShadow = true;
+        bodyMesh.receiveShadow = true;
+        mob.add(bodyMesh);
+        
+        const headMesh = new THREE.Mesh(headGeo, bodyMat);
+        headMesh.position.set(0, 0.8, 0.5); 
+        headMesh.castShadow = true;
+        mob.add(headMesh);
+        
+        if (snoutGeo) {
+            const snoutMat = new THREE.MeshLambertMaterial({ color: type === 'PIG' ? 0xbe185d : 0x0f172a });
+            const snout = new THREE.Mesh(snoutGeo, snoutMat);
+            snout.position.set(0, 0.72, 0.72);
+            mob.add(snout);
+        }
+        
+        mob.legs = [];
+        const numLegs = type === 'CHICKEN' ? 2 : 4;
+        const legGeo = type === 'CHICKEN' ? new THREE.BoxGeometry(0.06, 0.4, 0.06) : new THREE.BoxGeometry(0.14, 0.5, 0.14);
+        const legMat = new THREE.MeshLambertMaterial({ color: type === 'SHEEP' ? 0x94a3b8 : type === 'PIG' ? 0xdb2777 : type === 'CHICKEN' ? 0xf59e0b : 0x7c2d12 });
+        
+        const zOffset = type === 'CHICKEN' ? 0 : 0.3;
+        for (let i = 0; i < numLegs; i++) {
+            const legPivot = new THREE.Group();
+            const legMesh = new THREE.Mesh(legGeo, legMat);
+            legMesh.position.y = -0.2; 
+            legMesh.castShadow = true;
+            legPivot.add(legMesh);
+            
+            const side = (i % 2 === 0) ? 1 : -1;
+            const forward = (i < 2 && numLegs === 4) ? 1 : -1;
+            
+            legPivot.position.set(side * (type === 'CHICKEN' ? 0.1 : 0.25), 0.3, forward * zOffset);
+            mob.add(legPivot);
+            mob.legs.push(legPivot);
+        }
+        
+        if (type === 'FOX') {
+            const tailGeo = new THREE.BoxGeometry(0.2, 0.2, 0.65);
+            const tailMat = new THREE.MeshLambertMaterial({ color: 0x7c2d12 });
+            const tail = new THREE.Mesh(tailGeo, tailMat);
+            tail.position.set(0, 0.5, -0.68);
+            tail.rotation.x = -0.3;
+            mob.add(tail);
+        }
+        
+        mob.position.set(x, y + 0.1, z);
+        this.scene.add(mob);
+        this.mobs.push(mob);
+    }
+    
+    // --- 3D CLOUDS & STARS ---
+    spawn3DClouds() {
+        const cloudMat = new THREE.MeshLambertMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        for (let c = 0; c < 5; c++) {
+            const cloudGroup = new THREE.Group();
+            const segments = 3 + Math.floor(Math.random() * 4);
+            for (let s = 0; s < segments; s++) {
+                const w = 2 + Math.floor(Math.random() * 3);
+                const h = 1 + Math.random() * 1.5;
+                const d = 2 + Math.floor(Math.random() * 3);
+                
+                const box = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), cloudMat);
+                box.position.set(s * 1.5 - 2, (Math.random() - 0.5) * 0.8, (Math.random() - 0.5) * 1.5);
+                cloudGroup.add(box);
+            }
+            
+            cloudGroup.position.set(
+                (Math.random() - 0.5) * 60,
+                11.5 + Math.random() * 1.5,
+                (Math.random() - 0.5) * 60
+            );
+            
+            cloudGroup.userData = { speed: 0.12 + Math.random() * 0.15 };
+            
+            this.sceneryGroup.add(cloudGroup);
+            this.clouds.push(cloudGroup);
+        }
+    }
+    
+    spawnTwinklingStars() {
+        const starMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+        const starGeo = new THREE.BoxGeometry(0.12, 0.12, 0.12);
+        
+        for (let i = 0; i < 80; i++) {
+            const star = new THREE.Mesh(starGeo, starMat.clone());
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(Math.random());
+            const radius = 90;
+            
+            star.position.set(
+                radius * Math.sin(phi) * Math.cos(theta),
+                Math.abs(radius * Math.cos(phi)), 
+                radius * Math.sin(phi) * Math.sin(theta)
+            );
+            
+            star.userData = { twinkleSpeed: 1.5 + Math.random() * 2.5, phase: Math.random() * 10 };
+            this.starsGroup.add(star);
+            this.stars.push(star);
+        }
+    }
+
+    trigger3DTextBubble(mob, text) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64; canvas.height = 32;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+        ctx.fillRect(0, 0, 64, 24);
+        ctx.fillStyle = '#f59e0b';
+        ctx.strokeStyle = '#f59e0b';
+        ctx.strokeRect(0, 0, 64, 24);
+        
+        ctx.beginPath();
+        ctx.moveTo(32, 24); ctx.lineTo(28, 30); ctx.lineTo(36, 24);
+        ctx.fill();
+        
+        ctx.font = 'bold 12px monospace';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.fillText(text, 32, 16);
+        
+        const tex = new THREE.CanvasTexture(canvas);
+        const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+        const sprite = new THREE.Sprite(spriteMat);
+        sprite.scale.set(1.4, 0.7, 1);
+        sprite.position.set(0, 1.8, 0);
+        mob.add(sprite);
+        
+        let ticks = 0;
+        const anim = () => {
+            ticks++;
+            sprite.position.y += 0.015;
+            spriteMat.opacity = 1 - (ticks / 45);
+            if (ticks < 45) {
+                requestAnimationFrame(anim);
+            } else {
+                mob.remove(sprite);
+            }
+        };
+        requestAnimationFrame(anim);
+    }
+
+    // --- INTERACTIVE RAYCAST MINE / BUILD DIRECTIVES ---
+    executeClickRaycast(e) {
+        const mouse = new THREE.Vector2();
+        
+        if (this.cameraMode === 'FPS') {
+            mouse.set(0, 0);
+        } else {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        }
+        
+        this.raycaster.setFromCamera(mouse, this.camera);
+        
+        // Raycast plants group
+        const plantIntersects = this.raycaster.intersectObjects(this.plantsGroup.children, true);
+        if (plantIntersects.length > 0 && (this.cameraMode !== 'FPS' || plantIntersects[0].distance < 6.0)) {
+            let hitGroup = plantIntersects[0].object;
+            while (hitGroup.parent && hitGroup.parent !== this.plantsGroup) {
+                hitGroup = hitGroup.parent;
+            }
+            if (hitGroup.userData && hitGroup.userData.voxelCoord) {
+                const coord = hitGroup.userData.voxelCoord;
+                if (this.currentOperationMode === 'MINE') {
+                    const type = hitGroup.userData.voxelType;
+                    if (type === 'FLOWER') this.inventory.seed++;
+                    if (type === 'SAPLING') this.inventory.sapling++;
+                    this.removeBlock3D(coord.x, coord.y, coord.z);
+                    this.synth.playSFX('MINE');
+                    this.syncHUDViewDisplay();
+                    return;
+                }
+            }
+        }
+        
+        // Raycast instanced meshes
+        const activeInstancedMeshes = Object.values(this.instancedMeshes).filter(m => m.count > 0);
+        const intersects = this.raycaster.intersectObjects(activeInstancedMeshes);
+        
+        if (intersects.length > 0) {
+            const hit = intersects[0];
+            const dist = hit.distance;
+            
+            if (this.cameraMode === 'FPS' && dist > 6.0) return;
+            
+            const type = hit.object.userData.blockType;
+            const key = this.instanceIdToCoordMap.get(`${type}_${hit.instanceId}`);
+            if (!key) return;
+            
+            const [cx, cy, cz] = key.split(',').map(Number);
+            
+            if (this.currentOperationMode === 'MINE') {
+                if (type === 'STONE') this.inventory.stone++;
+                if (type === 'WOOD') this.inventory.wood++;
+                if (type === 'DIAMOND') this.inventory.diamond++;
+                if (type === 'PLANK') this.inventory.planks++;
+                if (type === 'FURNACE') this.inventory.furnace++;
+                if (type === 'WATER') this.inventory.water++;
+                
+                this.removeBlock3D(cx, cy, cz);
+                this.synth.playSFX('MINE');
+                this.flashBanner("WORLD_STATE_UPDATE: GEOMETRY_MUTATED");
+            } else if (this.currentOperationMode === 'SPAWN_ANIMAL') {
+                this.spawn3DAnimal(cx, cy + 1, cz, 'SHEEP');
+                this.synth.playSFX('CRAFT');
+                this.flashBanner("SPAWNED_ANIMAL: SHEEP");
+            } else {
+                const normal = hit.face.normal;
+                const buildX = cx + normal.x;
+                const buildY = cy + normal.y;
+                const buildZ = cz + normal.z;
+                
+                if (buildY < 0 || buildY >= this.gridSizeY) return;
+                
+                let buildType = '';
+                let invKey = '';
+                
+                if (this.currentOperationMode === 'BUILD_STONE') { buildType = 'STONE'; invKey = 'stone'; }
+                else if (this.currentOperationMode === 'BUILD_WOOD') { buildType = 'WOOD'; invKey = 'wood'; }
+                else if (this.currentOperationMode === 'BUILD_PLANK') { buildType = 'PLANK'; invKey = 'planks'; }
+                else if (this.currentOperationMode === 'BUILD_FURNACE') { buildType = 'FURNACE'; invKey = 'furnace'; }
+                else if (this.currentOperationMode === 'BUILD_WATER') { buildType = 'WATER'; invKey = 'water'; }
+                else if (this.currentOperationMode === 'BUILD_SAPLING') { buildType = 'SAPLING'; invKey = 'sapling'; }
+                else if (this.currentOperationMode === 'BUILD_SEED') { buildType = 'FLOWER'; invKey = 'seed'; }
+                
+                if (invKey && this.inventory[invKey] > 0) {
+                    this.inventory[invKey]--;
+                    this.placeBlock3D(buildX, buildY, buildZ, buildType);
+                    this.synth.playSFX('PLACE');
+                    this.flashBanner("WORLD_STATE_UPDATE: BLOCK_PLACED");
+                }
+            }
+            
+            this.syncHUDViewDisplay();
+        }
+    }
+
+    spawnCubeMineFX(x, y, z) {
+        const particleCount = 6;
+        const mat = new THREE.MeshBasicMaterial({ color: 0xeab308 });
+        const geo = new THREE.BoxGeometry(0.12, 0.12, 0.12);
+        const group = new THREE.Group();
+        
+        for (let i = 0; i < particleCount; i++) {
+            const p = new THREE.Mesh(geo, mat);
+            p.position.set(
+                (Math.random() - 0.5) * 0.6,
+                (Math.random() - 0.5) * 0.6,
+                (Math.random() - 0.5) * 0.6
+            );
+            p.userData = {
+                vx: (Math.random() - 0.5) * 0.08,
+                vy: (Math.random() * 0.08) + 0.04,
+                vz: (Math.random() - 0.5) * 0.08
+            };
+            group.add(p);
+        }
+        
+        group.position.set(x, y, z);
+        this.scene.add(group);
+        
+        let frames = 0;
+        const loop = () => {
+            frames++;
+            group.children.forEach(p => {
+                p.position.x += p.userData.vx;
+                p.position.y += p.userData.vy;
+                p.position.z += p.userData.vz;
+                p.userData.vy -= 0.005; 
+                p.scale.multiplyScalar(0.95);
+            });
+            if (frames < 25) {
+                requestAnimationFrame(loop);
+            } else {
+                this.scene.remove(group);
+            }
+        };
+        requestAnimationFrame(loop);
+    }
+
+    // --- CELLULAR AUTOMATA 3D WATER SIMULATION ---
+    processWaterDynamics() {
+        const updates = [];
+        
+        for (let y = 0; y < this.gridSizeY; y++) {
+            for (let x = 0; x < this.gridSizeX; x++) {
+                for (let z = 0; z < this.gridSizeZ; z++) {
+                    const gx = x + this.shiftX;
+                    const gz = z + this.shiftZ;
+                    
+                    const key = `${gx},${y},${gz}`;
+                    const cell = this.voxelWorldGrid.get(key);
+                    
+                    if (cell && cell.type === 'WATER') {
+                        if (y - 1 >= 0) {
+                            const belowKey = `${gx},${y - 1},${gz}`;
+                            const below = this.voxelWorldGrid.get(belowKey);
+                            if (!below) {
+                                updates.push({ x: gx, y: y - 1, z: gz, type: 'WATER', spread: 4 });
+                                continue;
+                            }
+                        }
+                        
+                        if (cell.spread > 1) {
+                            const neighbors = [
+                                { x: gx + 1, z: gz },
+                                { x: gx - 1, z: gz },
+                                { x: gx, z: gz + 1 },
+                                { x: gx, z: gz - 1 }
+                            ];
+                            
+                            neighbors.forEach(n => {
+                                if (n.x >= this.shiftX && n.x < this.shiftX + this.gridSizeX &&
+                                    n.z >= this.shiftZ && n.z < this.shiftZ + this.gridSizeZ) {
+                                    const nKey = `${n.x},${y},${n.z}`;
+                                    const nCell = this.voxelWorldGrid.get(nKey);
+                                    if (!nCell) {
+                                        updates.push({ x: n.x, y, z: n.z, type: 'WATER', spread: cell.spread - 1 });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        
+        updates.forEach(upd => {
+            this.placeBlock3D(upd.x, upd.y, upd.z, upd.type);
+            const key = `${upd.x},${upd.y},${upd.z}`;
+            const cell = this.voxelWorldGrid.get(key);
+            if (cell) cell.spread = upd.spread;
+        });
+    }
+
+    processVegetationGrowth() {
+        const x = Math.floor(Math.random() * this.gridSizeX) + this.shiftX;
+        const z = Math.floor(Math.random() * this.gridSizeZ) + this.shiftZ;
+        
+        for (let y = this.gridSizeY - 1; y >= 0; y--) {
+            const key = `${x},${y},${z}`;
+            const cell = this.voxelWorldGrid.get(key);
+            if (cell && cell.type === 'SAPLING') {
+                this.removeBlock3D(x, y, z);
+                this.spawnTree3D(x, y, z);
+                this.synth.playSFX('CRAFT');
+                this.flashBanner("COZY_GROWTH: TREE_MATURED 🌱");
+                break;
+            }
+        }
+    }
+
+    // --- GAME LOBBY TO INTERACTIVE STATE TRANSITION ---
+    startSandboxPlay() {
+        this.gameState = 'SANDBOX';
+        
+        // Hide Lobby layout card
+        const overlay = document.getElementById('lobby-overlay');
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        
+        // Show sandbox RPG HUD
+        const hud = document.getElementById('rpg-desktop-hud');
+        hud.classList.remove('opacity-0');
+        hud.classList.add('opacity-100');
+        
+        // Position camera closer
+        this.camera.position.set(0, 8, 14);
+        this.orbitControls.target.set(0, 3, 0);
+        this.orbitControls.update();
+        
+        this.flashBanner("SANDBOX_MODE_INIT: COZY_PLAY_ACTIVE");
+    }
+
+    // --- RENDER LOOPS ---
+    animate() {
+        requestAnimationFrame(this.animate);
+        
+        const delta = this.clock.getDelta() * this.timeSpeedFactor;
+        this.windPhase += delta * 0.8;
+        
+        if (this.timeSpeedFactor > 0) {
+            this.gameHour += delta * 0.025; 
+            if (this.gameHour >= 24) {
+                this.gameHour = 0;
+                this.gameDay++;
+            }
+            this.updateSkyCycle();
+            this.updateClockHUD();
+        }
+        
+        // Plants swaying
+        this.plantsGroup.children.forEach(mesh => {
+            mesh.rotation.z = Math.sin(this.windPhase + mesh.position.x) * 0.05 * this.windSpeed;
+            mesh.rotation.x = Math.cos(this.windPhase + mesh.position.z) * 0.03 * this.windSpeed;
+        });
+        
+        // Clouds drift
+        this.clouds.forEach(cloud => {
+            cloud.position.x += cloud.userData.speed * delta;
+            if (cloud.position.x > 35) {
+                cloud.position.x = -35;
+                cloud.position.z = (Math.random() - 0.5) * 50;
+            }
+        });
+        
+        // Star Twinkle
+        const starAlpha = (this.gameHour >= 19.5 || this.gameHour < 5.0) ? 1.0 : 0.0;
+        this.stars.forEach(star => {
+            star.userData.phase += delta * star.userData.twinkleSpeed;
+            star.material.opacity = starAlpha * (Math.sin(star.userData.phase) * 0.45 + 0.55);
+        });
+        
+        // Waddling Mobs Loop
+        const startX = this.shiftX;
+        const endX = this.shiftX + this.gridSizeX;
+        
+        this.mobs.forEach(mob => {
+            const data = mob.userData;
+            const isNight = this.gameHour > 19.5 || this.gameHour < 5.0;
+            
+            if (isNight && !data.isSleeping) {
+                data.isSleeping = true;
+                data.state = 'SLEEP';
+                data.vx = 0; data.vz = 0;
+                mob.rotation.z = 0.5; 
+                mob.position.y = 5.0; 
+                this.trigger3DTextBubble(mob, "💤");
+            } else if (!isNight && data.isSleeping) {
+                data.isSleeping = false;
+                data.state = 'WANDER';
+                mob.rotation.z = 0;
+                mob.position.y = 5.1;
+                this.trigger3DTextBubble(mob, "☀️");
+            }
+            
+            if (data.isSleeping) {
+                if (Math.random() < 0.005) this.trigger3DTextBubble(mob, "💤");
+                mob.legs.forEach(l => l.rotation.x = 0);
+                return;
+            }
+            
+            data.timer -= delta * 15;
+            if (data.timer <= 0) {
+                const roll = Math.random();
+                if (roll > 0.65) {
+                    data.state = 'WANDER';
+                    data.timer = 120 + Math.random() * 150;
+                    data.vx = (Math.random() - 0.5) * 0.04;
+                    data.vz = (Math.random() - 0.5) * 0.04;
+                    
+                    const angle = Math.atan2(data.vx, data.vz);
+                    mob.rotation.y = angle;
+                } else if (roll > 0.35) {
+                    data.state = 'GRAZE';
+                    data.timer = 80 + Math.random() * 100;
+                    data.vx = 0; data.vz = 0;
+                } else {
+                    data.state = 'IDLE';
+                    data.timer = 50 + Math.random() * 90;
+                    data.vx = 0; data.vz = 0;
+                }
+            }
+            
+            if (data.state === 'WANDER') {
+                mob.position.x += data.vx * delta * 25;
+                mob.position.z += data.vz * delta * 25;
+                
+                if (mob.position.x < startX + 1) { mob.position.x = startX + 1; data.vx *= -1; }
+                if (mob.position.x > endX - 1) { mob.position.x = endX - 1; data.vx *= -1; }
+                
+                data.animPhase += delta * 8;
+                mob.legs.forEach((leg, idx) => {
+                    leg.rotation.x = Math.sin(data.animPhase + (idx % 2 === 0 ? 0 : Math.PI)) * 0.5;
+                });
+            } else if (data.state === 'GRAZE') {
+                data.animPhase += delta * 6;
+                mob.position.y = 5.1 + Math.sin(data.animPhase) * 0.08; 
+                
+                if (data.timer < 10 && Math.random() < 0.1) {
+                    const cx = Math.round(mob.position.x);
+                    const cz = Math.round(mob.position.z);
+                    const key = `${cx},4,${cz}`;
+                    const cell = this.voxelWorldGrid.get(key);
+                    if (cell && cell.type === 'GRASS') {
+                        this.placeBlock3D(cx, 4, cz, 'DIRT');
+                        this.trigger3DTextBubble(mob, "❤️");
+                    }
+                }
+            } else {
+                mob.legs.forEach(l => l.rotation.x = 0);
+            }
+        });
+        
+        // Water update clocks
+        this.waterTicks += delta * 15;
+        if (this.waterTicks >= 6.0) {
+            this.waterTicks = 0;
+            this.processWaterDynamics();
+        }
+        
+        // Sapling natural growth
+        if (Math.random() < 0.002 * this.timeSpeedFactor) {
+            this.processVegetationGrowth();
+        }
+        
+        // Camera controller handling
+        if (this.gameState === 'LOBBY') {
+            // Lobby mode: automatic slow orbit + mouse parallax offset
+            this.orbitTime += delta * 0.05;
+            const r = 18;
+            const ox = Math.cos(this.orbitTime) * r;
+            const oz = Math.sin(this.orbitTime) * r;
+            const oy = 8 + Math.sin(this.orbitTime * 0.5) * 2;
+            
+            // Add mouse parallax offsets
+            this.camera.position.x = ox + this.mouseX * 5;
+            this.camera.position.y = oy + this.mouseY * 4;
+            this.camera.position.z = oz + this.mouseX * 5;
+            this.camera.lookAt(0, 3, 0);
+        } else {
+            if (this.cameraMode === 'FPS') {
+                this.updateFirstPersonMovement(delta);
+            } else {
+                this.orbitControls.update();
+            }
+        }
+        
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    updateSkyCycle() {
+        const hr = this.gameHour;
+        let topColor, botColor;
+        
+        if (hr >= 19.5 || hr < 4.5) {
+            topColor = new THREE.Color(0x050816);
+            botColor = new THREE.Color(0x0c1123);
+            this.ambientLight.color.setHex(0x223366);
+            this.ambientLight.intensity = 0.15;
+            this.sunLight.intensity = 0.0;
+            this.moonLight.intensity = 0.25;
+        } else if (hr >= 4.5 && hr < 7.0) {
+            const f = (hr - 4.5) / 2.5;
+            topColor = new THREE.Color(0x050816).lerp(new THREE.Color(0x1a254a), f);
+            botColor = new THREE.Color(0x0c1123).lerp(new THREE.Color(0xea580c), f);
+            this.ambientLight.color.setHex(0x554477);
+            this.ambientLight.intensity = 0.2 + f * 0.2;
+            this.sunLight.intensity = f * 0.55;
+            this.sunLight.color.setHex(0xfba515); 
+            this.moonLight.intensity = 0.25 * (1 - f);
+        } else if (hr >= 7.0 && hr < 17.0) {
+            const f = hr < 12 ? (hr - 7) / 5 : 1 - ((hr - 12) / 5);
+            topColor = new THREE.Color(0x0e7490).lerp(new THREE.Color(0x0369a1), f);
+            botColor = new THREE.Color(0x38bdf8).lerp(new THREE.Color(0xbae6fd), f);
+            this.ambientLight.color.setHex(0xffffff);
+            this.ambientLight.intensity = 0.45;
+            this.sunLight.intensity = 0.85;
+            this.sunLight.color.setHex(0xffffff);
+            this.moonLight.intensity = 0.0;
+        } else {
+            const f = (hr - 17.0) / 2.5;
+            topColor = new THREE.Color(0x0e7490).lerp(new THREE.Color(0x1e1b4b), f);
+            botColor = new THREE.Color(0x38bdf8).lerp(new THREE.Color(0xdb2777), f); 
+            this.ambientLight.color.setHex(0x773355);
+            this.ambientLight.intensity = 0.45 - f * 0.3;
+            this.sunLight.intensity = 0.85 * (1 - f);
+            this.sunLight.color.setHex(0xdb2777);
+            this.moonLight.intensity = f * 0.25;
+        }
+        
+        this.scene.background.copy(botColor);
+        this.scene.fog.color.copy(botColor);
+        
+        const sunAngle = ((hr - 5.0) / 14.0) * Math.PI;
+        this.sunLight.position.set(Math.cos(sunAngle) * 35, Math.sin(sunAngle) * 35, 10);
+    }
+
+    updateFirstPersonMovement(delta) {
+        const speed = 0.08 * (delta * 60);
+        const camObj = this.fpsControls.getObject();
+        
+        this.player.vy -= 0.012 * (delta * 60); 
+        camObj.position.y += this.player.vy;
+        
+        const cx = Math.round(camObj.position.x);
+        const cz = Math.round(camObj.position.z);
+        
+        let groundHeight = -10.0;
+        for (let y = this.gridSizeY - 1; y >= 0; y--) {
+            const cell = this.voxelWorldGrid.get(`${cx},${y},${cz}`);
+            if (cell && cell.type !== 'AIR' && cell.type !== 'FLOWER' && cell.type !== 'SAPLING') {
+                groundHeight = y + 0.5;
+                break;
+            }
+        }
+        
+        const feetY = camObj.position.y - this.player.height;
+        if (feetY <= groundHeight) {
+            camObj.position.y = groundHeight + this.player.height;
+            this.player.vy = 0;
+            this.player.onGround = true;
+        } else {
+            this.player.onGround = false;
+        }
+        
+        const direction = new THREE.Vector3();
+        if (this.keys['w']) direction.z -= 1;
+        if (this.keys['s']) direction.z += 1;
+        if (this.keys['a']) direction.x -= 1;
+        if (this.keys['d']) direction.x += 1;
+        
+        direction.normalize();
+        
+        const camDir = new THREE.Vector3();
+        this.camera.getWorldDirection(camDir);
+        camDir.y = 0; 
+        camDir.normalize();
+        
+        const camRight = new THREE.Vector3();
+        camRight.crossVectors(camDir, new THREE.Vector3(0, 1, 0)).normalize();
+        
+        const moveVec = new THREE.Vector3();
+        moveVec.addScaledVector(camDir, -direction.z);
+        moveVec.addScaledVector(camRight, direction.x);
+        moveVec.normalize();
+        
+        camObj.position.addScaledVector(moveVec, speed);
+        
+        const boundary = 11;
+        if (camObj.position.x < -boundary) camObj.position.x = -boundary;
+        if (camObj.position.x > boundary) camObj.position.x = boundary;
+        if (camObj.position.z < -boundary) camObj.position.z = -boundary;
+        if (camObj.position.z > boundary) camObj.position.z = boundary;
+    }
+
+    setCameraMode(mode) {
+        this.cameraMode = mode;
+        if (mode === 'FPS') {
+            this.orbitControls.enabled = false;
+            this.fpsControls.lock();
+            document.getElementById('env-camera').innerText = "First Person View";
+        } else {
+            this.fpsControls.unlock();
+            this.orbitControls.enabled = true;
+            this.camera.position.set(0, 8, 14);
+            this.orbitControls.target.set(0, 3, 0);
+            document.getElementById('env-camera').innerText = "Orbit (God) Mode";
+        }
+    }
+
+    toggleCameraMode() {
+        if (this.cameraMode === 'ORBIT') {
+            this.setCameraMode('FPS');
+        } else {
+            this.setCameraMode('ORBIT');
+        }
+    }
+
+    updateClockHUD() {
+        let mins = Math.floor((this.gameHour % 1) * 60);
+        let hourInt = Math.floor(this.gameHour);
+        let ampm = hourInt >= 12 ? 'PM' : 'AM';
+        let displayHour = hourInt % 12;
+        if(displayHour === 0) displayHour = 12;
+        
+        let padHour = displayHour.toString().padStart(2, '0');
+        let padMins = mins.toString().padStart(2, '0');
+        
+        document.getElementById('env-time').innerText = `${padHour}:${padMins} ${ampm} (Day ${this.gameDay})`;
+    }
+
+    setTimeSpeed(mult) {
+        this.timeSpeedFactor = mult;
+        
+        const btns = document.getElementById('speed-controls').querySelectorAll('button');
+        btns.forEach(b => b.classList.remove('active-mode'));
+        if (mult === 0) btns[0].classList.add('active-mode');
+        else if (mult === 1) document.getElementById('speed-1x-btn').classList.add('active-mode');
+        else if (mult === 5) document.getElementById('speed-5x-btn').classList.add('active-mode');
+    }
+
+    cycleWeather() {
+        const nextIdx = (this.weatherModes.indexOf(this.weatherState) + 1) % this.weatherModes.length;
+        this.weatherState = this.weatherModes[nextIdx];
+        
+        document.getElementById('env-weather').innerText = this.weatherState.charAt(0) + this.weatherState.slice(1).toLowerCase();
+        this.flashBanner(`WEATHER_CHANGED: ${this.weatherState}`);
+    }
+
+    toggleAudio() {
+        const btn = document.getElementById('audio-btn-txt-hud');
+        const btnLobby = document.querySelector('#lobby-overlay button:nth-child(2)');
+        
+        if (this.synth.isMuted) {
+            this.synth.startMusicLoop();
+            if (btn) btn.innerText = "🔇 Mute Music";
+            if (btnLobby) btnLobby.innerText = "🔇 Mute Music";
+        } else {
+            this.synth.stopMusicLoop();
+            if (btn) btn.innerText = "🎵 Start Music";
+            if (btnLobby) btnLobby.innerText = "🎵 Play Ambient Music";
+        }
+    }
+
+    syncHUDViewDisplay() {
+        document.getElementById('txt-stone').innerText = this.inventory.stone;
+        document.getElementById('txt-wood').innerText = this.inventory.wood;
+        document.getElementById('txt-diamond').innerText = this.inventory.diamond;
+        document.getElementById('txt-planks').innerText = this.inventory.planks;
+        document.getElementById('txt-furnace').innerText = this.inventory.furnace;
+        document.getElementById('txt-pickaxe').innerText = this.inventory.pickaxe;
+        document.getElementById('txt-sapling').innerText = this.inventory.sapling;
+        document.getElementById('txt-seed').innerText = this.inventory.seed;
+        document.getElementById('txt-water').innerText = this.inventory.water;
+    }
+
+    flashBanner(msg) {
+        const banner = document.getElementById('craft-banner');
+        if (msg) banner.innerText = msg;
+        banner.classList.remove('hidden');
+        if (this.bannerTimeout) clearTimeout(this.bannerTimeout);
+        this.bannerTimeout = setTimeout(() => banner.classList.add('hidden'), 900);
+    }
+
+    craftItem(recipe) {
+        let crafted = false;
+        switch(recipe) {
+            case 'PLANKS':
+                if (this.inventory.wood >= 1) {
+                    this.inventory.wood -= 1;
+                    this.inventory.planks += 4;
+                    crafted = true;
+                }
+                break;
+            case 'PICKAXE':
+                if (this.inventory.stone >= 2 && this.inventory.wood >= 1) {
+                    this.inventory.stone -= 2;
+                    this.inventory.wood -= 1;
+                    this.inventory.pickaxe += 1;
+                    crafted = true;
+                }
+                break;
+            case 'FURNACE':
+                if (this.inventory.stone >= 4) {
+                    this.inventory.stone -= 4;
+                    this.inventory.furnace += 1;
+                    crafted = true;
+                }
+                break;
+            case 'SAPLING':
+                if (this.inventory.planks >= 2) {
+                    this.inventory.planks -= 2;
+                    this.inventory.sapling += 2;
+                    crafted = true;
+                }
+                break;
+            case 'SEED':
+                if (this.inventory.stone >= 1) { 
+                    this.inventory.stone -= 1;
+                    this.inventory.seed += 3;
+                    crafted = true;
+                }
+                break;
+            case 'WATER_BUCKET':
+                if (this.inventory.stone >= 3) {
+                    this.inventory.stone -= 3;
+                    this.inventory.water += 1;
+                    crafted = true;
+                }
+                break;
+        }
+        
+        if (crafted) {
+            this.syncHUDViewDisplay();
+            this.synth.playSFX('CRAFT');
+            this.flashBanner("CRAFTING_SUCCESS: ITEM_SYNTHESIZED");
+        }
+    }
+
+    onResize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.renderer.setSize(this.width, this.height);
+        this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix();
+    }
+}
+
+let engine;
+window.onload = () => { engine = new HybridVoxelSandboxEngine(); };
+</script>
+</body>
+</html>
