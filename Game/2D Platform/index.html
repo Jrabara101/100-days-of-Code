@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Retro 2D Platformer Kinematics Engine</title>
+    <!-- CSS and JS CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.css"/>
+    <script src="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #05020c; font-family: 'Orbitron', sans-serif; color: #cbd5e1; }
+        canvas { display: block; cursor: crosshair; }
+        #pixi-game-stage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #rpg-desktop-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        
+        /* CRT & Cyberpunk Aesthetics */
+        .scanline-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 255, 0.03), rgba(0, 255, 255, 0.03), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 4px 100%;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0.55;
+        }
+        .hud-container {
+            background: rgba(12, 6, 26, 0.9) !important;
+            border: 2px solid #a855f7 !important;
+            box-shadow: 0 0 25px rgba(168,85,247,0.4), inset 0 0 15px rgba(168,85,247,0.2) !important;
+        }
+        .rpgui-container {
+            background: rgba(12, 6, 26, 0.95) !important;
+            border-image: url(https://unpkg.com/rpgui@1.0.3/dist/img/border-image-golden.png) 14 repeat !important;
+        }
+        .neon-text-pink {
+            color: #f0abfc;
+            text-shadow: 0 0 5px #d946ef, 0 0 15px #c026d3;
+        }
+        .neon-text-blue {
+            color: #67e8f9;
+            text-shadow: 0 0 5px #06b6d4, 0 0 15px #0891b2;
+        }
+        .neon-text-red {
+            color: #f87171;
+            text-shadow: 0 0 5px #ef4444, 0 0 15px #b91c1c;
+        }
+        .neon-border-blue {
+            border: 1px solid #06b6d4;
+            box-shadow: 0 0 8px #06b6d4, inset 0 0 8px #06b6d4;
+        }
+        .hud-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #c084fc;
+        }
+        .hud-value {
+            font-weight: 700;
+            text-shadow: 0 0 8px currentColor;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(168,85,247,0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(168,85,247,0.4);
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(168,85,247,0.6);
+        }
+    </style>
+</head>
+<body class="rpgui-content">
+    <div class="scanline-overlay"></div>
+    <div id="pixi-game-stage"></div>
+
+    <div id="rpg-desktop-hud">
+        <!-- Telemetry Window (Left Sidebar) -->
+        <div class="hud-container absolute left-6 top-6 bottom-6 w-80 p-5 pointer-events-auto flex flex-col justify-between rounded-md animate__animated animate__fadeInLeft">
+            <div>
+                <header class="border-b border-purple-500/40 pb-2 mb-4">
+                    <h2 class="neon-text-pink font-black text-sm tracking-[0.15em]">CORE_SYSTEM.OS</h2>
+                    <p class="text-[9px] text-cyan-400 mt-1 tracking-widest neon-text-blue">ADVANCED KINEMATIC REGISTRY</p>
+                </header>
+
+                <div class="space-y-2.5 text-[11px] font-mono">
+                    <div class="flex justify-between items-center">
+                        <span class="hud-label">⚡ Pulse X (Vx):</span>
+                        <span class="hud-value text-cyan-400" id="txt-vx">0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="hud-label">☄️ Pulse Y (Vy):</span>
+                        <span class="hud-value text-fuchsia-400" id="txt-vy">0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-purple-500/20 pt-2">
+                        <span class="hud-label">🎯 Raycasts Fired:</span>
+                        <span class="hud-value text-cyan-300" id="txt-raycasts">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="hud-label">💥 Chunks Broken:</span>
+                        <span class="hud-value text-fuchsia-300" id="txt-score">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="hud-label">✨ Active Particles:</span>
+                        <span class="hud-value text-amber-300" id="txt-particles">0</span>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-purple-500/20 pt-2">
+                        <span class="hud-label">🔮 Grounded State:</span>
+                        <span class="hud-value text-emerald-400" id="txt-ground">FALSE</span>
+                    </div>
+                </div>
+
+                <!-- Live System Log -->
+                <div class="mt-4 border-t border-purple-500/30 pt-3">
+                    <span class="text-[9px] text-purple-400 font-bold uppercase tracking-wider block mb-1">SYSTEM_LOGS:</span>
+                    <div class="h-28 overflow-y-auto custom-scrollbar text-[9px] font-mono space-y-1 text-slate-400 leading-relaxed pr-1" id="system-log-container">
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex flex-col gap-2 mt-4">
+                    <button onclick="orchestrator.resetEntityState()" class="rpgui-button hvr-pulse-grow w-full py-2" type="button">
+                        <p class="text-[10px] font-bold text-slate-100 tracking-wider">RESPAWN AVATAR</p>
+                    </button>
+                </div>
+                <div class="text-[9px] text-cyan-500/80 text-center leading-loose tracking-widest mt-4 font-mono">
+                    A / D / ARROWS → MOVE<br/>
+                    SPACE → JUMP<br/>
+                    LMB / F → LASER CANNON
+                </div>
+            </div>
+        </div>
+
+        <!-- Banner Notification -->
+        <footer class="absolute bottom-12 left-1/2 -translate-x-1/2 flex justify-center w-full max-w-sm pl-80">
+            <div id="platform-banner" class="hidden w-full text-center bg-cyan-600/35 text-cyan-100 text-[10px] font-mono font-black px-6 py-3 rounded border border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.5)] backdrop-blur-sm animate__animated animate__pulse animate__infinite">
+                SYSTEM CONTEXT // RESPAWN COMPLETED
+            </div>
+        </footer>
+    </div>
+
+<script>
+// --- AUDIO SYNTHESIZER LAYER (Web Audio API) ---
+class CyberAudioSynth {
+    constructor() {
+        this.ctx = null;
+    }
+
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    playJump() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+    }
+
+    playShoot() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.1);
+
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+    }
+
+    playExplosion() {
+        this.init();
+        // White noise node for debris explosion
+        const bufferSize = this.ctx.sampleRate * 0.35;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(300, this.ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(10, this.ctx.currentTime + 0.35);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        noise.start();
+        noise.stop(this.ctx.currentTime + 0.35);
+    }
+
+    playBounce() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.25);
+
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.25);
+    }
+
+    playHurt() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.3);
+
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(185, this.ctx.currentTime);
+        osc2.frequency.linearRampToValueAtTime(45, this.ctx.currentTime + 0.3);
+
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+
+        osc.start();
+        osc2.start();
+        osc.stop(this.ctx.currentTime + 0.3);
+        osc2.stop(this.ctx.currentTime + 0.3);
+    }
+}
+
+// --- TILEMAP MANAGER LAYER (Handles Grid Parsing and Dynamic Tiles) ---
+class TilemapManager {
+    constructor(worldGroup, tileSize = 40) {
+        this.worldGroup = worldGroup;
+        this.tileSize = tileSize;
+        this.platforms = [];
+        
+        // Extended layout with bounce pads (*), spikes (^), destructible blocks (X), and walls (#)
+        this.mapLayout = [
+            "################################################################################",
+            "#..............................................................................#",
+            "#..............................................................................#",
+            "#........XXXXX..................................######.........................#",
+            "#...................####......................#......#......XXXXXX.............#",
+            "#....####.....................................#..^^..#......#....#.............#",
+            "#...#....#..........####............####......########......#....#.............#",
+            "#...#....#..................................................#....#.............#",
+            "#...#....#..........................................####....XXXXXX.............#",
+            "#....####...........#####......................................................#",
+            "#........................................######................................#",
+            "#...........*****..............................................................#",
+            "#...........#####...........................................*****..............#",
+            "#..........................######.........XXXXX.............#####..............#",
+            "###########################^^^^^^#########^^^^^#############^^^^^###############"
+        ];
+    }
+
+    buildMap() {
+        this.platforms = [];
+        for (let y = 0; y < this.mapLayout.length; y++) {
+            const row = this.mapLayout[y];
+            for (let x = 0; x < row.length; x++) {
+                const char = row[x];
+                if (char === '#' || char === 'X' || char === '^' || char === '*') {
+                    const type = char === '#' ? 'wall' :
+                                 char === 'X' ? 'destructible' :
+                                 char === '^' ? 'spike' : 'bounce';
+                    
+                    const plat = {
+                        id: `tile_${x}_${y}`,
+                        x: x * this.tileSize,
+                        y: y * this.tileSize,
+                        w: this.tileSize,
+                        h: this.tileSize,
+                        type: type,
+                        tileX: x,
+                        tileY: y
+                    };
+                    
+                    this.platforms.push(plat);
+                    this.renderPlatform(plat);
+                }
+            }
+        }
+        return this.platforms;
+    }
+
+    renderPlatform(plat) {
+        if (plat.graphic) {
+            this.worldGroup.removeChild(plat.graphic);
+        }
+
+        let g = new PIXI.Graphics();
+        plat.graphic = g;
+
+        if (plat.type === 'wall') {
+            // Neon cyan grid block
+            g.beginFill(0x0e071c, 0.95);
+            g.lineStyle(2, 0x06b6d4, 0.8);
+            g.drawRect(0, 0, plat.w, plat.h);
+            g.endFill();
+            // Cyber inner accent cross lines
+            g.lineStyle(1, 0x0891b2, 0.2);
+            g.moveTo(0, 0); g.lineTo(plat.w, plat.h);
+            g.moveTo(plat.w, 0); g.lineTo(0, plat.h);
+        } 
+        else if (plat.type === 'destructible') {
+            // Neon purple/magenta breakable block
+            g.beginFill(0x1a0528, 0.95);
+            g.lineStyle(2, 0xd946ef, 0.85);
+            g.drawRect(0, 0, plat.w, plat.h);
+            g.endFill();
+            // Outer glow lines
+            g.lineStyle(4, 0xd946ef, 0.25);
+            g.drawRect(-2, -2, plat.w + 4, plat.h + 4);
+            // Dynamic tech markings
+            g.lineStyle(1.5, 0xd946ef, 0.6);
+            g.moveTo(plat.w / 2, 0); g.lineTo(plat.w / 2, plat.h);
+            g.moveTo(0, plat.h / 2); g.lineTo(plat.w, plat.h / 2);
+        } 
+        else if (plat.type === 'spike') {
+            // Danger red hazard spike
+            g.beginFill(0x1f030a, 0.95);
+            g.lineStyle(2, 0xef4444, 0.9);
+            // Draw a neat hazard warning triangle
+            g.moveTo(plat.w / 2, 8);
+            g.lineTo(plat.w - 6, plat.h);
+            g.lineTo(6, plat.h);
+            g.closePath();
+            g.endFill();
+            // Glow lines
+            g.lineStyle(4, 0xef4444, 0.25);
+            g.moveTo(plat.w / 2, 6); g.lineTo(plat.w - 4, plat.h + 2); g.lineTo(4, plat.h + 2); g.closePath();
+        } 
+        else if (plat.type === 'bounce') {
+            // Green glow bounce launcher pad
+            g.beginFill(0x061c0e, 0.95);
+            g.lineStyle(2, 0x10b981, 0.8);
+            g.drawRect(0, 0, plat.w, plat.h);
+            g.endFill();
+            // Interactive directional arrow pointing UP
+            g.lineStyle(2, 0x34d399, 0.85);
+            g.moveTo(plat.w / 2, 10);
+            g.lineTo(plat.w / 2, plat.h - 10);
+            g.moveTo(plat.w / 2, 10);
+            g.lineTo(plat.w / 2 - 8, 18);
+            g.moveTo(plat.w / 2, 10);
+            g.lineTo(plat.w / 2 + 8, 18);
+        }
+
+        g.x = plat.x;
+        g.y = plat.y;
+        this.worldGroup.addChild(g);
+    }
+
+    destroyPlatform(plat) {
+        if (plat.graphic) {
+            this.worldGroup.removeChild(plat.graphic);
+        }
+        const index = this.platforms.indexOf(plat);
+        if (index > -1) {
+            this.platforms.splice(index, 1);
+        }
+    }
+}
+
+// --- MAIN ENGINE CONTROLLER CONTEXT ---
+class HybridPlatformerEngine {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        
+        // Single Source of Truth physics entity
+        this.actor = {
+            x: 200, y: 150,
+            width: 26, height: 34,
+            vx: 0, vy: 0,
+            speed: 0.48,
+            maxVx: 5.5,
+            friction: 0.84,
+            gravity: 0.38,
+            jumpForce: -9.5,
+            isGrounded: false
+        };
+
+        // Smooth viewport tracking
+        this.camera = {
+            x: 0, y: 0,
+            targetX: 0, targetY: 0,
+            lerp: 0.08,
+            shakeX: 0,
+            shakeY: 0,
+            shakeIntensity: 0
+        };
+
+        this.inputState = { left: false, right: false, jump: false };
+        this.mouseState = { x: 0, y: 0 };
+        this.raycastCount = 0;
+        this.score = 0;
+        this.particles = [];
+        this.isResetting = false;
+
+        this.soundEngine = new CyberAudioSynth();
+        this.initPixiCanvasStage();
+        
+        // Build Procedural levels
+        this.tilemapManager = new TilemapManager(this.worldGroupContainer);
+        this.platforms = this.tilemapManager.buildMap();
+
+        this.bindEvents();
+        this.writeSystemLog("PLATFORM_CORE SYSTEMS CHECK: OK");
+        this.writeSystemLog("LASER VECTOR MATRIX LOADED");
+        
+        this.syncHUDViewDisplay();
+        this.bootMasterTickerPipeline();
+
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    initPixiCanvasStage() {
+        this.pixiApp = new PIXI.Application({
+            width: this.width, 
+            height: this.height,
+            backgroundColor: 0x05020c, 
+            antialias: true,
+            resolution: window.devicePixelRatio || 1,
+            autoDensity: true
+        });
+        
+        const stageEl = document.getElementById('pixi-game-stage');
+        stageEl.appendChild(this.pixiApp.view);
+        
+        this.worldGroupContainer = new PIXI.Container();
+        this.pixiApp.stage.addChild(this.worldGroupContainer);
+
+        // Cyber Grid Parallax Background Visuals
+        this.backgroundGraphics = new PIXI.Graphics();
+        this.renderBackgroundGrid();
+        this.worldGroupContainer.addChild(this.backgroundGraphics);
+
+        // Player Graphic Avatar Box
+        this.actorVisualSprite = new PIXI.Graphics();
+        this.renderPlayerAvatar(0x06b6d4); // Startup with cyan
+        this.worldGroupContainer.addChild(this.actorVisualSprite);
+
+        // Laser Aim line layer
+        this.raycastGraphics = new PIXI.Graphics();
+        this.worldGroupContainer.addChild(this.raycastGraphics);
+    }
+
+    renderBackgroundGrid() {
+        this.backgroundGraphics.clear();
+        this.backgroundGraphics.lineStyle(1, 0x4f46e5, 0.08);
+        const mapWidth = 3200;
+        const mapHeight = 600;
+        
+        // Horizontal grid
+        for (let y = 0; y < mapHeight; y += 40) {
+            this.backgroundGraphics.moveTo(0, y);
+            this.backgroundGraphics.lineTo(mapWidth, y);
+        }
+        // Vertical grid
+        for (let x = 0; x < mapWidth; x += 40) {
+            this.backgroundGraphics.moveTo(x, 0);
+            this.backgroundGraphics.lineTo(x, mapHeight);
+        }
+    }
+
+    renderPlayerAvatar(colorCode) {
+        this.actorVisualSprite.clear();
+        // Inner core
+        this.actorVisualSprite.beginFill(colorCode, 0.95);
+        this.actorVisualSprite.lineStyle(2, 0xffffff, 1);
+        this.actorVisualSprite.drawRect(0, 0, this.actor.width, this.actor.height);
+        this.actorVisualSprite.endFill();
+        
+        // Outer glowing outline
+        this.actorVisualSprite.lineStyle(6, colorCode, 0.3);
+        this.actorVisualSprite.drawRect(-3, -3, this.actor.width + 6, this.actor.height + 6);
+    }
+
+    bindEvents() {
+        window.addEventListener('keydown', (e) => {
+            this.soundEngine.init(); // Warm audio context
+            this.toggleInputKey(e, true);
+        });
+        window.addEventListener('keyup', (e) => this.toggleInputKey(e, false));
+        
+        const canvas = this.pixiApp.view;
+        canvas.addEventListener('mousemove', (e) => {
+            this.mouseState.x = e.clientX;
+            this.mouseState.y = e.clientY;
+        });
+        
+        canvas.addEventListener('mousedown', (e) => {
+            if(e.button === 0) {
+                this.soundEngine.init();
+                this.fireRaycast();
+            }
+        });
+    }
+
+    toggleInputKey(e, isPressed) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.inputState.left = isPressed;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') this.inputState.right = isPressed;
+        if (e.code === 'Space' || e.code === 'KeyW' || e.code === 'ArrowUp') this.inputState.jump = isPressed;
+        if (e.code === 'KeyF' && isPressed) this.fireRaycast();
+    }
+
+    handleResize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.pixiApp.renderer.resize(this.width, this.height);
+    }
+
+    resetEntityState() {
+        if (this.isResetting) return;
+        this.isResetting = true;
+
+        this.soundEngine.playHurt();
+        this.writeSystemLog("CRITICAL COLLISION: REBOOTING MARINE");
+        
+        this.actor.vx = 0; 
+        this.actor.vy = 0;
+        this.actor.x = 200;
+        this.actor.y = 150;
+        this.actor.isGrounded = false;
+        
+        this.triggerScreenShake(20);
+
+        // Flash Red Screen Alert
+        let flash = new PIXI.Graphics();
+        flash.beginFill(0xef4444, 0.4);
+        flash.drawRect(0, 0, this.width, this.height);
+        flash.endFill();
+        this.pixiApp.stage.addChild(flash);
+        setTimeout(() => {
+            this.pixiApp.stage.removeChild(flash);
+            this.isResetting = false;
+        }, 150);
+
+        let banner = document.getElementById('platform-banner');
+        banner.classList.remove('hidden');
+        setTimeout(() => banner.classList.add('hidden'), 1200);
+    }
+
+    triggerScreenShake(intensity) {
+        this.camera.shakeIntensity = intensity;
+    }
+
+    writeSystemLog(msg) {
+        const container = document.getElementById('system-log-container');
+        const now = new Date();
+        const timeStr = now.toTimeString().split(' ')[0];
+        
+        let p = document.createElement('p');
+        p.className = 'animate__animated animate__fadeIn';
+        p.innerHTML = `<span class="text-cyan-400 font-bold">[${timeStr}]</span> ${msg}`;
+        container.appendChild(p);
+        
+        // Auto scroll to bottom
+        container.scrollTop = container.scrollHeight;
+        
+        // Keep logs clean to 35 items
+        while (container.children.length > 35) {
+            container.removeChild(container.firstChild);
+        }
+    }
+
+    fireRaycast() {
+        this.raycastCount++;
+        this.soundEngine.playShoot();
+
+        // Player Center World Space
+        const startX = this.actor.x + this.actor.width / 2;
+        const startY = this.actor.y + this.actor.height / 2;
+        
+        // Translate Screen Mouse to World Coordinates
+        const mouseWorldX = this.mouseState.x - this.camera.x;
+        const mouseWorldY = this.mouseState.y - this.camera.y;
+        
+        const dx = mouseWorldX - startX;
+        const dy = mouseWorldY - startY;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        
+        if (length === 0) return;
+        
+        const dirX = dx / length;
+        const dirY = dy / length;
+        
+        const maxDist = 1500;
+        let hit = null;
+        let hitDist = maxDist;
+        let hitPlat = null;
+
+        // Perform ray intersection sweeps with AABB boundaries
+        for (let plat of this.platforms) {
+            const hitPoint = this.rayIntersectAABB(startX, startY, dirX, dirY, plat);
+            if (hitPoint) {
+                const dist = Math.sqrt((hitPoint.x - startX)**2 + (hitPoint.y - startY)**2);
+                if (dist < hitDist) {
+                    hitDist = dist;
+                    hit = hitPoint;
+                    hitPlat = plat;
+                }
+            }
+        }
+
+        const endX = startX + dirX * hitDist;
+        const endY = startY + dirY * hitDist;
+
+        // Render high-intensity Neon Laser Beam
+        this.raycastGraphics.clear();
+        
+        // Core center white beam
+        this.raycastGraphics.lineStyle(2, 0xffffff, 0.95);
+        this.raycastGraphics.moveTo(startX, startY);
+        this.raycastGraphics.lineTo(endX, endY);
+        
+        // Outer glowing neon cyan envelope
+        this.raycastGraphics.lineStyle(6, 0x06b6d4, 0.45);
+        this.raycastGraphics.moveTo(startX, startY);
+        this.raycastGraphics.lineTo(endX, endY);
+        
+        // Clear laser line after a short interval
+        setTimeout(() => this.raycastGraphics.clear(), 80);
+
+        if (hit) {
+            if (hitPlat && hitPlat.type === 'destructible') {
+                this.score++;
+                this.soundEngine.playExplosion();
+                this.writeSystemLog(`DESTROYED TARGET BLOCK @ [X:${hitPlat.tileX}, Y:${hitPlat.tileY}]`);
+                
+                // Spawn debris particles
+                this.spawnImpactParticles(hit.x, hit.y, 0xd946ef, 18);
+                
+                // Remove destructible block
+                this.tilemapManager.destroyPlatform(hitPlat);
+                
+                this.triggerScreenShake(12);
+            } else {
+                // Hit normal walls or hazards: spawn standard sparks
+                const particleColor = hitPlat && hitPlat.type === 'spike' ? 0xef4444 : 0x06b6d4;
+                this.spawnImpactParticles(hit.x, hit.y, particleColor, 8);
+            }
+        }
+    }
+
+    rayIntersectAABB(px, py, dx, dy, aabb) {
+        let tmin = -Infinity, tmax = Infinity;
+
+        if (dx !== 0) {
+            let tx1 = (aabb.x - px) / dx;
+            let tx2 = (aabb.x + aabb.w - px) / dx;
+            tmin = Math.max(tmin, Math.min(tx1, tx2));
+            tmax = Math.min(tmax, Math.max(tx1, tx2));
+        } else if (px < aabb.x || px > aabb.x + aabb.w) return null;
+
+        if (dy !== 0) {
+            let ty1 = (aabb.y - py) / dy;
+            let ty2 = (aabb.y + aabb.h - py) / dy;
+            tmin = Math.max(tmin, Math.min(ty1, ty2));
+            tmax = Math.min(tmax, Math.max(ty1, ty2));
+        } else if (py < aabb.y || py > aabb.y + aabb.h) return null;
+
+        if (tmax >= tmin && tmax >= 0) {
+            const t = tmin > 0 ? tmin : tmax;
+            return { x: px + dx * t, y: py + dy * t };
+        }
+        return null;
+    }
+
+    spawnImpactParticles(x, y, colorCode, count) {
+        for (let i = 0; i < count; i++) {
+            let p = new PIXI.Graphics();
+            p.beginFill(colorCode);
+            p.drawRect(0, 0, Math.random() * 4 + 2, Math.random() * 4 + 2);
+            p.endFill();
+            p.x = x;
+            p.y = y;
+            
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 5 + 3;
+            
+            this.worldGroupContainer.addChild(p);
+            this.particles.push({
+                sprite: p,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1.0,
+                decay: Math.random() * 0.04 + 0.02
+            });
+        }
+    }
+
+    updateKinematicPhysicsPipeline() {
+        if (this.isResetting) return;
+
+        // Apply Horizontal Forces
+        if (this.inputState.left) this.actor.vx -= this.actor.speed;
+        if (this.inputState.right) this.actor.vx += this.actor.speed;
+        
+        this.actor.vx *= this.actor.friction;
+        if (Math.abs(this.actor.vx) < 0.01) this.actor.vx = 0;
+        this.actor.vx = Math.max(-this.actor.maxVx, Math.min(this.actor.maxVx, this.actor.vx));
+
+        // Commit horizontal translation and resolve axis collisions
+        this.actor.x += this.actor.vx;
+        this.resolveMapAxisCollisions('X');
+
+        // Apply Vertical Forces / Gravity
+        this.actor.vy += this.actor.gravity;
+
+        if (this.inputState.jump && this.actor.isGrounded) {
+            this.actor.vy = this.actor.jumpForce;
+            this.actor.isGrounded = false;
+            this.soundEngine.playJump();
+        }
+
+        // Commit vertical translation and resolve axis collisions
+        this.actor.y += this.actor.vy;
+        this.resolveMapAxisCollisions('Y');
+
+        // Dynamic spike/hazard collision check
+        this.resolveSpikeCollisions();
+
+        // Screen boundary safety reset
+        if (this.actor.y > 700) {
+            this.resetEntityState();
+        }
+    }
+
+    resolveMapAxisCollisions(axis) {
+        if (axis === 'Y') this.actor.isGrounded = false;
+
+        for (let plat of this.platforms) {
+            // Bypass hazard / spike blocks from normal physical boundaries
+            if (plat.type === 'spike') continue;
+
+            if (this.actor.x < plat.x + plat.w &&
+                this.actor.x + this.actor.width > plat.x &&
+                this.actor.y < plat.y + plat.h &&
+                this.actor.y + this.actor.height > plat.y) {
+                
+                if (axis === 'X') {
+                    if (this.actor.vx > 0) this.actor.x = plat.x - this.actor.width;
+                    else if (this.actor.vx < 0) this.actor.x = plat.x + plat.w;
+                    this.actor.vx = 0;
+                } else {
+                    if (this.actor.vy > 0) { 
+                        this.actor.y = plat.y - this.actor.height;
+                        this.actor.isGrounded = true;
+                        this.actor.vy = 0;
+
+                        // Check bounce pads launcher boost
+                        if (plat.type === 'bounce') {
+                            this.actor.vy = -12.5; // Upward force boost
+                            this.actor.isGrounded = false;
+                            this.soundEngine.playBounce();
+                            this.spawnImpactParticles(this.actor.x + this.actor.width / 2, plat.y, 0x10b981, 10);
+                            this.writeSystemLog("JUMP BOUNCER PAD TRIGGERED");
+                        }
+                    } else if (this.actor.vy < 0) { 
+                        this.actor.y = plat.y + plat.h;
+                        this.actor.vy = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    resolveSpikeCollisions() {
+        for (let plat of this.platforms) {
+            if (plat.type === 'spike') {
+                if (this.actor.x + 2 < plat.x + plat.w &&
+                    this.actor.x + this.actor.width - 2 > plat.x &&
+                    this.actor.y + 2 < plat.y + plat.h &&
+                    this.actor.y + this.actor.height > plat.y) {
+                    this.resetEntityState();
+                    break;
+                }
+            }
+        }
+    }
+
+    updateCameraViewport() {
+        // Track player and center screen viewport
+        this.camera.targetX = -this.actor.x + this.width / 2;
+        this.camera.targetY = -this.actor.y + this.height / 2;
+
+        // Offset slightly for left sidebar hud
+        this.camera.targetX += 160; 
+
+        // Boundary Clamp constraints
+        const minX = -3200 + this.width;
+        const maxX = 0;
+        const minY = -600 + this.height;
+        const maxY = 0;
+
+        this.camera.targetX = Math.max(minX, Math.min(maxX, this.camera.targetX));
+        // Keep camera steady along Y if layout height fits easily
+        if (minY < maxY) {
+            this.camera.targetY = Math.max(minY, Math.min(maxY, this.camera.targetY));
+        } else {
+            this.camera.targetY = (this.height - 600) / 2;
+        }
+
+        // Apply smooth lerp tracking
+        this.camera.x += (this.camera.targetX - this.camera.x) * this.camera.lerp;
+        this.camera.y += (this.camera.targetY - this.camera.y) * this.camera.lerp;
+
+        // Render Screen Shake updates
+        if (this.camera.shakeIntensity > 0.1) {
+            this.camera.shakeX = (Math.random() * 2 - 1) * this.camera.shakeIntensity;
+            this.camera.shakeY = (Math.random() * 2 - 1) * this.camera.shakeIntensity;
+            this.camera.shakeIntensity *= 0.9; // Decays over time
+        } else {
+            this.camera.shakeX = 0;
+            this.camera.shakeY = 0;
+            this.camera.shakeIntensity = 0;
+        }
+
+        this.worldGroupContainer.x = this.camera.x + this.camera.shakeX;
+        this.worldGroupContainer.y = this.camera.y + this.camera.shakeY;
+    }
+
+    updateParticles() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            let p = this.particles[i];
+            p.sprite.x += p.vx;
+            p.sprite.y += p.vy;
+            p.vy += 0.2; // Minor gravity on particles
+            p.life -= p.decay;
+            
+            p.sprite.alpha = p.life;
+            p.sprite.scale.x = p.life;
+            p.sprite.scale.y = p.life;
+            
+            if (p.life <= 0) {
+                this.worldGroupContainer.removeChild(p.sprite);
+                this.particles.splice(i, 1);
+            }
+        }
+    }
+
+    bootMasterTickerPipeline() {
+        const loop = () => {
+            this.updateKinematicPhysicsPipeline();
+            this.updateCameraViewport();
+            this.updateParticles();
+            
+            // Sync player position
+            this.actorVisualSprite.x = this.actor.x;
+            this.actorVisualSprite.y = this.actor.y;
+
+            // Change player outline colors based on states
+            if (this.actor.isGrounded) {
+                this.renderPlayerAvatar(0x06b6d4); // Ground cyan
+            } else if (this.actor.vy < 0) {
+                this.renderPlayerAvatar(0xd946ef); // Jump magenta
+            } else {
+                this.renderPlayerAvatar(0x6366f1); // Falling blue
+            }
+            
+            // Throttled UI panel refreshes
+            if (Math.random() > 0.85) {
+                this.syncHUDViewDisplay();
+            }
+            
+            requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+    }
+
+    syncHUDViewDisplay() {
+        document.getElementById('txt-vx').innerText = this.actor.vx.toFixed(2).padStart(5, '0');
+        document.getElementById('txt-vy').innerText = this.actor.vy.toFixed(2).padStart(5, '0');
+        document.getElementById('txt-raycasts').innerText = this.raycastCount;
+        document.getElementById('txt-score').innerText = this.score;
+        document.getElementById('txt-particles').innerText = this.particles.length;
+        
+        const groundEl = document.getElementById('txt-ground');
+        groundEl.innerText = this.actor.isGrounded ? "TRUE" : "FALSE";
+        groundEl.className = `hud-value ${this.actor.isGrounded ? 'text-emerald-400' : 'text-rose-500'}`;
+    }
+}
+
+// Instantiate Global Game context
+let orchestrator;
+window.onload = () => { 
+    orchestrator = new HybridPlatformerEngine(); 
+};
+</script>
+</body>
+</html>
