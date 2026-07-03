@@ -1,0 +1,13 @@
+{
+    "name": "automation/support-ticket-sla-reminder",
+    "description": "Enterprise-grade Support Ticket SLA Reminder System",
+    "type": "project",
+    "require": {
+        "php": ">=8.0"
+    },
+    "config": {
+        "platform": {
+            "php": "8.4.11"
+        }
+    }
+}
