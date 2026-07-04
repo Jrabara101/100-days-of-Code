@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Retro Runner Wall-Jump Mechanics Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.css"/>
+    <script src="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0b0c14; font-family: monospace; }
+        canvas { display: block; background: #06070d; }
+        #canvas-stage-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #rpg-desktop-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        .rpgui-container { background: rgba(11, 12, 20, 0.95) !important; border-image: url(https://unpkg.com/rpgui@1.0.3/dist/img/border-image-golden.png) 14 repeat !important; }
+    </style>
+</head>
+<body class="rpgui-content">
+
+    <div id="canvas-stage-wrapper">
+        <canvas id="runnerCanvas"></canvas>
+    </div>
+
+    <div id="rpg-desktop-hud">
+        <div class="rpgui-container absolute left-6 top-6 w-80 p-5 pointer-events-auto shadow-2xl animate__animated animate__fadeInDown">
+            <header class="border-b border-amber-500/40 pb-2 mb-3">
+                <h2 class="text-amber-500 font-bold text-xs tracking-widest font-mono">RUNNER_CORE.EXE</h2>
+                <p class="text-[9px] text-slate-400 font-mono mt-0.5">KINEMATIC STATE MACHINE DATA</p>
+            </header>
+
+            <div class="space-y-2 font-mono text-[11px] text-slate-300">
+                <div class="flex justify-between"><span>🏃 Horizontal Vel (Vx):</span><span id="txt-vx" class="text-cyan-400 font-bold">0.00</span></div>
+                <div class="flex justify-between"><span>🪂 Vertical Vel (Vy):</span><span id="txt-vy" class="text-indigo-400 font-bold">0.00</span></div>
+                <div class="flex justify-between border-t border-amber-500/30 pt-1"><span>⚓ Active State:</span><span id="txt-state" class="text-emerald-400 font-bold">RUNNING</span></div>
+            </div>
+
+            <hr class="rpgui-hr" />
+
+            <div class="flex flex-col gap-2 mt-2">
+                <button onclick="orchestrator.respawnActor()" class="rpgui-button hvr-grow w-full text-center" type="button">
+                    <p class="text-xs font-bold text-slate-200">Respawn Runner Stick</p>
+                </button>
+            </div>
+            <div class="text-[9px] text-slate-500 mt-3 font-mono text-center">CONTROLS: A/D OR ARROWS = RUN | SPACE = JUMP / WALL-KICK</div>
+        </div>
+
+        <footer class="absolute bottom-12 left-1/2 -translate-x-1/2 flex justify-center w-full max-w-xs">
+            <div id="vector-banner" class="hidden w-full text-center bg-cyan-500 text-slate-950 font-mono text-[10px] font-black px-6 py-3 rounded shadow-2xl border border-cyan-300 animate__animated animate__bounceIn">
+                VECTOR OVERRIDE // WALL KICK RESOLVED
+            </div>
+        </footer>
+    </div>
+
+<script>
+class HybridRunnerWallJumpEngine {
+    constructor() {
+        this.canvas = document.getElementById('runnerCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.resizeCanvasViewport();
+        window.addEventListener('resize', () => this.resizeCanvasViewport());
+
+        // Headless Level Obstacles Array Map Geometry (Solid vertical blocks to bounce between)
+        this.collidersPool = [
+            { x: 0, y: this.height - 60, w: this.width, h: 60, type: 'FLOOR' }, // Main Ground
+            { x: 220, y: this.height - 400, w: 40, h: 260, type: 'WALL' },     // Left Pillar
+            { x: 480, y: this.height - 450, w: 40, h: 320, type: 'WALL' }      // Right Pillar
+        ];
+
+        // --- SINGLE SOURCE OF TRUTH KINEMATIC ENGINE REGISTER ---
+        this.runner = {
+            x: 100, y: 300,
+            w: 20, h: 28,
+            vx: 0, vy: 0,
+            accel: 0.45,
+            maxVx: 5.0,
+            friction: 0.85,
+            gravity: 0.38,
+            slideGravity: 0.12, // Dampened gravity scalar when sliding down wall faces
+            jumpForce: -8.8,
+            kickForceX: 6.2,    // Horizontal force vector blasting away from wall face
+            kickForceY: -8.2,   // Upward vertical force component
+            
+            // FSM Flags: 'RUNNING', 'AIRBORNE', 'WALL_SLIDING'
+            statePhase: 'AIRBORNE',
+            wallContactSide: 0, // -1 = Left wall collision index, 1 = Right wall collision index, 0 = Clear
+            inputLockoutTicks: 0 // Duration windows preventing player inputs overrides mid-bounce
+        };
+
+        this.inputMatrix = { left: false, right: false, jump: false };
+
+        this.bindKeyboardActionStreams();
+        this.executeEngineFrameLoop();
+    }
+
+    resizeCanvasViewport() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        
+        // Re-anchor level floors dynamically if sizes shift
+        if (this.collidersPool) {
+            this.collidersPool[0].w = this.width;
+            this.collidersPool[0].y = this.height - 60;
+        }
+    }
+
+    bindKeyboardActionStreams() {
+        window.addEventListener('keydown', (e) => this.toggleInputState(e, true));
+        window.addEventListener('keyup', (e) => this.toggleInputState(e, false));
+    }
+
+    toggleInputState(e, isPressed) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.inputMatrix.left = isPressed;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') this.inputMatrix.right = isPressed;
+        if (e.code === 'Space') {
+            this.inputMatrix.jump = isPressed;
+            if (isPressed) this.interceptJumpActionTrigger();
+        }
+    }
+
+    respawnActor() {
+        this.runner.x = 100; this.runner.y = 200;
+        this.runner.vx = 0; this.runner.vy = 0;
+        this.runner.statePhase = 'AIRBORNE';
+        this.runner.inputLockoutTicks = 0;
+    }
+
+    // --- INTERCEPTOR INTERACTION GATES: TRANSACTION JUMP ROUTER ---
+    interceptJumpActionTrigger() {
+        // Evaluate jump commands strictly inside active state limits loops
+        if (this.runner.statePhase === 'RUNNING') {
+            this.runner.vy = this.runner.jumpForce;
+            this.runner.statePhase = 'AIRBORNE';
+        } else if (this.runner.statePhase === 'WALL_SLIDING' && this.runner.wallContactSide !== 0) {
+            // --- THE KINEMATIC VECTOR OVERRIDE MACHINE ---
+            // Blast runner away from the currently targeted wall face normal vector directions
+            this.runner.vx = -this.runner.wallContactSide * this.runner.kickForceX;
+            this.runner.vy = this.runner.kickForceY;
+            
+            this.runner.inputLockoutTicks = 14; // Freeze standard directional inputs for 14 frames
+            this.runner.statePhase = 'AIRBORNE';
+
+            // Flash performance alert overlay banners
+            let banner = document.getElementById('vector-banner');
+            banner.classList.remove('hidden');
+            setTimeout(() => banner.classList.add('hidden'), 800);
+        }
+    }
+
+    // --- CENTRAL LOOP: SUB-PIXEL AXIS-ISOLATED INTEGRATION ENGINE ---
+    updateKinematicStatePipeline() {
+        // 1. Process active input freeze ticks modifiers
+        if (this.runner.inputLockoutTicks > 0) {
+            this.runner.inputLockoutTicks--;
+        }
+
+        // 2. Process Horizontal Axis Forces Integration
+        if (this.runner.inputLockoutTicks === 0) {
+            if (this.inputMatrix.left) this.runner.vx -= this.runner.accel;
+            if (this.inputMatrix.right) this.runner.vx += this.runner.accel;
+        }
+        
+        this.runner.vx *= this.runner.friction;
+        this.runner.vx = Math.max(-this.runner.maxVx, Math.min(this.runner.maxVx, this.runner.vx));
+
+        this.runner.x += this.runner.vx;
+        this.runner.wallContactSide = 0; // Reset side tracking indices values before checks
+        this.resolveMapAxisIntersections('X');
+
+        // 3. Process Vertical Axis Forces Integration
+        let activeGravity = (this.runner.statePhase === 'WALL_SLIDING' && this.runner.vy > 0) 
+            ? this.runner.slideGravity 
+            : this.runner.gravity;
+
+        this.runner.vy += activeGravity;
+        this.runner.y += this.runner.vy;
+        
+        let previouslyGrounded = (this.runner.statePhase === 'RUNNING');
+        let currentlyFoundGround = this.resolveMapAxisIntersections('Y');
+
+        // State Machine Transition Chains Fallbacks
+        if (!currentlyFoundGround && this.runner.statePhase === 'RUNNING') {
+            this.runner.statePhase = 'AIRBORNE';
+        }
+
+        if (this.runner.statePhase === 'AIRBORNE' && this.runner.wallContactSide !== 0 && this.runner.vy > 0) {
+            // Player is descending mid-air while pressing flush against a vertical wall face segment
+            if ((this.runner.wallContactSide === -1 && this.inputMatrix.left) || 
+                (this.runner.wallContactSide === 1 && this.inputMatrix.right)) {
+                this.runner.statePhase = 'WALL_SLIDING';
+            }
+        }
+
+        if (this.runner.statePhase === 'WALL_SLIDING' && this.runner.wallContactSide === 0) {
+            this.runner.statePhase = 'AIRBORNE'; // Slipped off edge of vertical tracking block
+        }
+
+        // Bound safety fall traps
+        if (this.runner.y > this.height) this.respawnActor();
+    }
+
+    resolveMapAxisIntersections(axisString) {
+        let matchedImpactFlag = false;
+
+        for (let i = 0; i < this.collidersPool.length; i++) {
+            let block = this.collidersPool[i];
+
+            // Standard Axis-Aligned Bounding Box (AABB) intersection formula checks
+            if (this.runner.x < block.x + block.w &&
+                this.runner.x + this.runner.w > block.x &&
+                this.runner.y < block.y + block.h &&
+                this.runner.y + this.runner.h > block.y) {
+
+                matchedImpactFlag = true;
+
+                // Push back coordinate positioning calculations strictly along the active vector axis line
+                if (axisString === 'X') {
+                    if (this.runner.vx > 0) {
+                        this.runner.x = block.x - this.runner.w;
+                        if (block.type === 'WALL') this.runner.wallContactSide = 1; // Wall to player's right
+                    }
+                    if (this.runner.vx < 0) {
+                        this.runner.x = block.x + block.w;
+                        if (block.type === 'WALL') this.runner.wallContactSide = -1; // Wall to player's left
+                    }
+                    this.runner.vx = 0;
+                } else if (axisString === 'Y') {
+                    if (this.runner.vy > 0) { // Landing down onto top surface ledge area
+                        this.runner.y = block.y - this.runner.h;
+                        this.runner.statePhase = 'RUNNING';
+                        this.runner.vy = 0;
+                    } else if (this.runner.vy < 0) { // Crashing ceiling blocks overhead
+                        this.runner.y = block.y + block.h;
+                        this.runner.vy = 0;
+                    }
+                }
+            }
+        }
+        return matchedImpactFlag;
+    }
+
+    // --- DISPLAY CONTEXT LAYER PRESENTATION RENDERING COMPOSITING ---
+    executeEngineFrameLoop() {
+        // Advance logical kinematic calculations positions snapshots
+        this.updateKinematicStatePipeline();
+
+        // Flush background and repaint primitive silhouettes objects layout elements
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        // 1. Draw Environment Blocks Array
+        this.collidersPool.forEach(block => {
+            this.ctx.fillStyle = block.type === 'FLOOR' ? '#141b2d' : '#1e293b'; // Slate paths outlines
+            this.ctx.fillRect(block.x, block.y, block.w, block.h);
+            
+            this.ctx.strokeStyle = '#2d3748';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(block.x, block.y, block.w, block.h);
+        });
+
+        // 2. Draw Stick-Runner Capsule Avatar
+        this.ctx.fillStyle = this.runner.statePhase === 'WALL_SLIDING' ? '#a855f7' : '#06b6d4'; // Indigo slide vs Cyan run
+        this.ctx.fillRect(this.runner.x, this.runner.y, this.runner.w, this.runner.h);
+
+        // Optional structural telemetry synchronization blit interval limits
+        if (Date.now() % 3 === 0) this.syncTelemetryDashboard();
+
+        requestAnimationFrame(() => this.executeEngineFrameLoop());
+    }
+
+    syncTelemetryDashboard() {
+        document.getElementById('txt-vx').innerText = this.runner.vx.toFixed(2);
+        document.getElementById('txt-vy').innerText = this.runner.vy.toFixed(2);
+        document.getElementById('txt-state').innerText = this.runner.statePhase;
+        
+        let label = document.getElementById('txt-state');
+        if (this.runner.statePhase === 'WALL_SLIDING') label.className = "text-purple-400 font-bold animate__animated animate__flash animate__infinite";
+        else if (this.runner.statePhase === 'RUNNING') label.className = "text-emerald-400 font-bold";
+        else label.className = "text-cyan-400 font-bold";
+    }
+}
+
+// Global Core Framework Architecture Operational Activation Entry Path
+let orchestrator;
+window.onload = () => { orchestrator = new HybridRunnerWallJumpEngine(); };
+</script>
+</body>
+</html>
