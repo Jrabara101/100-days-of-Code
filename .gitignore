@@ -34,3 +34,9 @@ yarn-error.log*
 # local backups of edited docx checklists
 Automation for daily use/**/.backups/
 
+# local run transcripts from the daily automation Scheduled Tasks
+Automation for daily use/**/.logs/
+
+# compiled Java class output from daily JavaFX project builds
+Automation for daily use/**/out/
+
