@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Retro 2D Pixel Grappling Hook Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.css"/>
+    <script src="https://unpkg.com/rpgui@1.0.3/dist/rpgui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #1a1c23; font-family: 'Courier New', Courier, monospace; }
+        canvas { display: block; background: #0f1015; image-rendering: pixelated; }
+        #canvas-stage-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #nes-desktop-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        .nes-container.is-dark { background-color: rgba(24, 26, 32, 0.93) !important; border-image-repeat: stretch !important; }
+        .rpgui-container { pointer-events: auto; }
+        
+        /* Custom pixel cursor */
+        body { cursor: crosshair; }
+        
+        /* Scanline effect for retro feel */
+        #canvas-stage-wrapper::after {
+            content: " ";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        /* Ambient glowing background grid */
+        .ambient-glow {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+            pointer-events: none;
+            z-index: 11;
+            mix-blend-mode: screen;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+        }
+        
+        /* Quick help instructions style */
+        .help-panel {
+            font-size: 8px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body class="rpgui-content">
+    <div id="canvas-stage-wrapper">
+        <div id="reticle-glow" class="ambient-glow"></div>
+        <canvas id="grappleCanvas"></canvas>
+    </div>
+    
+    <div id="nes-desktop-hud">
+        <!-- Main Telemetry Window -->
+        <div class="nes-container is-dark with-title absolute left-6 top-6 w-80 p-4 pointer-events-auto shadow-2xl animate__animated animate__fadeInLeft">
+            <p class="title text-[10px] font-bold text-yellow-400 font-mono">GRAPPLE_CORE.SYS [v1.1.2]</p>
+            
+            <div class="space-y-2 font-mono text-[10px] text-slate-300">
+                <div class="flex justify-between">
+                    <span>🏃 VEL_X:</span>
+                    <span id="txt-vx" class="text-cyan-400 font-bold">0.00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>🪂 VEL_Y:</span>
+                    <span id="txt-vy" class="text-indigo-400 font-bold">0.00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>🪢 RADIUS:</span>
+                    <span id="txt-radius" class="text-amber-400 font-bold">NULL</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>⚡ ENGINE:</span>
+                    <span id="txt-momentum" class="text-pink-400 font-bold">ANGULAR</span>
+                </div>
+                <div class="flex justify-between border-t border-slate-700 pt-1">
+                    <span>⚓ STATUS:</span>
+                    <span id="txt-state" class="text-emerald-400 font-bold uppercase">Ready</span>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <div class="flex flex-col gap-2">
+                    <button onclick="orchestrator.respawnActor()" class="nes-btn is-primary text-[10px] py-1 px-2 w-full">
+                        RESET_ACTOR.EXE
+                    </button>
+                    <button onclick="orchestrator.toggleGrid()" class="nes-btn is-success text-[10px] py-1 px-2 w-full">
+                        TOGGLE_GRID.DAT
+                    </button>
+                    <button onclick="orchestrator.clearCustomAnchors()" class="nes-btn is-error text-[10px] py-1 px-2 w-full">
+                        RESET_LEVEL.SYS
+                    </button>
+                </div>
+            </div>
+            
+            <div class="text-[8px] text-slate-500 mt-4 font-mono leading-tight help-panel">
+                <span class="text-yellow-400">CONTROLS:</span><br>
+                • <span class="text-slate-300">[A] / [D]</span>: Jetpack lateral thrusters<br>
+                • <span class="text-slate-300">[L-CLICK]</span>: Launch grapple onto anchor<br>
+                • <span class="text-slate-300">[SHIFT+CLICK]</span>: Spawn custom anchor block<br>
+                • <span class="text-slate-300">[R-CLICK]</span>: Delete closest custom anchor
+            </div>
+        </div>
+
+        <!-- Audio Setup Banner -->
+        <div id="audio-prompt" class="nes-container is-dark p-2 absolute right-6 top-6 pointer-events-auto cursor-pointer animate__animated animate__fadeInRight text-[9px] font-mono border-yellow-500 text-yellow-400" onclick="orchestrator.enableAudio()">
+            🔊 CLICK TO ENABLE RETRO CHIP AUDIO
+        </div>
+
+        <!-- System Log Overlay -->
+        <div class="absolute right-6 bottom-6 w-72 pointer-events-none">
+            <div class="nes-container is-dark p-2 opacity-85">
+                <div id="log-output" class="font-mono text-[8px] space-y-1">
+                    <p class="text-emerald-500">> KERNEL: MOMENTUM_CONSERVATION_ACTIVE</p>
+                    <p class="text-slate-400">> GRID: RASTER_SNAP_ACTIVE</p>
+                    <p class="text-slate-400">> LEVEL: STANDBY_INPUT_BUFFER</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+/**
+ * RetroAudioSynthesizer
+ * Custom Web Audio API Synthesizer generating authentic 8-bit retro sound effects
+ */
+class RetroAudioSynthesizer {
+    constructor() {
+        this.ctx = null;
+        this.enabled = false;
+        this.jetpackOsc = null;
+        this.jetpackGain = null;
+    }
+
+    init() {
+        if (this.ctx) return;
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.enabled = true;
+        this.createJetpackEngine();
+    }
+
+    createJetpackEngine() {
+        if (!this.ctx) return;
+        
+        // Setup continuous noise source for jetpack thruster simulation
+        const bufferSize = this.ctx.sampleRate * 2;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        // Bandpass filter to make it sound like a thruster exhaust
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 240;
+        filter.Q.value = 1.8;
+
+        this.jetpackGain = this.ctx.createGain();
+        this.jetpackGain.gain.setValueAtTime(0, this.ctx.currentTime);
+
+        noise.connect(filter);
+        filter.connect(this.jetpackGain);
+        this.jetpackGain.connect(this.ctx.destination);
+        noise.start(0);
+    }
+
+    setJetpackThrust(volume) {
+        if (!this.enabled || !this.jetpackGain) return;
+        this.jetpackGain.gain.setTargetAtTime(volume * 0.12, this.ctx.currentTime, 0.05);
+    }
+
+    playShoot() {
+        if (!this.enabled) return;
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1100, this.ctx.currentTime + 0.15);
+        
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.16);
+    }
+
+    playConnect() {
+        if (!this.enabled) return;
+        
+        const now = this.ctx.currentTime;
+        
+        // Latch high pitch click
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'square';
+        osc1.frequency.setValueAtTime(880, now);
+        osc1.frequency.setValueAtTime(1200, now + 0.03);
+        gain1.gain.setValueAtTime(0.15, now);
+        gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+        osc1.connect(gain1);
+        gain1.connect(this.ctx.destination);
+        osc1.start();
+        osc1.stop(now + 0.09);
+
+        // Metallic ring
+        const osc2 = this.ctx.createOscillator();
+        const gain2 = this.ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(587.33, now); // D5 note
+        gain2.gain.setValueAtTime(0.1, now);
+        gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        osc2.connect(gain2);
+        gain2.connect(this.ctx.destination);
+        osc2.start();
+        osc2.stop(now + 0.22);
+    }
+
+    playRelease() {
+        if (!this.enabled) return;
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(350, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.08);
+        
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.09);
+    }
+
+    playBounce() {
+        if (!this.enabled) return;
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.12);
+        
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.13);
+    }
+
+    playPlaceAnchor() {
+        if (!this.enabled) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(660, now + 0.1);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(now + 0.13);
+    }
+}
+
+/**
+ * ParticleSystem
+ * Handles vintage pixel sparkles and smoke bursts for dynamic movement feedback
+ */
+class ParticleSystem {
+    constructor() {
+        this.particles = [];
+    }
+
+    spawn(x, y, vx, vy, color, size = 3, maxLife = 40) {
+        this.particles.push({
+            x: x,
+            y: y,
+            vx: vx,
+            vy: vy,
+            color: color,
+            size: size,
+            life: maxLife,
+            maxLife: maxLife
+        });
+    }
+
+    update() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.05; // Gentle gravity pull
+            p.life--;
+            if (p.life <= 0) {
+                this.particles.splice(i, 1);
+            }
+        }
+    }
+
+    draw(ctx) {
+        ctx.save();
+        this.particles.forEach(p => {
+            const alpha = p.life / p.maxLife;
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = alpha;
+            ctx.fillRect(Math.floor(p.x - p.size / 2), Math.floor(p.y - p.size / 2), p.size, p.size);
+        });
+        ctx.restore();
+    }
+}
+
+/**
+ * HybridGrapplingHookEngine
+ * A Staff-level architecture implementation focusing on momentum conservation,
+ * interactive sandbox operations, and sub-pixel integration for retro-style physics.
+ */
+class HybridGrapplingHookEngine {
+    constructor() {
+        this.canvas = document.getElementById('grappleCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.showGrid = true;
+        
+        this.audio = new RetroAudioSynthesizer();
+        this.particles = new ParticleSystem();
+        
+        this.resizeCanvasViewport();
+        window.addEventListener('resize', () => this.resizeCanvasViewport());
+        
+        // Base environment anchors (Architectural Block Obstacle Matrices)
+        this.defaultAnchors = [
+            { x: 200, y: 150, radius: 18, isCustom: false },
+            { x: 480, y: 220, radius: 22, isCustom: false },
+            { x: 780, y: 140, radius: 16, isCustom: false },
+            { x: 1080, y: 280, radius: 20, isCustom: false },
+            { x: 1380, y: 180, radius: 18, isCustom: false }
+        ];
+        
+        this.anchorsPool = JSON.parse(JSON.stringify(this.defaultAnchors));
+        
+        // Stars for background parallax simulation
+        this.stars = [];
+        this.initStars();
+
+        // --- CORE KINEMATIC REGISTER ---
+        this.stickman = {
+            x: window.innerWidth / 2, 
+            y: window.innerHeight - 150,
+            radius: 12,
+            vx: 0, 
+            vy: 0,
+            accel: 0.28,
+            maxSpeed: 9.5,
+            friction: 0.993, // Minimal air resistance for smooth loops
+            gravity: 0.36,
+            
+            // Grapple Subsystem Vector Locks
+            isGrappled: false,
+            anchorX: 0, 
+            anchorY: 0,
+            ropeLength: 0,
+            targetAnchor: null
+        };
+
+        this.inputMatrix = { left: false, right: false };
+        this.mousePosition = { x: 0, y: 0 };
+        this.hoveredAnchor = null;
+        this.glowElement = document.getElementById('reticle-glow');
+        
+        this.bindActionStreams();
+        this.executeEngineFrameLoop();
+        this.pushLog('KERNEL: CORE ENGINE COMPILED SUCCESSFULLY');
+    }
+
+    initStars() {
+        this.stars = [];
+        for (let i = 0; i < 60; i++) {
+            this.stars.push({
+                x: Math.random() * this.width,
+                y: Math.random() * this.height * 0.7, // Only in upper parts
+                speed: 0.05 + Math.random() * 0.12,
+                size: Math.random() > 0.8 ? 2 : 1
+            });
+        }
+    }
+
+    resizeCanvasViewport() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.ctx.imageSmoothingEnabled = false;
+        this.initStars();
+    }
+
+    enableAudio() {
+        this.audio.init();
+        const prompt = document.getElementById('audio-prompt');
+        if (prompt) {
+            prompt.style.display = 'none';
+        }
+        this.pushLog('AUDIO: SYNTH INTEGRATED AND ONLINE');
+    }
+
+    pushLog(msg) {
+        const log = document.getElementById('log-output');
+        if (!log) return;
+        const p = document.createElement('p');
+        p.innerText = `> ${msg}`;
+        p.className = 'text-cyan-400 font-mono animate__animated animate__fadeIn';
+        log.appendChild(p);
+        
+        // Keep logs capped at 4 messages
+        while (log.children.length > 4) {
+            log.removeChild(log.firstChild);
+        }
+    }
+
+    bindActionStreams() {
+        window.addEventListener('keydown', (e) => this.toggleInputState(e, true));
+        window.addEventListener('keyup', (e) => this.toggleInputState(e, false));
+        
+        window.addEventListener('mousemove', (e) => {
+            this.mousePosition.x = e.clientX;
+            this.mousePosition.y = e.clientY;
+            
+            // Move structural reticle glow
+            if (this.glowElement) {
+                this.glowElement.style.left = `${e.clientX}px`;
+                this.glowElement.style.top = `${e.clientY}px`;
+            }
+        });
+
+        window.addEventListener('contextmenu', (e) => {
+            // Right-click deletes custom anchors
+            e.preventDefault();
+            this.deleteClosestCustomAnchor();
+        });
+
+        window.addEventListener('mousedown', (e) => {
+            // Prevent GUI elements from catching grapple clicks
+            if (e.target.closest('.nes-container') || e.target.closest('button')) return;
+            
+            if (e.shiftKey) {
+                this.spawnCustomAnchor(e.clientX, e.clientY);
+            } else {
+                this.toggleGrappleState();
+            }
+        });
+    }
+
+    toggleInputState(e, isPressed) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+            this.inputMatrix.left = isPressed;
+            if (isPressed) this.audio.setJetpackThrust(1.0);
+            else if (!this.inputMatrix.right) this.audio.setJetpackThrust(0);
+        }
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+            this.inputMatrix.right = isPressed;
+            if (isPressed) this.audio.setJetpackThrust(1.0);
+            else if (!this.inputMatrix.left) this.audio.setJetpackThrust(0);
+        }
+    }
+
+    respawnActor() {
+        this.stickman.x = this.width / 2; 
+        this.stickman.y = this.height - 150;
+        this.stickman.vx = 0; 
+        this.stickman.vy = 0;
+        
+        if (this.stickman.isGrappled) {
+            this.stickman.isGrappled = false;
+            this.audio.playRelease();
+        }
+        
+        // Spawn spawn rings particles
+        for (let i = 0; i < 15; i++) {
+            this.particles.spawn(
+                this.stickman.x,
+                this.stickman.y,
+                (Math.random() - 0.5) * 6,
+                (Math.random() - 0.5) * 6,
+                '#3b82f6',
+                3
+            );
+        }
+        
+        this.pushLog('ACTOR: COLD REBOOT INITIALIZED');
+    }
+
+    toggleGrid() {
+        this.showGrid = !this.showGrid;
+        this.pushLog(`GRID: STATE UPDATED TO [${this.showGrid ? 'VISIBLE' : 'HIDDEN'}]`);
+    }
+
+    spawnCustomAnchor(x, y) {
+        // Prevent layout collision overlaps
+        let tooClose = false;
+        this.anchorsPool.forEach(anchor => {
+            if (Math.hypot(anchor.x - x, anchor.y - y) < 40) {
+                tooClose = true;
+            }
+        });
+
+        if (tooClose) {
+            this.pushLog('GRID_COLLISION: PLACEMENT REJECTED');
+            return;
+        }
+
+        const size = Math.floor(15 + Math.random() * 10);
+        this.anchorsPool.push({
+            x: x,
+            y: y,
+            radius: size,
+            isCustom: true
+        });
+        
+        this.audio.playPlaceAnchor();
+        
+        // Create placement visual sparks
+        for (let i = 0; i < 10; i++) {
+            this.particles.spawn(
+                x, y,
+                (Math.random() - 0.5) * 4,
+                (Math.random() - 0.5) * 4,
+                '#eab308',
+                2
+            );
+        }
+        
+        this.pushLog(`ANCHOR_POOL: ATTACHED TARGET AT [X:${x.toFixed(0)}, Y:${y.toFixed(0)}]`);
+    }
+
+    deleteClosestCustomAnchor() {
+        let closestIndex = -1;
+        let closestDist = 50; // Threshold of 50px
+        
+        this.anchorsPool.forEach((anchor, index) => {
+            if (!anchor.isCustom) return; // Can only delete custom anchors
+            let dist = Math.hypot(anchor.x - this.mousePosition.x, anchor.y - this.mousePosition.y);
+            if (dist < closestDist) {
+                closestDist = dist;
+                closestIndex = index;
+            }
+        });
+
+        if (closestIndex !== -1) {
+            const anchor = this.anchorsPool[closestIndex];
+            
+            // If currently grappled to it, release
+            if (this.stickman.isGrappled && 
+                this.stickman.anchorX === anchor.x && 
+                this.stickman.anchorY === anchor.y) {
+                this.stickman.isGrappled = false;
+                this.audio.playRelease();
+            }
+            
+            this.pushLog(`ANCHOR_POOL: DISMANTLED CUSTOM ATTACHMENT`);
+            
+            // Spawn deletion particle puff
+            for (let i = 0; i < 8; i++) {
+                this.particles.spawn(
+                    anchor.x, anchor.y,
+                    (Math.random() - 0.5) * 5,
+                    (Math.random() - 0.5) * 5,
+                    '#ef4444',
+                    3
+                );
+            }
+            
+            this.anchorsPool.splice(closestIndex, 1);
+        }
+    }
+
+    clearCustomAnchors() {
+        this.anchorsPool = JSON.parse(JSON.stringify(this.defaultAnchors));
+        if (this.stickman.isGrappled) {
+            this.stickman.isGrappled = false;
+            this.audio.playRelease();
+        }
+        this.pushLog('LEVEL: RESTORED DEFAULT VECTOR GEOMETRY');
+    }
+
+    toggleGrappleState() {
+        if (this.stickman.isGrappled) {
+            this.stickman.isGrappled = false;
+            this.audio.playRelease();
+            this.pushLog('GRAPPLE: CABLE RELEASED');
+            return;
+        }
+
+        // Raycasting sweep closest anchor search
+        let optimalAnchor = null;
+        let shortestDistToMouse = 65; // Tolerance threshold
+        
+        this.anchorsPool.forEach(anchor => {
+            let distToMouse = Math.hypot(anchor.x - this.mousePosition.x, anchor.y - this.mousePosition.y);
+            if (distToMouse < anchor.radius * 2.5) {
+                let distToPlayer = Math.hypot(anchor.x - this.stickman.x, anchor.y - this.stickman.y);
+                // Reachable rope constraints threshold (550px)
+                if (distToPlayer < 550) {
+                    if (distToMouse < shortestDistToMouse) {
+                        shortestDistToMouse = distToMouse;
+                        optimalAnchor = anchor;
+                    }
+                }
+            }
+        });
+
+        if (optimalAnchor) {
+            this.stickman.isGrappled = true;
+            this.stickman.anchorX = optimalAnchor.x;
+            this.stickman.anchorY = optimalAnchor.y;
+            this.stickman.ropeLength = Math.hypot(optimalAnchor.x - this.stickman.x, optimalAnchor.y - this.stickman.y);
+            this.stickman.targetAnchor = optimalAnchor;
+            
+            this.audio.playShoot();
+            this.audio.playConnect();
+            
+            // Impact particles
+            for (let i = 0; i < 12; i++) {
+                this.particles.spawn(
+                    optimalAnchor.x,
+                    optimalAnchor.y,
+                    (Math.random() - 0.5) * 5,
+                    (Math.random() - 0.5) * 5,
+                    '#4ade80',
+                    2
+                );
+            }
+            
+            this.pushLog('GRAPPLE: VECTOR HANDOVER ENGAGED');
+        } else {
+            // Unsuccessful click shoot audio trigger
+            this.audio.playShoot();
+            this.pushLog('GRAPPLE_ERROR: RETICLE TARGET OUT OF BOUNDS');
+        }
+    }
+
+    // --- PHYSICS MATRIX: CORE ANGULAR MOMENTUM ENGINE ---
+    updateKinematicStatePipeline() {
+        // 1. Environmental Forces & Drift Integration
+        this.stickman.vy += this.stickman.gravity;
+        
+        if (this.inputMatrix.left) {
+            this.stickman.vx -= this.stickman.accel;
+            // Thruster exhaust particles
+            this.particles.spawn(this.stickman.x + 8, this.stickman.y + 4, 1 + Math.random() * 2, (Math.random() - 0.5) * 2, '#f97316', 2, 20);
+        }
+        if (this.inputMatrix.right) {
+            this.stickman.vx += this.stickman.accel;
+            // Thruster exhaust particles
+            this.particles.spawn(this.stickman.x - 8, this.stickman.y + 4, -1 - Math.random() * 2, (Math.random() - 0.5) * 2, '#f97316', 2, 20);
+        }
+        
+        this.stickman.vx *= this.stickman.friction;
+        this.stickman.vy *= this.stickman.friction;
+
+        // Sub-pixel position step integration
+        this.stickman.x += this.stickman.vx;
+        this.stickman.y += this.stickman.vy;
+
+        // 2. Pure Angular Momentum Tangent Constraint Pass
+        if (this.stickman.isGrappled) {
+            let dx = this.stickman.x - this.stickman.anchorX;
+            let dy = this.stickman.y - this.stickman.anchorY;
+            let currentDist = Math.hypot(dx, dy);
+
+            // Constraint verification pass
+            if (currentDist > this.stickman.ropeLength) {
+                // Normalize radial vector (Normal Vector)
+                let nx = dx / currentDist;
+                let ny = dy / currentDist;
+
+                // Snap the player coordinates back to the rope boundary length perimeter
+                this.stickman.x = this.stickman.anchorX + nx * this.stickman.ropeLength;
+                this.stickman.y = this.stickman.anchorY + ny * this.stickman.ropeLength;
+
+                // Eliminate inward radial speed component, preserving ONLY tangential angular momentum:
+                // Formula: V_tangent = V_linear - (V_linear . Normal) * Normal
+                let dotProduct = (this.stickman.vx * nx) + (this.stickman.vy * ny);
+                this.stickman.vx -= dotProduct * nx;
+                this.stickman.vy -= dotProduct * ny;
+                
+                // Trail swing bubble particles at velocity-dependent intervals
+                if (Math.abs(this.stickman.vx) + Math.abs(this.stickman.vy) > 3) {
+                    if (Math.random() > 0.6) {
+                        this.particles.spawn(
+                            this.stickman.x, this.stickman.y,
+                            (Math.random() - 0.5) * 1,
+                            (Math.random() - 0.5) * 1,
+                            '#22d3ee',
+                            1.5,
+                            25
+                        );
+                    }
+                }
+            }
+        }
+
+        // Clamp speed metric boundaries to prevent integer overflow clipping
+        let speed = Math.hypot(this.stickman.vx, this.stickman.vy);
+        if (speed > this.stickman.maxSpeed) {
+            this.stickman.vx = (this.stickman.vx / speed) * this.stickman.maxSpeed;
+            this.stickman.vy = (this.stickman.vy / speed) * this.stickman.maxSpeed;
+        }
+
+        // Boundary Solid Collision Check
+        // Floor constraints
+        if (this.stickman.y > this.height - 40) {
+            this.stickman.y = this.height - 40;
+            if (Math.abs(this.stickman.vy) > 1.0) {
+                this.audio.playBounce();
+                // Spawn dust puff
+                for (let i = 0; i < 6; i++) {
+                    this.particles.spawn(
+                        this.stickman.x, this.height - 40,
+                        (Math.random() - 0.5) * 3,
+                        -Math.random() * 2,
+                        '#475569',
+                        3,
+                        15
+                    );
+                }
+            }
+            this.stickman.vy = -Math.abs(this.stickman.vy) * 0.35; // bounce dampening
+            this.stickman.vx *= 0.85; // friction drag against ground
+        }
+        
+        // Wall boundaries
+        if (this.stickman.x < 20) {
+            this.stickman.x = 20;
+            this.stickman.vx = Math.abs(this.stickman.vx) * 0.4;
+            this.audio.playBounce();
+        }
+        if (this.stickman.x > this.width - 20) {
+            this.stickman.x = this.width - 20;
+            this.stickman.vx = -Math.abs(this.stickman.vx) * 0.4;
+            this.audio.playBounce();
+        }
+
+        // Particles system integration step tick
+        this.particles.update();
+    }
+
+    executeEngineFrameLoop() {
+        this.updateKinematicStatePipeline();
+        
+        // Reset viewport matrix buffers
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        
+        // Parallax celestial background rendering
+        this.drawParallaxStars();
+
+        if (this.showGrid) this.drawBackgroundGrid();
+
+        // Target Sweep Scan for reticle
+        this.evaluateTargetScanning();
+
+        // 1. Draw Reticle Guide lines
+        this.drawReticleGuide();
+
+        // 2. Draw Grapple Cable
+        this.drawActiveGrappleCable();
+
+        // 3. Draw Anchor structures
+        this.drawAnchors();
+
+        // 4. Draw active particles queue
+        this.particles.draw(this.ctx);
+
+        // 5. Draw Pixel Stickman Cap
+        this.drawStickmanCapsule();
+
+        this.syncTelemetry();
+        requestAnimationFrame(() => this.executeEngineFrameLoop());
+    }
+
+    drawParallaxStars() {
+        this.ctx.fillStyle = '#475569';
+        this.stars.forEach(star => {
+            // Apply subtle drift
+            star.x -= star.speed;
+            if (star.x < 0) star.x = this.width;
+            this.ctx.fillRect(Math.floor(star.x), Math.floor(star.y), star.size, star.size);
+        });
+    }
+
+    drawBackgroundGrid() {
+        const size = 48;
+        this.ctx.strokeStyle = 'rgba(51, 65, 85, 0.15)';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        for (let x = 0; x <= this.width; x += size) {
+            this.ctx.moveTo(x, 0);
+            this.ctx.lineTo(x, this.height);
+        }
+        for (let y = 0; y <= this.height; y += size) {
+            this.ctx.moveTo(0, y);
+            this.ctx.lineTo(this.width, y);
+        }
+        this.ctx.stroke();
+    }
+
+    evaluateTargetScanning() {
+        this.hoveredAnchor = null;
+        let shortestDist = 65;
+        
+        this.anchorsPool.forEach(anchor => {
+            let dist = Math.hypot(anchor.x - this.mousePosition.x, anchor.y - this.mousePosition.y);
+            if (dist < anchor.radius * 2.5) {
+                let playerDist = Math.hypot(anchor.x - this.stickman.x, anchor.y - this.stickman.y);
+                if (playerDist < 550 && dist < shortestDist) {
+                    shortestDist = dist;
+                    this.hoveredAnchor = anchor;
+                }
+            }
+        });
+    }
+
+    drawReticleGuide() {
+        this.ctx.save();
+        if (this.stickman.isGrappled) {
+            this.ctx.restore();
+            return;
+        }
+
+        const isLocked = this.hoveredAnchor !== null;
+        
+        // Reticle vector dash line
+        this.ctx.setLineDash([4, 4]);
+        this.ctx.strokeStyle = isLocked ? 'rgba(74, 222, 128, 0.4)' : 'rgba(244, 63, 94, 0.2)';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.beginPath();
+        this.ctx.moveTo(Math.floor(this.stickman.x), Math.floor(this.stickman.y));
+        this.ctx.lineTo(Math.floor(this.mousePosition.x), Math.floor(this.mousePosition.y));
+        this.ctx.stroke();
+        
+        // Hover lock highlight ring box
+        if (isLocked) {
+            this.ctx.setLineDash([]);
+            this.ctx.strokeStyle = '#4ade80';
+            this.ctx.lineWidth = 1.5;
+            
+            // Draw retro corners targeting scope box
+            const size = this.hoveredAnchor.radius + 8;
+            const hx = Math.floor(this.hoveredAnchor.x);
+            const hy = Math.floor(this.hoveredAnchor.y);
+            
+            // Top-left
+            this.ctx.beginPath();
+            this.ctx.moveTo(hx - size, hy - size + 6);
+            this.ctx.lineTo(hx - size, hy - size);
+            this.ctx.lineTo(hx - size + 6, hy - size);
+            this.ctx.stroke();
+            
+            // Top-right
+            this.ctx.beginPath();
+            this.ctx.moveTo(hx + size, hy - size + 6);
+            this.ctx.lineTo(hx + size, hy - size);
+            this.ctx.lineTo(hx + size - 6, hy - size);
+            this.ctx.stroke();
+
+            // Bottom-left
+            this.ctx.beginPath();
+            this.ctx.moveTo(hx - size, hy + size - 6);
+            this.ctx.lineTo(hx - size, hy + size);
+            this.ctx.lineTo(hx - size + 6, hy + size);
+            this.ctx.stroke();
+            
+            // Bottom-right
+            this.ctx.beginPath();
+            this.ctx.moveTo(hx + size, hy + size - 6);
+            this.ctx.lineTo(hx + size, hy + size);
+            this.ctx.lineTo(hx + size - 6, hy + size);
+            this.ctx.stroke();
+        }
+
+        this.ctx.restore();
+    }
+
+    drawActiveGrappleCable() {
+        if (!this.stickman.isGrappled) return;
+
+        this.ctx.save();
+        
+        // Draw rope segmentation nodes for braided aesthetic
+        const sx = Math.floor(this.stickman.x);
+        const sy = Math.floor(this.stickman.y);
+        const ax = Math.floor(this.stickman.anchorX);
+        const ay = Math.floor(this.stickman.anchorY);
+        
+        this.ctx.strokeStyle = '#22c55e'; // Deep green core line
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.moveTo(sx, sy);
+        this.ctx.lineTo(ax, ay);
+        this.ctx.stroke();
+
+        // Draw dotted wraps along the cord for retro rope texture
+        this.ctx.strokeStyle = '#86efac'; // Mint green wrapping dots
+        this.ctx.lineWidth = 2.5;
+        this.ctx.setLineDash([2, 5]);
+        this.ctx.beginPath();
+        this.ctx.moveTo(sx, sy);
+        this.ctx.lineTo(ax, ay);
+        this.ctx.stroke();
+        
+        // Joint core anchor plate
+        this.ctx.setLineDash([]);
+        this.ctx.fillStyle = '#22d3ee';
+        this.ctx.beginPath();
+        this.ctx.arc(ax, ay, 4, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.restore();
+    }
+
+    drawAnchors() {
+        this.anchorsPool.forEach(anchor => {
+            const ax = Math.floor(anchor.x);
+            const ay = Math.floor(anchor.y);
+            
+            // Draw Anchor Outer Ring Ring
+            this.ctx.fillStyle = anchor.isCustom ? '#1e1b4b' : '#1e293b'; // Custom anchors have deep blue core
+            this.ctx.beginPath();
+            this.ctx.arc(ax, ay, anchor.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Retro warnings highlight rim
+            this.ctx.strokeStyle = anchor.isCustom ? '#a855f7' : '#eab308'; // Purple rim for custom, Amber for standard
+            this.ctx.lineWidth = 2.5;
+            this.ctx.beginPath();
+            this.ctx.arc(ax, ay, anchor.radius - 1, 0, Math.PI * 2);
+            this.ctx.stroke();
+
+            // Inner retro layout grid detailing
+            this.ctx.fillStyle = anchor.isCustom ? '#3b0764' : '#334155';
+            this.ctx.fillRect(ax - 5, ay - 5, 10, 10);
+            
+            // Active anchor target indicator lock glow
+            if (this.stickman.isGrappled && this.stickman.anchorX === anchor.x && this.stickman.anchorY === anchor.y) {
+                this.ctx.strokeStyle = '#22d3ee';
+                this.ctx.lineWidth = 1.5;
+                this.ctx.beginPath();
+                this.ctx.arc(ax, ay, anchor.radius + 5 + Math.sin(Date.now() / 100) * 2, 0, Math.PI * 2);
+                this.ctx.stroke();
+            }
+        });
+    }
+
+    drawStickmanCapsule() {
+        this.ctx.save();
+        
+        const px = Math.floor(this.stickman.x);
+        const py = Math.floor(this.stickman.y);
+        const r = this.stickman.radius;
+        
+        // Stickman Glow during swings
+        if (this.stickman.isGrappled) {
+            this.ctx.shadowBlur = 16;
+            this.ctx.shadowColor = '#22d3ee';
+        }
+        
+        // Base capsule body
+        this.ctx.fillStyle = this.stickman.isGrappled ? '#22d3ee' : '#e2e8f0';
+        this.ctx.beginPath();
+        this.ctx.arc(px, py, r, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.shadowBlur = 0; // Reset shadow
+
+        // Drawing custom helmet outline (retro astronaut aesthetic)
+        this.ctx.strokeStyle = '#0f172a';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(px, py, r, 0, Math.PI * 2);
+        this.ctx.stroke();
+
+        // Visor window that shifts in velocity direction
+        const speedRatioX = Math.min(Math.max(this.stickman.vx / 4, -1), 1);
+        const speedRatioY = Math.min(Math.max(this.stickman.vy / 4, -1), 1);
+        
+        const vxOffset = Math.floor(speedRatioX * 4);
+        const vyOffset = Math.floor(speedRatioY * 3);
+        
+        // Draw visor base
+        this.ctx.fillStyle = '#0f172a';
+        this.ctx.beginPath();
+        this.ctx.arc(px + vxOffset, py + vyOffset, 5, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Visor glass reflect
+        this.ctx.fillStyle = '#38bdf8';
+        this.ctx.beginPath();
+        this.ctx.arc(px + vxOffset - 1, py + vyOffset - 1, 2, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.restore();
+    }
+
+    syncTelemetry() {
+        // Safe check for DOM existence
+        const txtVx = document.getElementById('txt-vx');
+        if (!txtVx) return;
+
+        txtVx.innerText = this.stickman.vx.toFixed(2);
+        document.getElementById('txt-vy').innerText = this.stickman.vy.toFixed(2);
+        
+        const labelRadius = document.getElementById('txt-radius');
+        const labelState = document.getElementById('txt-state');
+        
+        if (this.stickman.isGrappled) {
+            labelRadius.innerText = `${Math.round(this.stickman.ropeLength)}px`;
+            labelRadius.className = "text-cyan-400 font-bold";
+            labelState.innerText = "SWING_ENGAGED";
+            labelState.className = "text-emerald-400 font-bold uppercase animate__animated animate__pulse animate__infinite";
+        } else {
+            labelRadius.innerText = "DISCONNECTED";
+            labelRadius.className = "text-slate-500";
+            
+            if (this.hoveredAnchor) {
+                labelState.innerText = "LOCK_ACQUIRED";
+                labelState.className = "text-yellow-400 font-bold uppercase animate__animated animate__flash animate__infinite";
+            } else {
+                labelState.innerText = "STANDBY";
+                labelState.className = "text-slate-400 font-bold uppercase";
+            }
+        }
+    }
+}
+
+// Global Core Framework Architecture Operational Activation Entry Trigger Matrix
+let orchestrator;
+window.onload = () => { orchestrator = new HybridGrapplingHookEngine(); };
+</script>
+</body>
+</html>
