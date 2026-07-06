@@ -48,10 +48,38 @@
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('CONTRACT FOUND ✓'\\); print\\(' created:', d.get\\('created'\\)\\); print\\(' payments/calls:', d.get\\('payments'\\)\\); print\\(' wasm hash:', \\(d.get\\('validation'\\) or {}\\).get\\('wasm'\\) or d.get\\('hash',''\\)\\)\")",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" \"https://api.stellar.expert/explorer/testnet/contract/CBXJGV4KEDN6WOBFU2P2J4MVSFS673ELQHXKB5RYMIGI3WWQ52O4J6D7\")",
       "Bash(git -C \"c:/Users/Admin/100-days-of-Code\" log --oneline -5)",
-      "Bash(git -C \"c:/Users/Admin/word-scramble-stellar\" log --oneline -5)"
+      "Bash(git -C \"c:/Users/Admin/word-scramble-stellar\" log --oneline -5)",
+      "Bash(command -v unzip)",
+      "Bash(command -v python)",
+      "Bash(command -v python3)",
+      "Bash(mkdir -p \"/c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/docx_extract\")",
+      "Bash(unzip -o \"/c/Users/Admin/100-days-of-Code/Automation for daily use/Automation/Automation PHP and Laravel.docx\" -d \"/c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/docx_extract\")",
+      "Read(//c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/docx_extract/**)",
+      "Read(//c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/docx_extract/word/**)",
+      "Bash(python3 -)",
+      "Bash(command -v php)",
+      "Bash(grep -i '~\\\\$')",
+      "Bash(php -v)",
+      "Bash(php script.php)",
+      "Bash(tee run_output.txt)",
+      "Bash(EXTRACT_DIR=\"/c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/docx_extract\" *)",
+      "Bash(unzip -l \"/c/Users/Admin/100-days-of-Code/Automation for daily use/Automation/Automation PHP and Laravel.docx\")",
+      "Bash(unzip -p \"/c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/Automation PHP and Laravel.NEW.docx\" word/document.xml)",
+      "Bash(unzip -p \"/c/Users/Admin/100-days-of-Code/Automation for daily use/Automation/Automation PHP and Laravel.docx\" word/document.xml)",
+      "Bash(cp \"/c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/Automation PHP and Laravel.NEW.docx\" \"/c/Users/Admin/100-days-of-Code/Automation for daily use/Automation/Automation PHP and Laravel.docx\" *)",
+      "Bash(unzip -o '/c/Users/Admin/100-days-of-Code/Automation for daily use/Automation/Automation PHP and Laravel.docx' -d /c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/verify_extract)",
+      "Bash(rm -rf \"/c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/verify_extract\" \"/c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/docx_extract\" \"/c/Users/Admin/AppData/Local/Temp/claude/c--Users-Admin-100-days-of-Code/dd4a9a0a-1363-4a33-b7cd-9010bc682c6d/scratchpad/Automation PHP and Laravel.NEW.docx\" *)",
+      "Skill(schedule)",
+      "Skill(schedule:*)",
+      "Bash(gh repo *)",
+      "Bash(python3 -c \"import uuid; print\\(str\\(uuid.uuid4\\(\\)\\)\\)\")",
+      "Bash(command -v claude)",
+      "Bash(claude --version)"
     ],
     "additionalDirectories": [
-      "c:\\Users\\Admin\\100-days-of-Code\\Javascript and CSS\\Day 16\\Image Slider\\image"
+      "c:\\Users\\Admin\\100-days-of-Code\\Javascript and CSS\\Day 16\\Image Slider\\image",
+      "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\c--Users-Admin-100-days-of-Code\\dd4a9a0a-1363-4a33-b7cd-9010bc682c6d\\scratchpad",
+      "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\c--Users-Admin-100-days-of-Code\\dd4a9a0a-1363-4a33-b7cd-9010bc682c6d\\scratchpad\\verify_extract"
     ]
   }
 }
