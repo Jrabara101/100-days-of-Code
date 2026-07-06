@@ -1,0 +1,31 @@
+[36m╔═══════════════════════════════════════════════════════════════════════╗[0m
+[36m║[0m  [1m[35mPayment Status Sync[0m[0m                                                  [36m║[0m
+[36m║[0m  [2mProject #66 — reconciles local orders against the payment gateway[0m  [36m║[0m
+[36m╚═══════════════════════════════════════════════════════════════════════╝[0m
+
+
+[1m[33m▸ Fetching remote statuses[0m[0m
+[2m────────────────────────────────────────────────────────────[0m
+  ⠙ Fetching statuses from payment gateway…
+  [32m✓ statuses received[0m
+
+[1m[33m▸ Reconciling[0m[0m
+[2m────────────────────────────────────────────────────────────[0m
+
+[1m[33m▸ Reconciliation report[0m[0m
+[2m────────────────────────────────────────────────────────────[0m
+┌──────────┬────────────┬──────────┬───────────────────────┐
+│ [1mOrder   [0m │ [1mPrevious  [0m │ [1mRemote  [0m │ [1mOutcome              [0m │
+├──────────┼────────────┼──────────┼───────────────────────┤
+│ ORD-1001 │ pending    │ captured │ [32mupdated[0m               │
+│ ORD-1002 │ authorized │ failed   │ [32mupdated[0m               │
+│ ORD-1003 │ pending    │ captured │ [32mupdated[0m               │
+│ ORD-1004 │ captured   │ captured │ [2munchanged[0m             │
+│ ORD-1005 │ authorized │ captured │ [32mupdated[0m               │
+│ ORD-1006 │ pending    │ failed   │ [32mupdated[0m               │
+│ ORD-1007 │ captured   │ captured │ [2munchanged[0m             │
+│ ORD-1008 │ refunded   │ captured │ [31mneeds review[0m          │
+└──────────┴────────────┴──────────┴───────────────────────┘
+
+[1mSummary: [0m[2m2 unchanged[0m, [32m5 updated[0m, [31m1 needs review[0m
+[33m  ⚠ Review flagged orders before they hit downstream billing reports.[0m

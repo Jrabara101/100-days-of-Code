@@ -28,3 +28,9 @@ yarn-error.log*
 # Databases
 *.sqlite
 
+# Word/Office lock files
+~$*
+
+# local backups of edited docx checklists
+Automation for daily use/**/.backups/
+
