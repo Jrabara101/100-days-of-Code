@@ -1,0 +1,140 @@
+[36m╔═══════════════════════════════════════════════════════════════════════════╗[0m
+[36m║[0m  [1m[35mMulti-Role Approval Workflow[0m[0m                                             [36m║[0m
+[36m║[0m  [2mProject #68 — state-machine driven, rule-enforced approval pipeline[0m    [36m║[0m
+[36m╚═══════════════════════════════════════════════════════════════════════════╝[0m
+
+
+[1m[33m▸ Scenario A — Happy Path: Budget Request (3 steps)[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+  [36mℹ[0m Workflow WF-2001 'Q3 Marketing Budget Increase' started → step 1/3
+  [36mℹ[0m Step approved → advancing to step 2/3 (Finance Director)
+  [36mℹ[0m Step approved → advancing to step 3/3 (CEO)
+
+[1m[33m▸ Workflow: WF-2001 — Q3 Marketing Budget Increase[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+  [1mSubmitted by:[0m alice@company.com   [2mat 2026-07-06 22:49:56[0m
+  [1mFinal status: [0m[32mapproved[0m
+
+┌───┬──────────────────┬──────────────┬──────────┬─────────────────────┬───────────────────────────────────┐
+│ [1m#[0m │ [1mRole            [0m │ [1mApprover    [0m │ [1mDecision[0m │ [1mDecided At         [0m │ [1mNote                             [0m │
+├───┼──────────────────┼──────────────┼──────────┼─────────────────────┼───────────────────────────────────┤
+│ 1 │ Line Manager     │ Bob Martinez │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Verified headcount justification. │
+│ 2 │ Finance Director │ Clara Singh  │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Budget within quarterly envelope. │
+│ 3 │ CEO              │ David Park   │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Aligns with strategic priorities. │
+└───┴──────────────────┴──────────────┴──────────┴─────────────────────┴───────────────────────────────────┘
+
+[1m[33m▸ Audit trail — WF-2001[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+┌──────┬──────────────────┬──────────────┬──────────┬─────────────────────┬───────────────────────────────────┐
+│ [1mStep[0m │ [1mRole            [0m │ [1mActor       [0m │ [1mDecision[0m │ [1mAt                 [0m │ [1mNote                             [0m │
+├──────┼──────────────────┼──────────────┼──────────┼─────────────────────┼───────────────────────────────────┤
+│ 1    │ Line Manager     │ Bob Martinez │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Verified headcount justification. │
+│ 2    │ Finance Director │ Clara Singh  │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Budget within quarterly envelope. │
+│ 3    │ CEO              │ David Park   │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Aligns with strategic priorities. │
+└──────┴──────────────────┴──────────────┴──────────┴─────────────────────┴───────────────────────────────────┘
+
+[1m[33m▸ Scenario B — Delegation Chain: Vendor Contract[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+  [36mℹ[0m Workflow WF-2002 'New Vendor Contract — Cloud Services' started → step 1/3
+  [36mℹ[0m Step Procurement Lead delegated to 'Isabel Ramos' — inserted as next approver.
+  [36mℹ[0m Step approved → advancing to step 3/4 (Legal)
+  [36mℹ[0m Step approved → advancing to step 4/4 (CFO)
+
+[1m[33m▸ Workflow: WF-2002 — New Vendor Contract — Cloud Services[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+  [1mSubmitted by:[0m emma@company.com   [2mat 2026-07-06 23:49:56[0m
+  [1mFinal status: [0m[32mapproved[0m
+
+┌───┬───────────────────────────┬──────────────┬───────────┬─────────────────────┬─────────────────────────────────────────────┐
+│ [1m#[0m │ [1mRole                     [0m │ [1mApprover    [0m │ [1mDecision [0m │ [1mDecided At         [0m │ [1mNote                                       [0m │
+├───┼───────────────────────────┼──────────────┼───────────┼─────────────────────┼─────────────────────────────────────────────┤
+│ 1 │ Procurement Lead          │ Frank Osei   │ [33mdelegated[0m │ 2026-07-07 00:49:56 │ OOO until Friday                            │
+│ 2 │ Procurement Lead:delegate │ Isabel Ramos │ [32mapproved[0m  │ 2026-07-07 00:49:56 │ Reviewed vendor credentials — all clear.  │
+│ 3 │ Legal                     │ Grace Lim    │ [32mapproved[0m  │ 2026-07-07 00:49:56 │ Standard T&Cs; liability clause acceptable. │
+│ 4 │ CFO                       │ Henry Torres │ [32mapproved[0m  │ 2026-07-07 00:49:56 │ Cost within cap; approved for 12 months.    │
+└───┴───────────────────────────┴──────────────┴───────────┴─────────────────────┴─────────────────────────────────────────────┘
+
+[1m[33m▸ Audit trail — WF-2002[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+┌──────┬───────────────────────────┬──────────────┬───────────┬─────────────────────┬─────────────────────────────────────────────┐
+│ [1mStep[0m │ [1mRole                     [0m │ [1mActor       [0m │ [1mDecision [0m │ [1mAt                 [0m │ [1mNote                                       [0m │
+├──────┼───────────────────────────┼──────────────┼───────────┼─────────────────────┼─────────────────────────────────────────────┤
+│ 1    │ Procurement Lead          │ Frank Osei   │ [33mdelegated[0m │ 2026-07-07 00:49:56 │ OOO until Friday                            │
+│ 2    │ Procurement Lead:delegate │ Isabel Ramos │ [32mapproved[0m  │ 2026-07-07 00:49:56 │ Reviewed vendor credentials — all clear.  │
+│ 3    │ Legal                     │ Grace Lim    │ [32mapproved[0m  │ 2026-07-07 00:49:56 │ Standard T&Cs; liability clause acceptable. │
+│ 4    │ CFO                       │ Henry Torres │ [32mapproved[0m  │ 2026-07-07 00:49:56 │ Cost within cap; approved for 12 months.    │
+└──────┴───────────────────────────┴──────────────┴───────────┴─────────────────────┴─────────────────────────────────────────────┘
+
+[1m[33m▸ Scenario C — Rejection: Overtime Pay Request[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+  [36mℹ[0m Workflow WF-2003 'Emergency Overtime — Dev Team' started → step 1/3
+  [36mℹ[0m Step approved → advancing to step 2/3 (HR Manager)
+
+[1m[33m▸ Workflow: WF-2003 — Emergency Overtime — Dev Team[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+  [1mSubmitted by:[0m jack@company.com   [2mat 2026-07-07 00:19:56[0m
+  [1mFinal status: [0m[31mrejected[0m
+
+┌───┬────────────┬─────────────┬──────────┬─────────────────────┬─────────────────────────────────────────────┐
+│ [1m#[0m │ [1mRole      [0m │ [1mApprover   [0m │ [1mDecision[0m │ [1mDecided At         [0m │ [1mNote                                       [0m │
+├───┼────────────┼─────────────┼──────────┼─────────────────────┼─────────────────────────────────────────────┤
+│ 1 │ Team Lead  │ Kate Wilson │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Confirmed project emergency.                │
+│ 2 │ HR Manager │ Leo Nguyen  │ [31mrejected[0m │ 2026-07-07 00:49:56 │ Overtime quota already exceeded this month. │
+│ 3 │ Finance    │ Mia Zhang   │ [2mpending[0m  │ [2m—[0m                 │ [2m—[0m                                         │
+└───┴────────────┴─────────────┴──────────┴─────────────────────┴─────────────────────────────────────────────┘
+
+[1m[33m▸ Audit trail — WF-2003[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+┌──────┬────────────┬─────────────┬──────────┬─────────────────────┬─────────────────────────────────────────────┐
+│ [1mStep[0m │ [1mRole      [0m │ [1mActor      [0m │ [1mDecision[0m │ [1mAt                 [0m │ [1mNote                                       [0m │
+├──────┼────────────┼─────────────┼──────────┼─────────────────────┼─────────────────────────────────────────────┤
+│ 1    │ Team Lead  │ Kate Wilson │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Confirmed project emergency.                │
+│ 2    │ HR Manager │ Leo Nguyen  │ [31mrejected[0m │ 2026-07-07 00:49:56 │ Overtime quota already exceeded this month. │
+└──────┴────────────┴─────────────┴──────────┴─────────────────────┴─────────────────────────────────────────────┘
+
+[1m[33m▸ Scenario D — Rule Violations (should be caught)[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+  [36mℹ[0m Workflow WF-2004A 'Equipment Purchase (self-approval test)' started → step 1/2
+  [33m⚠[0m [33mSelf-approval blocked: 'noah@company.com' submitted this request and cannot approve it (conflict of interest).[0m
+  [36mℹ[0m Step approved → advancing to step 2/2 (Finance)
+  [36mℹ[0m Workflow WF-2004B 'Duplicate Decision Guard' started → step 1/2
+  [33m⚠[0m [33mDuplicate decision blocked: Step 'Checker' already has a recorded decision: approved.[0m
+  [36mℹ[0m Workflow WF-2004C 'Closed Workflow Guard' started → step 1/1
+  [33m⚠[0m [33mClosed-workflow blocked: Workflow WF-2004C is already approved.[0m
+
+[1m[33m▸ Workflow: WF-2004A — Equipment Purchase (self-approval test)[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+  [1mSubmitted by:[0m noah@company.com   [2mat 2026-07-07 00:49:56[0m
+  [1mFinal status: [0m[32mapproved[0m
+
+┌───┬─────────┬─────────────┬──────────┬─────────────────────┬───────────────────────────────────────┐
+│ [1m#[0m │ [1mRole   [0m │ [1mApprover   [0m │ [1mDecision[0m │ [1mDecided At         [0m │ [1mNote                                 [0m │
+├───┼─────────┼─────────────┼──────────┼─────────────────────┼───────────────────────────────────────┤
+│ 1 │ Manager │ Olivia Reed │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Item is on approved vendor list.      │
+│ 2 │ Finance │ Paul Kim    │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Under spending limit; no PO required. │
+└───┴─────────┴─────────────┴──────────┴─────────────────────┴───────────────────────────────────────┘
+
+[1m[33m▸ Audit trail — WF-2004A[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+┌──────┬─────────┬─────────────┬──────────┬─────────────────────┬───────────────────────────────────────┐
+│ [1mStep[0m │ [1mRole   [0m │ [1mActor      [0m │ [1mDecision[0m │ [1mAt                 [0m │ [1mNote                                 [0m │
+├──────┼─────────┼─────────────┼──────────┼─────────────────────┼───────────────────────────────────────┤
+│ 1    │ Manager │ Olivia Reed │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Item is on approved vendor list.      │
+│ 2    │ Finance │ Paul Kim    │ [32mapproved[0m │ 2026-07-07 00:49:56 │ Under spending limit; no PO required. │
+└──────┴─────────┴─────────────┴──────────┴─────────────────────┴───────────────────────────────────────┘
+
+[1m[33m▸ Run Summary[0m[0m
+[2m────────────────────────────────────────────────────────────────[0m
+┌──────────┬───────────────────────────────────┬──────────┐
+│ [1mID      [0m │ [1mTitle                            [0m │ [1mOutcome [0m │
+├──────────┼───────────────────────────────────┼──────────┤
+│ WF-2001  │ Q3 Marketing Budget Increase      │ [32mAPPROVED[0m │
+│ WF-2002  │ New Vendor Contract — Cloud Svc │ [32mAPPROVED[0m │
+│ WF-2003  │ Emergency Overtime — Dev Team   │ [31mREJECTED[0m │
+│ WF-2004A │ Equipment Purchase                │ [32mAPPROVED[0m │
+└──────────┴───────────────────────────────────┴──────────┘
+
+[1mRule violations caught: [0m[32m3/3[0m[2m (self-approval, duplicate decision, closed-workflow)[0m
+[1mDelegation chain: [0m[32m1 delegation resolved cleanly[0m
+[2m────────────────────────────────────────────────────────────────[0m
+[1mAll workflows processed. Full audit trail recorded.[0m
