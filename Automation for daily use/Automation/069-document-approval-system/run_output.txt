@@ -1,0 +1,65 @@
+[36m╔═════════════════════════════════════════════════════════════════════════════════════╗[0m
+[36m║[0m  [1m[35mDocument Approval System[0m[0m                                                           [36m║[0m
+[36m║[0m  [2mProject #69 — multi-stage approval pipeline with quorum, veto, and escalation[0m    [36m║[0m
+[36m╚═════════════════════════════════════════════════════════════════════════════════════╝[0m
+
+
+[1m[33m▸ Running approval pipeline…[0m[0m
+[2m──────────────────────────────────────────────────────────────[0m
+  [36mℹ[0m Submitting documents and casting votes…
+  [32m✓[0m [32mPipeline simulation complete.[0m
+
+[1m[33m▸ Document Pipeline Summary[0m[0m
+[2m──────────────────────────────────────────────────────────────[0m
+┌──────────┬───────────────────────────┬──────────┬───────────┬───────────────────┐
+│ [1mID      [0m │ [1mTitle                    [0m │ [1mType    [0m │ [1mStatus   [0m │ [1mStages           [0m │
+├──────────┼───────────────────────────┼──────────┼───────────┼───────────────────┤
+│ DOC-2001 │ Vendor Contract v3.2      │ Contract │ [32mApproved[0m  │ [32mLegal[0m → [32mFinance[0m │
+│ DOC-2002 │ Remote Work Policy Update │ Policy   │ [31mRejected[0m  │ [32mHR[0m → [31mLegal[0m      │
+│ DOC-2003 │ Q3 Marketing Budget       │ Budget   │ [36mIn Review[0m │ [2mFinance[0m           │
+│ DOC-2004 │ Mutual NDA — Acme Corp  │ NDA      │ [33mEscalated[0m │ [33mLegal[0m             │
+└──────────┴───────────────────────────┴──────────┴───────────┴───────────────────┘
+
+[1m[33m▸ Detail: DOC-2001 — Vendor Contract v3.2[0m[0m
+[2m──────────────────────────────────────────────────────────────[0m
+  [2mAuthor:[0m Alice Moore  |  [2mSubmitted:[0m 2026-07-07 09:00
+
+  [1m[34mStage: Legal[0m[0m[2m  (quorum: 1/{2}, deadline: 48h)[0m
+    [32m✓[0m carol.tan  [[32mApproved[0m] [2m11:00[0m  [2m"Clauses look clean."[0m
+
+  [1m[34mStage: Finance[0m[0m[2m  (quorum: 2/{2}, deadline: 72h)[0m
+    [32m✓[0m david.kim  [[32mApproved[0m] [2m14:00[0m  [2m"Budget aligned."[0m
+    [32m✓[0m eve.santos  [[32mApproved[0m] [2m15:00[0m  [2m"P&L impact acceptable."[0m
+
+[1m[33m▸ Detail: DOC-2002 — Remote Work Policy Update[0m[0m
+[2m──────────────────────────────────────────────────────────────[0m
+  [2mAuthor:[0m Frank Yuen  |  [2mSubmitted:[0m 2026-07-07 09:00
+
+  [1m[34mStage: HR[0m[0m[2m  (quorum: 1/{1}, deadline: 24h)[0m
+    [32m✓[0m grace.li  [[32mApproved[0m] [2m10:00[0m  [2m"Policy language is fair."[0m
+
+  [1m[34mStage: Legal[0m[0m[2m  (quorum: 1/{2}, deadline: 48h)[0m
+    [31m✗[0m bob.lee  [[31mRejected[0m] [2m12:00[0m  [2m"Conflicts with labour code §7."[0m
+
+[1m[33m▸ Detail: DOC-2003 — Q3 Marketing Budget[0m[0m
+[2m──────────────────────────────────────────────────────────────[0m
+  [2mAuthor:[0m Heidi Park  |  [2mSubmitted:[0m 2026-07-07 09:00
+
+  [1m[34mStage: Finance[0m[0m[2m  (quorum: 2/{3}, deadline: 96h)[0m
+    [32m✓[0m david.kim  [[32mApproved[0m] [2m13:00[0m  [2m"ROI looks solid."[0m
+
+[1m[33m▸ Detail: DOC-2004 — Mutual NDA — Acme Corp[0m[0m
+[2m──────────────────────────────────────────────────────────────[0m
+  [2mAuthor:[0m Janet Rose  |  [2mSubmitted:[0m 2026-07-03 05:00
+
+  [1m[34mStage: Legal[0m[0m[2m  (quorum: 1/{1}, deadline: 48h)[0m
+  [33m⚠[0m [33mDeadline of 48h breached (100.0h elapsed). Escalated for manager review.[0m
+
+[1m[33m▸ Pipeline Statistics[0m[0m
+[2m──────────────────────────────────────────────────────────────[0m
+
+  Total documents: 4  |  [32mApproved: 1[0m  |  [31mRejected: 1[0m  |  [36mIn Review: 1[0m  |  [33mEscalated: 1[0m
+  [33m⚠[0m [33mEscalated documents require manager intervention — check escalation notes above.[0m
+  [33m⚠[0m [33mRejected documents must be revised and resubmitted by their authors.[0m
+  [32m✓[0m [32mApproved documents are cleared for execution / archival.[0m
+
