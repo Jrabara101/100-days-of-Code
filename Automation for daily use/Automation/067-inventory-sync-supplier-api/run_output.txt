@@ -7,6 +7,8 @@
 [1m[33m▸ Fetching supplier stock feed[0m[0m
 [2m──────────────────────────────────────────────────────────────[0m
   ⠙ Polling supplier stock feed…
+    [31m✗ Supplier API returned 503 Service Unavailable (simulated)[0m[2m — backing off 363ms[0m
+  ⠹ Polling supplier stock feed…[2m (retry 2/3)[0m
   [32m✓ Feed received for 10 SKUs[0m
 
 [1m[33m▸ Reconciling stock levels[0m[0m
@@ -23,8 +25,8 @@
 │ SKU-A004 │ Monitor Stand       │ 7        │ 56      │ [32m+49[0m   │ $27.56 │ [32mrestocked[0m  │ Price drift +25.3%; Qty +49                                                         │
 │ SKU-A005 │ Laptop Cooling Pad  │ 130      │ 190     │ [32m+60[0m   │ $9.90  │ [32mrestocked[0m  │ Price drift -47.2%; Qty +60                                                         │
 │ SKU-A006 │ Webcam 1080p        │ 43       │ 140     │ [32m+97[0m   │ $93.40 │ [32mrestocked[0m  │ Price drift +29.7%; Qty +97                                                         │
-│ SKU-A007 │ HDMI 2.1 Cable (2m) │ 200      │ 200     │ [2m—[0m   │ $54.30 │ [31mstale feed[0m │ Supplier feed (2026-07-04T00:34:32Z) is older than last sync (2026-07-06T08:00:00Z) │
-│ SKU-A008 │ Desk Lamp LED       │ 18       │ 18      │ [2m—[0m   │ $86.11 │ [31mstale feed[0m │ Supplier feed (2026-07-04T00:34:32Z) is older than last sync (2026-07-06T08:00:00Z) │
+│ SKU-A007 │ HDMI 2.1 Cable (2m) │ 200      │ 200     │ [2m—[0m   │ $54.30 │ [31mstale feed[0m │ Supplier feed (2026-07-04T00:42:50Z) is older than last sync (2026-07-06T08:00:00Z) │
+│ SKU-A008 │ Desk Lamp LED       │ 18       │ 18      │ [2m—[0m   │ $86.11 │ [31mstale feed[0m │ Supplier feed (2026-07-04T00:42:50Z) is older than last sync (2026-07-06T08:00:00Z) │
 │ SKU-A009 │ Ergonomic Chair Mat │ 9        │ 53      │ [32m+44[0m   │ $25.53 │ [32mrestocked[0m  │ Price drift -53.6%; Qty +44                                                         │
 │ SKU-A010 │ Portable SSD 1TB    │ 60       │ 88      │ [32m+28[0m   │ $52.88 │ [32mrestocked[0m  │ Price drift -41.2%; Qty +28                                                         │
 └──────────┴─────────────────────┴──────────┴─────────┴───────┴────────┴────────────┴─────────────────────────────────────────────────────────────────────────────────────┘
@@ -32,4 +34,4 @@
 [1mSummary: [0m[2m0 unchanged[0m, [32m7 restocked[0m, [33m1 reduced[0m, [31m0 below reorder[0m, [35m0 price drift[0m, [31m2 stale-feed conflict[0m
 [33m  ⚠ Stale-feed conflicts require manual review — do not overwrite.[0m
 
-[2mSync completed at 2026-07-07 00:34:32 — 10/{10} products updated.[0m
+[2mSync completed at 2026-07-07 00:42:50 — 10/10 products updated.[0m

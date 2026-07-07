@@ -6,6 +6,11 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location $RepoPath
 
+# prompt.md contains em-dashes / box-drawing characters; Windows PowerShell
+# 5.1's default Get-Content/console encoding is the system codepage, not
+# UTF-8, which mangles those bytes on both the read and the write side.
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 $javaGuiDir = Join-Path $RepoPath "Automation for daily use\JAVA GUI"
 $logDir     = Join-Path $javaGuiDir ".logs"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
@@ -150,7 +155,7 @@ $prompt = $prompt.Replace('$JavaFxLib', $JavaFxLib)
 
 Write-Host "Invoking Claude Code to generate today's JavaFX project..." -ForegroundColor Yellow
 
-& claude -p $prompt --allowedTools "Bash Read Write Edit Glob Grep" --dangerously-skip-permissions
+$prompt | & claude -p --allowedTools "Bash Read Write Edit Glob Grep" --dangerously-skip-permissions
 
 $after = @(Get-ProjectFolders)
 $new = @($after | Where-Object { $before -notcontains $_ })
@@ -170,7 +175,7 @@ foreach ($folderName in $new) {
     $promptMd = Join-Path $folder "prompt.md"
     if (Test-Path $promptMd) {
         Write-Host "--- prompt.md ---" -ForegroundColor DarkGray
-        Get-Content $promptMd | Write-Host
+        Get-Content $promptMd -Encoding UTF8 | Write-Host
     }
 
     $outDir = Join-Path $folder "out"

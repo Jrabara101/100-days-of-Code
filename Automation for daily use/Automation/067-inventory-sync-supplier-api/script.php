@@ -473,4 +473,4 @@ if ($counts['price_drift'] > 0) {
     echo Ansi::magenta('  ⚠ Price drift detected — update pricing rules and margin checks.') . PHP_EOL;
 }
 
-echo PHP_EOL . Ansi::dim("Sync completed at " . date('Y-m-d H:i:s') . " — {$totalUpdated}/{" . count($products) . "} products updated.") . PHP_EOL;
+echo PHP_EOL . Ansi::dim("Sync completed at " . date('Y-m-d H:i:s') . " — {$totalUpdated}/" . count($products) . " products updated.") . PHP_EOL;

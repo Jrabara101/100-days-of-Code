@@ -125,7 +125,7 @@ due to an error).
 
 Write-Host "Invoking Claude Code to generate today's project..." -ForegroundColor Yellow
 
-& claude -p $prompt --allowedTools "Bash Read Write Edit Glob Grep" --dangerously-skip-permissions
+$prompt | & claude -p --allowedTools "Bash Read Write Edit Glob Grep" --dangerously-skip-permissions
 
 $after = @(Get-ProjectFolders)
 $new = @($after | Where-Object { $before -notcontains $_ })
