@@ -108,7 +108,11 @@
       "Bash(tasklist)",
       "PowerShell(Get-Process -Name claude,powershell -ErrorAction SilentlyContinue)",
       "Bash(powershell.exe -NoProfile -Command \"Get-Process -Name claude -ErrorAction SilentlyContinue | Select-Object Id, CPU, StartTime | Sort-Object StartTime\")",
-      "PowerShell(Get-Process -Name claude -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-Process -Name claude -ErrorAction SilentlyContinue)",
+      "PowerShell(Disable-ScheduledTask -TaskName \"Daily PHP Automation Project\")",
+      "PowerShell(Disable-ScheduledTask -TaskName \"Daily JavaFX GUI Project\")",
+      "PowerShell(Get-ScheduledTask -TaskName \"Daily PHP Automation Project\",\"Daily JavaFX GUI Project\")",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name='powershell.exe' OR Name='claude.exe'\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\Admin\\100-days-of-Code\\Javascript and CSS\\Day 16\\Image Slider\\image",
