@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Kinematic Handover Console: Double Jump + Dash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body class="bg-slate-950 m-0 p-0 overflow-hidden select-none touch-none font-mono">
+
+    <div id="three-stage" class="absolute inset-0 w-full h-full z-10"></div>
+
+    <div id="hud-overlay" class="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-6">
+        <header class="w-full max-w-sm bg-slate-900/90 border border-slate-800 p-4 rounded-xl shadow-2xl backdrop-blur-md pointer-events-auto">
+            <h1 class="text-cyan-400 text-xs uppercase tracking-widest font-black">Locomotion Matrix // OS</h1>
+            
+            <div class="mt-3 space-y-1.5 text-xs text-slate-400">
+                <div class="flex justify-between"><span>Active State Phase:</span><span id="lbl-state" class="text-emerald-400 font-bold">GROUNDED</span></div>
+                <div class="flex justify-between"><span>Jump Registry Count:</span><span id="lbl-jumps" class="text-cyan-400 font-bold">0 / 2</span></div>
+                <div class="flex justify-between border-t border-slate-800 pt-1 mt-1"><span>Horizontal Velocity:</span><span id="lbl-speed" class="text-amber-400 font-bold">0.00 m/s</span></div>
+            </div>
+        </header>
+
+        <footer class="w-full text-center text-[10px] text-slate-500 bg-slate-950/40 py-2 rounded-lg max-w-xs mx-auto backdrop-blur-sm">
+            CONTROLS: WASD = RUN | SPACE = DOUBLE JUMP | SHIFT = DIRECTIONAL DASH
+        </footer>
+    </div>
+
+<script type="module">
+import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/+esm';
+
+class KinematicCharacterController3D {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+
+        // FSM Locomotion Parameters Configuration Rings
+        this.statePhase = 'GROUNDED'; // GROUNDED, AIRBORNE, DASHING
+        this.jumpCount = 0;
+        this.dashCooldownActive = false;
+        this.dashDurationTimeline = 0; // Frame tick countdown window
+
+        this.inputMatrix = { forward: 0, backward: 0, left: 0, right: 0 };
+
+        this.initHeadlessPhysicsWorld();
+        this.initThreeWebGLStage();
+        this.buildEnvironmentalGeometries();
+        this.bindInputEventStreams();
+        this.bootSynchronizedMasterTicker();
+    }
+
+    // --- PHASE 1: Headless CANNON-ES 3D PHYSICS CORE ---
+    initHeadlessPhysicsWorld() {
+        this.physicsWorld = new CANNON.World();
+        this.physicsWorld.gravity.set(0, -18.82, 0); // Extended crisp gravity profile
+
+        // Configure responsive solver iterations parameters
+        this.physicsWorld.solver.iterations = 10;
+        this.physicsWorld.defaultContactMaterial.contactEquationStiffness = 1e6;
+        this.physicsWorld.defaultContactMaterial.contactEquationRelaxation = 3;
+
+        // Instantiate Character Rigid Capsule Bounding Shape Proxy
+        // Using a sphere asset body combo represents standard capsule controllers reliably
+        const sphereShape = new CANNON.Sphere(0.8);
+        this.playerBody = new CANNON.Body({
+            mass: 72, // Character Standard Mass kg
+            shape: sphereShape,
+            fixedRotation: true // Prevent character from tumbling like a marble
+        });
+        this.playerBody.position.set(0, 4, 0);
+        this.physicsWorld.addBody(this.playerBody);
+
+        this.visualMeshRegistry = new Map(); // Coordinates physics instances straight to Three meshes
+    }
+
+    // --- PHASE 2: THREE.JS SPATIAL WEBGL SCENE SURFACE ---
+    initThreeWebGLStage() {
+        this.scene3D = new THREE.Scene();
+        this.scene3D.background = new THREE.Color('#090d16');
+        this.scene3D.fog = new THREE.FogExp2('#090d16', 0.025);
+
+        this.renderer3D = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer3D.setSize(this.width, this.height);
+        this.renderer3D.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer3D.shadowMap.enabled = true;
+        this.renderer3D.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('three-stage').appendChild(this.renderer3D.domElement);
+
+        this.camera3D = new THREE.PerspectiveCamera(60, this.width / this.height, 0.1, 1000);
+        this.camera3D.position.set(0, 6, 12);
+
+        // Core Lighting Implementation Matrix
+        this.scene3D.add(new THREE.AmbientLight(0xffffff, 0.2));
+        const overheadSun = new THREE.DirectionalLight(0x38bdf8, 1.2); // Soft Cyberpunk blue sky shine
+        overheadSun.position.set(10, 20, 15);
+        overheadSun.castShadow = true;
+        overheadSun.shadow.mapSize.width = 2048;
+        overheadSun.shadow.mapSize.height = 2048;
+        this.scene3D.add(overheadSun);
+    }
+
+    buildEnvironmentalGeometries() {
+        // A. Materialize Solid Base Ground Floor Plane
+        const floorGeo = new THREE.BoxGeometry(40, 1, 40);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
+        const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+        floorMesh.receiveShadow = true;
+        this.scene3D.add(floorMesh);
+
+        const groundPhysBody = new CANNON.Body({ mass: 0, shape: new CANNON.Box(new CANNON.Vec3(20, 0.5, 20)) });
+        groundPhysBody.position.set(0, -0.5, 0);
+        this.physicsWorld.addBody(groundPhysBody);
+        this.visualMeshRegistry.set(groundPhysBody, floorMesh);
+
+        // B. Materialize Floating Platforms to execute Double-Jump validation testing runs
+        this.spawnStaticPlatformObstacle(-5, 3, -5, 6, 0.4, 6);
+        this.spawnStaticPlatformObstacle(4, 5.5, -2, 6, 0.4, 6);
+
+        // C. Generate Player Visual Group (with visor for orientation)
+        this.playerVisualMesh = new THREE.Group();
+        this.scene3D.add(this.playerVisualMesh);
+
+        // Main body sphere
+        const playerGeo = new THREE.SphereGeometry(0.8, 16, 16);
+        const playerMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, roughness: 0.2, metalness: 0.5 }); // Radiant Cyan Avatar
+        const bodyMesh = new THREE.Mesh(playerGeo, playerMat);
+        bodyMesh.castShadow = true;
+        this.playerVisualMesh.add(bodyMesh);
+
+        // Neon Visor to indicate direction (facing +Z by default)
+        const visorGeo = new THREE.BoxGeometry(0.9, 0.2, 0.4);
+        const visorMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xff5500, roughness: 0.1 });
+        const visorMesh = new THREE.Mesh(visorGeo, visorMat);
+        visorMesh.position.set(0, 0.2, 0.6); // Positioned slightly up and forward along +Z
+        visorMesh.castShadow = true;
+        this.playerVisualMesh.add(visorMesh);
+    }
+
+    spawnStaticPlatformObstacle(x, y, z, w, h, d) {
+        const platformGeo = new THREE.BoxGeometry(w, h, d);
+        const platformMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 });
+        const platformMesh = new THREE.Mesh(platformGeo, platformMat);
+        platformMesh.receiveShadow = true;
+        platformMesh.castShadow = true;
+        this.scene3D.add(platformMesh);
+
+        const platformPhysBody = new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(new CANNON.Vec3(w / 2, h / 2, d / 2))
+        });
+        platformPhysBody.position.set(x, y, z);
+        this.physicsWorld.addBody(platformPhysBody);
+        this.visualMeshRegistry.set(platformPhysBody, platformMesh);
+    }
+
+    // --- INPUT SYSTEMS LISTENERS INTERCEPT REGISTER ---
+    bindInputEventStreams() {
+        window.addEventListener('keydown', (e) => this.processInputKey(e, 1));
+        window.addEventListener('keyup', (e) => this.processInputKey(e, 0));
+        window.addEventListener('resize', () => this.handleWindowResizePass());
+    }
+
+    processInputKey(e, isActiveInteger) {
+        if (e.code === 'KeyW' || e.code === 'ArrowUp') this.inputMatrix.forward = isActiveInteger;
+        if (e.code === 'KeyS' || e.code === 'ArrowDown') this.inputMatrix.backward = isActiveInteger;
+        if (e.code === 'KeyA' || e.code === 'ArrowLeft') this.inputMatrix.left = isActiveInteger;
+        if (e.code === 'KeyD' || e.code === 'ArrowRight') this.inputMatrix.right = isActiveInteger;
+
+        if (e.code === 'Space' && isActiveInteger === 1) {
+            this.executeJumpTransaction();
+        }
+        if (e.code === 'ShiftLeft' && isActiveInteger === 1) {
+            this.executeDashTransaction();
+        }
+    }
+
+    // --- TRANSACTION MODULES: CHARGED LOCOMOTION GATES ---
+    executeJumpTransaction() {
+        if (this.statePhase === 'DASHING') return; // Cancel jump requests inside active dashes
+
+        // Double-Jump Validation Check Gate
+        if (this.statePhase === 'GROUNDED') {
+            this.playerBody.velocity.y = 8.2; // Primary upwards jump vector magnitude injection
+            this.jumpCount = 1;
+            this.statePhase = 'AIRBORNE';
+        } else if (this.statePhase === 'AIRBORNE' && this.jumpCount < 2) {
+            // Overwrite downward gravity fall momentum cleanly for the second burst leap
+            this.playerBody.velocity.y = 7.8; 
+            this.jumpCount = 2;
+        }
+        this.syncHUDView();
+    }
+
+    executeDashTransaction() {
+        if (this.dashCooldownActive || this.statePhase === 'DASHING') return;
+
+        // Extract lateral direction vectors from the camera workspace projections
+        const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera3D.quaternion);
+        forwardVector.y = 0; // Lock movement strictly onto flat horizontal planes
+        forwardVector.normalize();
+
+        // Fallback vector forward check if player stands perfectly still
+        if (forwardVector.lengthSq() === 0) forwardVector.set(0, 0, -1);
+
+        this.dashVectorDirection = new CANNON.Vec3(forwardVector.x, 0, forwardVector.z);
+        
+        this.statePhase = 'DASHING';
+        this.dashCooldownActive = true;
+        this.dashDurationTimeline = 12; // Enforce gravity lockout window duration for exactly 12 ticks
+
+        // Re-open cooldown window paths shortly downstream
+        setTimeout(() => { this.dashCooldownActive = false; }, 1000);
+    }
+
+    // --- DETERMINISTIC LOGIC STEP PASS: KINEMATIC INTEGRATOR ---
+    updateLocomotionPhysicsPipeline() {
+        if (this.statePhase === 'DASHING') {
+            // --- SUB-FRAME GRAVITY SUSPENSION PASS ---
+            // Direct force velocity amplification overwrite: Wipes out gravity drag trends completely
+            this.playerBody.velocity.x = this.dashVectorDirection.x * 24.0;
+            this.playerBody.velocity.y = 0; 
+            this.playerBody.velocity.z = this.dashVectorDirection.z * 24.0;
+
+            this.dashDurationTimeline--;
+            if (this.dashDurationTimeline <= 0) {
+                // Dash duration expired: Restore physics control to baseline airborne state loops
+                this.statePhase = 'AIRBORNE';
+                this.playerBody.velocity.x *= 0.3; // Dampen residual speed output to prevent slide slipping
+                this.playerBody.velocity.z *= 0.3;
+            }
+            return;
+        }
+
+        // Standard Grounded / Airborne Locomotion Force Transformations
+        const speedScalar = this.statePhase === 'GROUNDED' ? 6.5 : 4.0;
+        let driveMoveX = 0;
+        let driveMoveZ = 0;
+
+        if (this.inputMatrix.forward) driveMoveZ -= 1;
+        if (this.inputMatrix.backward) driveMoveZ += 1;
+        if (this.inputMatrix.left) driveMoveX -= 1;
+        if (this.inputMatrix.right) driveMoveX += 1;
+
+        // Apply friction braking damping directly to velocity vectors across dimensions if keys rest
+        if (driveMoveX === 0) this.playerBody.velocity.x *= 0.85;
+        if (driveMoveZ === 0) this.playerBody.velocity.z *= 0.85;
+
+        if (driveMoveX !== 0 || driveMoveZ !== 0) {
+            // Normalize inputs relative to axis coordinates offsets
+            let mag = Math.hypot(driveMoveX, driveMoveZ);
+            this.playerBody.velocity.x = (driveMoveX / mag) * speedScalar;
+            this.playerBody.velocity.z = (driveMoveZ / mag) * speedScalar;
+        }
+
+        // --- THE HEADLESS RAYCAST GROUNDING GATE SCAN ---
+        // Raycast down from sphere origin boundaries to calculate distance steps profiles perfectly
+        const rayOrigin = this.playerBody.position;
+        const rayDestination = new CANNON.Vec3(rayOrigin.x, rayOrigin.y - 1.2, rayOrigin.z);
+        const raycastOptions = { skipBackfaces: true };
+        
+        let isIntersectingGround = false;
+        
+        const result = new CANNON.RaycastResult();
+        this.physicsWorld.raycastClosest(rayOrigin, rayDestination, raycastOptions, result);
+        
+        if (result.hasHit && result.body !== this.playerBody) {
+            isIntersectingGround = true;
+        }
+
+        // Resolve Life Cycle Transitions Flags Updates Safely
+        if (isIntersectingGround && this.playerBody.velocity.y <= 0.1) {
+            if (this.statePhase !== 'GROUNDED') {
+                this.statePhase = 'GROUNDED';
+                this.jumpCount = 0;
+            }
+        } else {
+            if (this.statePhase === 'GROUNDED') this.statePhase = 'AIRBORNE';
+        }
+    }
+
+    // --- MASTER REFRESH TICKER LIFECYCLE PIPELINE ---
+    bootSynchronizedMasterTicker() {
+        const framePassTick = () => {
+            // A. Step headless physical simulation calculations parameters matrices
+            this.physicsWorld.step(1 / 60);
+            this.updateLocomotionPhysicsPipeline();
+
+            // B. Map physics calculation positional outputs straight onto active rendering meshes elements
+            this.visualMeshRegistry.forEach((mesh3D, body2D) => {
+                mesh3D.position.copy(body2D.position);
+                mesh3D.quaternion.copy(body2D.quaternion);
+            });
+
+            this.playerVisualMesh.position.copy(this.playerBody.position);
+
+            // D. Smooth Mesh Rotation Interpolations (Quaternion Slerp)
+            const vx = this.playerBody.velocity.x;
+            const vz = this.playerBody.velocity.z;
+            const horizontalSpeed = Math.hypot(vx, vz);
+
+            if (horizontalSpeed > 0.1) {
+                const targetAngle = Math.atan2(vx, vz);
+                const targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetAngle);
+                const slerpSpeed = this.statePhase === 'DASHING' ? 0.35 : 0.15;
+                this.playerVisualMesh.quaternion.slerp(targetQuaternion, slerpSpeed);
+            }
+
+            // C. Synchronize orbital tracking cameras angles behind character coordinates
+            this.camera3D.position.set(this.playerBody.position.x, this.playerBody.position.y + 4.5, this.playerBody.position.z + 9.0);
+            this.camera3D.lookAt(this.playerBody.position.x, this.playerBody.position.y + 1.0, this.playerBody.position.z);
+
+            // Interface throttled updates limits
+            if (Date.now() % 3 === 0) this.syncHUDView();
+
+            this.renderer3D.render(this.scene3D, this.camera3D);
+            requestAnimationFrame(framePassTick);
+        };
+        requestAnimationFrame(framePassTick);
+    }
+
+    syncHUDView() {
+        document.getElementById('lbl-state').innerText = this.statePhase;
+        document.getElementById('lbl-jumps').innerText = `${this.jumpCount} / 2`;
+        
+        let horizontalSpeedMag = Math.hypot(this.playerBody.velocity.x, this.playerBody.velocity.z);
+        document.getElementById('lbl-speed').innerText = `${horizontalSpeedMag.toFixed(2)} m/s`;
+
+        let stateLabel = document.getElementById('lbl-state');
+        if (this.statePhase === 'DASHING') stateLabel.className = "text-amber-400 font-bold animate__animated animate__flash animate__infinite";
+        else if (this.statePhase === 'GROUNDED') stateLabel.className = "text-emerald-400 font-bold";
+        else stateLabel.className = "text-cyan-400 font-bold";
+    }
+
+    handleWindowResizePass() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.camera3D.aspect = this.width / this.height;
+        this.camera3D.updateProjectionMatrix();
+        this.renderer3D.setSize(this.width, this.height);
+    }
+}
+
+// Global Core Driver Context Launch Activation
+let orchestrator;
+window.onload = () => { orchestrator = new KinematicCharacterController3D(); };
+</script>
+</body>
+</html>
