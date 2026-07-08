@@ -1,0 +1,35 @@
+[36m╔═══════════════════════════════════════════════════════════════════════╗[0m
+[36m║[0m  [1m[35mInventory Sync — Supplier API[0m                                      [36m║[0m
+[36m║[0m  [2mProject #67 — reconciles local stock levels against supplier feed[0m  [36m║[0m
+[36m╚═══════════════════════════════════════════════════════════════════════╝[0m
+
+
+[1m[33m▸ Fetching supplier stock feed[0m
+[2m──────────────────────────────────────────────────────────────────────[0m
+  [32m✓ Feed received for 10 SKUs[0m
+
+[1m[33m▸ Reconciling stock levels[0m
+[2m──────────────────────────────────────────────────────────────────────[0m
+
+[1m[33m▸ Sync report[0m
+[2m──────────────────────────────────────────────────────────────────────[0m
+┌──────────┬─────────────────────┬──────────┬─────────┬───────┬────────┬────────────┬─────────────────────────────────────────────────────────────────────────────────────┐
+│ [1m[37mSKU[0m      │ [1m[37mName[0m                │ [1m[37mPrev Qty[0m │ [1m[37mNew Qty[0m │ [1m[37mDelta[0m │   [1m[37mCost[0m │  [1m[37mOutcome[0m   │ [1m[37mNote[0m                                                                                │
+├──────────┼─────────────────────┼──────────┼─────────┼───────┼────────┼────────────┼─────────────────────────────────────────────────────────────────────────────────────┤
+│ SKU-A001 │ Wireless Keyboard   │       82 │      87 │  [32m+5[0m   │ $56.87 │ [32mrestocked[0m  │ Price drift +23.7%; Qty +5                                                          │
+│ SKU-A002 │ USB-C Hub (7-port)  │       14 │      85 │  [32m+71[0m  │ $36.85 │ [32mrestocked[0m  │ Price drift +29.3%; Qty +71                                                         │
+│ SKU-A003 │ Mechanical Mouse    │       55 │      51 │  [31m-4[0m   │ $81.51 │  [33mreduced[0m   │ Price drift +132.9%; Qty -4                                                         │
+│ SKU-A004 │ Monitor Stand       │        7 │      56 │  [32m+49[0m  │ $27.56 │ [32mrestocked[0m  │ Price drift +25.3%; Qty +49                                                         │
+│ SKU-A005 │ Laptop Cooling Pad  │      130 │     190 │  [32m+60[0m  │  $9.90 │ [32mrestocked[0m  │ Price drift -47.2%; Qty +60                                                         │
+│ SKU-A006 │ Webcam 1080p        │       43 │     140 │  [32m+97[0m  │ $93.40 │ [32mrestocked[0m  │ Price drift +29.7%; Qty +97                                                         │
+│ SKU-A007 │ HDMI 2.1 Cable (2m) │      200 │     200 │  [2m—[0m  │ $54.30 │ [31mstale feed[0m │ Supplier feed (2026-07-05T00:36:57Z) is older than last sync (2026-07-06T08:00:00Z) │
+│ SKU-A008 │ Desk Lamp LED       │       18 │      18 │  [2m—[0m  │ $86.11 │ [31mstale feed[0m │ Supplier feed (2026-07-05T00:36:57Z) is older than last sync (2026-07-06T08:00:00Z) │
+│ SKU-A009 │ Ergonomic Chair Mat │        9 │      53 │  [32m+44[0m  │ $25.53 │ [32mrestocked[0m  │ Price drift -53.6%; Qty +44                                                         │
+│ SKU-A010 │ Portable SSD 1TB    │       60 │      88 │  [32m+28[0m  │ $52.88 │ [32mrestocked[0m  │ Price drift -41.2%; Qty +28                                                         │
+└──────────┴─────────────────────┴──────────┴─────────┴───────┴────────┴────────────┴─────────────────────────────────────────────────────────────────────────────────────┘
+
+[1mSummary: [0m[2m0 unchanged[0m, [32m7 restocked[0m, [33m1 reduced[0m, [31m0 below reorder[0m, [35m0 price drift[0m, [31m2 stale-feed conflict[0m
+  [33m⚠ Stale-feed conflicts require manual review — do not overwrite.[0m
+
+[2mSync completed at 2026-07-08 00:36:57 — 10/10 products updated.[0m
+
