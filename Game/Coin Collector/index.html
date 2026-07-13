@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Retro Pixel Coin Collector Engine Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/98.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #55aaaa; font-family: monospace; }
+        canvas { display: block; image-rendering: pixelated; background: #0b111e; }
+        #canvas-stage-anchor { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #retro-hud-desktop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-stage-anchor">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div id="retro-hud-desktop">
+        <div class="window absolute left-6 top-6 w-72 shadow-2xl pointer-events-auto animate__animated animate__zoomIn">
+            <div class="title-bar">
+                <div class="title-bar-text">COIN_COLLECTOR.EXE</div>
+                <div class="title-bar-controls"><button aria-label="Close"></button></div>
+            </div>
+            <div class="window-body flex flex-col gap-3">
+                <header class="border-b border-slate-400 pb-2">
+                    <h2 class="text-slate-800 font-bold text-xs font-mono tracking-wide uppercase">Operational Status OS</h2>
+                </header>
+
+                <fieldset class="p-2 font-mono text-[11px] text-slate-700 bg-white shadow-inner">
+                    <legend class="bg-[#f1f1f1] px-1 font-bold">Score Manifest</legend>
+                    <div class="flex justify-between"><span>🪙 Total Gold Banked:</span><span id="txt-score" class="font-bold text-blue-800">0000</span></div>
+                    <div class="flex justify-between mt-1"><span>🔋 Object Pool Load:</span><span id="txt-pool" class="font-bold text-slate-600">0 / 200</span></div>
+                </fieldset>
+
+                <div class="flex flex-col gap-1.5">
+                    <button onclick="orchestrator.triggerCascadeEvent()" class="hvr-grow w-full font-bold" style="padding: 4px 10px;">
+                        💥 Trigger Coin Cascade
+                    </button>
+                </div>
+                <div class="text-[9px] text-slate-500 font-mono text-center mt-1">CONTROLS: A/D OR ARROW KEYS = DIRECTIONAL RUN</div>
+            </div>
+        </div>
+    </div>
+
+<script>
+class HybridCoinCollectorEngine {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.resizeCanvasViewport();
+        window.addEventListener('resize', () => this.resizeCanvasViewport());
+
+        // --- SINGLE SOURCE OF TRUTH Headless DATA STATES ---
+        this.score = 0;
+        
+        // Kinematic Player Vector Data Object
+        this.player = {
+            x: this.width / 2,
+            y: this.height - 100,
+            w: 24, h: 32,
+            vx: 0,
+            speed: 0.65,
+            maxVx: 5.5,
+            friction: 0.85
+        };
+
+        // --- FIXED-CAP ADVANCED OBJECT POOL MATRIX ---
+        this.maxCoinsPoolSize = 200;
+        this.coinsPool = [];
+        for (let i = 0; i < this.maxCoinsPoolSize; i++) {
+            this.coinsPool.push({ x: 0, y: 0, radius: 6, vx: 0, vy: 0, active: false });
+        }
+
+        this.inputState = { left: false, right: false };
+
+        this.bindInputKeyboardStreams();
+        this.syncHUDViewDisplay();
+        this.executeEngineTickLoop();
+    }
+
+    resizeCanvasViewport() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        
+        // Ground character cleanly if viewport dimensions warp
+        if (this.player) this.player.y = this.height - 100;
+    }
+
+    bindInputKeyboardStreams() {
+        window.addEventListener('keydown', (e) => this.toggleInputKey(e, true));
+        window.addEventListener('keyup', (e) => this.toggleInputKey(e, false));
+    }
+
+    toggleInputKey(e, isPressed) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.inputState.left = isPressed;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') this.inputMatrixRight(isPressed);
+    }
+
+    inputMatrixRight(isPressed) {
+        this.inputState.right = isPressed;
+    }
+
+    // --- SPATIAL TRANSACTION MODULES: POOL ALLOCATORS ---
+    allocateCoinFromPool(x, y, vx, vy) {
+        // Find the first available inactive structural record inside the contiguous memory grid
+        let vacantRecord = this.coinsPool.find(coin => !coin.active);
+        if (!vacantRecord) return; // Pool capacity limit saturated
+
+        vacantRecord.active = true;
+        vacantRecord.x = x;
+        vacantRecord.y = y;
+        vacantRecord.vx = vx;
+        vacantRecord.vy = vy;
+    }
+
+    triggerCascadeEvent() {
+        // Broadcast multiple dynamic objects instantly out without causing memory fragmentation
+        for (let i = 0; i < 40; i++) {
+            let spawnX = this.width / 2 + (Math.random() - 0.5) * 80;
+            let spawnY = 80 + Math.random() * 60;
+            let forceVx = (Math.random() - 0.5) * 8;
+            let forceVy = -Math.random() * 6 - 2;
+
+            this.allocateCoinFromPool(spawnX, spawnY, forceVx, forceVy);
+        }
+        this.syncHUDViewDisplay();
+    }
+
+    // --- CORE MECHANICAL LOGIC TIMELINE PIPELINE ---
+    updateKinematicStateMatrices() {
+        // 1. Process Horizontal Kinematic Vector Forces Integration
+        if (this.inputState.left) this.player.vx -= this.player.speed;
+        if (this.inputState.right) this.player.vx += this.player.speed;
+
+        this.player.vx *= this.player.friction;
+        this.player.vx = Math.max(-this.player.maxVx, Math.min(this.player.maxVx, this.player.vx));
+        this.player.x += this.player.vx;
+
+        // Bounding player movement to viewport limits boundaries
+        if (this.player.x < 0) this.player.x = 0;
+        if (this.player.x > this.width - this.player.w) this.player.x = this.width - this.player.w;
+
+        // 2. Automate background passive coin trickle generation waves
+        if (Math.random() < 0.04) {
+            let randomDropX = Math.random() * this.width;
+            this.allocateCoinFromPool(randomDropX, -20, 0, Math.random() * 2 + 1.5);
+        }
+
+        // 3. Step Active Dynamic Objects Matrices Lookups
+        this.coinsPool.forEach(coin => {
+            if (!coin.active) return;
+
+            // Apply light gravity physics simulation lines variables
+            coin.vy += 0.15; 
+            coin.x += coin.vx;
+            coin.y += coin.vy;
+
+            // Simple vector bouncing adjustments off side walls boundaries
+            if (coin.x < 0 || coin.x > this.width) coin.vx *= -1;
+
+            // --- RESOLVE SPATIAL COLLISION INTERCEPT GATES ---
+            // Axis-Aligned bounding validation scan checking player mesh overlap parameters
+            if (coin.x > this.player.x && coin.x < this.player.x + this.player.w &&
+                coin.y > this.player.y && coin.y < this.player.y + this.player.h) {
+                
+                // Collection resolved! Deactivate structure record, bypass GC sweeps
+                coin.active = false;
+                this.score += 100;
+                this.syncHUDViewDisplay();
+            }
+
+            // Recycle lost entities escaping bottom environment screen clip bounds
+            if (coin.y > this.height + 20) {
+                coin.active = false;
+                this.syncHUDViewDisplay();
+            }
+        });
+    }
+
+    // --- HIGH-PERFORMANCE REPAINT FLUSH (PIXEL-PERFECT BLITTING) ---
+    executeEngineTickLoop() {
+        // Advance logical positional matrices state calculations
+        this.updateKinematicStateMatrices();
+
+        // Flush viewport background buffers
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        // Render Stage 1: Draw Active Gold Voxel Coins Particles Array
+        this.ctx.fillStyle = '#f59e0b'; // Vibrant Retro Gold Amber Fill
+        this.coinsPool.forEach(coin => {
+            if (!coin.active) return;
+
+            // --- THE RENDER-CACHE PIXEL SNAPPING PASS ---
+            // Truncate high-precision float coordinates to full integers to eliminate pixel bleeding shifts
+            let snapX = Math.floor(coin.x);
+            let snapY = Math.floor(coin.y);
+
+            this.ctx.beginPath();
+            this.ctx.arc(snapX, snapY, coin.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Inner coin highlight detail line blitting
+            this.ctx.fillStyle = '#fef08a';
+            this.ctx.fillRect(snapX - 2, snapY - 2, 3, 3);
+            this.ctx.fillStyle = '#f59e0b'; // Restore brush tracking index
+        });
+
+        // Render Stage 2: Draw Player Stick-Avatar Silhouette Capsule
+        let playerSnapX = Math.floor(this.player.x);
+        let playerSnapY = Math.floor(this.player.y);
+
+        this.ctx.fillStyle = '#38bdf8'; // Sky Cyan Hero Box
+        this.ctx.fillRect(playerSnapX, playerSnapY, this.player.w, this.player.h);
+
+        // Border styling detail lines
+        this.ctx.strokeStyle = '#1e293b';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(playerSnapX, playerSnapY, this.player.w, this.player.h);
+
+        requestAnimationFrame(() => this.executeEngineTickLoop());
+    }
+
+    syncHUDViewDisplay() {
+        document.getElementById('txt-score').innerText = this.score.toString().padStart(4, '0');
+        
+        let activeElementsCount = this.coinsPool.filter(c => c.active).length;
+        document.getElementById('txt-pool').innerText = `${activeElementsCount} / ${this.maxCoinsPoolSize}`;
+    }
+}
+
+// Global Core Framework Architecture Operational Activation Entry Trigger Matrix
+let orchestrator;
+window.onload = () => { orchestrator = new HybridCoinCollectorEngine(); };
+</script>
+</body>
+</html>
