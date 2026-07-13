@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Spatial Level Editor Suite // Studio Matrix</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js (r128) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Cannon-es (0.20.0) -->
+    <script src="https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.umd.min.js"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbar for database log */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.4);
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.8);
+        }
+        /* Mode transitions */
+        .mode-pulse {
+            animation: pulse-glow 2s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 5px rgba(6, 182, 212, 0.2), inset 0 0 5px rgba(6, 182, 212, 0.1);
+            }
+            100% {
+                box-shadow: 0 0 15px rgba(6, 182, 212, 0.6), inset 0 0 10px rgba(6, 182, 212, 0.3);
+            }
+        }
+        .btn-glow-green {
+            animation: pulse-green 2s infinite alternate;
+        }
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 5px rgba(34, 197, 94, 0.2);
+            }
+            100% {
+                box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+            }
+        }
+        .toast-enter {
+            animation: slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slide-in {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 m-0 p-0 overflow-hidden select-none touch-none text-slate-200">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="absolute top-6 right-6 z-50 flex flex-col gap-2 pointer-events-none w-80"></div>
+
+    <!-- WebGL Canvas Anchor -->
+    <div id="canvas-container" class="absolute inset-0 w-full h-full z-10"></div>
+
+    <!-- Victory Overlay Screen -->
+    <div id="victory-screen" class="absolute inset-0 bg-slate-950/90 z-40 flex flex-col items-center justify-center gap-6 hidden backdrop-blur-lg">
+        <div class="text-center space-y-2 max-w-md p-8 rounded-2xl border border-green-500/30 bg-slate-900/80 shadow-[0_0_50px_rgba(34,197,94,0.15)] btn-glow-green">
+            <div class="text-5xl">🏆</div>
+            <h2 class="text-3xl font-black text-green-400 tracking-wider uppercase mt-4">Simulation Clear</h2>
+            <p class="text-slate-400 text-sm font-mono mt-2">All physical systems passed stability check.</p>
+            <div class="text-slate-500 text-xs font-mono bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 mt-4 space-y-1">
+                <div class="flex justify-between"><span>Collected Coins:</span><span id="victory-coins" class="text-yellow-400 font-bold">0</span></div>
+            </div>
+            <button onclick="editor.exitVictoryScreen()" class="mt-6 w-full bg-green-500 hover:bg-green-400 text-slate-950 font-bold py-3 px-6 rounded-xl transition-all shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+                Return to Editor (Esc)
+            </button>
+        </div>
+    </div>
+
+    <!-- Studio HUD Interface -->
+    <div id="studio-hud" class="absolute inset-0 z-30 pointer-events-none flex justify-between p-6">
+        
+        <!-- Left Panel: Toolbox & Controls -->
+        <div class="w-80 bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-md pointer-events-auto flex flex-col gap-4">
+            <header class="border-b border-slate-800/80 pb-3 flex justify-between items-center">
+                <div>
+                    <h1 class="text-cyan-400 text-sm font-black tracking-widest uppercase">Studio Matrix // OS</h1>
+                    <p class="text-[9px] text-slate-500 font-mono mt-0.5">3D VOXEL LEVEL BUILDER LAYER</p>
+                </div>
+                <div id="mode-status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-950/40 border border-cyan-800/40 text-[10px] text-cyan-400 font-bold uppercase tracking-wider mode-pulse">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Edit Mode
+                </div>
+            </header>
+
+            <!-- Mode Switch Row -->
+            <div class="grid grid-cols-2 gap-2">
+                <button id="btn-toggle-test" onclick="editor.toggleTestMode()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.25)]">
+                    🎮 <span id="lbl-test-btn">Test Simulation</span>
+                </button>
+                <div class="flex gap-1">
+                    <button id="btn-undo" onclick="editor.cmdManager.undo()" class="flex-1 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:hover:bg-slate-800/60 text-slate-200 border border-slate-700/60 font-bold rounded-xl text-xs transition-all" title="Undo (Ctrl+Z)">
+                        ↩️
+                    </button>
+                    <button id="btn-redo" onclick="editor.cmdManager.redo()" class="flex-1 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:hover:bg-slate-800/60 text-slate-200 border border-slate-700/60 font-bold rounded-xl text-xs transition-all" title="Redo (Ctrl+Y)">
+                        ↪️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Block Palette -->
+            <div class="space-y-2">
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Material Block:</p>
+                <div class="flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar" id="palette-controls">
+                    <button data-type="PLATFORM" class="w-full text-left bg-cyan-950/40 hover:bg-cyan-900/40 text-cyan-400 font-bold p-2.5 border border-cyan-900/60 rounded-xl text-xs transition-all active flex items-center justify-between">
+                        <span>🧱 Standard Platform</span>
+                        <kbd class="text-[9px] bg-cyan-900/40 border border-cyan-800/40 px-1.5 py-0.5 rounded text-cyan-500 font-mono">1</kbd>
+                    </button>
+                    <button data-type="HAZARD" class="w-full text-left bg-slate-950/40 hover:bg-slate-900/40 text-rose-400 font-bold p-2.5 border border-slate-800 rounded-xl text-xs transition-all flex items-center justify-between">
+                        <span>🔺 Hazard Lava Cube</span>
+                        <kbd class="text-[9px] bg-slate-950/60 border border-slate-800 px-1.5 py-0.5 rounded text-rose-500 font-mono">2</kbd>
+                    </button>
+                    <button data-type="SPIKES" class="w-full text-left bg-slate-950/40 hover:bg-slate-900/40 text-amber-500 font-bold p-2.5 border border-slate-800 rounded-xl text-xs transition-all flex items-center justify-between">
+                        <span>📐 Hazard Spikes</span>
+                        <kbd class="text-[9px] bg-slate-950/60 border border-slate-800 px-1.5 py-0.5 rounded text-amber-500 font-mono">3</kbd>
+                    </button>
+                    <button data-type="MOVING_PLATFORM" class="w-full text-left bg-slate-950/40 hover:bg-slate-900/40 text-indigo-400 font-bold p-2.5 border border-slate-800 rounded-xl text-xs transition-all flex items-center justify-between">
+                        <span>🚀 Moving Platform</span>
+                        <kbd class="text-[9px] bg-slate-950/60 border border-slate-800 px-1.5 py-0.5 rounded text-indigo-500 font-mono">4</kbd>
+                    </button>
+                    <button data-type="COIN" class="w-full text-left bg-slate-950/40 hover:bg-slate-900/40 text-yellow-400 font-bold p-2.5 border border-slate-800 rounded-xl text-xs transition-all flex items-center justify-between">
+                        <span>🪙 Coin Collectible</span>
+                        <kbd class="text-[9px] bg-slate-950/60 border border-slate-800 px-1.5 py-0.5 rounded text-yellow-500 font-mono">5</kbd>
+                    </button>
+                    <button data-type="GOAL" class="w-full text-left bg-slate-950/40 hover:bg-slate-900/40 text-green-400 font-bold p-2.5 border border-slate-800 rounded-xl text-xs transition-all flex items-center justify-between">
+                        <span>🌀 Victory Portal</span>
+                        <kbd class="text-[9px] bg-slate-950/60 border border-slate-800 px-1.5 py-0.5 rounded text-green-500 font-mono">6</kbd>
+                    </button>
+                    <button data-type="PLAYER_SPAWN" class="w-full text-left bg-slate-950/40 hover:bg-slate-900/40 text-purple-400 font-bold p-2.5 border border-slate-800 rounded-xl text-xs transition-all flex items-center justify-between">
+                        <span>🛸 Player Spawn Point</span>
+                        <kbd class="text-[9px] bg-slate-950/60 border border-slate-800 px-1.5 py-0.5 rounded text-purple-500 font-mono">7</kbd>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Moving Platform Context Options (Contextual) -->
+            <div id="moving-platform-options" class="hidden p-3 rounded-xl border border-slate-800 bg-slate-950/50 flex flex-col gap-2">
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Moving Axis:</span>
+                <div class="grid grid-cols-3 gap-1">
+                    <button onclick="editor.setMovingAxis('X')" id="btn-axis-x" class="bg-indigo-950 text-indigo-400 border border-indigo-900/60 text-xs font-mono font-bold py-1 px-2 rounded-lg">X (Lat)</button>
+                    <button onclick="editor.setMovingAxis('Y')" id="btn-axis-y" class="bg-slate-950 text-slate-500 border border-slate-800 text-xs font-mono font-bold py-1 px-2 rounded-lg">Y (Vert)</button>
+                    <button onclick="editor.setMovingAxis('Z')" id="btn-axis-z" class="bg-slate-950 text-slate-500 border border-slate-800 text-xs font-mono font-bold py-1 px-2 rounded-lg">Z (Long)</button>
+                </div>
+            </div>
+
+            <hr class="border-slate-800/80" />
+
+            <!-- Persistence Utilities -->
+            <div class="flex flex-col gap-1.5">
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button onclick="editor.exportLevelStateManifest()" class="bg-slate-800/80 hover:bg-slate-700/80 font-bold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1">
+                        💾 Export JSON
+                    </button>
+                    <label class="bg-slate-800/80 hover:bg-slate-700/80 font-bold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1 cursor-pointer text-center">
+                        📂 Load JSON
+                        <input type="file" id="btn-import" accept=".json" class="hidden" />
+                    </label>
+                </div>
+                <button onclick="editor.wipeEditorWorkspacePrompt()" class="w-full bg-rose-950/20 hover:bg-rose-900/30 text-rose-400 border border-rose-900/40 font-bold py-2 px-3 rounded-xl text-xs transition-all">
+                    ❌ Purge Workspace Blocks
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Panel: Database Logs & Metrics -->
+        <div class="w-72 bg-slate-900/80 border border-slate-800/80 p-4 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-md pointer-events-auto flex flex-col gap-3 h-fit">
+            <h2 class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Spatial Database Log</h2>
+            <div class="text-xs text-slate-400 font-mono space-y-1.5 text-[11px] bg-slate-950/50 p-3 rounded-xl border border-slate-850">
+                <div class="flex justify-between"><span>Active Block Count:</span><span id="lbl-count" class="text-cyan-400 font-bold">0</span></div>
+                <div class="flex justify-between"><span>Snapping Grid Unit:</span><span class="text-slate-300 font-bold">1.0</span></div>
+                <div id="coins-container" class="flex justify-between hidden"><span>Coins Collected:</span><span id="lbl-coins" class="text-yellow-400 font-bold">0</span></div>
+            </div>
+            
+            <div class="border-t border-slate-800/80 pt-3">
+                <h3 class="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Instruction manual</h3>
+                <div class="text-[9px] text-slate-500 leading-relaxed mt-1 font-mono space-y-1">
+                    <div class="flex items-center gap-1">🎮 <span class="text-slate-400 font-bold">Left Click:</span> Place voxel block</div>
+                    <div class="flex items-center gap-1">❌ <span class="text-slate-400 font-bold">Shift+Left Click:</span> Erase block</div>
+                    <div class="flex items-center gap-1">👁️ <span class="text-slate-400 font-bold">Right Click+Drag:</span> Orbit Camera</div>
+                    <div class="flex items-center gap-1">🔄 <span class="text-slate-400 font-bold">Ctrl+Z / Y:</span> Undo / Redo</div>
+                    <div class="flex items-center gap-1">🏃 <span class="text-slate-400 font-bold">WASD + Space:</span> Move / Jump (Test Mode)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// --- AUDIO SYNTHESIS SUBSYSTEM (Zero external asset files) ---
+class WebAudioSFX {
+    constructor() {
+        this.ctx = null;
+    }
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+    playPop() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(700, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+    }
+    playNoise() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(80, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+    }
+    playChime() {
+        this.init();
+        const now = this.ctx.currentTime;
+        
+        // Dynamic double beep chime
+        const playTone = (freq, start, duration) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.12, start);
+            gain.gain.exponentialRampToValueAtTime(0.01, start + duration);
+            osc.start(start);
+            osc.stop(start + duration);
+        };
+
+        playTone(523.25, now, 0.1); // C5
+        playTone(659.25, now + 0.08, 0.15); // E5
+    }
+    playJump() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+    }
+    playExplode() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const duration = 0.4;
+        
+        // Low pitch blast
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(110, now);
+        osc.frequency.linearRampToValueAtTime(40, now + duration);
+        
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        
+        osc.start();
+        osc.stop(now + duration);
+    }
+    playWin() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const playTone = (freq, start, duration) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.15, start);
+            gain.gain.exponentialRampToValueAtTime(0.01, start + duration);
+            osc.start(start);
+            osc.stop(start + duration);
+        };
+        
+        playTone(523.25, now, 0.15); // C5
+        playTone(659.25, now + 0.12, 0.15); // E5
+        playTone(783.99, now + 0.24, 0.15); // G5
+        playTone(1046.50, now + 0.36, 0.3); // C6
+    }
+}
+
+// --- COMMAND / TRANSACTION MATRIX FOR UNDO-REDO ARCHITECTURE ---
+class AddBlockCommand {
+    constructor(editor, x, y, z, type, movingAxis = 'X') {
+        this.editor = editor;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.type = type;
+        this.movingAxis = movingAxis;
+        this.key = `${x},${y},${z}`;
+    }
+    execute() {
+        this.editor.createBlock(this.x, this.y, this.z, this.type, this.movingAxis);
+        this.editor.sfx.playPop();
+    }
+    undo() {
+        this.editor.removeBlock(this.key);
+        this.editor.sfx.playNoise();
+    }
+}
+
+class RemoveBlockCommand {
+    constructor(editor, key) {
+        this.editor = editor;
+        this.key = key;
+        const block = editor.voxelDatabaseRegistry.get(key);
+        this.x = block.x;
+        this.y = block.y;
+        this.z = block.z;
+        this.type = block.type;
+        this.movingAxis = block.movingAxis || 'X';
+    }
+    execute() {
+        this.editor.removeBlock(this.key);
+        this.editor.sfx.playNoise();
+    }
+    undo() {
+        this.editor.createBlock(this.x, this.y, this.z, this.type, this.movingAxis);
+        this.editor.sfx.playPop();
+    }
+}
+
+class CommandManager {
+    constructor(editor) {
+        this.editor = editor;
+        this.history = [];
+        this.redoStack = [];
+        this.maxSize = 50;
+    }
+    execute(command) {
+        command.execute();
+        this.history.push(command);
+        if (this.history.length > this.maxSize) {
+            this.history.shift();
+        }
+        this.redoStack = [];
+        this.updateUI();
+        this.editor.saveToLocalStorage();
+    }
+    undo() {
+        if (this.history.length === 0) return;
+        const command = this.history.pop();
+        command.undo();
+        this.redoStack.push(command);
+        this.updateUI();
+        this.editor.saveToLocalStorage();
+        this.editor.showToast("↩️ Undo action performed");
+    }
+    redo() {
+        if (this.redoStack.length === 0) return;
+        const command = this.redoStack.pop();
+        command.execute();
+        this.history.push(command);
+        this.updateUI();
+        this.editor.saveToLocalStorage();
+        this.editor.showToast("↪️ Redo action performed");
+    }
+    clear() {
+        this.history = [];
+        this.redoStack = [];
+        this.updateUI();
+    }
+    updateUI() {
+        const undoBtn = document.getElementById('btn-undo');
+        const redoBtn = document.getElementById('btn-redo');
+        if (undoBtn) undoBtn.disabled = this.history.length === 0;
+        if (redoBtn) redoBtn.disabled = this.redoStack.length === 0;
+    }
+}
+
+// --- MASTER LEVEL EDITOR CORE APP ---
+class SpatialLevelEditor3D {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.blockSizeUnit = 1.0;
+
+        // Voxel Map single source of truth registry mapping x,y,z coordinate strings to records
+        this.voxelDatabaseRegistry = new Map();
+        
+        // Interactive Settings
+        this.activePlacementType = 'PLATFORM';
+        this.currentMovingPlatformAxis = 'X';
+        this.isTestMode = false;
+        
+        // Keyboard Inputs Log
+        this.keys = {};
+        
+        // Particle Engine Buffer
+        this.activeParticles = [];
+
+        // Audio & Command Queues Instantiation
+        this.sfx = new WebAudioSFX();
+        this.cmdManager = new CommandManager(this);
+
+        this.initHeadlessPhysicsContext();
+        this.initThreeCanvasStage();
+        this.buildEditorWorkspaceGuides();
+        this.bindInteractionRays();
+        this.bootSynchronizedMasterLoop();
+        this.loadFromLocalStorage();
+    }
+
+    // --- SUB-SYSTEM 1: CANNON-ES PHYSICAL WORLD ---
+    initHeadlessPhysicsContext() {
+        this.physicsWorld = new CANNON.World();
+        this.physicsWorld.gravity.set(0, -18.0, 0); // Snappy game-like gravity curve
+        
+        // Ground physical boundary mapping
+        const groundShape = new CANNON.Plane();
+        this.groundBody = new CANNON.Body({ mass: 0, shape: groundShape });
+        this.groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+        this.physicsWorld.addBody(this.groundBody);
+    }
+
+    // --- SUB-SYSTEM 2: THREE.JS RENDER STAGE ---
+    initThreeCanvasStage() {
+        this.scene3D = new THREE.Scene();
+        this.scene3D.background = new THREE.Color('#030712'); // Rich deep dark slate background
+
+        this.renderer3D = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        this.renderer3D.setSize(this.width, this.height);
+        this.renderer3D.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer3D.shadowMap.enabled = true;
+        this.renderer3D.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('canvas-container').appendChild(this.renderer3D.domElement);
+
+        this.camera3D = new THREE.PerspectiveCamera(50, this.width / this.height, 0.1, 1000);
+        this.cameraOrbitAngle = 0;
+        this.updateCameraOrbitPosition();
+
+        // Technical Lights Config
+        this.scene3D.add(new THREE.AmbientLight(0xffffff, 0.3));
+
+        // Sun light casting crisp shadows
+        this.sunLight = new THREE.DirectionalLight(0x00f0ff, 0.9); // Cyber cyan workspace tint lamp
+        this.sunLight.position.set(10, 25, 15);
+        this.sunLight.castShadow = true;
+        this.sunLight.shadow.mapSize.width = 2048;
+        this.sunLight.shadow.mapSize.height = 2048;
+        this.sunLight.shadow.camera.near = 0.5;
+        this.sunLight.shadow.camera.far = 40;
+        
+        const d = 15;
+        this.sunLight.shadow.camera.left = -d;
+        this.sunLight.shadow.camera.right = d;
+        this.sunLight.shadow.camera.top = d;
+        this.sunLight.shadow.camera.bottom = -d;
+        this.scene3D.add(this.sunLight);
+
+        // Subtle side orange rim light for visual premium contrast
+        const rimLight = new THREE.DirectionalLight(0xf43f5e, 0.45);
+        rimLight.position.set(-15, 10, -10);
+        this.scene3D.add(rimLight);
+    }
+
+    buildEditorWorkspaceGuides() {
+        // Neon structural plane grid
+        this.gridHelper = new THREE.GridHelper(30, 30, 0x06b6d4, 0x1e293b);
+        this.gridHelper.position.y = -0.005; // Guard sub-pixel flicker artifacts
+        this.scene3D.add(this.gridHelper);
+
+        // Invisible plane for ray intersections
+        const planeGeo = new THREE.PlaneGeometry(100, 100);
+        planeGeo.rotateX(-Math.PI / 2);
+        this.interactionIntersectionPlane = new THREE.Mesh(planeGeo, new THREE.MeshBasicMaterial({ visible: false }));
+        this.scene3D.add(this.interactionIntersectionPlane);
+
+        // Placement cursor bounding box geometry outline
+        const previewGeo = new THREE.BoxGeometry(this.blockSizeUnit, this.blockSizeUnit, this.blockSizeUnit);
+        const previewMat = new THREE.MeshBasicMaterial({
+            color: 0x06b6d4,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.6
+        });
+        this.placementCursorPreviewMesh = new THREE.Mesh(previewGeo, previewMat);
+        this.scene3D.add(this.placementCursorPreviewMesh);
+    }
+
+    // --- INTERACTION SYSTEM: SPACE-RAY TRACE INTERCEPTIONS ---
+    bindInteractionRays() {
+        this.raycaster = new THREE.Raycaster();
+        this.pointerVector = new THREE.Vector2();
+
+        // Bind interactive selection palette panel option switches
+        document.getElementById('palette-controls').addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            document.querySelectorAll('#palette-controls button').forEach(b => {
+                b.classList.remove('active', 'bg-cyan-950/40', 'text-cyan-400', 'border-cyan-900/60');
+                b.classList.add('bg-slate-950/40', 'text-slate-400', 'border-slate-800');
+            });
+            btn.classList.remove('bg-slate-950/40', 'text-slate-400', 'border-slate-800');
+            btn.classList.add('bg-cyan-950/40', 'text-cyan-400', 'border-cyan-900/60', 'active');
+            
+            this.activePlacementType = btn.dataset.type;
+            this.toggleContextualOptionsHUD();
+            this.updateCursorPreviewColor();
+        });
+
+        // Pointer move event traces
+        window.addEventListener('pointermove', (e) => this.processPointerMoveTrace(e));
+        window.addEventListener('pointerdown', (e) => this.processPointerClickAction(e));
+        window.addEventListener('resize', () => this.handleViewportResizePass());
+
+        // Keyboard hotkeys bind
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            this.keys[key] = true;
+
+            // Handle hotkeys in edit mode only
+            if (!this.isTestMode) {
+                if (e.ctrlKey && key === 'z') {
+                    e.preventDefault();
+                    this.cmdManager.undo();
+                } else if (e.ctrlKey && key === 'y') {
+                    e.preventDefault();
+                    this.cmdManager.redo();
+                } else if (['1', '2', '3', '4', '5', '6', '7'].includes(key)) {
+                    const buttons = document.querySelectorAll('#palette-controls button');
+                    const targetBtn = buttons[parseInt(key) - 1];
+                    if (targetBtn) targetBtn.click();
+                }
+            }
+
+            if (e.key === 'Escape') {
+                if (document.getElementById('victory-screen').classList.contains('hidden') === false) {
+                    this.exitVictoryScreen();
+                } else if (this.isTestMode) {
+                    this.toggleTestMode();
+                }
+            }
+            if (e.key === 'F5' || (key === ' ' && e.ctrlKey)) {
+                e.preventDefault();
+                this.toggleTestMode();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            this.keys[key] = false;
+        });
+
+        // Orbit camera pivots tracking
+        window.addEventListener('pointermove', (e) => {
+            if (e.buttons === 2) { // Right Click held down
+                this.cameraOrbitAngle -= e.movementX * 0.006;
+                this.updateCameraOrbitPosition();
+            }
+        });
+        window.addEventListener('contextmenu', e => e.preventDefault()); // Secure canvas right sweeps
+
+        // Bind JSON loading handler
+        document.getElementById('btn-import').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    this.importLevelStateManifest(data);
+                } catch(err) {
+                    this.showToast("❌ Failed to parse Level JSON file");
+                }
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    updateCameraOrbitPosition() {
+        if (this.isTestMode && this.playerBody) {
+            // Updated dynamically in the requestAnimationFrame loop to follow character smoothly
+            return;
+        }
+        const dist = 14;
+        this.camera3D.position.x = Math.sin(this.cameraOrbitAngle) * dist;
+        this.camera3D.position.z = Math.cos(this.cameraOrbitAngle) * dist;
+        this.camera3D.position.y = 8;
+        this.camera3D.lookAt(0, 1.5, 0);
+    }
+
+    updateCursorPreviewColor() {
+        let colorValue = 0x06b6d4; // Default cyan
+        if (this.activePlacementType === 'HAZARD') colorValue = 0xf43f5e;
+        if (this.activePlacementType === 'SPIKES') colorValue = 0xf59e0b;
+        if (this.activePlacementType === 'MOVING_PLATFORM') colorValue = 0x6366f1;
+        if (this.activePlacementType === 'COIN') colorValue = 0xeab308;
+        if (this.activePlacementType === 'GOAL') colorValue = 0x22c55e;
+        if (this.activePlacementType === 'PLAYER_SPAWN') colorValue = 0xc084fc;
+
+        this.placementCursorPreviewMesh.material.color.setHex(colorValue);
+    }
+
+    toggleContextualOptionsHUD() {
+        const HUDOptionsDiv = document.getElementById('moving-platform-options');
+        if (this.activePlacementType === 'MOVING_PLATFORM') {
+            HUDOptionsDiv.classList.remove('hidden');
+        } else {
+            HUDOptionsDiv.classList.add('hidden');
+        }
+    }
+
+    setMovingAxis(axisString) {
+        this.currentMovingPlatformAxis = axisString;
+        document.querySelectorAll('#moving-platform-options button').forEach(b => {
+            b.classList.remove('bg-indigo-950', 'text-indigo-400', 'border-indigo-900/60');
+            b.classList.add('bg-slate-950', 'text-slate-500', 'border-slate-800');
+        });
+        const selectedBtn = document.getElementById(`btn-axis-${axisString.toLowerCase()}`);
+        if (selectedBtn) {
+            selectedBtn.classList.remove('bg-slate-950', 'text-slate-500', 'border-slate-800');
+            selectedBtn.classList.add('bg-indigo-950', 'text-indigo-400', 'border-indigo-900/60');
+        }
+        this.showToast(`Moving Platform Axis set to ${axisString}`);
+    }
+
+    processPointerMoveTrace(e) {
+        if (this.isTestMode) return; // Block preview modifications during play mode simulation
+
+        this.pointerVector.x = (e.clientX / this.width) * 2 - 1;
+        this.pointerVector.y = -(e.clientY / this.height) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.pointerVector, this.camera3D);
+
+        const activeMeshesPool = Array.from(this.voxelDatabaseRegistry.values()).map(record => record.visualMesh);
+        activeMeshesPool.push(this.interactionIntersectionPlane);
+
+        const hitMatches = this.raycaster.intersectObjects(activeMeshesPool);
+        if (hitMatches.length > 0) {
+            const topHit = hitMatches[0];
+            const snappedPos = this.calculateRayGridSnappingVectors(topHit);
+            this.placementCursorPreviewMesh.position.copy(snappedPos);
+            this.placementCursorPreviewMesh.visible = true;
+        } else {
+            this.placementCursorPreviewMesh.visible = false;
+        }
+    }
+
+    calculateRayGridSnappingVectors(intersectionRecord) {
+        const p = intersectionRecord.point;
+        const n = intersectionRecord.face ? intersectionRecord.face.normal : new THREE.Vector3(0, 1, 0);
+
+        let targetX = p.x + n.x * 0.1;
+        let targetY = p.y + n.y * 0.1;
+        let targetZ = p.z + n.z * 0.1;
+
+        if (intersectionRecord.object === this.interactionIntersectionPlane) {
+            targetX = p.x; targetY = p.y; targetZ = p.z;
+        }
+
+        // Apply grid coordinate float rounding formula (spacing centered on half units)
+        let sX = Math.floor(targetX / this.blockSizeUnit) * this.blockSizeUnit + this.blockSizeUnit / 2;
+        let sY = Math.floor(targetY / this.blockSizeUnit) * this.blockSizeUnit + this.blockSizeUnit / 2;
+        let sZ = Math.floor(targetZ / this.blockSizeUnit) * this.blockSizeUnit + this.blockSizeUnit / 2;
+
+        if (sY < this.blockSizeUnit / 2) sY = this.blockSizeUnit / 2;
+
+        return new THREE.Vector3(sX, sY, sZ);
+    }
+
+    processPointerClickAction(e) {
+        if (this.isTestMode) return;
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.tagName === 'INPUT' || e.buttons === 2) return;
+
+        this.pointerVector.x = (e.clientX / this.width) * 2 - 1;
+        this.pointerVector.y = -(e.clientY / this.height) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.pointerVector, this.camera3D);
+
+        const activeMeshesPool = Array.from(this.voxelDatabaseRegistry.values()).map(record => record.visualMesh);
+        const erasePool = [...activeMeshesPool];
+        activeMeshesPool.push(this.interactionIntersectionPlane);
+
+        if (e.shiftKey) {
+            // Eraser transaction
+            const hitMatches = this.raycaster.intersectObjects(erasePool);
+            if (hitMatches.length > 0) {
+                const hitMesh = hitMatches[0].object;
+                const matchedKey = Array.from(this.voxelDatabaseRegistry.keys()).find(
+                    key => this.voxelDatabaseRegistry.get(key).visualMesh === hitMesh
+                );
+                if (matchedKey) {
+                    const cmd = new RemoveBlockCommand(this, matchedKey);
+                    this.cmdManager.execute(cmd);
+                }
+            }
+        } else {
+            // Placement transaction
+            const hitMatches = this.raycaster.intersectObjects(activeMeshesPool);
+            if (hitMatches.length > 0) {
+                const snapPos = this.calculateRayGridSnappingVectors(hitMatches[0]);
+                const key = `${snapPos.x},${snapPos.y},${snapPos.z}`;
+                if (!this.voxelDatabaseRegistry.has(key)) {
+                    const cmd = new AddBlockCommand(this, snapPos.x, snapPos.y, snapPos.z, this.activePlacementType, this.currentMovingPlatformAxis);
+                    this.cmdManager.execute(cmd);
+                }
+            }
+        }
+    }
+
+    // --- VOXEL BLOCK FACTORY INITIALIZATION ---
+    createBlock(x, y, z, typeString, movingAxis = 'X') {
+        const spatialHashKey = `${x},${y},${z}`;
+
+        // 1. Instantiating visually rich textures and meshes for each specific voxel type
+        let blockGeo;
+        let blockMat;
+        let mesh = null;
+
+        if (typeString === 'PLATFORM') {
+            blockGeo = new THREE.BoxGeometry(this.blockSizeUnit, this.blockSizeUnit, this.blockSizeUnit);
+            blockMat = new THREE.MeshStandardMaterial({
+                color: 0x1e293b,
+                roughness: 0.5,
+                metalness: 0.1,
+                bumpScale: 0.05
+            });
+            mesh = new THREE.Mesh(blockGeo, blockMat);
+        } else if (typeString === 'HAZARD') {
+            blockGeo = new THREE.BoxGeometry(this.blockSizeUnit, this.blockSizeUnit, this.blockSizeUnit);
+            blockMat = new THREE.MeshStandardMaterial({
+                color: 0xf43f5e,
+                emissive: 0xe11d48,
+                emissiveIntensity: 0.7,
+                roughness: 0.2
+            });
+            mesh = new THREE.Mesh(blockGeo, blockMat);
+        } else if (typeString === 'SPIKES') {
+            blockGeo = new THREE.ConeGeometry(this.blockSizeUnit / 2, this.blockSizeUnit, 4);
+            blockMat = new THREE.MeshStandardMaterial({
+                color: 0xd97706,
+                roughness: 0.4,
+                metalness: 0.7
+            });
+            mesh = new THREE.Mesh(blockGeo, blockMat);
+            // Offset vertically slightly so it matches normal floor grids base coordinates
+            mesh.position.y = 0.5;
+        } else if (typeString === 'MOVING_PLATFORM') {
+            blockGeo = new THREE.BoxGeometry(this.blockSizeUnit, this.blockSizeUnit * 0.4, this.blockSizeUnit);
+            blockMat = new THREE.MeshStandardMaterial({
+                color: 0x4f46e5,
+                emissive: 0x312e81,
+                emissiveIntensity: 0.4,
+                roughness: 0.3,
+                metalness: 0.5
+            });
+            mesh = new THREE.Mesh(blockGeo, blockMat);
+        } else if (typeString === 'COIN') {
+            blockGeo = new THREE.CylinderGeometry(this.blockSizeUnit * 0.3, this.blockSizeUnit * 0.3, 0.08, 16);
+            blockMat = new THREE.MeshStandardMaterial({
+                color: 0xfacc15,
+                emissive: 0xca8a04,
+                emissiveIntensity: 0.6,
+                metalness: 0.9,
+                roughness: 0.1
+            });
+            mesh = new THREE.Mesh(blockGeo, blockMat);
+            mesh.rotation.x = Math.PI / 2; // Face forward
+        } else if (typeString === 'GOAL') {
+            blockGeo = new THREE.TorusGeometry(this.blockSizeUnit * 0.4, 0.08, 8, 24);
+            blockMat = new THREE.MeshStandardMaterial({
+                color: 0x22c55e,
+                emissive: 0x15803d,
+                emissiveIntensity: 0.8,
+                metalness: 0.2,
+                roughness: 0.2
+            });
+            mesh = new THREE.Mesh(blockGeo, blockMat);
+        } else if (typeString === 'PLAYER_SPAWN') {
+            blockGeo = new THREE.SphereGeometry(this.blockSizeUnit * 0.3, 16, 16);
+            blockMat = new THREE.MeshStandardMaterial({
+                color: 0xc084fc,
+                emissive: 0x7e22ce,
+                emissiveIntensity: 0.5,
+                transparent: true,
+                opacity: 0.7,
+                wireframe: true
+            });
+            mesh = new THREE.Mesh(blockGeo, blockMat);
+        }
+
+        if (!mesh) return;
+
+        mesh.position.set(x, y, z);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        this.scene3D.add(mesh);
+
+        // 2. Headless Cannon physical collider instantiation
+        let body = null;
+        const halfSize = this.blockSizeUnit / 2;
+
+        if (typeString === 'PLATFORM') {
+            const shape = new CANNON.Box(new CANNON.Vec3(halfSize, halfSize, halfSize));
+            body = new CANNON.Body({ mass: 0, shape: shape });
+            body.position.set(x, y, z);
+        } else if (typeString === 'HAZARD') {
+            const shape = new CANNON.Box(new CANNON.Vec3(halfSize, halfSize, halfSize));
+            body = new CANNON.Body({ mass: 0, shape: shape });
+            body.position.set(x, y, z);
+            body.isHazard = true;
+        } else if (typeString === 'SPIKES') {
+            // Cylindrical approximation box collider
+            const shape = new CANNON.Box(new CANNON.Vec3(halfSize * 0.8, halfSize, halfSize * 0.8));
+            body = new CANNON.Body({ mass: 0, shape: shape });
+            body.position.set(x, y, z);
+            body.isHazard = true;
+        } else if (typeString === 'MOVING_PLATFORM') {
+            const shape = new CANNON.Box(new CANNON.Vec3(halfSize, halfSize * 0.4, halfSize));
+            body = new CANNON.Body({ mass: 0, shape: shape }); // mass 0 kinematic body
+            body.type = CANNON.Body.KINEMATIC;
+            body.position.set(x, y, z);
+        } else if (typeString === 'COIN') {
+            // Sensor collider triggering events on contact overlaps
+            const shape = new CANNON.Box(new CANNON.Vec3(halfSize * 0.6, halfSize * 0.6, halfSize * 0.6));
+            body = new CANNON.Body({ mass: 0, shape: shape });
+            body.collisionResponse = false; // Sensor
+            body.position.set(x, y, z);
+            body.isCoin = true;
+        } else if (typeString === 'GOAL') {
+            const shape = new CANNON.Box(new CANNON.Vec3(halfSize * 0.8, halfSize * 0.8, halfSize * 0.8));
+            body = new CANNON.Body({ mass: 0, shape: shape });
+            body.collisionResponse = false;
+            body.position.set(x, y, z);
+            body.isGoal = true;
+        }
+
+        if (body) {
+            this.physicsWorld.addBody(body);
+        }
+
+        this.voxelDatabaseRegistry.set(spatialHashKey, {
+            x, y, z,
+            type: typeString,
+            movingAxis,
+            basePos: new THREE.Vector3(x, y, z),
+            visualMesh: mesh,
+            rigidPhysicsBody: body,
+            collected: false
+        });
+
+        this.syncHUDView();
+    }
+
+    removeBlock(spatialHashKey) {
+        const record = this.voxelDatabaseRegistry.get(spatialHashKey);
+        if (!record) return;
+
+        this.scene3D.remove(record.visualMesh);
+        if (record.rigidPhysicsBody) {
+            this.physicsWorld.removeBody(record.rigidPhysicsBody);
+        }
+
+        // Clean memory geometries/materials
+        if (record.visualMesh.geometry) record.visualMesh.geometry.dispose();
+        if (record.visualMesh.material) record.visualMesh.material.dispose();
+
+        this.voxelDatabaseRegistry.delete(spatialHashKey);
+        this.syncHUDView();
+    }
+
+    // --- GAME TEST SIMULATION MODE CONTROLLERS ---
+    toggleTestMode() {
+        this.sfx.init();
+        if (this.isTestMode) {
+            // Exit Test Mode
+            this.isTestMode = false;
+            this.destroyPlayableCharacter();
+            this.resetMapEntityStates();
+            
+            this.placementCursorPreviewMesh.visible = true;
+            document.getElementById('mode-status-badge').className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-950/40 border border-cyan-800/40 text-[10px] text-cyan-400 font-bold uppercase tracking-wider mode-pulse";
+            document.getElementById('mode-status-badge').innerHTML = '<span class="w-2 h-2 rounded-full bg-cyan-400"></span> Edit Mode';
+            document.getElementById('lbl-test-btn').innerText = "Test Simulation";
+            document.getElementById('coins-container').classList.add('hidden');
+            this.showToast("🛑 Editor Mode restored");
+        } else {
+            // Enter Test Mode
+            this.isTestMode = true;
+            this.coinsCollected = 0;
+            this.spawnPlayableCharacter();
+            
+            this.placementCursorPreviewMesh.visible = false;
+            document.getElementById('mode-status-badge').className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-950/40 border border-rose-800/40 text-[10px] text-rose-400 font-bold uppercase tracking-wider mode-pulse";
+            document.getElementById('mode-status-badge').innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-400"></span> Live Test';
+            document.getElementById('lbl-test-btn').innerText = "Stop Simulation";
+            document.getElementById('coins-container').classList.remove('hidden');
+            
+            this.syncHUDView();
+            this.showToast("🎮 Dynamic Test Simulation Started");
+        }
+        this.updateCameraOrbitPosition();
+    }
+
+    spawnPlayableCharacter() {
+        // Locate starting coordinates marker in Voxel Map
+        let startPos = new THREE.Vector3(0, 5, 0);
+        this.voxelDatabaseRegistry.forEach((block) => {
+            if (block.type === 'PLAYER_SPAWN') {
+                startPos.set(block.x, block.y + 0.8, block.z);
+            }
+        });
+
+        // 1. Physical Cannon rigid body capsule
+        const shape = new CANNON.Box(new CANNON.Vec3(0.3, 0.6, 0.3)); // 0.6w x 1.2h x 0.6d size representation
+        const lowFrictionMat = new CANNON.Material({ friction: 0.05, restitution: 0.0 });
+        this.playerBody = new CANNON.Body({
+            mass: 1.2,
+            shape: shape,
+            position: new CANNON.Vec3(startPos.x, startPos.y, startPos.z),
+            material: lowFrictionMat
+        });
+        
+        // Zero tipping axis rotations
+        this.playerBody.fixedRotation = true;
+        this.playerBody.updateMassProperties();
+        
+        // Listen to collision callbacks
+        this.playerBody.addEventListener('collide', (e) => {
+            if (e.body && e.body.isHazard) {
+                this.handlePlayerDeath();
+            }
+        });
+
+        this.physicsWorld.addBody(this.playerBody);
+
+        // 2. Graphical Capsule Model
+        const geom = new THREE.CylinderGeometry(0.3, 0.3, 1.2, 16);
+        const mat = new THREE.MeshStandardMaterial({
+            color: 0x06b6d4,
+            emissive: 0x082f49,
+            emissiveIntensity: 0.5,
+            roughness: 0.2,
+            metalness: 0.8
+        });
+        this.playerMesh = new THREE.Mesh(geom, mat);
+        this.playerMesh.castShadow = true;
+        this.playerMesh.receiveShadow = true;
+        this.scene3D.add(this.playerMesh);
+        
+        // Save base starting coordinates to support reload loops on death
+        this.playerSpawnCoords = startPos;
+    }
+
+    destroyPlayableCharacter() {
+        if (this.playerMesh) {
+            this.scene3D.remove(this.playerMesh);
+            this.playerMesh.geometry.dispose();
+            this.playerMesh.material.dispose();
+            this.playerMesh = null;
+        }
+        if (this.playerBody) {
+            this.physicsWorld.removeBody(this.playerBody);
+            this.playerBody = null;
+        }
+    }
+
+    resetMapEntityStates() {
+        this.voxelDatabaseRegistry.forEach((block) => {
+            block.collected = false;
+            block.visualMesh.visible = true;
+            block.visualMesh.position.copy(block.basePos);
+            if (block.rigidPhysicsBody) {
+                block.rigidPhysicsBody.position.copy(block.basePos);
+            }
+        });
+    }
+
+    handlePlayerDeath() {
+        this.sfx.playExplode();
+        this.spawnExplosionParticles(this.playerMesh.position, 0xf43f5e, 25);
+        this.showToast("💀 Resetting to starting spawn point...");
+        
+        // Reset player coordinates
+        this.playerBody.position.copy(this.playerSpawnCoords);
+        this.playerBody.velocity.set(0, 0, 0);
+    }
+
+    showVictoryScreen() {
+        document.getElementById('victory-coins').innerText = this.coinsCollected;
+        document.getElementById('victory-screen').classList.remove('hidden');
+    }
+
+    exitVictoryScreen() {
+        document.getElementById('victory-screen').classList.add('hidden');
+        if (this.isTestMode) this.toggleTestMode();
+    }
+
+    // --- PARTICLE EMISSIONS CONTROLLERS ---
+    spawnExplosionParticles(positionVector, hexColor, particleCount) {
+        for (let i = 0; i < particleCount; i++) {
+            const geo = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+            const mat = new THREE.MeshBasicMaterial({
+                color: hexColor,
+                transparent: true,
+                opacity: 1.0
+            });
+            const pMesh = new THREE.Mesh(geo, mat);
+            pMesh.position.copy(positionVector);
+            this.scene3D.add(pMesh);
+
+            const theta = Math.random() * Math.PI * 2;
+            const spd = Math.random() * 0.12 + 0.04;
+            const velocity = new THREE.Vector3(
+                Math.cos(theta) * spd,
+                Math.random() * 0.15 + 0.08,
+                Math.sin(theta) * spd
+            );
+
+            this.activeParticles.push({
+                mesh: pMesh,
+                vel: velocity,
+                life: 600, // Duration in ms
+                maxLife: 600
+            });
+        }
+    }
+
+    // --- MANIFEST LOCAL STORAGE UTILITIES ---
+    saveToLocalStorage() {
+        const serializedLevelArray = [];
+        this.voxelDatabaseRegistry.forEach((block) => {
+            serializedLevelArray.push({
+                x: block.x,
+                y: block.y,
+                z: block.z,
+                type: block.type,
+                movingAxis: block.movingAxis
+            });
+        });
+        localStorage.setItem('spatial_level_editor_manifest', JSON.stringify(serializedLevelArray));
+    }
+
+    loadFromLocalStorage() {
+        const dataString = localStorage.getItem('spatial_level_editor_manifest');
+        if (!dataString) return;
+        try {
+            const manifest = JSON.parse(dataString);
+            this.importLevelStateManifest(manifest, false);
+        } catch(err) {
+            console.error("Localstorage recovery failed:", err);
+        }
+    }
+
+    importLevelStateManifest(levelArray, showNotification = true) {
+        if (!Array.isArray(levelArray)) return;
+        
+        // Purge workspace
+        this.wipeEditorWorkspace();
+        this.cmdManager.clear();
+
+        levelArray.forEach((block) => {
+            this.createBlock(block.x, block.y, block.z, block.type, block.movingAxis || 'X');
+        });
+
+        if (showNotification) {
+            this.showToast(`📂 Level loaded: ${levelArray.length} blocks reconstructed`);
+        }
+    }
+
+    exportLevelStateManifest() {
+        const serializedLevelArray = [];
+        this.voxelDatabaseRegistry.forEach((block) => {
+            serializedLevelArray.push({
+                x: block.x,
+                y: block.y,
+                z: block.z,
+                type: block.type,
+                movingAxis: block.movingAxis
+            });
+        });
+
+        const dataTokenString = JSON.stringify(serializedLevelArray, null, 2);
+        const blob = new Blob([dataTokenString], { type: 'application/json' });
+        
+        const virtualAnchor = document.createElement('a');
+        virtualAnchor.href = URL.createObjectURL(blob);
+        virtualAnchor.download = 'spatial_level_manifest.json';
+        virtualAnchor.click();
+        this.showToast("💾 Level config manifest exported (JSON)");
+    }
+
+    wipeEditorWorkspacePrompt() {
+        if (confirm("Purge all placed voxel blocks? This action clears the local cache state.")) {
+            this.wipeEditorWorkspace();
+            this.cmdManager.clear();
+            this.saveToLocalStorage();
+            this.showToast("❌ Workspace purges completed");
+        }
+    }
+
+    wipeEditorWorkspace() {
+        const keysPool = Array.from(this.voxelDatabaseRegistry.keys());
+        keysPool.forEach(key => this.removeBlock(key));
+    }
+
+    // --- DYNAMIC HUD NOTIFICATION TRANSITIONS ---
+    showToast(messageString) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = "toast-enter pointer-events-auto bg-slate-900/90 border border-slate-800/80 p-3.5 rounded-xl shadow-lg flex items-center gap-2 text-xs font-mono backdrop-blur-md text-cyan-400 border-l-4 border-l-cyan-500";
+        toast.innerText = messageString;
+        
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.transition = "all 0.3s ease";
+            toast.style.opacity = 0;
+            toast.style.transform = "translateY(-10px)";
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    syncHUDView() {
+        document.getElementById('lbl-count').innerText = this.voxelDatabaseRegistry.size;
+        if (this.isTestMode) {
+            document.getElementById('lbl-coins').innerText = this.coinsCollected;
+        }
+    }
+
+    handleViewportResizePass() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.camera3D.aspect = this.width / this.height;
+        this.camera3D.updateProjectionMatrix();
+        this.renderer3D.setSize(this.width, this.height);
+    }
+
+    // --- MASTER INTER-ENGINE SYNCHRONIZED TICKER ---
+    bootSynchronizedMasterLoop() {
+        const clock = new THREE.Clock();
+        
+        const tick = () => {
+            const delta = clock.getDelta();
+            const elapsedTime = clock.getElapsedTime();
+
+            // 1. Update Headless rigid body physics simulation ticks
+            this.physicsWorld.step(1 / 60);
+
+            // 2. Test Simulation gameplay controller loops
+            if (this.isTestMode && this.playerBody) {
+                // Decay velocity on horizontal planes to make input responsive
+                this.playerBody.velocity.x *= 0.88;
+                this.playerBody.velocity.z *= 0.88;
+
+                let moveX = 0;
+                let moveZ = 0;
+
+                if (this.keys['w'] || this.keys['arrowup']) moveZ -= 1;
+                if (this.keys['s'] || this.keys['arrowdown']) moveZ += 1;
+                if (this.keys['a'] || this.keys['arrowleft']) moveX -= 1;
+                if (this.keys['d'] || this.keys['arrowright']) moveX += 1;
+
+                // Project camera directions on ground plane
+                const camDir = new THREE.Vector3();
+                this.camera3D.getWorldDirection(camDir);
+                camDir.y = 0;
+                camDir.normalize();
+
+                const camRight = new THREE.Vector3();
+                camRight.crossVectors(camDir, this.camera3D.up).normalize();
+                camRight.y = 0;
+                camRight.normalize();
+
+                const movement = new THREE.Vector3()
+                    .addScaledVector(camDir, -moveZ)
+                    .addScaledVector(camRight, moveX)
+                    .normalize();
+
+                const moveSpeed = 6.0;
+                if (movement.lengthSq() > 0) {
+                    this.playerBody.velocity.x = movement.x * moveSpeed;
+                    this.playerBody.velocity.z = movement.z * moveSpeed;
+                    
+                    const angle = Math.atan2(movement.x, movement.z);
+                    this.playerMesh.rotation.y = angle;
+                }
+
+                // Check Jump Inputs
+                if (this.keys[' ']) {
+                    // Raycast check downwards to confirm ground contact
+                    let onGround = false;
+                    const from = new CANNON.Vec3(this.playerBody.position.x, this.playerBody.position.y - 0.6, this.playerBody.position.z);
+                    const to = new CANNON.Vec3(this.playerBody.position.x, this.playerBody.position.y - 0.78, this.playerBody.position.z);
+                    
+                    const result = new CANNON.RaycastResult();
+                    this.physicsWorld.raycastClosest(from, to, { skipBackfaces: true }, result);
+                    
+                    if (result.hasHit && result.body !== this.playerBody) {
+                        onGround = true;
+                    }
+
+                    if (onGround) {
+                        this.playerBody.velocity.y = 7.0; // Jump force vector impulse
+                        this.sfx.playJump();
+                        this.spawnExplosionParticles(
+                            new THREE.Vector3(this.playerBody.position.x, this.playerBody.position.y - 0.6, this.playerBody.position.z),
+                            0x082f49,
+                            6
+                        );
+                        this.keys[' '] = false; // Prevent auto-repeats
+                    }
+                }
+
+                // Sync visible model coordinates with Cannon rigid body parameters
+                this.playerMesh.position.copy(this.playerBody.position);
+
+                // Smooth third person tracking camera positioning
+                const orbitRadius = 11;
+                const targetX = this.playerBody.position.x + Math.sin(this.cameraOrbitAngle) * orbitRadius;
+                const targetZ = this.playerBody.position.z + Math.cos(this.cameraOrbitAngle) * orbitRadius;
+                const targetY = this.playerBody.position.y + 4.5;
+                
+                const targetCamVec = new THREE.Vector3(targetX, targetY, targetZ);
+                this.camera3D.position.lerp(targetCamVec, 0.1);
+                
+                const lookTarget = new THREE.Vector3(this.playerBody.position.x, this.playerBody.position.y + 0.4, this.playerBody.position.z);
+                this.camera3D.lookAt(lookTarget);
+
+                // Abyssal boundary falls checks
+                if (this.playerBody.position.y < -9) {
+                    this.handlePlayerDeath();
+                }
+
+                // Check coin overlaps and goal portal touch metrics
+                this.voxelDatabaseRegistry.forEach((block) => {
+                    if (block.type === 'COIN' && !block.collected) {
+                        const dist = this.playerMesh.position.distanceTo(block.visualMesh.position);
+                        if (dist < 0.75) {
+                            block.collected = true;
+                            block.visualMesh.visible = false;
+                            this.coinsCollected++;
+                            this.sfx.playChime();
+                            this.spawnExplosionParticles(block.visualMesh.position, 0xfacc15, 12);
+                            this.syncHUDView();
+                            this.showToast("💰 Coin gathered!");
+                        }
+                    } else if (block.type === 'GOAL') {
+                        const dist = this.playerMesh.position.distanceTo(block.visualMesh.position);
+                        if (dist < 0.8) {
+                            this.sfx.playWin();
+                            this.showVictoryScreen();
+                        }
+                    }
+                } );
+            } else {
+                // Edit mode orbit orbital glide camera position sync
+                const targetX = Math.sin(this.cameraOrbitAngle) * 14;
+                const targetZ = Math.cos(this.cameraOrbitAngle) * 14;
+                const targetCamVec = new THREE.Vector3(targetX, 8, targetZ);
+                this.camera3D.position.lerp(targetCamVec, 0.1);
+                this.camera3D.lookAt(0, 1.5, 0);
+            }
+
+            // 3. Animate rotating items (Coins, Goals) and Platform Sweeps
+            this.voxelDatabaseRegistry.forEach((block) => {
+                if (block.type === 'COIN' && !block.collected) {
+                    block.visualMesh.rotation.z = elapsedTime * 2.2;
+                    block.visualMesh.position.y = block.basePos.y + Math.sin(elapsedTime * 4 + block.x) * 0.1;
+                } else if (block.type === 'GOAL') {
+                    block.visualMesh.rotation.z = elapsedTime * 1.5;
+                    block.visualMesh.rotation.y = elapsedTime * 0.8;
+                } else if (block.type === 'MOVING_PLATFORM') {
+                    // Update movement sweeps dynamically
+                    if (this.isTestMode) {
+                        const speed = 1.8;
+                        const range = 2.5;
+                        const offset = Math.sin(elapsedTime * speed) * range;
+
+                        if (block.movingAxis === 'X') {
+                            block.visualMesh.position.x = block.basePos.x + offset;
+                        } else if (block.movingAxis === 'Y') {
+                            block.visualMesh.position.y = block.basePos.y + offset;
+                        } else if (block.movingAxis === 'Z') {
+                            block.visualMesh.position.z = block.basePos.z + offset;
+                        }
+
+                        if (block.rigidPhysicsBody) {
+                            block.rigidPhysicsBody.position.copy(block.visualMesh.position);
+                        }
+                    } else {
+                        // Reset back to base spawn grid coordinates in editor mode
+                        block.visualMesh.position.copy(block.basePos);
+                        if (block.rigidPhysicsBody) {
+                            block.rigidPhysicsBody.position.copy(block.basePos);
+                        }
+                    }
+                }
+            });
+
+            // 4. Update Particle animations buffer
+            this.activeParticles.forEach((p, idx) => {
+                p.mesh.position.add(p.vel);
+                p.vel.y -= 0.008; // Small gravity simulation
+                p.life -= delta * 1000;
+                
+                // Fade scale
+                const ratio = Math.max(0, p.life / p.maxLife);
+                p.mesh.scale.setScalar(ratio);
+                
+                if (p.life <= 0) {
+                    this.scene3D.remove(p.mesh);
+                    if (p.mesh.geometry) p.mesh.geometry.dispose();
+                    if (p.mesh.material) p.mesh.material.dispose();
+                    this.activeParticles.splice(idx, 1);
+                }
+            });
+
+            // 5. Redraw WebGL Output Buffers
+            this.renderer3D.render(this.scene3D, this.camera3D);
+            requestAnimationFrame(tick);
+        };
+        
+        requestAnimationFrame(tick);
+    }
+}
+
+// Global Core App Activation Inception
+let editor;
+window.onload = () => {
+    editor = new SpatialLevelEditor3D();
+};
+</script>
+</body>
+</html>
