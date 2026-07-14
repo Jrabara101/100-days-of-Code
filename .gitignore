@@ -40,3 +40,5 @@ Automation for daily use/**/.logs/
 # compiled Java class output from daily JavaFX project builds
 Automation for daily use/**/out/
 
+# Aether's Edge: Void Crawler standalone repo folder
+Game/Aethers-Edge-Void-Crawler/
