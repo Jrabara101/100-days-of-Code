@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Retro Stealth Guard Patrol AI Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/98.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #55aaaa; font-family: monospace; }
+        canvas { display: block; image-rendering: pixelated; background: #080c14; }
+        #canvas-stage-anchor { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #retro-os-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-stage-anchor">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div id="retro-os-hud">
+        <div class="window absolute left-6 top-6 w-80 shadow-2xl pointer-events-auto animate__animated animate__zoomIn">
+            <div class="title-bar">
+                <div class="title-bar-text">GUARD_PATROL_FSM.EXE</div>
+                <div class="title-bar-controls"><button aria-label="Close"></button></div>
+            </div>
+            <div class="window-body flex flex-col gap-3">
+                <header class="border-b border-slate-400 pb-1.5">
+                    <h2 class="text-slate-800 font-bold text-xs font-mono tracking-wide uppercase">Stealth Agent Diagnostics</h2>
+                </header>
+
+                <fieldset class="p-2 font-mono text-[11px] text-slate-700 bg-white shadow-inner">
+                    <legend class="bg-[#f1f1f1] px-1 font-bold">Patrol Threat Status</legend>
+                    <div class="flex justify-between"><span>🚨 Active Guard FSM:</span><span id="txt-state" class="font-bold text-blue-800">PATROL</span></div>
+                    <div class="flex justify-between mt-1"><span>🎯 Target Proximity:</span><span id="txt-dist" class="font-bold text-slate-600">OUT OF RANGE</span></div>
+                    <div class="flex justify-between mt-1 border-t border-slate-200 pt-1"><span>🔋 Vision Angle:</span><span class="font-bold text-emerald-800">90° Arc</span></div>
+                </fieldset>
+
+                <div class="flex flex-col gap-1">
+                    <button onclick="orchestrator.rebootSandbox()" class="hvr-grow w-full font-bold" style="padding: 4px 10px;">
+                        Respawn Stealth Agent
+                    </button>
+                </div>
+                <div class="text-[9px] text-slate-500 font-mono text-center mt-1">CONTROLS: WASD OR ARROWS = MANEUVER PLAYER IN DARK</div>
+            </div>
+        </div>
+    </div>
+
+<script>
+class StealthGuardAISandbox {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.resizeViewport();
+        window.addEventListener('resize', () => this.resizeViewport());
+
+        // --- SINGLE SOURCE OF TRUTH DATA RECORD ENGINE ---
+        // Waypoint coordinates representing the guard's patrol route
+        this.waypoints = [
+            { x: 180, y: 150 },
+            { x: 520, y: 150 },
+            { x: 520, y: 420 },
+            { x: 180, y: 420 }
+        ];
+
+        // Kinematic Player Vector Data Container
+        this.player = {
+            x: 100, y: 300,
+            radius: 10,
+            speed: 3.5
+        };
+
+        // Guard AI State Entity Object
+        this.guard = {
+            x: 180, y: 150,
+            radius: 12,
+            vx: 0, vy: 0,
+            speed: 1.8,
+            chaseSpeed: 3.0,
+            headingAngle: 0,
+            
+            // FSM States: 'PATROL', 'CHASE', 'SEARCH'
+            state: 'PATROL',
+            currentWaypointIndex: 0,
+            
+            visionRange: 180,
+            visionRangeSq: 180 * 180,
+            fovAngle: Math.PI / 2, // 90 Degree vision sweep
+            
+            searchTicks: 0,
+            lastKnownPlayerPos: { x: 0, y: 0 }
+        };
+
+        this.inputState = { left: false, right: false, up: false, down: false };
+
+        this.bindInputEventStreams();
+        this.syncHUDView();
+        this.executeEnginePipelineLoop();
+    }
+
+    resizeViewport() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    }
+
+    bindInputEventStreams() {
+        window.addEventListener('keydown', (e) => this.toggleInputKey(e, true));
+        window.addEventListener('keyup', (e) => this.toggleInputKey(e, false));
+    }
+
+    toggleInputKey(e, isPressed) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.inputState.left = isPressed;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') this.inputState.right = isPressed;
+        if (e.code === 'ArrowUp' || e.code === 'KeyW') this.inputState.up = isPressed;
+        if (e.code === 'ArrowDown' || e.code === 'KeyS') this.inputState.down = isPressed;
+    }
+
+    rebootSandbox() {
+        this.player.x = 100; this.player.y = 300;
+        this.guard.x = 180; this.guard.y = 150;
+        this.guard.vx = 0; this.guard.vy = 0;
+        this.guard.state = 'PATROL';
+        this.guard.currentWaypointIndex = 0;
+        this.guard.headingAngle = 0;
+    }
+
+    // --- DETERMINISTIC STATE MACHINE & VECTOR INTEGRATOR ---
+    updateAILocomotionState() {
+        // 1. Move player according to keyboard input maps
+        if (this.inputState.left) this.player.x -= this.player.speed;
+        if (this.inputState.right) this.player.x += this.player.speed;
+        if (this.inputState.up) this.player.y -= this.player.speed;
+        if (this.inputState.down) this.player.y += this.player.speed;
+
+        // Keep player bounded within canvas viewports limits
+        this.player.x = Math.max(10, Math.min(this.width - 10, this.player.x));
+        this.player.y = Math.max(10, Math.min(this.height - 10, this.player.y));
+
+        // 2. Compute Guard vision target status using Dot Product FOV angles
+        let playerDetected = this.evaluateLineOfSightConicalScan();
+
+        // --- BEHAVIOR STATE MACHINE TRANSITION CHANNELS ---
+        if (this.guard.state === 'PATROL') {
+            if (playerDetected) {
+                this.guard.state = 'CHASE';
+            } else {
+                this.executePatrolWaypointNavigation();
+            }
+        } else if (this.guard.state === 'CHASE') {
+            if (playerDetected) {
+                // Keep updating last known position of target
+                this.guard.lastKnownPlayerPos.x = this.player.x;
+                this.guard.lastKnownPlayerPos.y = this.player.y;
+                this.executeTargetDirectChase();
+            } else {
+                // Lost sight: transition to search phase at last known target location
+                this.guard.state = 'SEARCH';
+                this.guard.searchTicks = 180; // Search for exactly 3 seconds (180 frames at 60Hz)
+            }
+        } else if (this.guard.state === 'SEARCH') {
+            if (playerDetected) {
+                this.guard.state = 'CHASE';
+            } else {
+                this.executeInvestigateSearchCycle();
+            }
+        }
+    }
+
+    evaluateLineOfSightConicalScan() {
+        let dx = this.player.x - this.guard.x;
+        let dy = this.player.y - this.guard.y;
+        let distSq = (dx * dx) + (dy * dy);
+
+        // Broadphase Step: skip calculations instantly if target exceeds maximum vision range
+        if (distSq > this.guard.visionRangeSq) return false;
+
+        let distance = Math.sqrt(distSq);
+        if (distance === 0) return true;
+
+        // Narrowphase Step: check angular bounds using normalized directional vectors
+        let targetVecX = dx / distance;
+        let targetVecY = dy / distance;
+
+        let headingVecX = Math.cos(this.guard.headingAngle);
+        let headingVecY = Math.sin(this.guard.headingAngle);
+
+        // Dot product calculation matches angular FOV limits: Dot = TargetX*HeadingX + TargetY*HeadingY
+        let dotProduct = (targetVecX * headingVecX) + (targetVecY * headingVecY);
+        let minimumCosineThreshold = Math.cos(this.guard.fovAngle / 2);
+
+        return dotProduct >= minimumCosineThreshold;
+    }
+
+    executePatrolWaypointNavigation() {
+        let currentWaypoint = this.waypoints[this.guard.currentWaypointIndex];
+        let dx = currentWaypoint.x - this.guard.x;
+        let dy = currentWaypoint.y - this.guard.y;
+        let dist = Math.hypot(dx, dy);
+
+        if (dist < 4) {
+            // Arrived at current node: cycle destination index upward
+            this.guard.currentWaypointIndex = (this.guard.currentWaypointIndex + 1) % this.waypoints.length;
+        } else {
+            // Apply a progressive steering heading adjustment toward waypoint target
+            let desiredAngle = Math.atan2(dy, dx);
+            this.smoothHeadingRotationTowards(desiredAngle);
+
+            this.guard.vx = Math.cos(this.guard.headingAngle) * this.guard.speed;
+            this.guard.vy = Math.sin(this.guard.headingAngle) * this.guard.speed;
+
+            this.guard.x += this.guard.vx;
+            this.guard.y += this.guard.vy;
+        }
+    }
+
+    executeTargetDirectChase() {
+        let dx = this.player.x - this.guard.x;
+        let dy = this.player.y - this.guard.y;
+
+        let desiredAngle = Math.atan2(dy, dx);
+        this.smoothHeadingRotationTowards(desiredAngle);
+
+        this.guard.vx = Math.cos(this.guard.headingAngle) * this.guard.chaseSpeed;
+        this.guard.vy = Math.sin(this.guard.headingAngle) * this.guard.chaseSpeed;
+
+        this.guard.x += this.guard.vx;
+        this.guard.y += this.guard.vy;
+    }
+
+    executeInvestigateSearchCycle() {
+        // Guard walks to last known target position and sweeps vision cone back and forth
+        let dx = this.guard.lastKnownPlayerPos.x - this.guard.x;
+        let dy = this.guard.lastKnownPlayerPos.y - this.guard.y;
+        let dist = Math.hypot(dx, dy);
+
+        if (dist > 8) {
+            let desiredAngle = Math.atan2(dy, dx);
+            this.smoothHeadingRotationTowards(desiredAngle);
+
+            this.guard.vx = Math.cos(this.guard.headingAngle) * this.guard.speed;
+            this.guard.vy = Math.sin(this.guard.headingAngle) * this.guard.speed;
+
+            this.guard.x += this.guard.vx;
+            this.guard.y += this.guard.vy;
+        } else {
+            // Arrived at search coordinates: sweep vision cone left and right procedurally
+            this.guard.headingAngle += Math.sin(Date.now() * 0.008) * 0.015;
+            this.guard.searchTicks--;
+            
+            if (this.guard.searchTicks <= 0) {
+                this.guard.state = 'PATROL'; // Abandon search, return to standard route
+            }
+        }
+    }
+
+    smoothHeadingRotationTowards(targetAngle) {
+        // Enforce smooth rotational transitions based on angular deltas
+        let angleDifference = targetAngle - this.guard.headingAngle;
+
+        // Wrap angle limits within normal trigonometric ranges
+        while (angleDifference < -Math.PI) angleDifference += Math.PI * 2;
+        while (angleDifference > Math.PI) angleDifference -= Math.PI * 2;
+
+        const maxTurningRate = 0.08; // Limits instant snapping rotations, creating organic curves
+        this.guard.headingAngle += Math.max(-maxTurningRate, Math.min(maxTurningRate, angleDifference));
+    }
+
+    // --- HIGH-PERFORMANCE DISPLAY REPAINT BLITTING PASS ---
+    executeEnginePipelineLoop() {
+        // Advance logic state updates snapshots
+        this.updateAILocomotionState();
+
+        // Flush frame canvas layers output contexts
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        // Render Stage 1: Draw Strategic Navigation Path Lines
+        this.ctx.strokeStyle = 'rgba(255, 170, 0, 0.08)';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.waypoints[0].x, this.waypoints[0].y);
+        for (let i = 1; i < this.waypoints.length; i++) {
+            this.ctx.lineTo(this.waypoints[i].x, this.waypoints[i].y);
+        }
+        this.ctx.closePath();
+        this.ctx.stroke();
+
+        // Render Stage 2: Draw Guard Vision Cone Projection
+        let fovHalf = this.guard.fovAngle / 2;
+        let leftConeAngle = this.guard.headingAngle - fovHalf;
+        let rightConeAngle = this.guard.headingAngle + fovHalf;
+
+        // Define color highlights depending on threat stages (Green Patrol, Red Chase, Yellow Search)
+        let coneFillStyle = 'rgba(16, 185, 129, 0.1)';
+        let coneStrokeStyle = 'rgba(16, 185, 129, 0.3)';
+        if (this.guard.state === 'CHASE') {
+            coneFillStyle = 'rgba(239, 68, 68, 0.15)';
+            coneStrokeStyle = 'rgba(239, 68, 68, 0.4)';
+        } else if (this.guard.state === 'SEARCH') {
+            coneFillStyle = 'rgba(245, 158, 11, 0.12)';
+            coneStrokeStyle = 'rgba(245, 158, 11, 0.35)';
+        }
+
+        this.ctx.fillStyle = coneFillStyle;
+        this.ctx.strokeStyle = coneStrokeStyle;
+        this.ctx.lineWidth = 1.5;
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.guard.x, this.guard.y);
+        this.ctx.arc(this.guard.x, this.guard.y, this.guard.visionRange, leftConeAngle, rightConeAngle);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        // Render Stage 3: Draw Guard Agent Silhouette
+        let guardSnapX = Math.floor(this.guard.x);
+        let guardSnapY = Math.floor(this.guard.y);
+
+        this.ctx.fillStyle = this.guard.state === 'CHASE' ? '#ef4444' : '#10b981'; // Red chase vs green patrol
+        this.ctx.beginPath();
+        this.ctx.arc(guardSnapX, guardSnapY, this.guard.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Render Stage 4: Draw Player Stealth Infiltrator Capsule
+        let playerSnapX = Math.floor(this.player.x);
+        let playerSnapY = Math.floor(this.player.y);
+
+        this.ctx.fillStyle = '#06b6d4'; // Sharp Cyan Agent Box
+        this.ctx.beginPath();
+        this.ctx.arc(playerSnapX, playerSnapY, this.player.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.strokeStyle = '#022329';
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+
+        // System telemetry update throttling limits optimization
+        if (Date.now() % 3 === 0) this.syncHUDView();
+
+        requestAnimationFrame(() => this.executeEnginePipelineLoop());
+    }
+
+    syncHUDView() {
+        document.getElementById('txt-state').innerText = this.guard.state;
+        
+        let label = document.getElementById('txt-state');
+        if (this.guard.state === 'CHASE') label.className = "text-rose-600 font-bold animate__animated animate__flash animate__infinite";
+        else if (this.guard.state === 'SEARCH') label.className = "text-amber-500 font-bold animate__animated animate__pulse animate__infinite";
+        else label.className = "text-emerald-500 font-bold";
+
+        let dx = this.player.x - this.guard.x;
+        let dy = this.player.y - this.guard.y;
+        let dist = Math.hypot(dx, dy);
+
+        let distanceLabel = document.getElementById('txt-dist');
+        if (dist < this.guard.visionRange) {
+            distanceLabel.innerText = `${dist.toFixed(0)}m`;
+            distanceLabel.className = "text-amber-600 font-bold";
+        } else {
+            distanceLabel.innerText = "OUT OF RANGE";
+            distanceLabel.className = "text-slate-500";
+        }
+    }
+}
+
+// Global Application Core Controller Context Activation Inception Path
+let orchestrator;
+window.onload = () => { orchestrator = new StealthGuardAISandbox(); };
+</script>
+</body>
+</html>
