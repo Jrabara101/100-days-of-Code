@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stateful Checkpoint Rehydration Core Engine</title>
+    <!-- Tailwind CSS Engine -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Authentic Retro Windows 98 CSS Stylesheet -->
+    <link rel="stylesheet" href="https://unpkg.com/98.css"/>
+    <!-- Hardware Accelerated Interactive CSS Animations Injections -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #a8a8a8; font-family: monospace; }
+        canvas { display: block; image-rendering: pixelated; background: #0c111d; }
+        #canvas-viewport-anchor { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #retro-os-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Base 2D Pixel Graphics Drawing Canvas Surface Layer -->
+    <div id="canvas-viewport-anchor">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- Retro Desktop Overlay HUD Layer Interface -->
+    <div id="retro-os-hud">
+        <!-- Structural State Tracking Control Window -->
+        <div class="window absolute left-6 top-6 w-96 shadow-2xl pointer-events-auto animate__animated animate__zoomIn">
+            <div class="title-bar">
+                <div class="title-bar-text">CHECKPOINT_MANIFEST.EXE</div>
+                <div class="title-bar-controls"><button aria-label="Close"></button></div>
+            </div>
+            <div class="window-body flex flex-col gap-3">
+                <header class="border-b border-slate-400 pb-1.5">
+                    <h2 class="text-slate-800 font-bold text-xs font-mono tracking-wide uppercase">State Serialization Dashboard</h2>
+                </header>
+
+                <!-- Real-Time Metrics Logs Display -->
+                <fieldset class="p-2 font-mono text-[11px] text-slate-700 bg-white shadow-inner">
+                    <legend class="bg-[#f1f1f1] px-1 font-bold">Live Diagnostics</legend>
+                    <div class="flex justify-between"><span>💾 Last Saved Checkpoint:</span><span id="txt-cp" class="font-bold text-blue-800">INITIAL_START</span></div>
+                    <div class="flex justify-between mt-1"><span>💎 Collected Crystals:</span><span id="txt-crystals" class="font-bold text-emerald-700">0 / 3</span></div>
+                </fieldset>
+
+                <!-- Active Encoded Serialization Printout Box -->
+                <div class="space-y-1">
+                    <p class="text-[10px] text-slate-600 font-bold uppercase">Active Cache Snapshot Memory String:</p>
+                    <textarea id="txt-json-dump" readonly class="w-full h-24 bg-slate-900 text-cyan-400 font-mono text-[10px] p-2 border border-slate-400 rounded resize-none focus:outline-none"></textarea>
+                </div>
+
+                <div class="text-[9px] text-slate-500 font-mono text-center leading-relaxed mt-1">
+                    CONTROLS: A/D OR ARROWS = MANUEVER STICKMAN | WALK OVER CHECKPOINTS & CRYSTALS | HIT RED ZONE TO TRIGGER DEFLATE RESETS
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+class StatefulCheckpointEngine {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.resizeViewport();
+        window.addEventListener('resize', () => this.resizeViewport());
+
+        // --- SINGLE SOURCE OF TRUTH Headless DATA STATES ---
+        // Pre-allocated static world layout records lists maps array channels
+        this.checkpointNodes = [
+            { id: 'ALPHA_BASE', x: 280, y: 350, w: 40, h: 40, activated: false },
+            { id: 'BRAVO_DECK', x: 620, y: 220, w: 40, h: 40, activated: false }
+        ];
+
+        this.collectibleCrystals = [
+            { id: 'crys_1', x: 420, y: 320, w: 16, h: 16, active: true },
+            { id: 'crys_2', x: 450, y: 180, w: 16, h: 16, active: true },
+            { id: 'crys_3', x: 740, y: 200, w: 16, h: 16, active: true }
+        ];
+
+        this.hazardZones = [
+            { x: 500, y: 400, w: 90, h: 60 } // Lava lake simulation trap layout
+        ];
+
+        // Kinematic Player Vector Target Object Coordinates
+        this.player = {
+            x: 80, y: 350,
+            w: 20, h: 28,
+            vx: 0, vy: 0,
+            accel: 0.5,
+            maxVx: 5.0,
+            friction: 0.85,
+            gravity: 0.3,
+            jumpForce: -7.2,
+            isGrounded: false,
+            
+            crystalsCollectedCount: 0
+        };
+
+        // Pre-Allocated Cache Slot Registry holding state data snapshots
+        this.savedCheckpointSnapshot = null;
+        
+        this.captureStateSnapshotTransaction("INITIAL_START"); // Commit baseline state layout
+        this.inputState = { left: false, right: false, jump: false };
+
+        this.bindInputEventStreams();
+        this.syncHUDViewDisplay();
+        this.executeEnginePipelineLoop();
+    }
+
+    resizeViewport() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    }
+
+    bindInputEventStreams() {
+        window.addEventListener('keydown', (e) => this.toggleInputKey(e, true));
+        window.addEventListener('keyup', (e) => this.toggleInputKey(e, false));
+    }
+
+    toggleInputKey(e, isPressed) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.inputState.left = isPressed;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') this.inputState.right = isPressed;
+        if (e.code === 'Space' || e.code === 'KeyW') {
+            this.inputState.jump = isPressed;
+            if (isPressed && this.player.isGrounded) {
+                this.player.vy = this.player.jumpForce;
+                this.player.isGrounded = false;
+            }
+        }
+    }
+
+    // --- SUB-SYSTEM: Headless DEEP SERIALIZATION ENGINE MATRIX ---
+    captureStateSnapshotTransaction(checkpointIdString) {
+        // Deep-copy active mutable memory variables cleanly without leaving lingering pointer bindings
+        this.savedCheckpointSnapshot = {
+            checkpointId: checkpointIdString,
+            
+            playerTransform: {
+                x: this.player.x,
+                y: this.player.y,
+                crystalsCollectedCount: this.player.crystalsCollectedCount
+            },
+            
+            // Map structural arrays lists down to raw primitives value flags
+            crystalsStateManifest: this.collectibleCrystals.map(c => ({ id: c.id, active: c.active })),
+            checkpointsStateManifest: this.checkpointNodes.map(cp => ({ id: cp.id, activated: cp.activated }))
+        };
+
+        this.syncHUDViewDisplay();
+    }
+
+    executeDeterministicRehydrationPipeline() {
+        if (!this.savedCheckpointSnapshot) return;
+
+        const dataBufferBackup = this.savedCheckpointSnapshot;
+
+        // 1. Terminate linear physics momentum drifts loops metrics completely
+        this.player.vx = 0;
+        this.player.vy = 0;
+
+        // 2. Overwrite player transform coordinates variables using saved snapshot entries
+        this.player.x = dataBufferBackup.playerTransform.x;
+        this.player.y = dataBufferBackup.playerTransform.y;
+        this.player.crystalsCollectedCount = dataBufferBackup.playerTransform.crystalsCollectedCount;
+
+        // 3. Rehydrate environment item registers active flags without allocating fresh instances blocks
+        this.collectibleCrystals.forEach(crystal => {
+            let snapshotRecord = dataBufferBackup.crystalsStateManifest.find(r => r.id === crystal.id);
+            if (snapshotRecord) crystal.active = snapshotRecord.active;
+        });
+
+        this.checkpointNodes.forEach(checkpoint => {
+            let snapshotRecord = dataBufferBackup.checkpointsStateManifest.find(r => r.id === checkpoint.id);
+            if (snapshotRecord) checkpoint.activated = snapshotRecord.activated;
+        });
+
+        this.syncHUDViewDisplay();
+    }
+
+    // --- MECHANICAL TICK MACHINE: SPATIAL INTERSECTION GATES ---
+    updateKinematicStateMatrices() {
+        // Apply input vectors forces integration
+        if (this.inputState.left) this.player.vx -= this.player.accel;
+        if (this.inputState.right) this.player.vx += this.player.accel;
+
+        this.player.vx *= this.player.friction;
+        this.player.vx = Math.max(-this.player.maxVx, Math.min(this.player.maxVx, this.player.vx));
+        this.player.x += this.player.vx;
+
+        this.player.vy += this.player.gravity;
+        this.player.y += this.player.vy;
+
+        // Simple base ground collision floor clamp tracking
+        if (this.player.y > 360) {
+            this.player.y = 360;
+            this.player.vy = 0;
+            this.player.isGrounded = true;
+        }
+
+        // Keep character elements inside absolute viewport layout ranges
+        if (this.player.x < 0) this.player.x = 0;
+        if (this.player.x > this.width - this.player.w) this.player.x = this.width - this.player.w;
+
+        this.evaluateEcosystemIntersectionTriggers();
+    }
+
+    evaluateEcosystemIntersectionTriggers() {
+        let px = this.player.x; let py = this.player.y;
+        let pw = this.player.w; let ph = this.player.h;
+
+        // 1. Check Checkpoint Intersections
+        this.checkpointNodes.forEach(cp => {
+            if (px < cp.x + cp.w && px + pw > cp.x && py < cp.y + cp.h && py + ph > cp.y) {
+                if (!cp.activated) {
+                    cp.activated = true;
+                    this.captureStateSnapshotTransaction(cp.id); // Save deep snapshot manifest update
+                }
+            }
+        });
+
+        // 2. Check Crystal Harvest Intersections
+        this.collectibleCrystals.forEach(crystal => {
+            if (crystal.active && px < crystal.x + crystal.w && px + pw > crystal.x && py < crystal.y + crystal.h && py + ph > crystal.y) {
+                crystal.active = false;
+                this.player.crystalsCollectedCount++;
+                this.syncHUDViewDisplay();
+            }
+        });
+
+        // 3. Check Hazard Bounding Boxes: Triggers immediate data rehydration resets
+        this.hazardZones.forEach(trap => {
+            if (px < trap.x + trap.w && px + pw > trap.x && py < trap.y + trap.h && py + ph > trap.y) {
+                this.executeDeterministicRehydrationPipeline();
+            }
+        });
+    }
+
+    // --- HIGH-PERFORMANCE DISPLAY REPAINT BLITTING ENGINE ---
+    executeEnginePipelineLoop() {
+        // Advance logic metrics positions models calculations
+        this.updateKinematicStateMatrices();
+
+        // Flush viewport color maps contexts
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        // Render Layer 1: Draw Level Platform Base Ground Shelf lines
+        this.ctx.fillStyle = '#1e293b'; // Slate base platform block outline
+        this.ctx.fillRect(0, 388, this.width, this.height - 388);
+        this.ctx.fillStyle = '#334155';
+        this.ctx.fillRect(0, 388, this.width, 4);
+
+        // Render Layer 2: Draw Hazard Death Zones
+        this.ctx.fillStyle = 'rgba(239, 68, 68, 0.4)'; // Radiant Translucent Red Lava
+        this.ctx.strokeStyle = '#ef4444';
+        this.ctx.lineWidth = 1.5;
+        this.hazardZones.forEach(trap => {
+            let sx = Math.floor(trap.x); let sy = Math.floor(trap.y);
+            this.ctx.fillRect(sx, sy, trap.w, trap.h);
+            this.ctx.strokeRect(sx, sy, trap.w, trap.h);
+        });
+
+        // Render Layer 3: Draw Checkpoint Array Flags
+        this.checkpointNodes.forEach(cp => {
+            let sx = Math.floor(cp.x); let sy = Math.floor(cp.y);
+            this.ctx.fillStyle = cp.activated ? '#22c55e' : '#64748b'; // Green Active vs Slate Passive
+            this.ctx.fillRect(sx + 16, sy, 8, cp.h); // Flag pole mesh
+            
+            this.ctx.fillStyle = cp.activated ? '#4ade80' : '#475569';
+            this.ctx.beginPath();
+            this.ctx.moveTo(sx + 24, sy);
+            this.ctx.lineTo(sx + 40, sy + 8);
+            this.ctx.lineTo(sx + 24, sy + 16);
+            this.ctx.fill();
+        });
+
+        // Render Layer 4: Draw Collectible Resource Crystals
+        this.ctx.fillStyle = '#22d3ee'; // Cyan Matrix Diamond Glow
+        this.collectibleCrystals.forEach(crystal => {
+            if (!crystal.active) return;
+            let sx = Math.floor(crystal.x); let sy = Math.floor(crystal.y);
+            this.ctx.fillRect(sx, sy, crystal.w, crystal.h);
+        });
+
+        // Render Layer 5: Draw Player Character Box Capsule Silhouette
+        let playerSnapX = Math.floor(this.player.x);
+        let playerSnapY = Math.floor(this.player.y);
+
+        this.ctx.fillStyle = '#e2e8f0'; // Metallic White Stick Hero
+        this.ctx.fillRect(playerSnapX, playerSnapY, this.player.w, this.player.h);
+
+        this.ctx.strokeStyle = '#0f172a';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(playerSnapX, playerSnapY, this.player.w, this.player.h);
+
+        requestAnimationFrame(() => this.executeEnginePipelineLoop());
+    }
+
+    syncHUDViewDisplay() {
+        if (!this.savedCheckpointSnapshot) return;
+        
+        document.getElementById('txt-cp').innerText = this.savedCheckpointSnapshot.checkpointId;
+        document.getElementById('txt-crystals').innerText = `${this.player.crystalsCollectedCount} / ${this.collectibleCrystals.length}`;
+        
+        // Output text display print block representing the structural memory encoding serialization manifest
+        document.getElementById('txt-json-dump').value = JSON.stringify(this.savedCheckpointSnapshot, null, 2);
+    }
+}
+
+// Global Core Framework Architecture Operational Activation Entry Point Trigger Matrix
+let orchestrator;
+window.onload = () => { orchestrator = new StatefulCheckpointEngine(); };
+</script>
+</body>
+</html>
