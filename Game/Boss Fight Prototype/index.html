@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Rocket vs Titan Core Boss Encounter</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <!-- Tailwind Configuration -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-container": "#201f20",
+                "surface-tint": "#76d6d5",
+                "surface-container-lowest": "#0e0e0f",
+                "on-tertiary-container": "#fafaf9",
+                "on-tertiary-fixed": "#1a1c1c",
+                "on-primary-container": "#e3fffe",
+                "on-secondary-container": "#6d5000",
+                "on-secondary": "#402d00",
+                "outline": "#879392",
+                "tertiary-fixed": "#e3e2e2",
+                "surface-container-highest": "#353436",
+                "error-container": "#93000a",
+                "primary-fixed-dim": "#76d6d5",
+                "inverse-on-surface": "#313031",
+                "on-secondary-fixed-variant": "#5c4300",
+                "tertiary": "#c6c6c6",
+                "on-surface": "#e5e2e3",
+                "secondary-container": "#ffbf00",
+                "surface-container-low": "#1c1b1c",
+                "on-primary-fixed": "#002020",
+                "surface-bright": "#3a393a",
+                "tertiary-fixed-dim": "#c6c6c6",
+                "on-surface-variant": "#bdc9c8",
+                "error": "#ffb4ab",
+                "surface-variant": "#353436",
+                "outline-variant": "#3e4949",
+                "surface-container-high": "#2a2a2b",
+                "on-error-container": "#ffdad6",
+                "on-primary": "#003737",
+                "inverse-surface": "#e5e2e3",
+                "secondary-fixed-dim": "#fbbc00",
+                "primary": "#76d6d5",
+                "background": "#131314",
+                "on-error": "#690005",
+                "secondary": "#ffe2ab",
+                "on-tertiary": "#2f3131",
+                "inverse-primary": "#006a6a",
+                "primary-fixed": "#93f2f2",
+                "on-tertiary-fixed-variant": "#464747",
+                "primary-container": "#008080",
+                "on-background": "#e5e2e3",
+                "on-secondary-fixed": "#261a00",
+                "tertiary-container": "#727373",
+                "surface": "#131314",
+                "surface-dim": "#131314",
+                "on-primary-fixed-variant": "#004f4f",
+                "secondary-fixed": "#ffdfa0"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "margin-desktop": "32px",
+                "margin-mobile": "12px",
+                "sm": "8px",
+                "xl": "48px",
+                "gutter": "16px",
+                "md": "16px",
+                "xs": "4px",
+                "unit": "4px",
+                "lg": "24px"
+            },
+            "fontFamily": {
+                "label-caps": ["Courier Prime"],
+                "code-display": ["JetBrains Mono"],
+                "body-lg": ["JetBrains Mono"],
+                "body-sm": ["JetBrains Mono"],
+                "headline-lg": ["Space Mono"],
+                "headline-lg-mobile": ["Space Mono"],
+                "headline-md": ["Space Mono"]
+            },
+            "fontSize": {
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                "code-display": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        /* Scanline & Chisel Utilities */
+        .scanline-bg {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.15));
+            background-size: 100% 4px;
+        }
+        .window-chisel {
+            border: 2px solid;
+            border-top-color: rgba(255, 255, 255, 0.25);
+            border-left-color: rgba(255, 255, 255, 0.25);
+            border-right-color: rgba(0, 0, 0, 0.55);
+            border-bottom-color: rgba(0, 0, 0, 0.55);
+        }
+        .inset-chisel {
+            border: 2px solid;
+            border-top-color: rgba(0, 0, 0, 0.6);
+            border-left-color: rgba(0, 0, 0, 0.6);
+            border-right-color: rgba(255, 255, 255, 0.3);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+        }
+        .health-track {
+            background-color: #1A1A1C;
+        }
+        .health-fill {
+            background-color: #008080;
+            transition: width 0.1s linear;
+        }
+        .health-fill.low {
+            background-color: #ef4444;
+            animation: strobe 0.5s infinite;
+        }
+        @keyframes strobe {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Transition support for toggleable panels */
+        .window-transition {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, scale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Custom Scrollbar */
+        #log-content::-webkit-scrollbar { width: 6px; }
+        #log-content::-webkit-scrollbar-track { background: #0e0e0f; }
+        #log-content::-webkit-scrollbar-thumb { background: #3e4949; border-radius: 2px; }
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface-variant font-body-sm scanline-bg antialiased selection:bg-primary selection:text-on-primary">
+
+    <!-- Top Navigation -->
+    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-12 bg-primary-container border-b-2 border-black shadow-[inset_2px_2px_0px_rgba(255,255,255,0.3),inset_-2px_-2px_0px_rgba(0,0,0,0.6)]">
+        <div class="font-headline-md text-headline-md text-on-primary-container uppercase tracking-widest">TITAN_CORE_OS_v4.2.0</div>
+        <div class="flex gap-4">
+            <span class="material-symbols-outlined text-primary hover:bg-primary hover:text-on-primary cursor-pointer active:translate-y-0.5 active:translate-x-0.5 transition-transform" onclick="clickTab('logs')">terminal</span>
+            <span class="material-symbols-outlined text-primary hover:bg-primary hover:text-on-primary cursor-pointer active:translate-y-0.5 active:translate-x-0.5 transition-transform" onclick="clickTab('weapons')">settings</span>
+            <span class="material-symbols-outlined text-primary hover:bg-primary hover:text-on-primary cursor-pointer active:translate-y-0.5 active:translate-x-0.5 transition-transform" onclick="if(confirm('Reboot simulator?')) orchestrator.resetPrototype()">power_settings_new</span>
+        </div>
+    </header>
+
+    <!-- Side Navigation - Hidden on Mobile -->
+    <nav class="hidden md:flex fixed left-0 top-12 h-[calc(100vh-48px)] w-64 bg-surface-container border-r-2 border-black bg-surface-container-low shadow-[inset_2px_2px_0px_rgba(255,255,255,0.1),2px_0px_0px_rgba(0,0,0,0.5)] flex-col p-md gap-sm z-40">
+        <div class="flex flex-col gap-1 mb-xl pb-md border-b border-outline">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary animate-pulse" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+                <span class="font-headline-md text-headline-md text-on-surface">STRYKER-1</span>
+            </div>
+            <span id="sidebar-rocket-status" class="font-label-caps text-label-caps text-secondary font-bold">FUEL: 100% | CORE: STABLE</span>
+        </div>
+        <div class="flex flex-col gap-2 flex-grow">
+            <!-- Navigation Tabs -->
+            <button id="tab-weapons" onclick="clickTab('weapons')" class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container border-2 border-black shadow-[inset_-2px_-2px_0px_rgba(255,255,255,0.3)] font-label-caps text-label-caps w-full text-left active:translate-y-px transition-all">
+                <span class="material-symbols-outlined">precision_manufacturing</span>
+                <span>WEAPONS</span>
+            </button>
+            <button id="tab-telemetry" onclick="clickTab('telemetry')" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-highest font-label-caps text-label-caps w-full text-left active:translate-y-px transition-all">
+                <span class="material-symbols-outlined">analytics</span>
+                <span>TELEMETRY</span>
+            </button>
+            <button id="tab-shield" onclick="clickTab('shield')" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-highest font-label-caps text-label-caps w-full text-left active:translate-y-px transition-all">
+                <span class="material-symbols-outlined">shield</span>
+                <span>SHIELD</span>
+            </button>
+            <button id="tab-systems" onclick="clickTab('systems')" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-highest font-label-caps text-label-caps w-full text-left active:translate-y-px transition-all">
+                <span class="material-symbols-outlined">settings_input_component</span>
+                <span>SYSTEMS</span>
+            </button>
+            <button id="tab-logs" onclick="clickTab('logs')" class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-highest font-label-caps text-label-caps w-full text-left active:translate-y-px transition-all">
+                <span class="material-symbols-outlined">history_edu</span>
+                <span>LOGS</span>
+            </button>
+        </div>
+        
+        <!-- Overdrive Button -->
+        <button id="btn-overdrive" onclick="triggerOverdrive()" class="mt-auto w-full py-md bg-[#C0C0C0] text-[#131314] font-code-display text-code-display window-chisel hover:bg-[#A0A0A0] active:translate-y-px transition-all">
+            INITIATE OVERDRIVE (100%)
+        </button>
+    </nav>
+
+    <!-- Main Canvas Area -->
+    <main class="absolute inset-0 pt-12 md:pl-64 z-10">
+        <!-- The Game Canvas -->
+        <canvas class="w-full h-full block bg-surface-container-lowest" id="gameCanvas"></canvas>
+
+        <!-- HUD Layer Overlay (Click-through except window interactive regions) -->
+        <div class="absolute inset-0 pt-12 md:pl-64 pointer-events-none p-margin-desktop flex flex-col justify-between gap-gutter z-20">
+            <!-- Top HUD Panel Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter w-full">
+                <!-- Rocket Telemetry Window (Left) -->
+                <div id="telemetry-window" class="window-transition md:col-span-3 lg:col-span-3 xl:col-span-2 h-fit bg-surface-container window-chisel pointer-events-auto shadow-xl">
+                    <!-- Title Bar -->
+                    <div class="bg-primary-container text-on-primary-container px-2 py-1 flex justify-between items-center border-b border-black">
+                        <span class="font-code-display text-code-display font-bold">ROCKET_TELEMETRY.EXE</span>
+                        <button onclick="closeWindow('telemetry-window')" class="w-5 h-5 bg-[#C0C0C0] text-black flex items-center justify-center font-bold window-chisel hover:bg-[#A0A0A0] active:translate-y-px">X</button>
+                    </div>
+                    <!-- Content -->
+                    <div class="p-md flex flex-col gap-4 font-code-display text-code-display text-primary">
+                        <div class="flex justify-between border-b border-outline-variant pb-1">
+                            <span>HULL</span>
+                            <span id="hud-hull">100%</span>
+                        </div>
+                        <div class="flex justify-between border-b border-outline-variant pb-1">
+                            <span>ENERGY</span>
+                            <span id="hud-energy">100%</span>
+                        </div>
+                        <div class="flex justify-between border-b border-outline-variant pb-1">
+                            <span>SPEED</span>
+                            <span id="hud-speed">0.0 m/s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 Alert Banner (Centered) -->
+                <div class="md:col-span-6 lg:col-span-6 xl:col-span-8 self-start mt-xl hidden opacity-0 transition-all duration-300" id="alert-banner">
+                    <div class="bg-error-container border-2 border-secondary-container window-chisel text-on-error-container p-4 text-center font-headline-lg text-headline-lg-mobile md:text-headline-lg uppercase flex items-center justify-center gap-md shadow-[0_0_25px_rgba(147,0,10,0.85)] animate-pulse">
+                        <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+                        CRITICAL WARNING: PHASE 3 INITIATED
+                        <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+                    </div>
+                </div>
+
+                <!-- Titan Core Diagnostics Window (Right) -->
+                <div id="diagnostics-window" class="window-transition md:col-start-10 lg:col-start-10 xl:col-start-11 md:col-span-3 lg:col-span-3 xl:col-span-2 h-fit bg-surface-container window-chisel pointer-events-auto border-secondary-container shadow-[0_0_15px_rgba(255,191,0,0.2)]">
+                    <!-- Title Bar -->
+                    <div class="bg-secondary-container text-on-secondary-container px-2 py-1 flex justify-between items-center border-b border-black">
+                        <span class="font-code-display text-code-display font-bold">TITAN_CORE_DIAG.SYS</span>
+                        <button onclick="closeWindow('diagnostics-window')" class="w-5 h-5 bg-[#C0C0C0] text-black flex items-center justify-center font-bold window-chisel hover:bg-[#A0A0A0] active:translate-y-px">X</button>
+                    </div>
+                    <!-- Content -->
+                    <div class="p-md flex flex-col gap-4 font-code-display text-code-display text-on-surface">
+                        <div class="text-center font-headline-md text-headline-md text-secondary-container uppercase tracking-widest mb-2 border-b border-outline-variant pb-2">
+                            TITAN CORE OMEGA
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-outline">STATUS</span>
+                            <span class="text-primary font-bold" id="hud-phase">PHASE 1: ORBIT_SWEEP</span>
+                        </div>
+                        <!-- RPG Style Health Bar -->
+                        <div class="w-full h-8 health-track inset-chisel relative mt-2">
+                            <div class="health-fill h-full w-[100%] absolute left-0 top-0" id="boss-health-fill"></div>
+                            <div class="absolute inset-0 flex items-center justify-center text-on-primary-container font-bold text-xs mix-blend-difference" id="boss-health-text">10000 / 10000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Sidebar Widgets (Opened via tabs) -->
+            <!-- Weapons Selector -->
+            <div id="weapons-panel" class="window-transition absolute top-20 left-6 w-64 bg-surface-container window-chisel pointer-events-auto shadow-2xl scale-0 opacity-0 hidden z-30">
+                <div class="bg-primary-container text-on-primary-container px-2 py-1 flex justify-between items-center border-b border-black">
+                    <span class="font-code-display text-code-display font-bold">WEAPONS_SELECT.EXE</span>
+                    <button onclick="closeWindow('weapons-panel')" class="w-5 h-5 bg-[#C0C0C0] text-black flex items-center justify-center font-bold window-chisel hover:bg-[#A0A0A0] active:translate-y-px">X</button>
+                </div>
+                <div class="p-md flex flex-col gap-2 font-code-display text-code-display text-on-surface">
+                    <div class="text-xs text-outline mb-1">SELECT PRIMARY WEAPON:</div>
+                    <button id="btn-wpn-laser" onclick="setWeapon('laser')" class="w-full text-left p-2 border-2 border-primary text-primary hover:bg-primary-container hover:text-on-primary-container transition-all">
+                        [X] PLASMA LASER (Rapid)
+                    </button>
+                    <button id="btn-wpn-heavy" onclick="setWeapon('heavy')" class="w-full text-left p-2 border border-outline hover:border-primary text-on-surface-variant hover:text-primary hover:bg-primary-container hover:text-on-primary-container transition-all">
+                        [ ] HEAVY BLAST (High Dmg)
+                    </button>
+                    <button id="btn-wpn-spread" onclick="setWeapon('spread')" class="w-full text-left p-2 border border-outline hover:border-primary text-on-surface-variant hover:text-primary hover:bg-primary-container hover:text-on-primary-container transition-all">
+                        [ ] SPREAD SHOT (Fan fire)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Shield Controller -->
+            <div id="shield-panel" class="window-transition absolute top-20 left-6 w-68 bg-surface-container window-chisel pointer-events-auto shadow-2xl scale-0 opacity-0 hidden z-30">
+                <div class="bg-primary-container text-on-primary-container px-2 py-1 flex justify-between items-center border-b border-black">
+                    <span class="font-code-display text-code-display font-bold">SHIELD_SYS.EXE</span>
+                    <button onclick="closeWindow('shield-panel')" class="w-5 h-5 bg-[#C0C0C0] text-black flex items-center justify-center font-bold window-chisel hover:bg-[#A0A0A0] active:translate-y-px">X</button>
+                </div>
+                <div class="p-md flex flex-col gap-3 font-code-display text-code-display text-on-surface">
+                    <div class="text-xs text-outline mb-1">DEFENSIVE SHIELD GRID</div>
+                    <div class="flex justify-between">
+                        <span>SHIELD CORE:</span>
+                        <span id="shield-status-text" class="text-error font-bold">OFFLINE</span>
+                    </div>
+                    <div class="text-[11px] text-on-surface-variant leading-tight">Projects an energy bubble around the rocket. Deflects incoming boss projectiles. Cost: 35% Energy/second. Keybind: SHIFT / E</div>
+                    <button id="btn-toggle-shield" onclick="togglePlayerShield()" class="w-full py-2 bg-secondary-container text-on-secondary-container border-2 border-black font-bold shadow-[inset_-2px_-2px_0px_rgba(255,255,255,0.3)] active:translate-y-px">
+                        ENGAGE DEFENSIVE GRID
+                    </button>
+                </div>
+            </div>
+
+            <!-- Systems Info Panel -->
+            <div id="systems-panel" class="window-transition absolute top-20 left-6 w-72 bg-surface-container window-chisel pointer-events-auto shadow-2xl scale-0 opacity-0 hidden z-30">
+                <div class="bg-primary-container text-on-primary-container px-2 py-1 flex justify-between items-center border-b border-black">
+                    <span class="font-code-display text-code-display font-bold">SYSTEMS_HEALTH.SYS</span>
+                    <button onclick="closeWindow('systems-panel')" class="w-5 h-5 bg-[#C0C0C0] text-black flex items-center justify-center font-bold window-chisel hover:bg-[#A0A0A0] active:translate-y-px">X</button>
+                </div>
+                <div class="p-md flex flex-col gap-2 font-code-display text-code-display text-primary">
+                    <div class="flex justify-between border-b border-outline-variant pb-1">
+                        <span>THRUSTERS</span>
+                        <span class="text-secondary font-bold">100% ONLINE</span>
+                    </div>
+                    <div class="flex justify-between border-b border-outline-variant pb-1">
+                        <span>REACTOR CORE</span>
+                        <span id="sys-reactor-status" class="text-secondary font-bold">STABLE</span>
+                    </div>
+                    <div class="flex justify-between border-b border-outline-variant pb-1">
+                        <span>COOLING MATRIX</span>
+                        <span class="text-secondary font-bold">NOMINAL</span>
+                    </div>
+                    <div class="flex justify-between pb-1">
+                        <span>OVERDRIVE MATRIX</span>
+                        <span id="hud-overdrive-charge" class="text-secondary font-bold">100% CHARGED</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Logs Drawer (Bottom Center) -->
+            <div id="logs-drawer" class="window-transition fixed bottom-18 md:bottom-6 left-6 md:left-[272px] right-6 md:right-10 h-36 bg-surface-container-lowest window-chisel pointer-events-auto border-outline-variant shadow-2xl translate-y-48 opacity-0 hidden z-40">
+                <div class="bg-primary-container text-on-primary-container px-2 py-1 flex justify-between items-center border-b border-black">
+                    <span class="font-code-display text-code-display font-bold">SYSTEM_LOGS.LOG</span>
+                    <button onclick="closeWindow('logs-drawer')" class="w-5 h-5 bg-[#C0C0C0] text-black flex items-center justify-center font-bold window-chisel hover:bg-[#A0A0A0] active:translate-y-px">X</button>
+                </div>
+                <div id="log-content" class="p-2 h-[calc(100%-28px)] overflow-y-auto font-code-display text-xs text-primary leading-tight select-text">
+                    <div>[00:00:00] [SYSTEM] INITIALIZING TITAN_CORE_OS_v4.2.0...</div>
+                    <div>[00:00:00] [SYSTEM] STRYKER-1 SYSTEMS CHECK: OK</div>
+                    <div>[00:00:00] [SYSTEM] WARNING: TITAN CORE DETECTED AT HIGH ORBIT COORDS.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over & Victory Overlay -->
+        <div id="game-overlay" class="absolute inset-0 pt-12 md:pl-64 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-500 z-50">
+            <div class="bg-surface-container window-chisel p-6 text-center max-w-sm flex flex-col gap-4">
+                <div id="overlay-title" class="font-headline-lg text-error uppercase">STRYKER-1 CRASHED</div>
+                <div id="overlay-subtitle" class="font-code-display text-on-surface-variant text-sm">Hull integrity failed. The Titan Core remains operational.</div>
+                <button onclick="orchestrator.resetPrototype()" class="py-2 px-6 bg-secondary-container text-on-secondary-container border-2 border-black font-bold shadow-[inset_-2px_-2px_0px_rgba(255,255,255,0.3)] hover:bg-[#ffdfa0] active:translate-y-px">
+                    REBOOT SIMULATION
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 bg-surface-container border-t-2 border-outline shadow-[0_-4px_10px_rgba(0,0,0,0.5)]">
+        <button id="mob-cockpit" onclick="clickMobileTab('cockpit')" class="flex flex-col items-center justify-center text-on-surface-variant p-2 w-full h-full hover:bg-surface-container-high active:scale-95 transition-all">
+            <span class="material-symbols-outlined">rocket_launch</span>
+            <span class="font-body-sm text-body-sm text-[10px]">COCKPIT</span>
+        </button>
+        <button id="mob-weapons" onclick="clickMobileTab('weapons')" class="flex flex-col items-center justify-center text-on-surface-variant p-2 w-full h-full hover:bg-surface-container-high active:scale-95 transition-all">
+            <span class="material-symbols-outlined">precision_manufacturing</span>
+            <span class="font-body-sm text-body-sm text-[10px]">WEAPONS</span>
+        </button>
+        <button id="mob-comms" onclick="clickMobileTab('comms')" class="flex flex-col items-center justify-center text-on-surface-variant p-2 w-full h-full hover:bg-surface-container-high active:scale-95 transition-all">
+            <span class="material-symbols-outlined">forum</span>
+            <span class="font-body-sm text-body-sm text-[10px]">COMMS</span>
+        </button>
+        <button id="mob-diag" onclick="clickMobileTab('diag')" class="flex flex-col items-center justify-center text-on-surface-variant p-2 w-full h-full hover:bg-surface-container-high active:scale-95 transition-all">
+            <span class="material-symbols-outlined">troubleshoot</span>
+            <span class="font-body-sm text-body-sm text-[10px]">DIAG</span>
+        </button>
+    </nav>
+
+    <!-- Game Engine Logic -->
+    <script>
+        // --- WEB AUDIO SYNTH MODULE ---
+        class WebSoundSynth {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (this.ctx) return;
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            playLaser() {
+                this.init(); if (!this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.15);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.15);
+            }
+            playHeavyLaser() {
+                this.init(); if (!this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(350, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(70, this.ctx.currentTime + 0.32);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.32);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.32);
+            }
+            playSpread() {
+                this.init(); if (!this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(650, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(180, this.ctx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.12);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.12);
+            }
+            playShieldHit() {
+                this.init(); if (!this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(500, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.002, this.ctx.currentTime + 0.08);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.08);
+            }
+            playHit() {
+                this.init(); if (!this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(130, this.ctx.currentTime);
+                osc.frequency.setValueAtTime(50, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.08);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.08);
+            }
+            playExplosion() {
+                this.init(); if (!this.ctx) return;
+                let bufferSize = this.ctx.sampleRate * 0.5;
+                let buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                let data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                let noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                let filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(600, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(12, this.ctx.currentTime + 0.5);
+                let gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.5);
+                noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+                noise.start();
+            }
+            playOverdrive() {
+                this.init(); if (!this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1100, this.ctx.currentTime + 0.6);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.6);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.6);
+            }
+            playAlert() {
+                this.init(); if (!this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(380, this.ctx.currentTime);
+                osc.frequency.setValueAtTime(280, this.ctx.currentTime + 0.25);
+                osc.frequency.setValueAtTime(380, this.ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.12, this.ctx.currentTime + 0.55);
+                gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.75);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.75);
+            }
+        }
+
+        // --- CORE GAME ENGINE ---
+        class RocketBossEngine {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                
+                this.sound = new WebSoundSynth();
+                this.screenShakeAmount = 0;
+
+                // --- SINGLE SOURCE OF TRUTH: PLAYER STATE ---
+                this.rocket = {
+                    x: 0,
+                    y: 0,
+                    radius: 12,
+                    angle: -Math.PI / 2,
+                    vx: 0,
+                    vy: 0,
+                    thrustPower: 0.18,
+                    drag: 0.98,
+                    hp: 100,
+                    maxHp: 100,
+                    energy: 100,
+                    maxEnergy: 100,
+                    fireCooldown: 0,
+                    weapon: 'laser',
+                    shieldActive: false
+                };
+
+                // --- SINGLE SOURCE OF TRUTH: BOSS STATE ---
+                this.boss = {
+                    x: 0,
+                    y: 180,
+                    radius: 50,
+                    hp: 10000,
+                    maxHp: 10000,
+                    phase: 1,
+                    rotationAngle: 0,
+                    attackTimer: 0,
+                    shieldAngle: 0,
+                    shieldActive: false
+                };
+
+                // --- OVERDRIVE MODULE ---
+                this.overdrive = {
+                    charge: 100,
+                    active: false,
+                    timer: 0
+                };
+
+                // --- ZERO-ALLOCATION OBJECT POOLS ---
+                this.maxBullets = 500;
+                this.bulletPool = [];
+                for (let i = 0; i < this.maxBullets; i++) {
+                    this.bulletPool.push({ x: 0, y: 0, vx: 0, vy: 0, radius: 4, damage: 0, color: '#f00', isHoming: false, isPlayer: false, active: false });
+                }
+
+                this.maxParticles = 250;
+                this.particlePool = [];
+                for (let i = 0; i < this.maxParticles; i++) {
+                    this.particlePool.push({ x: 0, y: 0, vx: 0, vy: 0, life: 0, maxLife: 20, color: '#ff0', active: false });
+                }
+
+                this.inputState = { left: false, right: false, thrust: false, brake: false, fire: false };
+                this.stars = [];
+
+                this.resizeViewport();
+                window.addEventListener('resize', () => this.resizeViewport());
+
+                // Reset position to center bottom
+                this.rocket.x = this.width / 2;
+                this.rocket.y = this.height - 120;
+
+                this.initStars();
+                this.bindInputStreams();
+                this.syncHUD();
+                
+                this.logEvent("STRYKER-1 engine online. System stability normal.", "success");
+                this.executeFrameLoop();
+            }
+
+            resizeViewport() {
+                this.width = this.canvas.parentElement.clientWidth;
+                this.height = this.canvas.parentElement.clientHeight;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+                if (this.boss) {
+                    this.boss.x = this.width / 2;
+                }
+            }
+
+            initStars() {
+                this.stars = [];
+                for (let i = 0; i < 80; i++) {
+                    this.stars.push({
+                        x: Math.random() * this.width,
+                        y: Math.random() * this.height,
+                        size: Math.random() * 2 + 0.5,
+                        speed: Math.random() * 1.5 + 0.5
+                    });
+                }
+            }
+
+            bindInputStreams() {
+                window.addEventListener('keydown', (e) => this.toggleInput(e, true));
+                window.addEventListener('keyup', (e) => this.toggleInput(e, false));
+            }
+
+            toggleInput(e, isPressed) {
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.inputState.left = isPressed;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') this.inputState.right = isPressed;
+                if (e.code === 'ArrowUp' || e.code === 'KeyW') this.inputState.thrust = isPressed;
+                if (e.code === 'ArrowDown' || e.code === 'KeyS') this.inputState.brake = isPressed;
+                if (e.code === 'Space') this.inputState.fire = isPressed;
+                
+                // Defend trigger (Shift/KeyE)
+                if ((e.code === 'ShiftLeft' || e.code === 'KeyE') && this.rocket.hp > 0) {
+                    if (isPressed) {
+                        this.activateShield(true);
+                    } else {
+                        this.activateShield(false);
+                    }
+                }
+            }
+
+            activateShield(active) {
+                if (active && this.rocket.energy >= 10) {
+                    this.rocket.shieldActive = true;
+                    document.getElementById('shield-status-text').innerText = "ONLINE";
+                    document.getElementById('shield-status-text').className = "text-primary font-bold";
+                } else {
+                    this.rocket.shieldActive = false;
+                    document.getElementById('shield-status-text').innerText = "OFFLINE";
+                    document.getElementById('shield-status-text').className = "text-error font-bold";
+                }
+            }
+
+            resetPrototype() {
+                this.rocket.x = this.width / 2;
+                this.rocket.y = this.height - 120;
+                this.rocket.vx = 0;
+                this.rocket.vy = 0;
+                this.rocket.angle = -Math.PI / 2;
+                this.rocket.hp = 100;
+                this.rocket.energy = 100;
+                this.rocket.shieldActive = false;
+                this.rocket.weapon = 'laser';
+
+                this.boss.hp = 10000;
+                this.boss.phase = 1;
+                this.boss.attackTimer = 0;
+                this.boss.shieldActive = false;
+
+                this.overdrive.charge = 100;
+                this.overdrive.active = false;
+                this.overdrive.timer = 0;
+
+                this.bulletPool.forEach(b => b.active = false);
+                this.particlePool.forEach(p => p.active = false);
+
+                // UI updates
+                document.getElementById('alert-banner').classList.add('hidden');
+                document.getElementById('alert-banner').classList.add('opacity-0');
+                document.getElementById('game-overlay').classList.add('opacity-0');
+                document.getElementById('game-overlay').classList.add('pointer-events-none');
+                
+                document.getElementById('btn-overdrive').innerText = "INITIATE OVERDRIVE (100%)";
+                document.getElementById('btn-overdrive').style.background = "#C0C0C0";
+                document.getElementById('btn-overdrive').style.color = "#131314";
+
+                document.getElementById('sys-reactor-status').innerText = "STABLE";
+                document.getElementById('sys-reactor-status').className = "text-secondary font-bold";
+
+                document.getElementById('btn-wpn-laser').className = "w-full text-left p-2 border-2 border-primary text-primary hover:bg-primary-container hover:text-on-primary-container transition-all";
+                document.getElementById('btn-wpn-heavy').className = "w-full text-left p-2 border border-outline hover:border-primary text-on-surface-variant hover:text-primary hover:bg-primary-container hover:text-on-primary-container transition-all";
+                document.getElementById('btn-wpn-spread').className = "w-full text-left p-2 border border-outline hover:border-primary text-on-surface-variant hover:text-primary hover:bg-primary-container hover:text-on-primary-container transition-all";
+
+                this.activateShield(false);
+                this.syncHUD();
+                
+                let log = document.getElementById('log-content');
+                log.innerHTML = "<div>[00:00:00] [SYSTEM] REBOOTING SIMULATION COMPLETED...</div>";
+                this.logEvent("STRYKER-1 systems reset. Flight dynamics normal.", "success");
+            }
+
+            // --- OBJECT POOLS ---
+            spawnBullet(x, y, vx, vy, radius, damage, color, isHoming, isPlayer) {
+                let b = this.bulletPool.find(item => !item.active);
+                if (!b) return;
+                b.x = x;
+                b.y = y;
+                b.vx = vx;
+                b.vy = vy;
+                b.radius = radius;
+                b.damage = damage;
+                b.color = color;
+                b.isHoming = isHoming;
+                b.isPlayer = isPlayer;
+                b.active = true;
+            }
+
+            spawnParticle(x, y, vx, vy, color, maxLife = 20) {
+                let p = this.particlePool.find(item => !item.active);
+                if (!p) return;
+                p.x = x;
+                p.y = y;
+                p.vx = vx;
+                p.vy = vy;
+                p.color = color;
+                p.life = maxLife;
+                p.maxLife = maxLife;
+                p.active = true;
+            }
+
+            triggerScreenShake(amount) {
+                this.screenShakeAmount = Math.max(this.screenShakeAmount, amount);
+            }
+
+            logEvent(msg, type = 'info') {
+                let logContent = document.getElementById('log-content');
+                if (!logContent) return;
+                let div = document.createElement('div');
+                let timestamp = new Date().toTimeString().split(' ')[0];
+                let colorClass = 'text-primary';
+                if (type === 'warn') colorClass = 'text-secondary-container';
+                if (type === 'error') colorClass = 'text-error';
+                if (type === 'success') colorClass = 'text-surface-tint';
+                
+                div.className = colorClass;
+                div.innerHTML = `[${timestamp}] [${type.toUpperCase()}] ${msg}`;
+                logContent.appendChild(div);
+                logContent.scrollTop = logContent.scrollHeight;
+            }
+
+            // --- KINEMATICS UPDATE ---
+            updateRocketKinematics() {
+                if (this.rocket.hp <= 0) return;
+
+                // 1. Rotate Craft
+                if (this.inputState.left) this.rocket.angle -= 0.065;
+                if (this.inputState.right) this.rocket.angle += 0.065;
+
+                // 2. Thrust & Brake
+                let actualThrust = this.rocket.thrustPower * (this.overdrive.active ? 1.5 : 1.0);
+                if (this.inputState.thrust) {
+                    this.rocket.vx += Math.cos(this.rocket.angle) * actualThrust;
+                    this.rocket.vy += Math.sin(this.rocket.angle) * actualThrust;
+
+                    // Emit thruster exhaust particles
+                    let exhaustX = this.rocket.x - Math.cos(this.rocket.angle) * 14;
+                    let exhaustY = this.rocket.y - Math.sin(this.rocket.angle) * 14;
+                    this.spawnParticle(
+                        exhaustX, exhaustY,
+                        -Math.cos(this.rocket.angle) * 2 + (Math.random() - 0.5),
+                        -Math.sin(this.rocket.angle) * 2 + (Math.random() - 0.5),
+                        this.overdrive.active ? '#a855f7' : (Math.random() > 0.5 ? '#f97316' : '#eab308'),
+                        15
+                    );
+                }
+                if (this.inputState.brake) {
+                    this.rocket.vx *= 0.90;
+                    this.rocket.vy *= 0.90;
+                }
+
+                // 3. Inertia & Drag
+                this.rocket.vx *= this.rocket.drag;
+                this.rocket.vy *= this.rocket.drag;
+                this.rocket.x += this.rocket.vx;
+                this.rocket.y += this.rocket.vy;
+
+                // Elastic Bounds Bounce
+                let padding = 20;
+                if (this.rocket.x < padding) { this.rocket.x = padding; this.rocket.vx *= -0.4; }
+                if (this.rocket.x > this.width - padding) { this.rocket.x = this.width - padding; this.rocket.vx *= -0.4; }
+                if (this.rocket.y < padding + 48) { this.rocket.y = padding + 48; this.rocket.vy *= -0.4; }
+                if (this.rocket.y > this.height - padding) { this.rocket.y = this.height - padding; this.rocket.vy *= -0.4; }
+
+                // 4. Energy Drain & Shield Drain
+                if (this.rocket.shieldActive) {
+                    this.rocket.energy -= 0.6; // ~36% per second
+                    if (this.rocket.energy <= 0) {
+                        this.rocket.energy = 0;
+                        this.activateShield(false);
+                        this.logEvent("SHIELD FAILURE: REACTOR DEPLETED.", "error");
+                    }
+                } else if (this.rocket.energy < this.rocket.maxEnergy) {
+                    this.rocket.energy += 0.25; // Recharges slowly
+                }
+
+                // 5. Weapon Fire Cooldown
+                if (this.rocket.fireCooldown > 0) this.rocket.fireCooldown--;
+                if (this.inputState.fire && this.rocket.fireCooldown <= 0) {
+                    this.fireWeapon();
+                }
+            }
+
+            fireWeapon() {
+                let muzzleX = this.rocket.x + Math.cos(this.rocket.angle) * 16;
+                let muzzleY = this.rocket.y + Math.sin(this.rocket.angle) * 16;
+                
+                // Weapon configurations
+                if (this.rocket.weapon === 'laser') {
+                    if (this.rocket.energy >= 2) {
+                        this.rocket.energy -= 2;
+                        let cooldown = this.overdrive.active ? 3 : 6;
+                        this.spawnBullet(muzzleX, muzzleY, Math.cos(this.rocket.angle) * 12 + this.rocket.vx, Math.sin(this.rocket.angle) * 12 + this.rocket.vy, 3, 30, '#38bdf8', false, true);
+                        this.rocket.fireCooldown = cooldown;
+                        this.sound.playLaser();
+                    } else {
+                        this.logEvent("WEAPON OUT OF ENERGY!", "warn");
+                        this.rocket.fireCooldown = 15;
+                    }
+                } else if (this.rocket.weapon === 'heavy') {
+                    if (this.rocket.energy >= 12) {
+                        this.rocket.energy -= 12;
+                        let cooldown = this.overdrive.active ? 8 : 16;
+                        this.spawnBullet(muzzleX, muzzleY, Math.cos(this.rocket.angle) * 8 + this.rocket.vx, Math.sin(this.rocket.angle) * 8 + this.rocket.vy, 6, 120, '#f43f5e', false, true);
+                        this.rocket.fireCooldown = cooldown;
+                        this.sound.playHeavyLaser();
+                        this.triggerScreenShake(3);
+                    } else {
+                        this.logEvent("WEAPON OUT OF ENERGY!", "warn");
+                        this.rocket.fireCooldown = 15;
+                    }
+                } else if (this.rocket.weapon === 'spread') {
+                    if (this.rocket.energy >= 6) {
+                        this.rocket.energy -= 6;
+                        let cooldown = this.overdrive.active ? 4 : 8;
+                        let angles = [-0.15, 0, 0.15];
+                        angles.forEach(angOffset => {
+                            let bulletAngle = this.rocket.angle + angOffset;
+                            this.spawnBullet(muzzleX, muzzleY, Math.cos(bulletAngle) * 10 + this.rocket.vx, Math.sin(bulletAngle) * 10 + this.rocket.vy, 3, 25, '#fbbf24', false, true);
+                        });
+                        this.rocket.fireCooldown = cooldown;
+                        this.sound.playSpread();
+                    } else {
+                        this.logEvent("WEAPON OUT OF ENERGY!", "warn");
+                        this.rocket.fireCooldown = 15;
+                    }
+                }
+            }
+
+            // --- DETAILED BOSS FSM ENGINE ---
+            updateBossFSM() {
+                if (this.boss.hp <= 0) return;
+
+                this.boss.rotationAngle += 0.015;
+                this.boss.attackTimer++;
+
+                // Phase transition checks
+                let hpRatio = this.boss.hp / this.boss.maxHp;
+                if (hpRatio < 0.35 && this.boss.phase !== 3) {
+                    this.boss.phase = 3;
+                    this.boss.shieldActive = true;
+                    this.logEvent("CRITICAL WARNING: TITAN CORE DETECTED IN DESPERATION STATE. ROTATING BARRIER MATRICES ENGAGING.", "error");
+                    
+                    let banner = document.getElementById('alert-banner');
+                    banner.classList.remove('hidden');
+                    setTimeout(() => banner.classList.remove('opacity-0'), 10);
+                    
+                    this.sound.playAlert();
+                    this.triggerScreenShake(12);
+                } else if (hpRatio < 0.70 && hpRatio >= 0.35 && this.boss.phase === 1) {
+                    this.boss.phase = 2;
+                    this.logEvent("WARNING: TITAN CORE PHASE 2 TRIGGERED. SPIRAL LAUNCHERS & HOMING ARRAYS ONLINE.", "warn");
+                    this.sound.playAlert();
+                    this.triggerScreenShake(8);
+                }
+
+                // Phase attack behaviors
+                if (this.boss.phase === 1) {
+                    // Concetric Ring Blast every 55 frames
+                    if (this.boss.attackTimer % 55 === 0) {
+                        let ringCount = 14;
+                        for (let i = 0; i < ringCount; i++) {
+                            let angle = (Math.PI * 2 / ringCount) * i + this.boss.rotationAngle;
+                            this.spawnBullet(
+                                this.boss.x, this.boss.y,
+                                Math.cos(angle) * 3.8, Math.sin(angle) * 3.8,
+                                4.5, 0, '#ef4444', false, false
+                            );
+                        }
+                    }
+                } else if (this.boss.phase === 2) {
+                    // Spiral plasma streams
+                    if (this.boss.attackTimer % 14 === 0) {
+                        let angle = this.boss.attackTimer * 0.16;
+                        this.spawnBullet(
+                            this.boss.x, this.boss.y,
+                            Math.cos(angle) * 4.6, Math.sin(angle) * 4.6,
+                            4.5, 0, '#ef4444', false, false
+                        );
+                    }
+                    // Homing missiles every 85 frames
+                    if (this.boss.attackTimer % 85 === 0) {
+                        for (let i = -1; i <= 1; i += 2) {
+                            this.spawnBullet(
+                                this.boss.x + i * 32, this.boss.y,
+                                i * 1.5, 1.8,
+                                6, 0, '#fb923c', true, false
+                            );
+                        }
+                        this.logEvent("Homing projectiles locked on craft coordinates.", "warn");
+                    }
+                } else if (this.boss.phase === 3) {
+                    // Rotating shield rotation speed
+                    this.boss.shieldAngle += 0.038;
+                    
+                    // Fast Nova bursts
+                    if (this.boss.attackTimer % 24 === 0) {
+                        let ringCount = 16;
+                        for (let i = 0; i < ringCount; i++) {
+                            let angle = (Math.PI * 2 / ringCount) * i + Math.sin(this.boss.attackTimer * 0.05);
+                            this.spawnBullet(
+                                this.boss.x, this.boss.y,
+                                Math.cos(angle) * 4.2, Math.sin(angle) * 4.2,
+                                4, 0, '#ec4899', false, false
+                            );
+                        }
+                    }
+                    // Occasional target-lock missile
+                    if (this.boss.attackTimer % 120 === 0) {
+                        this.spawnBullet(
+                            this.boss.x, this.boss.y,
+                            0, 2,
+                            7, 0, '#fb923c', true, false
+                        );
+                    }
+                }
+            }
+
+            // --- COLLISION MATRIX & SUB-STEPPING (CCD) ---
+            updateProjectilesAndCollisions() {
+                this.bulletPool.forEach(b => {
+                    if (!b.active) return;
+
+                    // Homing bullet steering
+                    if (b.isHoming && !b.isPlayer) {
+                        let dx = this.rocket.x - b.x;
+                        let dy = this.rocket.y - b.y;
+                        let angle = Math.atan2(dy, dx);
+                        b.vx += Math.cos(angle) * 0.16;
+                        b.vy += Math.sin(angle) * 0.16;
+
+                        // Cap homing velocity
+                        let speed = Math.hypot(b.vx, b.vy);
+                        if (speed > 4.5) {
+                            b.vx = (b.vx / speed) * 4.5;
+                            b.vy = (b.vy / speed) * 4.5;
+                        }
+                        // Spawn trail particle
+                        if (Math.random() > 0.6) {
+                            this.spawnParticle(b.x, b.y, (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5, '#fb923c', 8);
+                        }
+                    }
+
+                    b.x += b.vx;
+                    b.y += b.vy;
+
+                    // Cull out-of-bounds bullets
+                    if (b.x < -20 || b.x > this.width + 20 || b.y < -20 || b.y > this.height + 20) {
+                        b.active = false;
+                        return;
+                    }
+
+                    // Collision checking
+                    if (b.isPlayer) {
+                        // Sub-stepping to prevent tunneling through rotating barrier
+                        let steps = 3;
+                        let dx = b.vx / steps;
+                        let dy = b.vy / steps;
+                        let cx = b.x - b.vx;
+                        let cy = b.y - b.vy;
+
+                        for (let step = 0; step < steps; step++) {
+                            cx += dx;
+                            cy += dy;
+
+                            if (this.boss.hp > 0) {
+                                // 1. Check Shield Collision
+                                if (this.boss.shieldActive) {
+                                    let distToBoss = Math.hypot(cx - this.boss.x, cy - this.boss.y);
+                                    if (distToBoss >= 70 && distToBoss <= 82) {
+                                        let hitAngle = Math.atan2(cy - this.boss.y, cx - this.boss.x);
+                                        let normalizedAngle = (hitAngle - this.boss.shieldAngle + Math.PI * 8) % (Math.PI * 2);
+
+                                        // 4 shield segments of 45 deg, each followed by 45 deg gaps
+                                        let hitShieldSegment = false;
+                                        for (let s = 0; s < 4; s++) {
+                                            let segStart = (Math.PI / 2) * s;
+                                            let segEnd = segStart + Math.PI / 4;
+                                            if (normalizedAngle >= segStart && normalizedAngle <= segEnd) {
+                                                hitShieldSegment = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (hitShieldSegment) {
+                                            b.active = false;
+                                            this.spawnParticle(cx, cy, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3, '#76d6d5', 10);
+                                            this.sound.playShieldHit();
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // 2. Check Core Body Collision
+                                let distToCore = Math.hypot(cx - this.boss.x, cy - this.boss.y);
+                                if (distToCore < this.boss.radius + b.radius) {
+                                    b.active = false;
+                                    this.boss.hp = Math.max(0, this.boss.hp - b.damage);
+                                    
+                                    for (let p = 0; p < 4; p++) {
+                                        this.spawnParticle(cx, cy, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, '#fb923c', 12);
+                                    }
+                                    this.sound.playHit();
+                                    this.triggerScreenShake(3);
+                                    this.syncHUD();
+                                    
+                                    if (this.boss.hp <= 0) {
+                                        this.logEvent("SUCCESS: TITAN CORE OMEGA COMPLETELY NEUTRALIZED.", "success");
+                                        this.sound.playExplosion();
+                                        this.triggerScreenShake(25);
+                                        this.showGameOverOverlay(true);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        // Boss projectile vs player check
+                        if (this.rocket.hp > 0) {
+                            let dist = Math.hypot(b.x - this.rocket.x, b.y - this.rocket.y);
+                            
+                            // Deflected by shield
+                            if (this.rocket.shieldActive && dist < 28 + b.radius) {
+                                b.active = false;
+                                this.spawnParticle(b.x, b.y, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, '#76d6d5', 12);
+                                this.sound.playShieldHit();
+                            } 
+                            // Hit player
+                            else if (dist < this.rocket.radius + b.radius) {
+                                b.active = false;
+                                this.rocket.hp = Math.max(0, this.rocket.hp - 8);
+                                
+                                for (let p = 0; p < 8; p++) {
+                                    this.spawnParticle(b.x, b.y, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5, '#ef4444', 16);
+                                }
+                                this.sound.playHit();
+                                this.triggerScreenShake(8);
+                                this.logEvent("STRYKER-1 hit by core plasma. Hull integrity degraded.", "warn");
+                                this.syncHUD();
+
+                                if (this.rocket.hp <= 0) {
+                                    this.logEvent("CRITICAL ERROR: STRYKER-1 SYSTEM SHUTDOWN. PILOT SIMULATION CONCLUDED.", "error");
+                                    this.sound.playExplosion();
+                                    this.triggerScreenShake(20);
+                                    this.showGameOverOverlay(false);
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Update particle trails
+                this.particlePool.forEach(p => {
+                    if (!p.active) return;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life--;
+                    if (p.life <= 0) p.active = false;
+                });
+            }
+
+            // --- OVERDRIVE UPDATE ---
+            updateOverdrive() {
+                if (this.overdrive.active) {
+                    this.overdrive.timer--;
+                    
+                    // Strobe engine sparks
+                    if (Math.random() > 0.4) {
+                        this.spawnParticle(this.rocket.x, this.rocket.y, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3, '#a855f7', 15);
+                    }
+
+                    if (this.overdrive.timer <= 0) {
+                        this.overdrive.active = false;
+                        this.logEvent("Overdrive power matrix depleted. Initiating cool down.", "warn");
+                        
+                        document.getElementById('btn-overdrive').style.background = "#C0C0C0";
+                        document.getElementById('btn-overdrive').style.color = "#131314";
+                        document.getElementById('sys-reactor-status').innerText = "STABLE";
+                        document.getElementById('sys-reactor-status').className = "text-secondary font-bold";
+                    }
+                } else if (this.overdrive.charge < 100) {
+                    this.overdrive.charge = Math.min(100, this.overdrive.charge + 0.08); // takes ~20s
+                    document.getElementById('btn-overdrive').innerText = `INITIATE OVERDRIVE (${Math.ceil(this.overdrive.charge)}%)`;
+                    
+                    if (this.overdrive.charge >= 100) {
+                        document.getElementById('btn-overdrive').style.background = "#76d6d5";
+                        document.getElementById('btn-overdrive').style.color = "#000";
+                        document.getElementById('btn-overdrive').innerText = "INITIATE OVERDRIVE (READY)";
+                    }
+                }
+            }
+
+            triggerOverdrive() {
+                if (this.overdrive.charge >= 100 && this.rocket.hp > 0) {
+                    this.overdrive.charge = 0;
+                    this.overdrive.active = true;
+                    this.overdrive.timer = 300; // 5 seconds
+                    
+                    this.sound.playOverdrive();
+                    this.triggerScreenShake(8);
+                    
+                    this.logEvent("OVERDRIVE OVERLOAD ENGAGED. MULTI-LAUNCH SYSTEMS RUNNING.", "success");
+                    document.getElementById('btn-overdrive').innerText = "OVERDRIVE IN OPERATION";
+                    document.getElementById('btn-overdrive').style.background = "#ec4899";
+                    document.getElementById('btn-overdrive').style.color = "#fff";
+
+                    document.getElementById('sys-reactor-status').innerText = "CRITICAL METRIC OVERCLOCK";
+                    document.getElementById('sys-reactor-status').className = "text-error font-bold";
+                }
+            }
+
+            // --- RENDERING ROUTINES ---
+            executeFrameLoop() {
+                this.updateRocketKinematics();
+                this.updateBossFSM();
+                this.updateProjectilesAndCollisions();
+                this.updateOverdrive();
+
+                // Clear frame buffer
+                this.ctx.clearRect(0, 0, this.width, this.height);
+
+                this.ctx.save();
+                // Screen shake transform
+                if (this.screenShakeAmount > 0) {
+                    let dx = (Math.random() - 0.5) * this.screenShakeAmount;
+                    let dy = (Math.random() - 0.5) * this.screenShakeAmount;
+                    this.ctx.translate(dx, dy);
+                    this.screenShakeAmount *= 0.88;
+                    if (this.screenShakeAmount < 0.2) this.screenShakeAmount = 0;
+                }
+
+                // 1. Render Starfield Parallax
+                this.stars.forEach(s => {
+                    s.x -= this.rocket.vx * s.speed * 0.12;
+                    s.y -= this.rocket.vy * s.speed * 0.12;
+                    if (s.x < 0) s.x += this.width;
+                    if (s.x > this.width) s.x -= this.width;
+                    if (s.y < 0) s.y += this.height;
+                    if (s.y > this.height) s.y -= this.height;
+
+                    this.ctx.fillStyle = `rgba(229, 226, 227, ${s.speed / 2.0})`;
+                    this.ctx.fillRect(s.x, s.y, s.size, s.size);
+                });
+
+                // 2. Render Space Orbital Grid
+                this.ctx.strokeStyle = 'rgba(62, 73, 73, 0.22)';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                for (let radius = 70; radius < 600; radius += 75) {
+                    this.ctx.arc(this.boss.x, this.boss.y, radius, 0, Math.PI * 2);
+                }
+                this.ctx.stroke();
+
+                // 3. Render Particles
+                this.particlePool.forEach(p => {
+                    if (!p.active) return;
+                    let opacity = p.life / p.maxLife;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.globalAlpha = opacity;
+                    this.ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+                });
+                this.ctx.globalAlpha = 1.0;
+
+                // 4. Render Projectiles
+                this.bulletPool.forEach(b => {
+                    if (!b.active) return;
+                    this.ctx.beginPath();
+                    this.ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                    this.ctx.fillStyle = b.color;
+                    
+                    // Simple lighting aura
+                    this.ctx.shadowColor = b.color;
+                    this.ctx.shadowBlur = b.isHoming ? 8 : 4;
+                    this.ctx.fill();
+                    this.ctx.shadowBlur = 0;
+                });
+
+                // 5. Render Boss Core
+                if (this.boss.hp > 0) {
+                    this.ctx.save();
+                    this.ctx.translate(this.boss.x, this.boss.y);
+                    this.ctx.rotate(this.boss.rotationAngle);
+
+                    // Outer Hexagon Reactor Ring
+                    this.ctx.strokeStyle = '#ef4444';
+                    this.ctx.lineWidth = 4;
+                    this.ctx.beginPath();
+                    for (let i = 0; i < 6; i++) {
+                        let angle = (Math.PI / 3) * i;
+                        let rx = Math.cos(angle) * (this.boss.radius + 8);
+                        let ry = Math.sin(angle) * (this.boss.radius + 8);
+                        if (i === 0) this.ctx.moveTo(rx, ry); else this.ctx.lineTo(rx, ry);
+                    }
+                    this.ctx.closePath();
+                    this.ctx.stroke();
+
+                    // Glowing core shield vents
+                    this.ctx.fillStyle = '#450a0a';
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, this.boss.radius, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                    // Pulse center reactor vent
+                    let pulseScale = 1.0 + Math.sin(this.boss.attackTimer * 0.08) * 0.08;
+                    this.ctx.fillStyle = '#ef4444';
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, 15 * pulseScale, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                    this.ctx.restore();
+
+                    // Phase 3 Barrier segments
+                    if (this.boss.shieldActive) {
+                        this.ctx.save();
+                        this.ctx.translate(this.boss.x, this.boss.y);
+                        this.ctx.rotate(this.boss.shieldAngle);
+                        this.ctx.strokeStyle = '#76d6d5';
+                        this.ctx.lineWidth = 6;
+                        this.ctx.shadowColor = '#76d6d5';
+                        this.ctx.shadowBlur = 6;
+
+                        for (let s = 0; s < 4; s++) {
+                            this.ctx.beginPath();
+                            // Spans 45 degrees, gaps of 45 degrees
+                            this.ctx.arc(0, 0, 75, (Math.PI / 2) * s, (Math.PI / 2) * s + Math.PI / 4);
+                            this.ctx.stroke();
+                        }
+                        this.ctx.restore();
+                    }
+                }
+
+                // 6. Render Rocket Craft
+                if (this.rocket.hp > 0) {
+                    this.ctx.save();
+                    this.ctx.translate(this.rocket.x, this.rocket.y);
+                    this.ctx.rotate(this.rocket.angle);
+
+                    // Overdrive Aura
+                    if (this.overdrive.active) {
+                        this.ctx.strokeStyle = '#c084fc';
+                        this.ctx.lineWidth = 1;
+                        this.ctx.shadowColor = '#a855f7';
+                        this.ctx.shadowBlur = 10;
+                        this.ctx.beginPath();
+                        this.ctx.arc(0, 0, 18, 0, Math.PI * 2);
+                        this.ctx.stroke();
+                    }
+
+                    // Player Shield Bubble
+                    if (this.rocket.shieldActive) {
+                        this.ctx.strokeStyle = '#76d6d5';
+                        this.ctx.lineWidth = 2.5;
+                        this.ctx.shadowColor = '#76d6d5';
+                        this.ctx.shadowBlur = 8;
+                        this.ctx.beginPath();
+                        this.ctx.arc(0, 0, 28, 0, Math.PI * 2);
+                        this.ctx.stroke();
+                        this.ctx.shadowBlur = 0;
+                    }
+
+                    // Craft fuselage
+                    this.ctx.fillStyle = '#004f4f';
+                    this.ctx.strokeStyle = '#76d6d5';
+                    this.ctx.lineWidth = 2.0;
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(15, 0);
+                    this.ctx.lineTo(-12, -9);
+                    this.ctx.lineTo(-6, 0);
+                    this.ctx.lineTo(-12, 9);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                    this.ctx.stroke();
+
+                    // Thruster nozzle
+                    this.ctx.fillStyle = '#3a393a';
+                    this.ctx.fillRect(-8, -3, 3, 6);
+
+                    // Windshield glass
+                    this.ctx.fillStyle = '#ffe2ab';
+                    this.ctx.fillRect(1, -2.5, 4, 5);
+
+                    this.ctx.restore();
+                }
+
+                this.ctx.restore();
+
+                requestAnimationFrame(() => this.executeFrameLoop());
+            }
+
+            syncHUD() {
+                document.getElementById('hud-hull').innerText = `${Math.ceil(this.rocket.hp)}%`;
+                document.getElementById('hud-energy').innerText = `${Math.ceil(this.rocket.energy)}%`;
+                
+                let speed = Math.hypot(this.rocket.vx, this.rocket.vy) * 12.5;
+                document.getElementById('hud-speed').innerText = `${speed.toFixed(1)} m/s`;
+
+                // Update status display on sidebar info
+                let fuelLvl = Math.ceil(this.rocket.hp);
+                let coreLvl = this.rocket.hp < 30 ? "CRITICAL FAILURE IMMINENT" : "STABLE";
+                document.getElementById('sidebar-rocket-status').innerText = `FUEL: ${fuelLvl}% | CORE: ${coreLvl}`;
+
+                // Boss values
+                document.getElementById('boss-health-text').innerText = `${Math.ceil(this.boss.hp)} / ${this.boss.maxHp}`;
+                let hpRatio = this.boss.hp / this.boss.maxHp;
+                let fillBar = document.getElementById('boss-health-fill');
+                fillBar.style.width = `${hpRatio * 100}%`;
+                
+                if (hpRatio < 0.35) {
+                    fillBar.classList.add('low');
+                } else {
+                    fillBar.classList.remove('low');
+                }
+
+                let phaseLabel = document.getElementById('hud-phase');
+                if (this.boss.hp <= 0) {
+                    phaseLabel.innerText = "CORE DESTROYED // SECURE";
+                    phaseLabel.className = "text-[#76d6d5] font-bold";
+                } else {
+                    phaseLabel.className = "text-primary font-bold";
+                    if (this.boss.phase === 1) phaseLabel.innerText = "PHASE 1: ORBIT_SWEEP";
+                    else if (this.boss.phase === 2) phaseLabel.innerText = "PHASE 2: MISSILE_BARRAGE";
+                    else if (this.boss.phase === 3) phaseLabel.innerText = "PHASE 3: SHIELD_OVERLOAD";
+                }
+
+                // Systems updates
+                document.getElementById('hud-overdrive-charge').innerText = `${Math.ceil(this.overdrive.charge)}%`;
+                if (this.overdrive.charge >= 100) {
+                    document.getElementById('hud-overdrive-charge').className = "text-[#76d6d5] font-bold";
+                } else {
+                    document.getElementById('hud-overdrive-charge').className = "text-secondary font-bold";
+                }
+            }
+
+            showGameOverOverlay(won) {
+                let overlay = document.getElementById('game-overlay');
+                let title = document.getElementById('overlay-title');
+                let subtitle = document.getElementById('overlay-subtitle');
+                
+                if (won) {
+                    title.innerText = "TITAN CORE NEUTRALIZED";
+                    title.className = "font-headline-lg text-[#76d6d5] uppercase";
+                    subtitle.innerText = "Stryker-1 pilot successfully cleared all sector defenses.";
+                } else {
+                    title.innerText = "STRYKER-1 CRASHED";
+                    title.className = "font-headline-lg text-error uppercase";
+                    subtitle.innerText = "Hull integrity failed. The Titan Core remains operational.";
+                }
+                
+                overlay.classList.remove('pointer-events-none');
+                overlay.classList.remove('opacity-0');
+            }
+        }
+
+        // --- WINDOW / TAB TOGGLE LOGIC ---
+        function closeWindow(id) {
+            let el = document.getElementById(id);
+            if (el) {
+                el.classList.add('scale-0');
+                el.classList.add('opacity-0');
+                setTimeout(() => el.classList.add('hidden'), 250);
+            }
+        }
+
+        function openWindow(id) {
+            let el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('hidden');
+                setTimeout(() => {
+                    el.classList.remove('scale-0');
+                    el.classList.remove('opacity-0');
+                }, 10);
+            }
+        }
+
+        function clickTab(tabName) {
+            // Reset active style for sidebar buttons
+            const tabs = ['weapons', 'telemetry', 'shield', 'systems', 'logs'];
+            tabs.forEach(t => {
+                let el = document.getElementById(`tab-${t}`);
+                if (el) {
+                    el.className = "flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-highest font-label-caps text-label-caps w-full text-left active:translate-y-px transition-all";
+                }
+            });
+
+            let activeEl = document.getElementById(`tab-${tabName}`);
+            if (activeEl) {
+                activeEl.className = "flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container border-2 border-black shadow-[inset_-2px_-2px_0px_rgba(255,255,255,0.3)] font-label-caps text-label-caps w-full text-left active:translate-y-px transition-all";
+            }
+
+            // Close panels first
+            closeWindow('weapons-panel');
+            closeWindow('shield-panel');
+            closeWindow('systems-panel');
+
+            // Open target
+            if (tabName === 'telemetry') {
+                openWindow('telemetry-window');
+            } else if (tabName === 'weapons') {
+                openWindow('weapons-panel');
+            } else if (tabName === 'shield') {
+                openWindow('shield-panel');
+            } else if (tabName === 'systems') {
+                openWindow('systems-panel');
+            } else if (tabName === 'logs') {
+                openWindow('logs-drawer');
+            }
+        }
+
+        // Mobile panel shortcuts
+        function clickMobileTab(tab) {
+            // Reset background highlights
+            ['cockpit', 'weapons', 'comms', 'diag'].forEach(t => {
+                document.getElementById(`mob-${t}`).className = "flex flex-col items-center justify-center text-on-surface-variant p-2 w-full h-full hover:bg-surface-container-high active:scale-95 transition-all";
+            });
+
+            document.getElementById(`mob-${tab}`).className = "flex flex-col items-center justify-center bg-primary text-on-primary rounded-none border-2 border-black shadow-[inset_2px_2px_0px_rgba(255,255,255,0.5)] w-full h-full active:scale-95 transition-all";
+
+            if (tab === 'cockpit') {
+                openWindow('telemetry-window');
+            } else if (tab === 'weapons') {
+                openWindow('weapons-panel');
+            } else if (tab === 'comms') {
+                openWindow('logs-drawer');
+            } else if (tab === 'diag') {
+                openWindow('diagnostics-window');
+            }
+        }
+
+        function setWeapon(type) {
+            orchestrator.rocket.weapon = type;
+            orchestrator.logEvent(`Selected primary weapon: ${type.toUpperCase()}`, "info");
+
+            // Reset weapon button frames
+            document.getElementById('btn-wpn-laser').className = "w-full text-left p-2 border border-outline hover:border-primary text-on-surface-variant hover:text-primary hover:bg-primary-container hover:text-on-primary-container transition-all";
+            document.getElementById('btn-wpn-heavy').className = "w-full text-left p-2 border border-outline hover:border-primary text-on-surface-variant hover:text-primary hover:bg-primary-container hover:text-on-primary-container transition-all";
+            document.getElementById('btn-wpn-spread').className = "w-full text-left p-2 border border-outline hover:border-primary text-on-surface-variant hover:text-primary hover:bg-primary-container hover:text-on-primary-container transition-all";
+
+            let activeBtn = document.getElementById(`btn-wpn-${type}`);
+            activeBtn.className = "w-full text-left p-2 border-2 border-primary text-primary hover:bg-primary-container hover:text-on-primary-container transition-all";
+            activeBtn.innerHTML = `[X] ${type === 'laser' ? 'PLASMA LASER (Rapid)' : type === 'heavy' ? 'HEAVY BLAST (High Dmg)' : 'SPREAD SHOT (Fan fire)'}`;
+
+            // Restore other labels
+            if (type !== 'laser') document.getElementById('btn-wpn-laser').innerHTML = `[ ] PLASMA LASER (Rapid)`;
+            if (type !== 'heavy') document.getElementById('btn-wpn-heavy').innerHTML = `[ ] HEAVY BLAST (High Dmg)`;
+            if (type !== 'spread') document.getElementById('btn-wpn-spread').innerHTML = `[ ] SPREAD SHOT (Fan fire)`;
+        }
+
+        function togglePlayerShield() {
+            let active = !orchestrator.rocket.shieldActive;
+            orchestrator.activateShield(active);
+            orchestrator.logEvent(`Shield activation state: ${active ? "ONLINE" : "OFFLINE"}`, active ? "success" : "warn");
+        }
+
+        function triggerOverdrive() {
+            orchestrator.triggerOverdrive();
+        }
+
+        let orchestrator;
+        window.onload = () => {
+            orchestrator = new RocketBossEngine();
+        };
+    </script>
+</body>
+</html>
