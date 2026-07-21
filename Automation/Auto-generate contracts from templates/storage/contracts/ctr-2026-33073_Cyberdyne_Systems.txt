@@ -1,0 +1,23 @@
+================================================================================
+                        MASTER SERVICES AGREEMENT (MSA)
+================================================================================
+Contract Reference: CTR-2026-33073
+Effective Date    : 2026-07-21
+
+1. PARTIES
+   This Agreement is entered into by and between Enterprise Tech Solutions LLC ("Provider"),
+   and Cyberdyne Systems ("Client"), represented by Authorized Officer.
+
+2. SCOPE OF SERVICES & COMPENSATION
+   Provider shall perform professional services outlined as: Neural Net Security Evaluation.
+   In consideration for services, Client agrees to pay Provider a total sum of
+   $85000 USD, payable within 45 days of invoicing.
+
+3. GOVERNING LAW
+   This Agreement shall be governed by and construed in accordance with the
+   laws of the State/Jurisdiction of State of Delaware.
+
+IN WITNESS WHEREOF, the parties execute this Agreement as of 2026-07-21.
+
+_________________________________          _________________________________
+Provider: Enterprise Tech Solutions LLC            Client: Cyberdyne Systems
