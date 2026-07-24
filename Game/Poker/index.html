@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Spatial 5-Card Draw Poker Architecture</title>
+    <!-- Tailwind CSS Engine -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js 3D WebGL Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP Animation Engine for Spatial Interpolations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #022c22; font-family: monospace; }
+        canvas { display: block; }
+        #webgl-stage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #reactbits-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        .glass-panel {
+            background: rgba(6, 78, 59, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+    </style>
+</head>
+<body class="select-none">
+
+    <!-- Primary 3D WebGL Canvas Layer -->
+    <div id="webgl-stage"></div>
+
+    <!-- Reactbits-Style Glassmorphism HUD Overlay Layer -->
+    <div id="reactbits-hud" class="flex flex-col justify-between p-6">
+        <!-- Top Navigation Header -->
+        <header class="w-full max-w-md glass-panel p-4 rounded-2xl pointer-events-auto">
+            <div class="flex justify-between items-center border-b border-emerald-500/20 pb-2 mb-3">
+                <h1 class="text-emerald-400 font-black text-xs tracking-widest uppercase">5-CARD DRAW 3D // POKER</h1>
+                <span id="badge-fsm" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">BETTING</span>
+            </div>
+            <div class="space-y-1.5 text-xs text-emerald-100/80">
+                <div class="flex justify-between"><span>💰 Bankroll:</span><span id="txt-bank" class="text-emerald-400 font-bold">$1,000</span></div>
+                <div class="flex justify-between"><span>🏺 Current Pot:</span><span id="txt-pot" class="text-amber-400 font-bold">$20</span></div>
+                <div class="flex justify-between border-t border-emerald-500/20 pt-1"><span>🃏 Current Hand:</span><span id="txt-rank" class="text-cyan-400 font-bold">NONE</span></div>
+            </div>
+        </header>
+
+        <!-- Dynamic Action Alerts Banner -->
+        <div class="w-full flex justify-center">
+            <div id="alert-banner" class="hidden glass-panel text-amber-300 font-black text-sm px-8 py-4 rounded-2xl tracking-widest uppercase border border-amber-500/40 shadow-2xl">
+                FLUSH! YOU WIN $40
+            </div>
+        </div>
+
+        <!-- Bottom Action Controls Deck -->
+        <footer class="w-full max-w-md mx-auto glass-panel p-4 rounded-2xl pointer-events-auto flex flex-col gap-3">
+            <div class="text-[10px] text-emerald-300/70 text-center uppercase tracking-wider font-bold">
+                CLICK CARDS IN 3D TO TOGGLE "HOLD" BEFORE DRAWING
+            </div>
+            <div class="flex gap-3">
+                <button id="btn-draw" onclick="orchestrator.executeDrawPhase()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-30 disabled:hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-lg">
+                    Draw Cards
+                </button>
+                <button id="btn-deal" onclick="orchestrator.rebootHandTransaction()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 disabled:hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-lg">
+                    New Hand ($10)
+                </button>
+            </div>
+        </footer>
+    </div>
+
+<script>
+class SpatialPokerEngine {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+
+        // --- SINGLE SOURCE OF TRUTH DATA LEDGER ---
+        this.deck = [];
+        this.playerHand = []; // Objects: { suit, rank, value, mesh, isHeld }
+        this.dealerHand = []; // Objects: { suit, rank, value, mesh }
+        
+        this.bankroll = 1000;
+        this.pot = 0;
+        this.ante = 10;
+        this.phaseLocked = false;
+        this.fsmState = 'BETTING'; // BETTING, DEAL, DRAW_SELECT, DRAW_EXECUTE, SHOWDOWN
+
+        this.initThreeWebGLStage();
+        this.buildTableEnvironment();
+        this.initRaycaster();
+        this.syncHUD();
+    }
+
+    // --- PHASE 1: THREE.JS SPATIAL STAGE SETUP ---
+    initThreeWebGLStage() {
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x021a12);
+        this.scene.fog = new THREE.FogExp2(0x021a12, 0.03);
+
+        this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 100);
+        this.camera.position.set(0, 11, 11);
+        this.camera.lookAt(0, 0, -0.2);
+
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(this.width, this.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('webgl-stage').appendChild(this.renderer.domElement);
+
+        // Ambient + Focused Spotlight
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const spotlight = new THREE.SpotLight(0xecfdf5, 1.2);
+        spotlight.position.set(0, 16, 2);
+        spotlight.angle = Math.PI / 4;
+        spotlight.penumbra = 0.5;
+        spotlight.castShadow = true;
+        spotlight.shadow.mapSize.width = 2048;
+        spotlight.shadow.mapSize.height = 2048;
+        this.scene.add(spotlight);
+
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    buildTableEnvironment() {
+        // Felt Table
+        const tableGeo = new THREE.CylinderGeometry(8.5, 8.5, 0.2, 64);
+        const tableMat = new THREE.MeshStandardMaterial({ color: 0x047857, roughness: 0.8, metalness: 0.1 });
+        const tableMesh = new THREE.Mesh(tableGeo, tableMat);
+        tableMesh.position.set(0, -0.1, -1);
+        tableMesh.receiveShadow = true;
+        this.scene.add(tableMesh);
+
+        // Card Shoe Structure
+        const shoeGeo = new THREE.BoxGeometry(1.2, 0.8, 1.8);
+        const shoeMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2 });
+        this.shoeMesh = new THREE.Mesh(shoeGeo, shoeMat);
+        this.shoeMesh.position.set(4.2, 0.4, -3);
+        this.shoeMesh.rotation.y = -Math.PI / 6;
+        this.scene.add(this.shoeMesh);
+
+        this.cardMeshGroup = new THREE.Group();
+        this.scene.add(this.cardMeshGroup);
+    }
+
+    // --- PHASE 2: RAYCAST SELECTION SYSTEM ---
+    initRaycaster() {
+        this.raycaster = new THREE.Raycaster();
+        this.mouseVector = new THREE.Vector2();
+
+        window.addEventListener('pointerdown', (e) => {
+            if (this.phaseLocked || this.fsmState !== 'DRAW_SELECT') return;
+
+            this.mouseVector.x = (e.clientX / this.width) * 2 - 1;
+            this.mouseVector.y = -(e.clientY / this.height) * 2 + 1;
+
+            this.raycaster.setFromCamera(this.mouseVector, this.camera);
+            const playerMeshes = this.playerHand.map(c => c.mesh);
+            const intersects = this.raycaster.intersectObjects(playerMeshes);
+
+            if (intersects.length > 0) {
+                const clickedMesh = intersects[0].object;
+                const cardObj = this.playerHand.find(c => c.mesh === clickedMesh);
+                if (cardObj) {
+                    cardObj.isHeld = !cardObj.isHeld;
+                    
+                    // Animate 3D lift position on selection
+                    const targetZ = cardObj.isHeld ? 1.8 : 2.1;
+                    const targetY = cardObj.isHeld ? 0.35 : 0.01;
+
+                    gsap.to(cardObj.mesh.position, {
+                        y: targetY,
+                        z: targetZ,
+                        duration: 0.25,
+                        ease: "power2.out"
+                    });
+                }
+            }
+        });
+    }
+
+    // --- PHASE 3: PROCEDURAL TEXTURES & MESHES ---
+    generateCardTexture(rank, suit, isFaceUp) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256; canvas.height = 384;
+        const ctx = canvas.getContext('2d');
+
+        if (!isFaceUp) {
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 256, 384);
+            ctx.strokeStyle = '#34d399';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(12, 12, 232, 360);
+            ctx.fillStyle = '#059669';
+            for (let i = 24; i < 232; i += 32) {
+                for (let j = 24; j < 360; j += 32) {
+                    ctx.fillRect(i, j, 16, 16);
+                }
+            }
+        } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 256, 384);
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(8, 8, 240, 368);
+
+            const isRed = (suit === '♥' || suit === '♦');
+            ctx.fillStyle = isRed ? '#dc2626' : '#0f172a';
+            ctx.font = 'bold 42px monospace';
+            ctx.fillText(rank, 20, 50);
+            ctx.fillText(suit, 20, 92);
+
+            ctx.font = 'bold 96px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(suit, 128, 192);
+        }
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;
+        return texture;
+    }
+
+    createCardMesh(cardData, isFaceUp = true) {
+        const cardGeo = new THREE.BoxGeometry(1.1, 0.02, 1.65);
+        const faceTex = this.generateCardTexture(cardData.rank, cardData.suit, true);
+        const backTex = this.generateCardTexture(cardData.rank, cardData.suit, false);
+        const edgeMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc });
+
+        const materials = [
+            edgeMat, edgeMat,
+            new THREE.MeshStandardMaterial({ map: isFaceUp ? faceTex : backTex }),
+            new THREE.MeshStandardMaterial({ map: isFaceUp ? backTex : faceTex }),
+            edgeMat, edgeMat
+        ];
+
+        const mesh = new THREE.Mesh(cardGeo, materials);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        return mesh;
+    }
+
+    // --- PHASE 4: BITWISE HAND EVALUATOR ENGINE ---
+    evaluate5CardHand(hand) {
+        // Values: 2=2 ... 14=Ace
+        const sorted = [...hand].sort((a, b) => b.value - a.value);
+        const values = sorted.map(c => c.value);
+        const suits = sorted.map(c => c.suit);
+
+        const isFlush = suits.every(s => s === suits[0]);
+        let isStraight = false;
+
+        // Check straight
+        if (new Set(values).size === 5) {
+            if (values[0] - values[4] === 4) isStraight = true;
+            // Ace-low straight (A-2-3-4-5)
+            if (values[0] === 14 && values[1] === 5 && values[2] === 4 && values[3] === 3 && values[4] === 2) {
+                isStraight = true;
+                values[0] = 5; values[1] = 4; values[2] = 3; values[3] = 2; values[4] = 1;
+            }
+        }
+
+        // Count value occurrences
+        const counts = {};
+        values.forEach(v => counts[v] = (counts[v] || 0) + 1);
+        const countPairs = Object.entries(counts).map(([v, c]) => ({ val: Number(v), count: c }));
+        countPairs.sort((a, b) => b.count - a.count || b.val - a.val);
+
+        let category = 0; // 0: High Card -> 9: Royal Flush
+        if (isStraight && isFlush) category = values[0] === 14 ? 9 : 8;
+        else if (countPairs[0].count === 4) category = 7;
+        else if (countPairs[0].count === 3 && countPairs[1].count === 2) category = 6;
+        else if (isFlush) category = 5;
+        else if (isStraight) category = 4;
+        else if (countPairs[0].count === 3) category = 3;
+        else if (countPairs[0].count === 2 && countPairs[1].count === 2) category = 2;
+        else if (countPairs[0].count === 2) category = 1;
+
+        // Rank names
+        const names = [
+            "High Card", "One Pair", "Two Pair", "Three of a Kind",
+            "Straight", "Flush", "Full House", "Four of a Kind",
+            "Straight Flush", "Royal Flush"
+        ];
+
+        // Pack kickers into score
+        let score = category * Math.pow(16, 5);
+        let kickerIdx = 4;
+        countPairs.forEach(p => {
+            for (let i = 0; i < p.count; i++) {
+                score += p.val * Math.pow(16, kickerIdx);
+                kickerIdx--;
+            }
+        });
+
+        return { category, name: names[category], score };
+    }
+
+    // --- PHASE 5: GAMEPLAY & AI TRANSACTIONS ---
+    generateFreshDeck() {
+        const suits = ['♠', '♥', '♣', '♦'];
+        const ranks = [
+            { r: '2', v: 2 }, { r: '3', v: 3 }, { r: '4', v: 4 }, { r: '5', v: 5 },
+            { r: '6', v: 6 }, { r: '7', v: 7 }, { r: '8', v: 8 }, { r: '9', v: 9 },
+            { r: '10', v: 10 }, { r: 'J', v: 11 }, { r: 'Q', v: 12 }, { r: 'K', v: 13 }, { r: 'A', v: 14 }
+        ];
+
+        let linearDeck = [];
+        suits.forEach(s => ranks.forEach(r => linearDeck.push({ suit: s, rank: r.r, value: r.v, isHeld: false })));
+
+        for (let i = linearDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [linearDeck[i], linearDeck[j]] = [linearDeck[j], linearDeck[i]];
+        }
+        this.deck = linearDeck;
+    }
+
+    async dealCardToTarget(targetHand, targetPos, isFaceUp = true) {
+        const cardData = this.deck.pop();
+        targetHand.push(cardData);
+
+        const cardMesh = this.createCardMesh(cardData, isFaceUp);
+        cardMesh.position.copy(this.shoeMesh.position);
+        cardMesh.rotation.set(0, -Math.PI / 6, 0);
+        this.cardMeshGroup.add(cardMesh);
+        cardData.mesh = cardMesh;
+
+        return new Promise(resolve => {
+            gsap.to(cardMesh.position, {
+                x: targetPos.x,
+                y: targetPos.y,
+                z: targetPos.z,
+                duration: 0.45,
+                ease: "power2.out"
+            });
+
+            gsap.to(cardMesh.rotation, {
+                x: 0,
+                y: isFaceUp ? 0 : Math.PI,
+                z: 0,
+                duration: 0.45,
+                ease: "power2.out",
+                onComplete: resolve
+            });
+        });
+    }
+
+    async rebootHandTransaction() {
+        if (this.phaseLocked || this.bankroll < this.ante) return;
+        this.phaseLocked = true;
+        this.fsmState = 'DEAL';
+        this.updateFSMBadge("DEALING");
+        document.getElementById('alert-banner').classList.add('hidden');
+
+        // Clear 3D Meshes
+        while(this.cardMeshGroup.children.length > 0) {
+            this.cardMeshGroup.remove(this.cardMeshGroup.children[0]);
+        }
+
+        this.bankroll -= this.ante;
+        this.pot = this.ante * 2;
+        this.playerHand = [];
+        this.dealerHand = [];
+        this.generateFreshDeck();
+
+        // Deal 5 Player Cards & 5 Dealer Cards
+        for (let i = 0; i < 5; i++) {
+            const pOffset = (i - 2) * 1.3;
+            await this.dealCardToTarget(this.playerHand, { x: pOffset, y: 0.01, z: 2.1 });
+            await this.dealCardToTarget(this.dealerHand, { x: pOffset, y: 0.01, z: -2.1 }, false);
+        }
+
+        this.fsmState = 'DRAW_SELECT';
+        this.phaseLocked = false;
+        this.updateFSMBadge("SELECT HOLDS");
+        this.syncHUD();
+    }
+
+    async executeDrawPhase() {
+        if (this.phaseLocked || this.fsmState !== 'DRAW_SELECT') return;
+        this.phaseLocked = true;
+        this.fsmState = 'DRAW_EXECUTE';
+        this.updateFSMBadge("DRAWING");
+
+        // 1. Discard & Replace unheld Player Cards
+        for (let i = 0; i < this.playerHand.length; i++) {
+            const card = this.playerHand[i];
+            if (!card.isHeld) {
+                // Animate discard out
+                gsap.to(card.mesh.position, { y: 2, z: 5, duration: 0.3 });
+                this.cardMeshGroup.remove(card.mesh);
+
+                const pOffset = (i - 2) * 1.3;
+                const newCard = this.deck.pop();
+                const newMesh = this.createCardMesh(newCard, true);
+                newMesh.position.copy(this.shoeMesh.position);
+                this.cardMeshGroup.add(newMesh);
+                newCard.mesh = newMesh;
+
+                this.playerHand[i] = newCard;
+
+                await new Promise(r => {
+                    gsap.to(newMesh.position, { x: pOffset, y: 0.01, z: 2.1, duration: 0.4, onComplete: r });
+                });
+            }
+        }
+
+        // 2. Dealer AI Strategy: Keep Pair or better, else keep highest 2 cards
+        const dealerEval = this.evaluate5CardHand(this.dealerHand);
+        const dealerKeep = new Set();
+
+        if (dealerEval.category >= 1) {
+            // Keep matching rank cards
+            const counts = {};
+            this.dealerHand.forEach(c => counts[c.value] = (counts[c.value] || 0) + 1);
+            this.dealerHand.forEach((c, idx) => { if (counts[c.value] >= 2) dealerKeep.add(idx); });
+        } else {
+            // Keep top 2 high cards
+            const sortedIdx = this.dealerHand.map((c, i) => ({ val: c.value, i })).sort((a,b) => b.val - a.val);
+            dealerKeep.add(sortedIdx[0].i);
+            dealerKeep.add(sortedIdx[1].i);
+        }
+
+        // Discard & Replace Dealer Cards
+        for (let i = 0; i < this.dealerHand.length; i++) {
+            if (!dealerKeep.has(i)) {
+                const card = this.dealerHand[i];
+                this.cardMeshGroup.remove(card.mesh);
+
+                const dOffset = (i - 2) * 1.3;
+                const newCard = this.deck.pop();
+                const newMesh = this.createCardMesh(newCard, false);
+                newMesh.position.copy(this.shoeMesh.position);
+                this.cardMeshGroup.add(newMesh);
+                newCard.mesh = newMesh;
+
+                this.dealerHand[i] = newCard;
+
+                await new Promise(r => {
+                    gsap.to(newMesh.position, { x: dOffset, y: 0.01, z: -2.1, duration: 0.4, onComplete: r });
+                });
+            }
+        }
+
+        await this.executeShowdownPhase();
+    }
+
+    async executeShowdownPhase() {
+        this.fsmState = 'SHOWDOWN';
+        this.updateFSMBadge("SHOWDOWN");
+
+        // Flip Dealer Cards Face Up
+        for (let i = 0; i < this.dealerHand.length; i++) {
+            const card = this.dealerHand[i];
+            await new Promise(r => {
+                gsap.to(card.mesh.rotation, { y: 0, duration: 0.3, onComplete: r });
+            });
+        }
+
+        // Evaluate Winner
+        const pEval = this.evaluate5CardHand(this.playerHand);
+        const dEval = this.evaluate5CardHand(this.dealerHand);
+
+        let msg = "";
+        if (pEval.score > dEval.score) {
+            msg = `YOU WIN $${this.pot}! (${pEval.name} vs ${dEval.name})`;
+            this.bankroll += this.pot;
+        } else if (dEval.score > pEval.score) {
+            msg = `DEALER WINS! (${dEval.name} vs ${pEval.name})`;
+        } else {
+            msg = `PUSH! SPLIT POT $${this.pot/2}`;
+            this.bankroll += this.pot / 2;
+        }
+
+        const banner = document.getElementById('alert-banner');
+        banner.innerText = msg;
+        banner.classList.remove('hidden');
+
+        this.fsmState = 'BETTING';
+        this.phaseLocked = false;
+        this.updateFSMBadge("BETTING");
+        this.syncHUD();
+    }
+
+    syncHUD() {
+        document.getElementById('txt-bank').innerText = `$${this.bankroll.toLocaleString()}`;
+        document.getElementById('txt-pot').innerText = `$${this.pot}`;
+
+        if (this.playerHand.length === 5) {
+            const pEval = this.evaluate5CardHand(this.playerHand);
+            document.getElementById('txt-rank').innerText = pEval.name;
+        } else {
+            document.getElementById('txt-rank').innerText = "NONE";
+        }
+
+        document.getElementById('btn-draw').disabled = (this.phaseLocked || this.fsmState !== 'DRAW_SELECT');
+        document.getElementById('btn-deal').disabled = (this.phaseLocked || this.bankroll < this.ante);
+    }
+
+    updateFSMBadge(text) {
+        document.getElementById('badge-fsm').innerText = text;
+    }
+
+    handleResize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.width, this.height);
+    }
+
+    renderLoop() {
+        requestAnimationFrame(() => this.renderLoop());
+        this.renderer.render(this.scene, this.camera);
+    }
+}
+
+let orchestrator;
+window.onload = () => {
+    orchestrator = new SpatialPokerEngine();
+    orchestrator.renderLoop();
+};
+</script>
+</body>
+</html>
