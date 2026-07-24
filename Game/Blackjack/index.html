@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Spatial Blackjack Core Architecture</title>
+    <!-- Tailwind CSS Engine -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js 3D WebGL Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP Animation Engine for Smooth Spatial Interpolation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #022c22; font-family: monospace; }
+        canvas { display: block; }
+        #webgl-stage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #reactbits-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        .glass-panel {
+            background: rgba(6, 78, 59, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .chip-btn {
+            transition: all 0.2s ease;
+        }
+        .chip-btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.05);
+        }
+    </style>
+</head>
+<body class="select-none">
+
+    <!-- Primary 3D WebGL Canvas Layer -->
+    <div id="webgl-stage"></div>
+
+    <!-- Reactbits-Style Glassmorphism HUD Overlay Layer -->
+    <div id="reactbits-hud" class="flex flex-col justify-between p-6">
+        <!-- Top Navigation Header -->
+        <header class="w-full max-w-sm glass-panel p-4 rounded-2xl pointer-events-auto">
+            <div class="flex justify-between items-center border-b border-emerald-500/20 pb-2 mb-3">
+                <h1 class="text-emerald-400 font-black text-xs tracking-widest uppercase">BLACKJACK 3D // CORE</h1>
+                <span id="badge-fsm" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">BETTING</span>
+            </div>
+            <div class="space-y-1.5 text-xs text-emerald-100/80">
+                <div class="flex justify-between"><span>💰 Bankroll:</span><span id="txt-bank" class="text-emerald-400 font-bold">$1,000</span></div>
+                <div class="flex justify-between"><span>🪙 Active Bet:</span><span id="txt-bet" class="text-amber-400 font-bold">$100</span></div>
+                <div class="flex justify-between border-t border-emerald-500/20 pt-1"><span>🃏 Player Score:</span><span id="txt-score" class="text-cyan-400 font-bold">0</span></div>
+                <div class="flex justify-between"><span>🎩 Dealer Score:</span><span id="txt-dealer-score" class="text-rose-400 font-bold">?</span></div>
+            </div>
+            <!-- Chip Bet Selection Controls -->
+            <div id="chip-controls" class="mt-3 pt-2 border-t border-emerald-500/20 flex justify-between items-center gap-1">
+                <span class="text-[10px] text-emerald-300/70 font-semibold uppercase">Add Bet:</span>
+                <div class="flex gap-1.5">
+                    <button onclick="orchestrator.addBet(10)" class="chip-btn px-2 py-1 bg-emerald-700/60 hover:bg-emerald-600 border border-emerald-400/40 rounded text-[10px] font-bold text-emerald-200">+10</button>
+                    <button onclick="orchestrator.addBet(25)" class="chip-btn px-2 py-1 bg-blue-700/60 hover:bg-blue-600 border border-blue-400/40 rounded text-[10px] font-bold text-blue-200">+25</button>
+                    <button onclick="orchestrator.addBet(100)" class="chip-btn px-2 py-1 bg-amber-700/60 hover:bg-amber-600 border border-amber-400/40 rounded text-[10px] font-bold text-amber-200">+100</button>
+                    <button onclick="orchestrator.clearBet()" class="chip-btn px-2 py-1 bg-rose-800/60 hover:bg-rose-700 border border-rose-400/40 rounded text-[10px] font-bold text-rose-200">Reset</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Action Alerts Banner -->
+        <div class="w-full flex justify-center">
+            <div id="alert-banner" class="hidden glass-panel text-amber-300 font-black text-sm px-8 py-4 rounded-2xl tracking-widest uppercase border border-amber-500/40 shadow-2xl">
+                DEALER BUSTS // YOU WIN $200
+            </div>
+        </div>
+
+        <!-- Bottom Action Controls Deck -->
+        <footer class="w-full max-w-md mx-auto glass-panel p-4 rounded-2xl pointer-events-auto flex gap-3">
+            <button id="btn-hit" onclick="orchestrator.executeHitAction()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 disabled:hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-lg">
+                Hit
+            </button>
+            <button id="btn-stand" onclick="orchestrator.executeStandAction()" class="flex-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-30 disabled:hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-lg">
+                Stand
+            </button>
+            <button id="btn-deal" onclick="orchestrator.rebootDealTransaction()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-30 disabled:hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-lg">
+                Deal
+            </button>
+        </footer>
+    </div>
+
+<script>
+class SpatialBlackjackEngine {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+
+        // --- SINGLE SOURCE OF TRUTH DATA LEDGER ---
+        this.shoe = [];
+        this.playerHand = [];
+        this.dealerHand = [];
+        
+        this.bankroll = 1000;
+        this.currentBet = 100;
+        this.phaseLocked = false; // Input gate lockout flag
+        this.currentState = "BETTING";
+
+        this.initThreeWebGLStage();
+        this.buildTableEnvironment();
+        this.syncHUD();
+    }
+
+    // --- PHASE 1: THREE.JS SPATIAL STAGE SETUP ---
+    initThreeWebGLStage() {
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x021a12);
+        this.scene.fog = new THREE.FogExp2(0x021a12, 0.035);
+
+        this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 100);
+        this.camera.position.set(0, 11, 10);
+        this.camera.lookAt(0, 0, -0.5);
+
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(this.width, this.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('webgl-stage').appendChild(this.renderer.domElement);
+
+        // Ambient + Focused Spotlight Configuration
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const feltSpotlight = new THREE.SpotLight(0xecfdf5, 1.2);
+        feltSpotlight.position.set(0, 15, 2);
+        feltSpotlight.angle = Math.PI / 4;
+        feltSpotlight.penumbra = 0.5;
+        feltSpotlight.castShadow = true;
+        feltSpotlight.shadow.mapSize.width = 2048;
+        feltSpotlight.shadow.mapSize.height = 2048;
+        this.scene.add(feltSpotlight);
+
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    buildTableEnvironment() {
+        // Green Felt Table Surface
+        const tableGeo = new THREE.CylinderGeometry(8, 8, 0.2, 64);
+        const tableMat = new THREE.MeshStandardMaterial({ color: 0x047857, roughness: 0.8, metalness: 0.1 });
+        const tableMesh = new THREE.Mesh(tableGeo, tableMat);
+        tableMesh.position.set(0, -0.1, -1);
+        tableMesh.receiveShadow = true;
+        this.scene.add(tableMesh);
+
+        // Table Trim / Armrest Ring
+        const ringGeo = new THREE.TorusGeometry(8.05, 0.25, 16, 64);
+        const ringMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.2 });
+        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+        ringMesh.rotation.x = Math.PI / 2;
+        ringMesh.position.set(0, -0.05, -1);
+        this.scene.add(ringMesh);
+
+        // Decorative Card Shoe Structure
+        const shoeGeo = new THREE.BoxGeometry(1.2, 0.8, 1.8);
+        const shoeMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.5 });
+        this.shoeMesh = new THREE.Mesh(shoeGeo, shoeMat);
+        this.shoeMesh.position.set(3.5, 0.4, -3);
+        this.shoeMesh.rotation.y = -Math.PI / 6;
+        this.scene.add(this.shoeMesh);
+
+        this.cardMeshGroup = new THREE.Group();
+        this.scene.add(this.cardMeshGroup);
+    }
+
+    // --- PHASE 2: PROCEDURAL TEXTURE & MESH GENERATION ---
+    generateCardTexture(rank, suit, isFaceCard) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256; canvas.height = 384;
+        const ctx = canvas.getContext('2d');
+
+        if (!isFaceCard) {
+            // Retro/Modern Geometric Pattern Back
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 256, 384);
+            ctx.strokeStyle = '#34d399';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(12, 12, 232, 360);
+            ctx.fillStyle = '#059669';
+            for (let i = 24; i < 232; i += 32) {
+                for (let j = 24; j < 360; j += 32) {
+                    ctx.fillRect(i, j, 16, 16);
+                }
+            }
+        } else {
+            // Crisp White Face Card Design
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 256, 384);
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(8, 8, 240, 368);
+
+            const isRed = (suit === '♥' || suit === '♦');
+            ctx.fillStyle = isRed ? '#dc2626' : '#0f172a';
+            ctx.font = 'bold 42px monospace';
+            ctx.fillText(rank, 24, 52);
+            ctx.fillText(suit, 24, 96);
+
+            ctx.font = 'bold 96px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(suit, 128, 192);
+
+            // Bottom-right inverted corner
+            ctx.font = 'bold 42px monospace';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+            ctx.save();
+            ctx.translate(232, 332);
+            ctx.rotate(Math.PI);
+            ctx.fillText(rank, 0, 0);
+            ctx.fillText(suit, 0, 44);
+            ctx.restore();
+        }
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;
+        return texture;
+    }
+
+    createCardMesh(cardData) {
+        const cardGeo = new THREE.BoxGeometry(1.2, 0.02, 1.8);
+        const faceTex = this.generateCardTexture(cardData.rank, cardData.suit, true);
+        const backTex = this.generateCardTexture(cardData.rank, cardData.suit, false);
+        const edgeMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc });
+
+        // Materials: [Right, Left, Top (+Y faceTex), Bottom (-Y backTex), Front, Back]
+        const materials = [
+            edgeMat, edgeMat,
+            new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.3 }),
+            new THREE.MeshStandardMaterial({ map: backTex, roughness: 0.3 }),
+            edgeMat, edgeMat
+        ];
+
+        const mesh = new THREE.Mesh(cardGeo, materials);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        return mesh;
+    }
+
+    // --- PHASE 3: SOFT-ACE EVALUATION PASS ---
+    calculateHandScore(handArray) {
+        let total = 0;
+        let aces = 0;
+
+        handArray.forEach(card => {
+            total += card.value;
+            if (card.rank === 'A') aces++;
+        });
+
+        // Dynamic Soft-Ace Reduction Pass: Score_final = Score_base - (10 * Aces Reduced)
+        while (total > 21 && aces > 0) {
+            total -= 10;
+            aces--;
+        }
+        return total;
+    }
+
+    // --- PHASE 4: SPATIAL BEZIER ARC DEALING INTERPOLATION (GSAP) ---
+    generateFreshShoe() {
+        const suits = ['♠', '♥', '♣', '♦'];
+        const ranks = [
+            { r: '2', v: 2 }, { r: '3', v: 3 }, { r: '4', v: 4 }, { r: '5', v: 5 },
+            { r: '6', v: 6 }, { r: '7', v: 7 }, { r: '8', v: 8 }, { r: '9', v: 9 },
+            { r: '10', v: 10 }, { r: 'J', v: 10 }, { r: 'Q', v: 10 }, { r: 'K', v: 10 }, { r: 'A', v: 11 }
+        ];
+
+        let linearDeck = [];
+        // 6-deck shoe for realistic standard casino blackjack
+        for (let deck = 0; deck < 6; deck++) {
+            suits.forEach(s => ranks.forEach(r => linearDeck.push({ suit: s, rank: r.r, value: r.v })));
+        }
+
+        // Fisher-Yates Shuffle
+        for (let i = linearDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [linearDeck[i], linearDeck[j]] = [linearDeck[j], linearDeck[i]];
+        }
+        this.shoe = linearDeck;
+    }
+
+    async dealCardToTarget(targetHand, targetPos, isFaceUp = true) {
+        if (this.shoe.length === 0) this.generateFreshShoe();
+        const cardData = this.shoe.pop();
+        targetHand.push(cardData);
+
+        const cardMesh = this.createCardMesh(cardData);
+        
+        // Spawn inside shoe structure
+        const shoePos = { x: this.shoeMesh.position.x, y: this.shoeMesh.position.y + 0.1, z: this.shoeMesh.position.z };
+        cardMesh.position.set(shoePos.x, shoePos.y, shoePos.z);
+        cardMesh.rotation.set(0, -Math.PI / 6, isFaceUp ? 0 : Math.PI);
+        this.cardMeshGroup.add(cardMesh);
+        cardData.mesh = cardMesh;
+
+        // Quadratic Bezier Spatial Control Apex Point P(t) = (1-t)^2 P_shoe + 2(1-t)t P_apex + t^2 P_target
+        const apexPos = {
+            x: (shoePos.x + targetPos.x) / 2,
+            y: Math.max(shoePos.y, targetPos.y) + 1.2,
+            z: (shoePos.z + targetPos.z) / 2
+        };
+
+        const targetRotZ = isFaceUp ? 0 : Math.PI;
+
+        return new Promise(resolve => {
+            const pathState = { t: 0 };
+            
+            // Trajectory Position Interpolation along Bezier Curve
+            gsap.to(pathState, {
+                t: 1,
+                duration: 0.65,
+                ease: "power2.out",
+                onUpdate: () => {
+                    const t = pathState.t;
+                    const omt = 1 - t;
+                    cardMesh.position.x = omt * omt * shoePos.x + 2 * omt * t * apexPos.x + t * t * targetPos.x;
+                    cardMesh.position.y = omt * omt * shoePos.y + 2 * omt * t * apexPos.y + t * t * targetPos.y;
+                    cardMesh.position.z = omt * omt * shoePos.z + 2 * omt * t * apexPos.z + t * t * targetPos.z;
+                }
+            });
+
+            // Spatial Quaternion/Euler Rotation Interpolation
+            gsap.to(cardMesh.rotation, {
+                x: 0,
+                y: 0,
+                z: targetRotZ,
+                duration: 0.65,
+                ease: "power2.out",
+                onComplete: resolve
+            });
+        });
+    }
+
+    async flipDealerHoleCard() {
+        const holeCard = this.dealerHand[1];
+        if (holeCard && holeCard.mesh) {
+            return new Promise(resolve => {
+                // Lift card up slightly while flipping over Z axis from PI to 0
+                gsap.to(holeCard.mesh.position, {
+                    y: holeCard.mesh.position.y + 0.3,
+                    duration: 0.25,
+                    yoyo: true,
+                    repeat: 1,
+                    ease: "power1.inOut"
+                });
+                gsap.to(holeCard.mesh.rotation, {
+                    z: 0,
+                    duration: 0.5,
+                    ease: "power2.inOut",
+                    onComplete: resolve
+                });
+            });
+        }
+    }
+
+    // --- PHASE 5: GAMEPLAY FSM & TRANSACTIONS ---
+    addBet(amount) {
+        if (this.phaseLocked || this.currentState !== "BETTING") return;
+        if (this.bankroll >= this.currentBet + amount) {
+            this.currentBet += amount;
+            this.syncHUD();
+        }
+    }
+
+    clearBet() {
+        if (this.phaseLocked || this.currentState !== "BETTING") return;
+        this.currentBet = 10;
+        this.syncHUD();
+    }
+
+    async rebootDealTransaction() {
+        if (this.phaseLocked || this.bankroll < this.currentBet) return;
+        this.phaseLocked = true;
+        this.currentState = "DEALING";
+        this.updateFSMBadge("DEAL_IN_PROGRESS");
+        document.getElementById('alert-banner').classList.add('hidden');
+
+        // Clear existing card meshes from table
+        while(this.cardMeshGroup.children.length > 0) {
+            this.cardMeshGroup.remove(this.cardMeshGroup.children[0]);
+        }
+
+        this.bankroll -= this.currentBet;
+        this.playerHand = [];
+        this.dealerHand = [];
+        if (this.shoe.length < 20) this.generateFreshShoe();
+
+        // 4 Sequential Deals: Player 1, Dealer 1, Player 2, Dealer 2 (Face Down Hole Card)
+        await this.dealCardToTarget(this.playerHand, { x: -0.7, y: 0.01, z: 1.5 });
+        await this.dealCardToTarget(this.dealerHand, { x: -0.7, y: 0.01, z: -1.5 });
+        await this.dealCardToTarget(this.playerHand, { x: 0.7, y: 0.02, z: 1.5 });
+        await this.dealCardToTarget(this.dealerHand, { x: 0.7, y: 0.02, z: -1.5 }, false); // Hole card face-down
+
+        this.currentState = "PLAYER_TURN";
+        this.phaseLocked = false;
+        this.updateFSMBadge("PLAYER_TURN");
+        this.syncHUD();
+
+        // Natural Blackjack Check
+        if (this.calculateHandScore(this.playerHand) === 21) {
+            this.executeStandAction();
+        }
+    }
+
+    async executeHitAction() {
+        if (this.phaseLocked || this.currentState !== "PLAYER_TURN" || this.calculateHandScore(this.playerHand) >= 21) return;
+        this.phaseLocked = true;
+
+        const cardIndex = this.playerHand.length;
+        const offset = cardIndex * 0.7 - 0.7;
+        await this.dealCardToTarget(this.playerHand, { x: offset, y: cardIndex * 0.01, z: 1.5 });
+
+        this.syncHUD();
+        if (this.calculateHandScore(this.playerHand) >= 21) {
+            this.executeStandAction();
+        } else {
+            this.phaseLocked = false;
+        }
+    }
+
+    async executeStandAction() {
+        if (this.phaseLocked && this.currentState !== "PLAYER_TURN") return;
+        this.phaseLocked = true;
+        this.currentState = "DEALER_TURN";
+        this.updateFSMBadge("DEALER_TURN");
+
+        // Flip Dealer Hole Card
+        await this.flipDealerHoleCard();
+        this.syncHUD();
+
+        // Dealer AI Draw Loop: Draws on soft 16 or lower if player hasn't busted
+        while (this.calculateHandScore(this.dealerHand) < 17 && this.calculateHandScore(this.playerHand) <= 21) {
+            const cardIndex = this.dealerHand.length;
+            const offset = cardIndex * 0.7 - 0.7;
+            await this.dealCardToTarget(this.dealerHand, { x: offset, y: cardIndex * 0.01, z: -1.5 });
+            this.syncHUD();
+        }
+
+        this.evaluateRoundOutcome();
+    }
+
+    evaluateRoundOutcome() {
+        this.currentState = "EVALUATION";
+        this.updateFSMBadge("EVALUATION");
+        const pScore = this.calculateHandScore(this.playerHand);
+        const dScore = this.calculateHandScore(this.dealerHand);
+
+        let msg = "";
+        let winAmount = 0;
+
+        if (pScore > 21) {
+            msg = "PLAYER BUSTS // HOUSE WINS";
+        } else if (dScore > 21) {
+            winAmount = this.currentBet * 2;
+            msg = `DEALER BUSTS // YOU WIN $${winAmount}`;
+            this.bankroll += winAmount;
+        } else if (pScore > dScore) {
+            if (pScore === 21 && this.playerHand.length === 2) {
+                winAmount = Math.floor(this.currentBet * 2.5); // 3:2 payout for Natural Blackjack
+                msg = `BLACKJACK! // YOU WIN $${winAmount}`;
+            } else {
+                winAmount = this.currentBet * 2;
+                msg = `HIGHER HAND // YOU WIN $${winAmount}`;
+            }
+            this.bankroll += winAmount;
+        } else if (dScore > pScore) {
+            msg = "HOUSE WINS // BETTER SCORE";
+        } else {
+            msg = "PUSH // BET RETURNED";
+            this.bankroll += this.currentBet;
+        }
+
+        const banner = document.getElementById('alert-banner');
+        banner.innerText = msg;
+        banner.classList.remove('hidden');
+
+        this.phaseLocked = false;
+        this.currentState = "BETTING";
+        this.updateFSMBadge("BETTING");
+        this.syncHUD();
+    }
+
+    syncHUD() {
+        document.getElementById('txt-bank').innerText = `$${this.bankroll.toLocaleString()}`;
+        document.getElementById('txt-bet').innerText = `$${this.currentBet}`;
+        document.getElementById('txt-score').innerText = this.calculateHandScore(this.playerHand);
+
+        // Show dealer score accurately based on phase
+        const dealerScoreTxt = document.getElementById('txt-dealer-score');
+        if (this.currentState === "BETTING" && this.dealerHand.length === 0) {
+            dealerScoreTxt.innerText = "0";
+        } else if (this.currentState === "PLAYER_TURN" || this.currentState === "DEALING") {
+            dealerScoreTxt.innerText = this.dealerHand.length > 0 ? this.dealerHand[0].value : "?";
+        } else {
+            dealerScoreTxt.innerText = this.calculateHandScore(this.dealerHand);
+        }
+
+        const isBetting = (this.currentState === "BETTING");
+        const isPlayerTurn = (this.currentState === "PLAYER_TURN");
+
+        document.getElementById('btn-hit').disabled = (this.phaseLocked || !isPlayerTurn);
+        document.getElementById('btn-stand').disabled = (this.phaseLocked || !isPlayerTurn);
+        document.getElementById('btn-deal').disabled = (this.phaseLocked || !isBetting || this.bankroll < this.currentBet);
+
+        // Disable chip buttons when phase is locked or not in BETTING mode
+        document.querySelectorAll('.chip-btn').forEach(btn => {
+            btn.disabled = (this.phaseLocked || !isBetting);
+            btn.style.opacity = (this.phaseLocked || !isBetting) ? "0.4" : "1";
+        });
+    }
+
+    updateFSMBadge(text) {
+        document.getElementById('badge-fsm').innerText = text;
+    }
+
+    handleResize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.width, this.height);
+    }
+
+    renderLoop() {
+        requestAnimationFrame(() => this.renderLoop());
+        this.renderer.render(this.scene, this.camera);
+    }
+}
+
+let orchestrator;
+window.onload = () => {
+    orchestrator = new SpatialBlackjackEngine();
+    orchestrator.renderLoop();
+};
+</script>
+</body>
+</html>
