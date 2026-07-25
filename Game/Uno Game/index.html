@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hybrid 3D UNO Engine Architecture</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP for CSS & WebGL Spatial Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0f172a; font-family: monospace; }
+        
+        /* Layer 1: WebGL Tabletop */
+        #webgl-stage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        
+        /* Layer 2: CSS 3D HUD & Hand */
+        #css3d-hud { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; 
+            pointer-events: none; perspective: 1000px; 
+        }
+
+        /* 3D CSS Card Fanning Mechanics */
+        .card-hand-container {
+            position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
+            display: flex; justify-content: center; align-items: flex-end;
+            transform-style: preserve-3d; pointer-events: auto;
+        }
+
+        .css-card {
+            width: 90px; height: 130px; border-radius: 8px;
+            background: white; border: 4px solid white;
+            box-shadow: -4px 4px 10px rgba(0,0,0,0.4);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 48px; font-weight: 900; font-family: sans-serif;
+            transform-origin: bottom center; cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 0 -15px; /* Overlap cards */
+        }
+        
+        /* Hover elevation in 3D space */
+        .css-card:hover { transform: translateY(-30px) translateZ(30px) rotateZ(0deg) !important; z-index: 100 !important; }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="select-none">
+
+    <!-- Three.js Environment -->
+    <div id="webgl-stage"></div>
+
+    <!-- CSS 3D & Tailwind HUD -->
+    <div id="css3d-hud" class="flex flex-col justify-between">
+        
+        <!-- Opponent & Game Metrics -->
+        <header class="w-full flex justify-between p-6 pointer-events-auto">
+            <div class="glass-panel p-4 rounded-xl text-slate-200">
+                <h1 class="text-cyan-400 font-black text-xs tracking-widest uppercase">COLOR_SHED // ENGINE</h1>
+                <div class="flex justify-between mt-2 text-xs font-mono w-48">
+                    <span>Turn State:</span><span id="txt-turn" class="text-emerald-400 font-bold">PLAYER</span>
+                </div>
+            </div>
+            
+            <div class="glass-panel p-4 rounded-xl text-slate-200 flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 uppercase tracking-widest">AI Opponent</span>
+                <span id="txt-ai-cards" class="text-2xl font-black text-rose-400">7</span>
+                <span class="text-[10px]">Cards Left</span>
+            </div>
+        </header>
+
+        <!-- Dynamic Action Alerts -->
+        <div class="w-full flex justify-center pointer-events-none">
+            <div id="alert-banner" class="hidden glass-panel text-white font-black text-lg px-8 py-4 rounded-2xl tracking-widest uppercase border border-amber-500 shadow-2xl">
+                ILLEGAL MOVE
+            </div>
+        </div>
+
+        <!-- CSS 3D Player Hand Assembly -->
+        <div class="w-full relative h-64">
+            <div class="absolute left-6 bottom-6 pointer-events-auto">
+                <button onclick="orchestrator.drawCardTransaction('PLAYER')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
+                    Draw Card
+                </button>
+            </div>
+            <div id="player-hand-anchor" class="card-hand-container">
+                <!-- CSS Cards injected dynamically via JS -->
+            </div>
+        </div>
+    </div>
+
+<script>
+class HybridUnoEngine {
+    constructor() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+
+        // --- Headless Data Source of Truth ---
+        this.deck = [];
+        this.discardPile = [];
+        this.playerHand = [];
+        this.aiHand = [];
+        
+        this.colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308']; // Red, Blue, Green, Yellow
+        this.fsmState = 'PLAYER_TURN'; // PLAYER_TURN, AI_TURN, ANIMATING
+        this.turnDirection = 1;
+
+        this.initThreeWebGLStage();
+        this.buildTableEnvironment();
+        this.generateDeck();
+        this.dealInitialHands();
+    }
+
+    // --- PHASE 1: THREE.JS SPATIAL STAGE ---
+    initThreeWebGLStage() {
+        this.scene = new THREE.Scene();
+        this.scene.fog = new THREE.FogExp2(0x0f172a, 0.02);
+
+        this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.1, 100);
+        this.camera.position.set(0, 14, 12);
+        this.camera.lookAt(0, 0, 0);
+
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer.setSize(this.width, this.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.shadowMap.enabled = true;
+        document.getElementById('webgl-stage').appendChild(this.renderer.domElement);
+
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const spotlight = new THREE.SpotLight(0xffffff, 1.5);
+        spotlight.position.set(0, 20, 5);
+        spotlight.castShadow = true;
+        this.scene.add(spotlight);
+
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    buildTableEnvironment() {
+        // Spatial Table Surface
+        const tableGeo = new THREE.CylinderGeometry(12, 12, 0.5, 64);
+        const tableMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9 });
+        const tableMesh = new THREE.Mesh(tableGeo, tableMat);
+        tableMesh.position.y = -0.25;
+        tableMesh.receiveShadow = true;
+        this.scene.add(tableMesh);
+
+        // Static Draw Deck Mesh Placeholder
+        const deckGeo = new THREE.BoxGeometry(2, 0.5, 3);
+        const deckMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
+        this.deckMesh = new THREE.Mesh(deckGeo, deckMat);
+        this.deckMesh.position.set(3, 0.25, 0);
+        this.scene.add(this.deckMesh);
+
+        this.discardMeshGroup = new THREE.Group();
+        this.scene.add(this.discardMeshGroup);
+    }
+
+    // --- PHASE 2: PROCEDURAL WEBGL MESH GENERATION ---
+    createDiscardMesh(cardData, elevationOffset) {
+        const cardGeo = new THREE.BoxGeometry(2.2, 0.04, 3.2);
+        const faceMat = new THREE.MeshStandardMaterial({ color: cardData.colorHex });
+        const edgeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+        const materials = [ edgeMat, edgeMat, faceMat, edgeMat, edgeMat, edgeMat ];
+        const mesh = new THREE.Mesh(cardGeo, materials);
+        
+        // Randomize placement slightly for a realistic stacked pile look
+        mesh.position.set((Math.random() - 0.5) * 0.4, elevationOffset, (Math.random() - 0.5) * 0.4);
+        mesh.rotation.y = (Math.random() - 0.5) * 0.5;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        return mesh;
+    }
+
+    // --- PHASE 3: GAME LOGIC & FSM ---
+    generateDeck() {
+        this.deck = [];
+        this.colors.forEach(color => {
+            for (let val = 0; val <= 9; val++) {
+                // Generate 2 of each number (except 0) for a standard dataset
+                this.deck.push({ id: Math.random().toString(36).substr(2, 9), colorHex: color, value: val });
+                if (val !== 0) this.deck.push({ id: Math.random().toString(36).substr(2, 9), colorHex: color, value: val });
+            }
+        });
+
+        // Fisher-Yates Shuffle
+        for (let i = this.deck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+        }
+    }
+
+    dealInitialHands() {
+        for (let i = 0; i < 7; i++) {
+            this.playerHand.push(this.deck.pop());
+            this.aiHand.push(this.deck.pop());
+        }
+        
+        // Setup initial discard
+        const firstCard = this.deck.pop();
+        this.discardPile.push(firstCard);
+        
+        const mesh = this.createDiscardMesh(firstCard, 0.02);
+        this.discardMeshGroup.add(mesh);
+
+        this.repaintCSSPlayerHand();
+        this.syncHUD();
+    }
+
+    // --- PHASE 4: CSS-TO-WEBGL HANDOVER & TRANSACTIONS ---
+    repaintCSSPlayerHand() {
+        const anchor = document.getElementById('player-hand-anchor');
+        anchor.innerHTML = ''; // Flush DOM
+        
+        const totalCards = this.playerHand.length;
+        const angleSpread = 30; // Max fanning angle
+
+        this.playerHand.forEach((card, index) => {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'css-card';
+            cardEl.style.backgroundColor = card.colorHex;
+            cardEl.style.color = '#fff';
+            cardEl.innerText = card.value;
+            cardEl.dataset.id = card.id;
+
+            // Calculate CSS 3D Fan Transform
+            let normalizedIndex = totalCards > 1 ? (index / (totalCards - 1)) - 0.5 : 0;
+            let rotation = normalizedIndex * angleSpread;
+            let yOffset = Math.abs(normalizedIndex) * 20;
+
+            cardEl.style.transform = `rotateZ(${rotation}deg) translateY(${yOffset}px)`;
+            cardEl.style.zIndex = index;
+
+            cardEl.onclick = (e) => this.attemptCardPlay(card, e.target);
+            anchor.appendChild(cardEl);
+        });
+    }
+
+    attemptCardPlay(playedCard, domElement) {
+        if (this.fsmState !== 'PLAYER_TURN') return;
+
+        const topCard = this.discardPile[this.discardPile.length - 1];
+        
+        // Headless Validation Gate
+        if (playedCard.colorHex === topCard.colorHex || playedCard.value === topCard.value) {
+            this.fsmState = 'ANIMATING';
+            
+            // 1. Remove from Headless Player Hand Array
+            this.playerHand = this.playerHand.filter(c => c.id !== playedCard.id);
+            this.discardPile.push(playedCard);
+            
+            // 2. The CSS Spatial Throw Animation
+            const rect = domElement.getBoundingClientRect();
+            domElement.style.position = 'fixed';
+            domElement.style.left = `${rect.left}px`;
+            domElement.style.top = `${rect.top}px`;
+            domElement.style.transform = 'none'; // Clear fan rotation for fixed tracking
+            domElement.style.zIndex = 1000;
+            document.body.appendChild(domElement);
+
+            gsap.to(domElement, {
+                left: this.width / 2 - 45,
+                top: this.height / 2 - 65,
+                scale: 0.3,
+                rotationZ: (Math.random() - 0.5) * 180,
+                opacity: 0,
+                duration: 0.4,
+                ease: "power2.in",
+                onComplete: () => {
+                    domElement.remove();
+                    this.completePlayHandover(playedCard);
+                }
+            });
+            
+            this.repaintCSSPlayerHand();
+        } else {
+            this.flashAlert("ILLEGAL MOVE");
+        }
+    }
+
+    drawCardTransaction(target) {
+        if (this.fsmState !== 'PLAYER_TURN' && target === 'PLAYER') return;
+        
+        if (this.deck.length === 0) {
+            this.flashAlert("SHUFFLING DECK");
+            // Simplified: Re-shuffle discard pile into deck logic goes here
+            return;
+        }
+
+        const drawnCard = this.deck.pop();
+        if (target === 'PLAYER') {
+            this.playerHand.push(drawnCard);
+            this.repaintCSSPlayerHand();
+            this.fsmState = 'AI_TURN';
+            setTimeout(() => this.executeAITurn(), 800);
+        } else {
+            this.aiHand.push(drawnCard);
+        }
+        this.syncHUD();
+    }
+
+    completePlayHandover(playedCard) {
+        // 3. Instantiate WebGL Mesh precisely where CSS card faded out
+        const elevation = this.discardPile.length * 0.05;
+        const webglMesh = this.createDiscardMesh(playedCard, elevation);
+        this.discardMeshGroup.add(webglMesh);
+
+        // Plop animation in 3D
+        webglMesh.position.y += 2;
+        gsap.to(webglMesh.position, { y: elevation, duration: 0.2, ease: "bounce.out" });
+
+        this.syncHUD();
+        this.checkWinCondition();
+
+        if (this.fsmState !== 'GAME_OVER') {
+            if (this.fsmState === 'ANIMATING' && document.getElementById('txt-turn').innerText === 'PLAYER') {
+                this.fsmState = 'AI_TURN';
+                setTimeout(() => this.executeAITurn(), 1000);
+            } else {
+                this.fsmState = 'PLAYER_TURN';
+            }
+            this.syncHUD();
+        }
+    }
+
+    // --- PHASE 5: HEADLESS AI OPPONENT ---
+    executeAITurn() {
+        if (this.fsmState !== 'AI_TURN') return;
+        
+        const topCard = this.discardPile[this.discardPile.length - 1];
+        
+        // Find valid move in $O(N)$ sweep
+        const validIndex = this.aiHand.findIndex(c => c.colorHex === topCard.colorHex || c.value === topCard.value);
+
+        if (validIndex !== -1) {
+            this.fsmState = 'ANIMATING';
+            const playedCard = this.aiHand.splice(validIndex, 1)[0];
+            this.discardPile.push(playedCard);
+            
+            // Mock a 3D dealing animation dropping from the top screen bounds
+            const elevation = this.discardPile.length * 0.05;
+            const webglMesh = this.createDiscardMesh(playedCard, elevation);
+            webglMesh.position.set(0, 10, -5); // Drop from above/behind
+            this.discardMeshGroup.add(webglMesh);
+
+            gsap.to(webglMesh.position, { 
+                x: (Math.random() - 0.5) * 0.4, 
+                y: elevation, 
+                z: (Math.random() - 0.5) * 0.4, 
+                duration: 0.5, 
+                ease: "power2.inOut",
+                onComplete: () => {
+                    this.completePlayHandover(playedCard);
+                }
+            });
+        } else {
+            this.drawCardTransaction('AI');
+            this.fsmState = 'PLAYER_TURN';
+        }
+        this.syncHUD();
+    }
+
+    checkWinCondition() {
+        if (this.playerHand.length === 0) {
+            this.flashAlert("YOU WIN!");
+            this.fsmState = 'GAME_OVER';
+        } else if (this.aiHand.length === 0) {
+            this.flashAlert("AI WINS!");
+            this.fsmState = 'GAME_OVER';
+        }
+    }
+
+    // --- PRESENTATION & RENDER PIPELINE ---
+    flashAlert(message) {
+        const banner = document.getElementById('alert-banner');
+        banner.innerText = message;
+        banner.classList.remove('hidden');
+        gsap.fromTo(banner, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.2 });
+        
+        if (this.fsmState !== 'GAME_OVER') {
+            setTimeout(() => {
+                gsap.to(banner, { scale: 0.8, opacity: 0, duration: 0.2, onComplete: () => banner.classList.add('hidden') });
+            }, 1200);
+        }
+    }
+
+    syncHUD() {
+        document.getElementById('txt-ai-cards').innerText = this.aiHand.length;
+        
+        const turnLabel = document.getElementById('txt-turn');
+        if (this.fsmState.includes('PLAYER')) {
+            turnLabel.innerText = "PLAYER";
+            turnLabel.className = "text-emerald-400 font-bold";
+        } else if (this.fsmState.includes('AI')) {
+            turnLabel.innerText = "AI THINKING...";
+            turnLabel.className = "text-rose-400 font-bold animate-pulse";
+        }
+    }
+
+    handleResize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.width, this.height);
+    }
+
+    renderLoop() {
+        requestAnimationFrame(() => this.renderLoop());
+        this.renderer.render(this.scene, this.camera);
+    }
+}
+
+// Global Core Framework Architecture Activation
+let orchestrator;
+window.onload = () => {
+    orchestrator = new HybridUnoEngine();
+    orchestrator.renderLoop();
+};
+</script>
+</body>
+</html>
