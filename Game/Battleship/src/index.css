@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .pixel-borders {
+    box-shadow: 
+      -4px 0 0 0 #4ade80, 4px 0 0 0 #4ade80, 
+      0 -4px 0 0 #4ade80, 0 4px 0 0 #4ade80;
+  }
+}
