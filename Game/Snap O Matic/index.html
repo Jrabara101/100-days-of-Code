@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SNAP-O-MATIC 3000 • 2D React Console Edition</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Retro Frameworks -->
+    <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <!-- React 18 UMD & Babel Standalone -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #12131C;
+            font-family: 'Press Start 2P', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- CONSOLE THEMES --- */
+        .theme-yellow {
+            --chassis-bg: #facc15;
+            --chassis-border: #a16207;
+            --chassis-shadow: rgba(161, 98, 7, 0.4);
+            --accent-btn: #dc2626;
+            --accent-btn-sec: #16a34a;
+            --label-color: #713f12;
+        }
+
+        .theme-gray {
+            --chassis-bg: #cbd5e1;
+            --chassis-border: #64748b;
+            --chassis-shadow: rgba(71, 85, 105, 0.4);
+            --accent-btn: #991b1b;
+            --accent-btn-sec: #1e3a8a;
+            --label-color: #334155;
+        }
+
+        .theme-cyber {
+            --chassis-bg: #0f172a;
+            --chassis-border: #06b6d4;
+            --chassis-shadow: rgba(6, 182, 212, 0.5);
+            --accent-btn: #ec4899;
+            --accent-btn-sec: #06b6d4;
+            --label-color: #38bdf8;
+        }
+
+        .theme-famicom {
+            --chassis-bg: #881337;
+            --chassis-border: #eab308;
+            --chassis-shadow: rgba(234, 179, 8, 0.4);
+            --accent-btn: #991b1b;
+            --accent-btn-sec: #ca8a04;
+            --label-color: #fef08a;
+        }
+
+        .theme-stealth {
+            --chassis-bg: #18181b;
+            --chassis-border: #3f3f46;
+            --chassis-shadow: rgba(0, 0, 0, 0.8);
+            --accent-btn: #ef4444;
+            --accent-btn-sec: #22c55e;
+            --label-color: #71717a;
+        }
+
+        /* --- SCREEN PALETTES --- */
+        .pal-gameboy {
+            --lcd-bg: #8bac0f;
+            --lcd-dark: #0f380f;
+            --lcd-mid: #306230;
+            --lcd-light: #9bbc0f;
+            --lcd-border: #306230;
+        }
+
+        .pal-monochrome {
+            --lcd-bg: #e0f8cf;
+            --lcd-dark: #071821;
+            --lcd-mid: #346524;
+            --lcd-light: #e0f8cf;
+            --lcd-border: #346524;
+        }
+
+        .pal-amber {
+            --lcd-bg: #2b1d00;
+            --lcd-dark: #120b00;
+            --lcd-mid: #ffb000;
+            --lcd-light: #ffd000;
+            --lcd-border: #996a00;
+        }
+
+        .pal-neon {
+            --lcd-bg: #03202e;
+            --lcd-dark: #010d14;
+            --lcd-mid: #00f3ff;
+            --lcd-light: #80f9ff;
+            --lcd-border: #008891;
+        }
+
+        /* Console Chassis */
+        #console-chassis {
+            position: relative;
+            width: 95vw;
+            max-width: 1050px;
+            height: 92vh;
+            max-height: 760px;
+            background: var(--chassis-bg);
+            border: 8px solid var(--chassis-border);
+            border-radius: 40px 40px 90px 40px;
+            box-shadow:
+                inset -8px -8px 20px rgba(0, 0, 0, 0.4),
+                inset 8px 8px 20px rgba(255, 255, 255, 0.4),
+                15px 25px 35px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 20px 20px 20px;
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+
+        /* Screen Bezel */
+        #screen-bezel {
+            position: relative;
+            width: 90%;
+            height: 60%;
+            background: #27272a;
+            border-radius: 20px 20px 45px 20px;
+            padding: 16px;
+            box-shadow: inset 6px 6px 16px rgba(0, 0, 0, 0.9), 0 4px 10px rgba(0,0,0,0.5);
+            border: 3px solid #18181b;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #canvas-stage-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: var(--lcd-bg);
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.7);
+        }
+
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* CRT & Scanlines Layer */
+        .scanlines::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .screen-glare::before {
+            content: "";
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 40%, transparent 60%);
+            transform: rotate(-30deg);
+            pointer-events: none;
+            z-index: 25;
+        }
+
+        /* Controls Section */
+        #controls-area {
+            width: 100%;
+            height: 40%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 30px;
+            position: relative;
+        }
+
+        /* D-PAD */
+        .d-pad {
+            position: relative;
+            width: 110px;
+            height: 110px;
+        }
+
+        .d-pad-part {
+            position: absolute;
+            background: #27272a;
+            border: 2px solid #09090b;
+            box-shadow: inset 2px 2px 4px rgba(255, 255, 255, 0.2), 3px 3px 6px rgba(0, 0, 0, 0.6);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #71717a;
+            font-size: 10px;
+            transition: transform 0.05s, background 0.1s;
+        }
+
+        .d-pad-part:active, .d-pad-part.active {
+            background: #3f3f46;
+            transform: scale(0.95);
+        }
+
+        .d-pad-up { top: 0; left: 37px; width: 36px; height: 44px; border-radius: 6px 6px 0 0; }
+        .d-pad-down { bottom: 0; left: 37px; width: 36px; height: 44px; border-radius: 0 0 6px 6px; }
+        .d-pad-left { top: 37px; left: 0; width: 44px; height: 36px; border-radius: 6px 0 0 6px; }
+        .d-pad-right { top: 37px; right: 0; width: 44px; height: 36px; border-radius: 0 6px 6px 0; }
+        .d-pad-center {
+            top: 37px; left: 37px; width: 36px; height: 36px;
+            background: #27272a; border: none; z-index: 2;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 18px;
+            transform: rotate(-12deg);
+        }
+
+        .action-btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .action-btn {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: 4px solid #18181b;
+            box-shadow:
+                inset -3px -3px 6px rgba(0, 0, 0, 0.6),
+                inset 3px 3px 6px rgba(255, 255, 255, 0.4),
+                4px 5px 12px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: transform 0.08s, box-shadow 0.08s;
+            outline: none;
+        }
+
+        .action-btn:active, .action-btn.btn-pressed {
+            transform: scale(0.92) translateY(3px);
+            box-shadow: inset -1px -1px 3px rgba(0, 0, 0, 0.6), inset 1px 1px 3px rgba(255, 255, 255, 0.4), 1px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-b { background: var(--accent-btn); }
+        .btn-a { background: var(--accent-btn-sec); }
+
+        .btn-label {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--label-color);
+            font-size: 12px;
+            margin-top: 6px;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+        }
+
+        /* System Buttons */
+        .sys-buttons {
+            display: flex;
+            gap: 24px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .sys-btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sys-btn {
+            width: 48px;
+            height: 14px;
+            background: #3f3f46;
+            border-radius: 10px;
+            transform: rotate(-25deg);
+            border: 2px solid #18181b;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: transform 0.1s, background 0.1s;
+        }
+
+        .sys-btn:active {
+            transform: rotate(-25deg) scale(0.92);
+            background: #52525b;
+        }
+
+        .sys-label {
+            font-size: 8px;
+            color: var(--label-color);
+            margin-top: 6px;
+            transform: rotate(-25deg);
+            letter-spacing: 1px;
+        }
+
+        /* Retro HUD Window */
+        .arcade-window {
+            background: var(--lcd-bg);
+            border: 3px solid var(--lcd-border);
+            color: var(--lcd-dark);
+            image-rendering: pixelated;
+        }
+
+        /* Speaker Perforations */
+        .speaker-grill {
+            position: absolute;
+            bottom: 20px;
+            right: 25px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            transform: rotate(-15deg);
+        }
+
+        .speaker-hole {
+            width: 7px;
+            height: 7px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 50%;
+            box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body class="theme-yellow pal-gameboy">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback, useReducer } = React;
+
+        // --- WEB AUDIO API 8-BIT SOUND SYNTHESIZER ---
+        class RetroAudioSynth {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioCtx();
+                }
+            }
+
+            playFlip() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+
+            playSnapSuccess() {
+                if (this.muted) return;
+                this.init();
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const now = this.ctx.currentTime + idx * 0.06;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                });
+            }
+
+            playPenalty() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.linearRampToValueAtTime(90, now + 0.2);
+
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+
+            playClick() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(1200, now);
+
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.02);
+            }
+
+            playVictory() {
+                if (this.muted) return;
+                this.init();
+                const notes = [440, 554.37, 659.25, 880];
+                notes.forEach((freq, idx) => {
+                    const now = this.ctx.currentTime + idx * 0.1;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(freq, now);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                });
+            }
+        }
+
+        const audioSynth = new RetroAudioSynth();
+
+        // --- DIFFICULTY CONFIGURATIONS ---
+        const DIFFICULTIES = {
+            EASY: { name: 'EASY', minDelay: 480, maxDelay: 700 },
+            MEDIUM: { name: 'ARCADE', minDelay: 340, maxDelay: 500 },
+            HARD: { name: 'PRO', minDelay: 250, maxDelay: 380 },
+            INSANE: { name: 'INSANE', minDelay: 180, maxDelay: 280 }
+        };
+
+        const THEMES = [
+            { id: 'yellow', name: 'YELLOW ARCADE', class: 'theme-yellow' },
+            { id: 'gray', name: 'GAMEBOY POCKET', class: 'theme-gray' },
+            { id: 'cyber', name: 'CYBERPUNK NEON', class: 'theme-cyber' },
+            { id: 'famicom', name: 'FAMICOM RETRO', class: 'theme-famicom' },
+            { id: 'stealth', name: 'STEALTH BLACK', class: 'theme-stealth' }
+        ];
+
+        const PALETTES = [
+            { id: 'gameboy', name: 'GAMEBOY GREEN', class: 'pal-gameboy' },
+            { id: 'monochrome', name: 'B&W MATRIX', class: 'pal-monochrome' },
+            { id: 'amber', name: 'AMBER CRT', class: 'pal-amber' },
+            { id: 'neon', name: 'CYBER CYAN', class: 'pal-neon' }
+        ];
+
+        // --- MAIN REACT APPLICATION ENGINE ---
+        function App() {
+            // State Buffers
+            const [playerDeck, setPlayerDeck] = useState([]);
+            const [cpuDeck, setCpuDeck] = useState([]);
+            const [centerPile, setCenterPile] = useState([]);
+
+            // Game Logic Registers
+            const [activeTurn, setActiveTurn] = useState('PLAYER');
+            const [isMatchActive, setIsMatchActive] = useState(false);
+            const [lastFlipTime, setLastFlipTime] = useState(0);
+            const [lastSpeedMs, setLastSpeedMs] = useState(0);
+            const [lastGrade, setLastGrade] = useState('');
+            const [isAnimating, setIsAnimating] = useState(false);
+            const [powerOn, setPowerOn] = useState(true);
+
+            // Settings & Customizations
+            const [difficultyKey, setDifficultyKey] = useState('MEDIUM');
+            const [themeIdx, setThemeIdx] = useState(0);
+            const [paletteIdx, setPaletteIdx] = useState(0);
+            const [isMuted, setIsMuted] = useState(false);
+            const [showStatsModal, setShowStatsModal] = useState(false);
+
+            // Statistics Tracking
+            const [stats, setStats] = useState({
+                flips: 0,
+                matches: 0,
+                playerWins: 0,
+                cpuWins: 0,
+                bestTime: null,
+                avgTime: 0,
+                combo: 0,
+                maxCombo: 0,
+                falseSnaps: 0
+            });
+
+            // UI Button Active Feedback States
+            const [activeBtn, setActiveBtn] = useState(null);
+
+            const aiTimerRef = useRef(null);
+            const canvasRef = useRef(null);
+            const particlesRef = useRef([]);
+
+            // Initialize Shoe / Deck Buffers
+            const initShoeBuffers = useCallback(() => {
+                const suits = ['♠', '♥', '♣', '♦'];
+                const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+                let fullDeck = [];
+
+                suits.forEach(s => {
+                    ranks.forEach(r => {
+                        fullDeck.push({
+                            suit: s,
+                            rank: r,
+                            isRed: (s === '♥' || s === '♦'),
+                            id: Math.random().toString(36).substr(2, 9)
+                        });
+                    });
+                });
+
+                // Fisher-Yates Shuffle
+                for (let i = fullDeck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [fullDeck[i], fullDeck[j]] = [fullDeck[j], fullDeck[i]];
+                }
+
+                setPlayerDeck(fullDeck.slice(0, 26));
+                setCpuDeck(fullDeck.slice(26, 52));
+                setCenterPile([]);
+                setIsMatchActive(false);
+                setActiveTurn('PLAYER');
+                setIsAnimating(false);
+            }, []);
+
+            useEffect(() => {
+                initShoeBuffers();
+            }, [initShoeBuffers]);
+
+            // Sync Themes to HTML Body
+            useEffect(() => {
+                document.body.className = `${THEMES[themeIdx].class} ${PALETTES[paletteIdx].class} select-none`;
+            }, [themeIdx, paletteIdx]);
+
+            // Spawn Particles
+            const spawnParticles = (x, y, count = 15) => {
+                for (let i = 0; i < count; i++) {
+                    particlesRef.current.push({
+                        x, y,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8 - 2,
+                        life: 1.0,
+                        decay: Math.random() * 0.03 + 0.02,
+                        size: Math.random() * 4 + 2
+                    });
+                }
+            };
+
+            // CPU AI Reaction Scheduler
+            const scheduleCPUAI = useCallback((flipTime, currentPile) => {
+                if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
+
+                const diff = DIFFICULTIES[difficultyKey];
+                const delay = Math.floor(Math.random() * (diff.maxDelay - diff.minDelay)) + diff.minDelay;
+
+                aiTimerRef.current = setTimeout(() => {
+                    if (currentPile.length > 1) {
+                        const top = currentPile[currentPile.length - 1];
+                        const prev = currentPile[currentPile.length - 2];
+                        if (top.rank === prev.rank) {
+                            // CPU Wins Snap Race!
+                            executeSnapClaim('CPU', delay, currentPile);
+                        }
+                    }
+                }, delay);
+            }, [difficultyKey]);
+
+            // Flip Card Execution Transaction
+            const executeTurnDealTransaction = useCallback(() => {
+                if (isAnimating || !powerOn) return;
+
+                let activeP = activeTurn;
+                let pDeck = [...playerDeck];
+                let cDeck = [...cpuDeck];
+                let activeDeck = activeP === 'PLAYER' ? pDeck : cDeck;
+
+                if (activeDeck.length === 0) {
+                    evaluateWinner(pDeck, cDeck);
+                    return;
+                }
+
+                setIsAnimating(true);
+                audioSynth.playFlip();
+
+                const card = activeDeck.pop();
+                const newCenter = [...centerPile, card];
+
+                if (activeP === 'PLAYER') setPlayerDeck(pDeck);
+                else setCpuDeck(cDeck);
+                setCenterPile(newCenter);
+
+                const now = performance.now();
+                setLastFlipTime(now);
+
+                let match = false;
+                if (newCenter.length > 1) {
+                    const top = newCenter[newCenter.length - 1];
+                    const prev = newCenter[newCenter.length - 2];
+                    match = (top.rank === prev.rank);
+                }
+                setIsMatchActive(match);
+
+                setStats(prev => ({ ...prev, flips: prev.flips + 1, matches: match ? prev.matches + 1 : prev.matches }));
+
+                const nextTurn = activeP === 'PLAYER' ? 'CPU' : 'PLAYER';
+                setActiveTurn(nextTurn);
+
+                if (match) {
+                    scheduleCPUAI(now, newCenter);
+                    spawnParticles(window.innerWidth / 2, window.innerHeight / 2, 25);
+                }
+
+                setTimeout(() => {
+                    setIsAnimating(false);
+                    if (nextTurn === 'CPU' && !match) {
+                        setTimeout(() => executeTurnDealTransaction(), 550);
+                    }
+                }, 140);
+            }, [isAnimating, powerOn, activeTurn, playerDeck, cpuDeck, centerPile, scheduleCPUAI]);
+
+            // Trigger Player Snap Action
+            const triggerPlayerSnapAction = useCallback(() => {
+                if (!powerOn) return;
+                const snapTimestamp = performance.now();
+                const reactionTimeMs = Math.max(0, snapTimestamp - lastFlipTime);
+
+                if (isMatchActive && centerPile.length > 0) {
+                    if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
+                    executeSnapClaim('PLAYER', reactionTimeMs, centerPile);
+                } else {
+                    // Penalty!
+                    executeFalseSnapPenalty('PLAYER');
+                }
+            }, [powerOn, isMatchActive, centerPile, lastFlipTime]);
+
+            // Execute Snap Claim Winner Transfer
+            const executeSnapClaim = (winner, speedMs, pile) => {
+                setLastSpeedMs(speedMs);
+
+                // Calculate Reaction Grade
+                let grade = 'C';
+                if (speedMs < 230) grade = 'S+';
+                else if (speedMs < 320) grade = 'A';
+                else if (speedMs < 450) grade = 'B';
+                setLastGrade(grade);
+
+                if (winner === 'PLAYER') {
+                    audioSynth.playSnapSuccess();
+                    spawnParticles(window.innerWidth / 2, window.innerHeight / 2, 40);
+                    setPlayerDeck(prev => [...pile, ...prev]);
+                    setStats(prev => {
+                        const newCombo = prev.combo + 1;
+                        const newBest = prev.bestTime === null ? speedMs : Math.min(prev.bestTime, speedMs);
+                        const newAvg = prev.avgTime === 0 ? speedMs : (prev.avgTime + speedMs) / 2;
+                        return {
+                            ...prev,
+                            combo: newCombo,
+                            maxCombo: Math.max(prev.maxCombo, newCombo),
+                            bestTime: newBest,
+                            avgTime: newAvg
+                        };
+                    });
+                } else {
+                    audioSynth.playPenalty();
+                    setCpuDeck(prev => [...pile, ...prev]);
+                    setStats(prev => ({ ...prev, combo: 0 }));
+                }
+
+                setCenterPile([]);
+                setIsMatchActive(false);
+            };
+
+            // False Snap Penalty Transfer
+            const executeFalseSnapPenalty = (penalizedPlayer) => {
+                audioSynth.playPenalty();
+                setStats(prev => ({ ...prev, falseSnaps: prev.falseSnaps + 1, combo: 0 }));
+
+                if (penalizedPlayer === 'PLAYER') {
+                    setCpuDeck(prev => [...centerPile, ...prev]);
+                } else {
+                    setPlayerDeck(prev => [...centerPile, ...prev]);
+                }
+                setCenterPile([]);
+                setIsMatchActive(false);
+            };
+
+            // Winner Check
+            const evaluateWinner = (p1, cpu) => {
+                if (p1.length === 0) {
+                    audioSynth.playPenalty();
+                    setStats(prev => ({ ...prev, cpuWins: prev.cpuWins + 1 }));
+                    alert("GAME OVER: CPU DEFEATED YOU!");
+                } else if (cpu.length === 0) {
+                    audioSynth.playVictory();
+                    setStats(prev => ({ ...prev, playerWins: prev.playerWins + 1 }));
+                    alert("VICTORY! YOU CLEARED THE STAGE!");
+                }
+                initShoeBuffers();
+            };
+
+            // Keybindings Listener
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        setActiveBtn('A');
+                        executeTurnDealTransaction();
+                    }
+                    if (e.code === 'Enter') {
+                        e.preventDefault();
+                        setActiveBtn('B');
+                        triggerPlayerSnapAction();
+                    }
+                };
+                const handleKeyUp = () => setActiveBtn(null);
+
+                window.addEventListener('keydown', handleKeyDown);
+                window.addEventListener('keyup', handleKeyUp);
+                return () => {
+                    window.removeEventListener('keydown', handleKeyDown);
+                    window.removeEventListener('keyup', handleKeyUp);
+                };
+            }, [executeTurnDealTransaction, triggerPlayerSnapAction]);
+
+            // --- CANVAS RENDERING ENGINE LOOP ---
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let animationFrameId;
+
+                const render = () => {
+                    const width = canvas.width = canvas.parentElement.clientWidth;
+                    const height = canvas.height = canvas.parentElement.clientHeight;
+
+                    ctx.clearRect(0, 0, width, height);
+
+                    if (!powerOn) {
+                        ctx.fillStyle = '#050b05';
+                        ctx.fillRect(0, 0, width, height);
+                        return;
+                    }
+
+                    // Background LCD felt tint
+                    ctx.fillStyle = 'var(--lcd-bg)';
+                    ctx.fillRect(0, 0, width, height);
+
+                    const scale = width < 500 ? 0.75 : 1;
+
+                    // Draw Deck Outlines
+                    drawCardStackOutline(ctx, 16, height - 110 * scale - 16, "P1", playerDeck.length, scale);
+                    drawCardStackOutline(ctx, width - 75 * scale - 16, 16, "CPU", cpuDeck.length, scale);
+
+                    // Draw Center Discard Stack
+                    const cardW = 75 * scale;
+                    const cardH = 110 * scale;
+                    const centerX = Math.floor(width / 2 - cardW / 2);
+                    const centerY = Math.floor(height / 2 - cardH / 2);
+
+                    if (centerPile.length > 0) {
+                        const visibleDepth = Math.min(3, centerPile.length);
+                        for (let i = visibleDepth - 1; i >= 0; i--) {
+                            const card = centerPile[centerPile.length - 1 - i];
+                            drawPixelCard(ctx, centerX + i * 3, centerY - i * 3, card, true, scale);
+                        }
+                    } else {
+                        drawCardStackOutline(ctx, centerX, centerY, "LOOT", 0, scale);
+                    }
+
+                    // Render Particles
+                    particlesRef.current.forEach((p, idx) => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.life -= p.decay;
+
+                        if (p.life <= 0) {
+                            particlesRef.current.splice(idx, 1);
+                        } else {
+                            ctx.fillStyle = 'var(--lcd-dark)';
+                            ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
+                        }
+                    });
+
+                    animationFrameId = requestAnimationFrame(render);
+                };
+
+                render();
+                return () => cancelAnimationFrame(animationFrameId);
+            }, [powerOn, playerDeck, cpuDeck, centerPile]);
+
+            // Helper Drawing Functions
+            const drawPixelCard = (ctx, x, y, card, isFaceUp, scale = 1) => {
+                const w = 75 * scale;
+                const h = 110 * scale;
+                const snapX = Math.floor(x);
+                const snapY = Math.floor(y);
+
+                ctx.fillStyle = 'var(--lcd-dark)';
+                ctx.fillRect(snapX, snapY, w, h);
+
+                ctx.fillStyle = 'var(--lcd-light)';
+                ctx.fillRect(snapX + 2, snapY + 2, w - 4, h - 4);
+
+                if (isFaceUp) {
+                    ctx.fillStyle = 'var(--lcd-dark)';
+                    ctx.font = `bold ${Math.floor(13 * scale)}px "Press Start 2P", monospace`;
+                    ctx.fillText(card.rank, snapX + 5, snapY + 16 * scale);
+
+                    ctx.font = `${Math.floor(11 * scale)}px monospace`;
+                    ctx.fillText(card.suit, snapX + 5, snapY + 30 * scale);
+
+                    ctx.font = `bold ${Math.floor(22 * scale)}px monospace`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(card.suit, snapX + w / 2, snapY + h / 2 + 7 * scale);
+                    ctx.textAlign = 'left';
+                }
+            };
+
+            const drawCardStackOutline = (ctx, x, y, label, count, scale = 1) => {
+                const w = 75 * scale;
+                const h = 110 * scale;
+                const snapX = Math.floor(x);
+                const snapY = Math.floor(y);
+
+                ctx.strokeStyle = 'var(--lcd-mid)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.strokeRect(snapX, snapY, w, h);
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = 'var(--lcd-mid)';
+                ctx.font = `${Math.floor(8 * scale)}px "Press Start 2P"`;
+                ctx.fillText(label, snapX, snapY - 6);
+                ctx.fillText(`${count}`, snapX + 6, snapY + h / 2);
+            };
+
+            return (
+                <div id="console-chassis">
+                    {/* Screen Bezel Section */}
+                    <div id="screen-bezel">
+                        <div id="canvas-stage-wrapper" class="scanlines screen-glare">
+                            <canvas ref={canvasRef}></canvas>
+
+                            {/* Arcade HUD Overlay */}
+                            {powerOn && (
+                                <div id="nes-desktop-hud" class="absolute top-0 left-0 w-full h-full p-2 pointer-events-none flex flex-col justify-between">
+                                    {/* Top Status Banner */}
+                                    <div class="arcade-window p-2 w-52 pointer-events-auto rounded shadow-lg animate__animated animate__fadeInDown">
+                                        <div class="flex justify-between items-center border-b border-[var(--lcd-mid)] pb-1 mb-1">
+                                            <span class="text-[8px] font-bold">SNAP-O-MATIC</span>
+                                            <span class="text-[7px] px-1 bg-[var(--lcd-mid)] text-[var(--lcd-light)] rounded">{DIFFICULTIES[difficultyKey].name}</span>
+                                        </div>
+                                        <div class="space-y-0.5 text-[8px] font-mono">
+                                            <div class="flex justify-between"><span>P1 CARDS:</span><span class="font-bold">{playerDeck.length}</span></div>
+                                            <div class="flex justify-between"><span>CPU CARDS:</span><span class="font-bold">{cpuDeck.length}</span></div>
+                                            <div class="flex justify-between"><span>LOOT PILE:</span><span class="font-bold">{centerPile.length}</span></div>
+                                            <div class="flex justify-between pt-1 border-t border-[var(--lcd-mid)]">
+                                                <span>REFLEX:</span>
+                                                <span class="font-bold">{lastSpeedMs > 0 ? `${lastSpeedMs.toFixed(0)}ms (${lastGrade})` : '0ms'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Combo Badge */}
+                                    {stats.combo > 1 && (
+                                        <div class="absolute top-2 right-2 arcade-window px-2 py-1 text-[8px] font-bold text-amber-500 animate__animated animate__bounceIn">
+                                            🔥 {stats.combo}x COMBO!
+                                        </div>
+                                    )}
+
+                                    {/* Center Alert Match Banner */}
+                                    {isMatchActive && (
+                                        <div class="self-center arcade-window px-4 py-2 text-center border-4 border-[var(--lcd-dark)] animate__animated animate__flash animate__infinite">
+                                            <div class="text-[10px] font-black text-rose-600">*** MATCH DETECTED! ***</div>
+                                            <div class="text-[8px] font-bold mt-0.5">PRESS B BUTTON / ENTER!</div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Battery LED & Label */}
+                        <div class="absolute top-4 left-4 flex items-center gap-2">
+                            <div class={`w-3 h-3 rounded-full border border-red-950 transition-all ${powerOn ? (isMatchActive ? 'bg-emerald-400 shadow-[0_0_8px_#34d399] animate-ping' : 'bg-red-600 shadow-[0_0_8px_#f87171]') : 'bg-gray-800'}`}></div>
+                            <span class="text-[7px] text-gray-400 font-mono tracking-widest">POWER</span>
+                        </div>
+                    </div>
+
+                    {/* Console Controls Area */}
+                    <div id="controls-area">
+                        {/* D-PAD */}
+                        <div class="d-pad">
+                            <div class="d-pad-part d-pad-up" onClick={() => {
+                                const keys = Object.keys(DIFFICULTIES);
+                                const nextIdx = (keys.indexOf(difficultyKey) + 1) % keys.length;
+                                setDifficultyKey(keys[nextIdx]);
+                                audioSynth.playClick();
+                            }}>▲</div>
+                            <div class="d-pad-part d-pad-down" onClick={() => {
+                                const keys = Object.keys(DIFFICULTIES);
+                                const nextIdx = (keys.indexOf(difficultyKey) - 1 + keys.length) % keys.length;
+                                setDifficultyKey(keys[nextIdx]);
+                                audioSynth.playClick();
+                            }}>▼</div>
+                            <div class="d-pad-part d-pad-left" onClick={() => {
+                                setThemeIdx((prev) => (prev - 1 + THEMES.length) % THEMES.length);
+                                audioSynth.playClick();
+                            }}>◀</div>
+                            <div class="d-pad-part d-pad-right" onClick={() => {
+                                setThemeIdx((prev) => (prev + 1) % THEMES.length);
+                                audioSynth.playClick();
+                            }}>▶</div>
+                            <div class="d-pad-part d-pad-center"></div>
+                        </div>
+
+                        {/* System Center Buttons */}
+                        <div class="sys-buttons">
+                            <div class="sys-btn-container">
+                                <div class="sys-btn" onClick={() => {
+                                    setPaletteIdx((prev) => (prev + 1) % PALETTES.length);
+                                    audioSynth.playClick();
+                                }}></div>
+                                <span class="sys-label">SELECT</span>
+                            </div>
+                            <div class="sys-btn-container">
+                                <div class="sys-btn" onClick={() => {
+                                    setShowStatsModal(true);
+                                    audioSynth.playClick();
+                                }}></div>
+                                <span class="sys-label">START</span>
+                            </div>
+                        </div>
+
+                        {/* Action Buttons A/B */}
+                        <div class="action-buttons">
+                            <div class="action-btn-wrapper mt-4">
+                                <button class={`action-btn btn-b ${activeBtn === 'B' ? 'btn-pressed' : ''}`} onClick={() => {
+                                    triggerPlayerSnapAction();
+                                    audioSynth.playClick();
+                                }}></button>
+                                <span class="btn-label">B</span>
+                                <span class="text-[7px] text-[var(--label-color)] mt-0.5">SNAP!</span>
+                            </div>
+                            <div class="action-btn-wrapper -mt-2">
+                                <button class={`action-btn btn-a ${activeBtn === 'A' ? 'btn-pressed' : ''}`} onClick={() => {
+                                    executeTurnDealTransaction();
+                                }}></button>
+                                <span class="btn-label">A</span>
+                                <span class="text-[7px] text-[var(--label-color)] mt-0.5">FLIP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Speaker Grill */}
+                    <div class="speaker-grill">
+                        {[...Array(15)].map((_, i) => (
+                            <div key={i} class="speaker-hole"></div>
+                        ))}
+                    </div>
+
+                    {/* Stats & Settings Modal Overlay */}
+                    {showStatsModal && (
+                        <div class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                            <div class="arcade-window p-6 max-w-md w-full rounded-lg shadow-2xl relative animate__animated animate__zoomIn">
+                                <h3 class="text-xs font-bold border-b-2 border-[var(--lcd-mid)] pb-2 mb-4 flex justify-between items-center">
+                                    <span>SYSTEM DIAGNOSTICS</span>
+                                    <button onClick={() => setShowStatsModal(false)} class="text-rose-600 font-bold">✕</button>
+                                </h3>
+
+                                <div class="space-y-2 text-[9px] font-mono mb-6">
+                                    <div class="flex justify-between"><span>TOTAL FLIPS:</span><span>{stats.flips}</span></div>
+                                    <div class="flex justify-between"><span>TOTAL MATCHES:</span><span>{stats.matches}</span></div>
+                                    <div class="flex justify-between"><span>BEST REFLEX:</span><span>{stats.bestTime ? `${stats.bestTime.toFixed(1)} ms` : 'N/A'}</span></div>
+                                    <div class="flex justify-between"><span>AVG REFLEX:</span><span>{stats.avgTime ? `${stats.avgTime.toFixed(1)} ms` : 'N/A'}</span></div>
+                                    <div class="flex justify-between"><span>MAX COMBO:</span><span>{stats.maxCombo}</span></div>
+                                    <div class="flex justify-between"><span>FALSE SNAPS:</span><span>{stats.falseSnaps}</span></div>
+                                </div>
+
+                                <div class="space-y-3 border-t-2 border-[var(--lcd-mid)] pt-4">
+                                    <div class="flex justify-between items-center text-[9px]">
+                                        <span>CHASSIS THEME:</span>
+                                        <button onClick={() => setThemeIdx((prev) => (prev + 1) % THEMES.length)} class="px-2 py-1 bg-[var(--lcd-mid)] text-[var(--lcd-light)] rounded font-bold">
+                                            {THEMES[themeIdx].name}
+                                        </button>
+                                    </div>
+                                    <div class="flex justify-between items-center text-[9px]">
+                                        <span>SCREEN PALETTE:</span>
+                                        <button onClick={() => setPaletteIdx((prev) => (prev + 1) % PALETTES.length)} class="px-2 py-1 bg-[var(--lcd-mid)] text-[var(--lcd-light)] rounded font-bold">
+                                            {PALETTES[paletteIdx].name}
+                                        </button>
+                                    </div>
+                                    <div class="flex justify-between items-center text-[9px]">
+                                        <span>AUDIO SYNTH:</span>
+                                        <button onClick={() => {
+                                            audioSynth.muted = !audioSynth.muted;
+                                            setIsMuted(audioSynth.muted);
+                                        }} class="px-2 py-1 bg-[var(--lcd-mid)] text-[var(--lcd-light)] rounded font-bold">
+                                            {isMuted ? 'MUTED' : 'ENABLED'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button onClick={() => {
+                                    initShoeBuffers();
+                                    setShowStatsModal(false);
+                                }} class="w-full mt-6 py-2 bg-rose-700 text-white text-[9px] font-bold rounded">
+                                    RESET NEW DECK
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
