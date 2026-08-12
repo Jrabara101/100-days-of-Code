@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>City Builder - Cellular Automata Hazards & Coverage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #080c14;
+            font-family: 'JetBrains Mono', monospace;
+            color: #f8fafc;
+        }
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+        }
+        #app-root {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+        }
+        .glass-panel-sm {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .font-sans-header {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom scrollbars if needed */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); borderRadius: 4px; }
+    </style>
+</head>
+<body class="select-none">
+
+    <div id="app-root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ==========================================
+// 1. EXTENDED CITY SIMULATION ENGINE
+// ==========================================
+class ExtendedCityEngine {
+    constructor(width = 24, height = 24) {
+        this.width = width;
+        this.height = height;
+        this.totalCells = width * height;
+
+        // Tile Identifiers:
+        // 0: GRASS, 1: ROAD, 2: RES, 3: COM, 4: IND, 5: POWER, 6: PARK, 7: FIRE_STATION, 8: POLICE_STATION, 9: BURNT
+        this.grid = new Uint8Array(this.totalCells);
+        this.buildingLevels = new Uint8Array(this.totalCells);
+
+        // CELLULAR AUTOMATA BUFFERS
+        this.pollutionGrid = new Float32Array(this.totalCells); // Continuous [0.0 to 100.0]
+        this.nextPollutionGrid = new Float32Array(this.totalCells);
+        
+        // Fire State: 0: Safe, 1: Spark, 2: Medium Flame, 3: Inferno
+        this.fireGrid = new Uint8Array(this.totalCells);
+        
+        // Coverage Radii Buffers: [0.0 to 1.0]
+        this.fireCoverage = new Float32Array(this.totalCells);
+        this.policeCoverage = new Float32Array(this.totalCells);
+
+        this.treasury = 10000;
+        this.population = 0;
+        this.activeFiresCount = 0;
+        this.avgPollution = 0;
+        this.isPaused = false;
+        this.tickCount = 0;
+
+        this.costs = {
+            1: 10,   // ROAD
+            2: 50,   // RES
+            3: 60,   // COM
+            4: 80,   // IND
+            5: 300,  // POWER
+            6: 100,  // PARK
+            7: 400,  // FIRE_STATION
+            8: 400,  // POLICE_STATION
+            0: 5     // DEMOLISH
+        };
+
+        this.buildInitialLayout();
+    }
+
+    // Initialize starting city layout
+    buildInitialLayout() {
+        const cx = Math.floor(this.width / 2);
+        const cy = Math.floor(this.height / 2);
+
+        // Clear grid
+        this.grid.fill(0);
+        this.buildingLevels.fill(0);
+        this.pollutionGrid.fill(0);
+        this.fireGrid.fill(0);
+
+        // Roads Grid
+        for (let x = cx - 5; x <= cx + 5; x++) {
+            this.rawSetTile(x, cy - 3, 1);
+            this.rawSetTile(x, cy + 3, 1);
+        }
+        for (let y = cy - 5; y <= cy + 5; y++) {
+            this.rawSetTile(cx - 5, y, 1);
+            this.rawSetTile(cx + 5, y, 1);
+            this.rawSetTile(cx, y, 1);
+        }
+
+        // Zones & Special Infrastructure
+        this.rawSetTile(cx - 4, cy - 2, 2); // Res
+        this.rawSetTile(cx - 3, cy - 2, 2); // Res
+        this.rawSetTile(cx - 2, cy - 2, 2); // Res
+        this.rawSetTile(cx - 1, cy - 2, 2); // Res
+
+        this.rawSetTile(cx + 1, cy - 2, 3); // Com
+        this.rawSetTile(cx + 2, cy - 2, 3); // Com
+        this.rawSetTile(cx + 3, cy - 2, 3); // Com
+        this.rawSetTile(cx + 4, cy - 2, 3); // Com
+
+        this.rawSetTile(cx - 4, cy + 2, 4); // Ind
+        this.rawSetTile(cx - 3, cy + 2, 4); // Ind
+        this.rawSetTile(cx - 2, cy + 2, 5); // Power Plant
+
+        this.rawSetTile(cx + 1, cy + 2, 6); // Park
+        this.rawSetTile(cx + 2, cy + 2, 7); // Fire Station
+        this.rawSetTile(cx + 3, cy + 2, 8); // Police Station
+        this.rawSetTile(cx + 4, cy + 2, 6); // Park
+
+        this.recalculateCoverageFields();
+    }
+
+    rawSetTile(x, y, tileType) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
+        const idx = y * this.width + x;
+        this.grid[idx] = tileType;
+        this.buildingLevels[idx] = tileType >= 2 && tileType <= 4 ? 1 : 0;
+        this.fireGrid[idx] = 0;
+    }
+
+    getTile(x, y) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return -1;
+        return this.grid[y * this.width + x];
+    }
+
+    setTile(x, y, tileType) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
+        const cost = this.costs[tileType];
+        if (tileType !== 0 && this.treasury < cost) return false;
+
+        const idx = y * this.width + x;
+        
+        if (tileType === 0) {
+            if (this.grid[idx] !== 0) {
+                this.treasury -= this.costs[0];
+            }
+            this.grid[idx] = 0;
+            this.buildingLevels[idx] = 0;
+            this.fireGrid[idx] = 0;
+        } else {
+            this.treasury -= cost;
+            this.grid[idx] = tileType;
+            this.buildingLevels[idx] = tileType >= 2 && tileType <= 4 ? 1 : 0;
+            this.fireGrid[idx] = 0; // Clear active fire on new build
+        }
+
+        this.recalculateCoverageFields();
+        return true;
+    }
+
+    // Recalculate Static Radial Coverage Fields for Fire & Police Stations
+    recalculateCoverageFields() {
+        this.fireCoverage.fill(0);
+        this.policeCoverage.fill(0);
+
+        const fireRadius = 6.0;
+        const policeRadius = 8.0;
+
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const tile = this.getTile(x, y);
+
+                if (tile === 7 || tile === 8) { // Fire (7) or Police (8)
+                    const isFire = tile === 7;
+                    const radius = isFire ? fireRadius : policeRadius;
+                    const targetBuffer = isFire ? this.fireCoverage : this.policeCoverage;
+
+                    // Apply radial coverage field within bounding box
+                    const minX = Math.max(0, Math.floor(x - radius));
+                    const maxX = Math.min(this.width - 1, Math.ceil(x + radius));
+                    const minY = Math.max(0, Math.floor(y - radius));
+                    const maxY = Math.min(this.height - 1, Math.ceil(y + radius));
+
+                    for (let cy = minY; cy <= maxY; cy++) {
+                        for (let cx = minX; cx <= maxX; cx++) {
+                            const dist = Math.hypot(cx - x, cy - y);
+                            if (dist <= radius) {
+                                const cIdx = cy * this.width + cx;
+                                const strength = 1.0 - (dist / radius);
+                                targetBuffer[cIdx] = Math.max(targetBuffer[cIdx], strength);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Master Engine Tick Loop
+    runSimulationTick() {
+        if (this.isPaused) return;
+
+        this.tickCount++;
+        this.updatePollutionDiffusionCA();
+        this.updateFireSpreadCA();
+        this.recalculateCoverageFields();
+
+        // Calculate Totals & Income
+        let totalPop = 0;
+        let totalPollution = 0;
+        let fireCount = 0;
+
+        for (let i = 0; i < this.totalCells; i++) {
+            if (this.grid[i] === 2) totalPop += (this.buildingLevels[i] || 1) * 8;
+            if (this.fireGrid[i] > 0) fireCount++;
+            totalPollution += this.pollutionGrid[i];
+        }
+
+        this.population = totalPop;
+        this.activeFiresCount = fireCount;
+        this.avgPollution = Math.round(totalPollution / this.totalCells);
+        this.treasury += Math.max(0, Math.floor(totalPop * 2.5) - (fireCount * 40));
+    }
+
+    // 1. CELLULAR AUTOMATA: 2D Pollution Diffusion Kernel
+    updatePollutionDiffusionCA() {
+        const alpha = 0.25; // Diffusion rate
+        const decay = 0.05; // Environmental decay rate
+
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const idx = y * this.width + x;
+                const tile = this.grid[idx];
+
+                // A. Emission / Absorption Sources
+                let emission = 0;
+                if (tile === 4) emission = 15.0;       // Industrial
+                if (tile === 5) emission = 30.0;       // Power Plant
+                if (tile === 6) emission = -20.0;      // Park (Cleanse Sinks)
+
+                // B. Cardinal Neighborhood Average
+                let neighborSum = 0;
+                let neighborCount = 0;
+
+                const dirs = [{x:0,y:-1},{x:0,y:1},{x:-1,y:0},{x:1,y:0}];
+                for (const d of dirs) {
+                    const nx = x + d.x; const ny = y + d.y;
+                    if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height) {
+                        neighborSum += this.pollutionGrid[ny * this.width + nx];
+                        neighborCount++;
+                    }
+                }
+
+                const avgNeighbor = neighborCount > 0 ? neighborSum / neighborCount : 0;
+                const currentVal = this.pollutionGrid[idx];
+
+                // C. Discrete 2D Laplacian Diffusion Equation:
+                // P^{t+1} = (1 - gamma) * [ (1 - alpha) * P^t + alpha * AvgNeighbor ] + Emission - Absorption
+                let nextVal = (1.0 - decay) * ((1.0 - alpha) * currentVal + alpha * avgNeighbor) + emission;
+                this.nextPollutionGrid[idx] = Math.min(100.0, Math.max(0.0, nextVal));
+            }
+        }
+
+        // Swap Buffers
+        this.pollutionGrid.set(this.nextPollutionGrid);
+    }
+
+    // 2. CELLULAR AUTOMATA: Probabilistic Fire Spreading State Machine
+    updateFireSpreadCA() {
+        const nextFireGrid = new Uint8Array(this.fireGrid);
+
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const idx = y * this.width + x;
+                const tile = this.grid[idx];
+                const fireState = this.fireGrid[idx];
+                const coverage = this.fireCoverage[idx]; // [0.0 to 1.0]
+
+                const isFlammable = (tile >= 2 && tile <= 6); // Zones, Power, Parks
+
+                // A. Spontaneous Spark Ignition Check (High pollution or power plant risk)
+                if (fireState === 0 && isFlammable) {
+                    let sparkChance = 0.003;
+                    if (tile === 5) sparkChance = 0.02; // Power Plant hazard
+                    if (this.pollutionGrid[idx] > 50) sparkChance += 0.01;
+
+                    // Fire station coverage suppresses ignition chance: P_spread = P_base * (1 - C_fire)
+                    sparkChance *= (1.0 - coverage);
+
+                    if (Math.random() < sparkChance) {
+                        nextFireGrid[idx] = 1; // Spark!
+                    }
+                }
+
+                // B. Active Fire Intensity Progression & Suppression
+                if (fireState > 0) {
+                    if (coverage > 0.35) {
+                        // Extinguished by nearby Fire Station!
+                        nextFireGrid[idx] = 0;
+                    } else {
+                        // Intensify or Burn Out
+                        if (fireState < 3) {
+                            nextFireGrid[idx] = fireState + 1;
+                        } else {
+                            // Burnt Out -> Destroy Building
+                            nextFireGrid[idx] = 0;
+                            this.grid[idx] = 9; // Burnt Ruins Tile
+                            this.buildingLevels[idx] = 0;
+                        }
+
+                        // C. Spread Fire to Cardinal Neighbors
+                        const dirs = [{x:0,y:-1},{x:0,y:1},{x:-1,y:0},{x:1,y:0}];
+                        for (const d of dirs) {
+                            const nx = x + d.x; const ny = y + d.y;
+                            if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height) {
+                                const nIdx = ny * this.width + nx;
+                                const nTile = this.grid[nIdx];
+                                const nCoverage = this.fireCoverage[nIdx];
+
+                                if (this.fireGrid[nIdx] === 0 && nTile >= 2 && nTile <= 6) {
+                                    const spreadProb = 0.30 * (1.0 - nCoverage);
+                                    if (Math.random() < spreadProb) {
+                                        nextFireGrid[nIdx] = 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        this.fireGrid.set(nextFireGrid);
+    }
+}
+
+// Tile Info Helper
+const TILE_INFO = {
+    0: { name: 'Grass', emoji: '🌱', color: '#15803d' },
+    1: { name: 'Road', emoji: '🛣️', color: '#334155' },
+    2: { name: 'Residential', emoji: '🏠', color: '#22c55e' },
+    3: { name: 'Commercial', emoji: '🏢', color: '#3b82f6' },
+    4: { name: 'Industrial', emoji: '🏭', color: '#eab308' },
+    5: { name: 'Power Plant', emoji: '⚡', color: '#f97316' },
+    6: { name: 'Park Sinks', emoji: '🌳', color: '#166534' },
+    7: { name: 'Fire Station', emoji: '🚒', color: '#ef4444' },
+    8: { name: 'Police Station', emoji: '🚔', color: '#2563eb' },
+    9: { name: 'Burnt Ruins', emoji: '🔥', color: '#1e293b' }
+};
+
+// ==========================================
+// 2. CANVAS PIXEL RENDERER & REACT VIEWPORT
+// ==========================================
+function CityCaApp() {
+    const [engine] = useState(() => new ExtendedCityEngine(24, 24));
+    const [selectedTool, setSelectedTool] = useState(1);
+    const [overlayMode, setOverlayMode] = useState('NORMAL'); // 'NORMAL', 'POLLUTION', 'FIRE_COVERAGE', 'POLICE_COVERAGE'
+    const [hudData, setHudData] = useState({
+        treasury: 10000,
+        population: 0,
+        fires: 0,
+        avgPollution: 0,
+        isPaused: false
+    });
+
+    const [inspectTile, setInspectTile] = useState(null);
+    const canvasRef = useRef(null);
+    const hoverTileRef = useRef({ x: -1, y: -1 });
+    const animFrameRef = useRef(0);
+    const tileSize = 28;
+
+    // Render Procedural Tile Assets & Overlays
+    const drawTileAndOverlays = (ctx, x, y, frame) => {
+        const px = x * tileSize;
+        const py = y * tileSize;
+        const idx = y * engine.width + x;
+
+        const tile = engine.grid[idx];
+        const fireState = engine.fireGrid[idx];
+        const pollution = engine.pollutionGrid[idx];
+
+        // 1. BASE TILE GRAPHICS
+        if (tile === 0) {
+            ctx.fillStyle = '#14532d'; // Grass Base
+            ctx.fillRect(px, py, tileSize, tileSize);
+            // Subtle blade accents
+            ctx.fillStyle = '#166534';
+            if ((x + y) % 2 === 0) ctx.fillRect(px + 4, py + 4, 4, 4);
+            if ((x * 3 + y) % 5 === 0) ctx.fillRect(px + 16, py + 16, 4, 4);
+        } else if (tile === 1) {
+            ctx.fillStyle = '#334155'; // Road
+            ctx.fillRect(px, py, tileSize, tileSize);
+            ctx.fillStyle = '#f8fafc'; // Lane markings
+            ctx.fillRect(px + tileSize / 2 - 1, py + 4, 2, tileSize - 8);
+        } else if (tile === 2) {
+            ctx.fillStyle = '#15803d'; // Res roof
+            ctx.fillRect(px, py, tileSize, tileSize);
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(px + 3, py + 3, tileSize - 6, tileSize - 6);
+        } else if (tile === 3) {
+            ctx.fillStyle = '#1d4ed8'; // Com roof
+            ctx.fillRect(px, py, tileSize, tileSize);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(px + 3, py + 3, tileSize - 6, tileSize - 6);
+        } else if (tile === 4) {
+            ctx.fillStyle = '#a16207'; // Ind roof
+            ctx.fillRect(px, py, tileSize, tileSize);
+            ctx.fillStyle = '#eab308';
+            ctx.fillRect(px + 3, py + 3, tileSize - 6, tileSize - 6);
+        } else if (tile === 5) {
+            ctx.fillStyle = '#c2410c'; // Power
+            ctx.fillRect(px, py, tileSize, tileSize);
+            ctx.fillStyle = '#f97316';
+            ctx.fillRect(px + 3, py + 3, tileSize - 6, tileSize - 6);
+        } else if (tile === 6) {
+            ctx.fillStyle = '#064e3b'; // Park
+            ctx.fillRect(px, py, tileSize, tileSize);
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(px + 4, py + 4, tileSize - 8, tileSize - 8);
+        } else if (tile === 7) {
+            ctx.fillStyle = '#b91c1c'; // Fire Station
+            ctx.fillRect(px, py, tileSize, tileSize);
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(px + 3, py + 3, tileSize - 6, tileSize - 6);
+        } else if (tile === 8) {
+            ctx.fillStyle = '#1e40af'; // Police Station
+            ctx.fillRect(px, py, tileSize, tileSize);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(px + 3, py + 3, tileSize - 6, tileSize - 6);
+        } else if (tile === 9) {
+            ctx.fillStyle = '#0f172a'; // Burnt Ruins
+            ctx.fillRect(px, py, tileSize, tileSize);
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(px + 4, py + 4, tileSize - 8, tileSize - 8);
+        }
+
+        // Icon Markings & Symbols for Tile Recognition
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        if (tile === 5) ctx.fillText('⚡', px + tileSize / 2, py + tileSize / 2);
+        else if (tile === 6) ctx.fillText('🌳', px + tileSize / 2, py + tileSize / 2);
+        else if (tile === 7) ctx.fillText('🚒', px + tileSize / 2, py + tileSize / 2);
+        else if (tile === 8) ctx.fillText('🚔', px + tileSize / 2, py + tileSize / 2);
+        else if (tile === 9) ctx.fillText('💀', px + tileSize / 2, py + tileSize / 2);
+
+        // Grid Border Lines
+        ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(px, py, tileSize, tileSize);
+
+        // 2. ACTIVE FIRE FLAME ANIMATION OVERLAY
+        if (fireState > 0) {
+            const flick = (frame + x * 7 + y * 13) % 12;
+            const sizeMod = fireState * 2;
+            
+            // Outer Flame
+            ctx.fillStyle = flick > 6 ? '#ef4444' : '#f97316';
+            ctx.fillRect(px + 4 - sizeMod / 2, py + 4 - sizeMod / 2, tileSize - 8 + sizeMod, tileSize - 8 + sizeMod);
+            
+            // Inner Heat Core
+            ctx.fillStyle = flick % 4 === 0 ? '#fef08a' : '#f59e0b';
+            ctx.fillRect(px + 8, py + 8, tileSize - 16, tileSize - 16);
+            
+            // Spark Particle
+            if (flick % 3 === 0) {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(px + 10 + (flick % 5), py + 2, 2, 2);
+            }
+        }
+
+        // 3. HEATMAP OVERLAY MODES
+        if (overlayMode === 'POLLUTION' && pollution > 2) {
+            const alpha = Math.min(0.85, (pollution / 100.0) * 0.9);
+            // Smoky Brown/Amber Smog Mask
+            ctx.fillStyle = `rgba(180, 83, 9, ${alpha})`;
+            ctx.fillRect(px, py, tileSize, tileSize);
+
+            // High Smog Indicator dots
+            if (pollution > 50 && (frame + x + y) % 20 < 10) {
+                ctx.fillStyle = `rgba(245, 158, 11, ${alpha})`;
+                ctx.fillRect(px + 6, py + 6, 3, 3);
+            }
+        } else if (overlayMode === 'FIRE_COVERAGE') {
+            const cov = engine.fireCoverage[idx];
+            if (cov > 0) {
+                ctx.fillStyle = `rgba(239, 68, 68, ${cov * 0.6})`; // Red Coverage Glow
+                ctx.fillRect(px, py, tileSize, tileSize);
+                // Highlight boundary
+                if (cov > 0.8) {
+                    ctx.fillStyle = 'rgba(254, 202, 202, 0.4)';
+                    ctx.fillRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
+                }
+            }
+        } else if (overlayMode === 'POLICE_COVERAGE') {
+            const cov = engine.policeCoverage[idx];
+            if (cov > 0) {
+                ctx.fillStyle = `rgba(59, 130, 246, ${cov * 0.6})`; // Blue Coverage Glow
+                ctx.fillRect(px, py, tileSize, tileSize);
+                if (cov > 0.8) {
+                    ctx.fillStyle = 'rgba(191, 219, 254, 0.4)';
+                    ctx.fillRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
+                }
+            }
+        }
+    };
+
+    const renderCanvas = useCallback((frame) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let y = 0; y < engine.height; y++) {
+            for (let x = 0; x < engine.width; x++) {
+                drawTileAndOverlays(ctx, x, y, frame);
+            }
+        }
+
+        // Hover Cursor
+        const hx = hoverTileRef.current.x;
+        const hy = hoverTileRef.current.y;
+        if (hx >= 0 && hx < engine.width && hy >= 0 && hy < engine.height) {
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2.5;
+            ctx.strokeRect(hx * tileSize + 1, hy * tileSize + 1, tileSize - 2, tileSize - 2);
+
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+            ctx.fillRect(hx * tileSize, hy * tileSize, tileSize, tileSize);
+        }
+    }, [engine, overlayMode]);
+
+    const syncInspectTile = (x, y) => {
+        if (x >= 0 && x < engine.width && y >= 0 && y < engine.height) {
+            const idx = y * engine.width + x;
+            setInspectTile({
+                x, y,
+                tile: engine.grid[idx],
+                pollution: Math.round(engine.pollutionGrid[idx] * 10) / 10,
+                fireState: engine.fireGrid[idx],
+                fireCoverage: Math.round(engine.fireCoverage[idx] * 100),
+                policeCoverage: Math.round(engine.policeCoverage[idx] * 100)
+            });
+        } else {
+            setInspectTile(null);
+        }
+    };
+
+    const handlePointerMove = (e) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const gx = Math.floor((e.clientX - rect.left) / tileSize);
+        const gy = Math.floor((e.clientY - rect.top) / tileSize);
+
+        if (gx !== hoverTileRef.current.x || gy !== hoverTileRef.current.y) {
+            hoverTileRef.current = { x: gx, y: gy };
+            syncInspectTile(gx, gy);
+        }
+    };
+
+    const handlePointerDown = () => {
+        const hx = hoverTileRef.current.x;
+        const hy = hoverTileRef.current.y;
+        if (hx >= 0 && hx < engine.width && hy >= 0 && hy < engine.height) {
+            engine.setTile(hx, hy, selectedTool);
+            syncHUD();
+            syncInspectTile(hx, hy);
+        }
+    };
+
+    const syncHUD = () => {
+        setHudData({
+            treasury: engine.treasury,
+            population: engine.population,
+            fires: engine.activeFiresCount,
+            avgPollution: engine.avgPollution,
+            isPaused: engine.isPaused
+        });
+    };
+
+    const togglePause = () => {
+        engine.isPaused = !engine.isPaused;
+        syncHUD();
+    };
+
+    const resetMap = () => {
+        engine.buildInitialLayout();
+        syncHUD();
+    };
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        canvas.width = engine.width * tileSize;
+        canvas.height = engine.height * tileSize;
+
+        let frame = 0;
+        let animId;
+
+        const loop = () => {
+            frame++;
+            animFrameRef.current = frame;
+            renderCanvas(frame);
+            animId = requestAnimationFrame(loop);
+        };
+        animId = requestAnimationFrame(loop);
+
+        const simInterval = setInterval(() => {
+            engine.runSimulationTick();
+            syncHUD();
+            if (hoverTileRef.current.x >= 0) {
+                syncInspectTile(hoverTileRef.current.x, hoverTileRef.current.y);
+            }
+        }, 800);
+
+        return () => {
+            cancelAnimationFrame(animId);
+            clearInterval(simInterval);
+        };
+    }, [engine, renderCanvas]);
+
+    return (
+        <div className="w-full h-full relative flex items-center justify-center bg-slate-950 overflow-hidden">
+            
+            {/* CANVAS CONTAINER */}
+            <div className="z-10 border-4 border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl bg-slate-900">
+                <canvas
+                    ref={canvasRef}
+                    onPointerMove={handlePointerMove}
+                    onPointerDown={handlePointerDown}
+                    className="cursor-crosshair"
+                />
+            </div>
+
+            {/* REACT HUD OVERLAY LAYER */}
+            <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between p-6">
+                
+                {/* TOP HEADER STATUS BAR */}
+                <header className="w-full max-w-5xl mx-auto glass-panel p-4 rounded-2xl pointer-events-auto flex flex-wrap justify-between items-center gap-4 text-xs">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-sky-500/20 border border-sky-400/40 p-2 rounded-xl text-sky-400 font-bold font-sans-header text-sm flex items-center gap-1.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-sky-400 animate-ping"></span>
+                            CITY BUILDER CA
+                        </div>
+                        <button
+                            onClick={togglePause}
+                            className={`px-3 py-1.5 rounded-lg font-bold tracking-wide transition-all ${hudData.isPaused ? 'bg-amber-500 text-slate-950' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'}`}
+                        >
+                            {hudData.isPaused ? '⏸️ PAUSED' : '▶️ RUNNING'}
+                        </button>
+                        <button
+                            onClick={resetMap}
+                            className="px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 font-bold transition-all"
+                        >
+                            🔄 Reset
+                        </button>
+                    </div>
+
+                    {/* KEY STAT COUNTERS */}
+                    <div className="flex items-center gap-5 text-slate-200">
+                        <div>💵 Treasury: <strong className="text-emerald-400 text-sm font-sans-header">${hudData.treasury.toLocaleString()}</strong></div>
+                        <div>👥 Pop: <strong className="text-cyan-400 text-sm font-sans-header">{hudData.population}</strong></div>
+                        <div>☣️ Smog: <strong className={hudData.avgPollution > 40 ? "text-amber-400 text-sm font-sans-header" : "text-emerald-400 text-sm font-sans-header"}>{hudData.avgPollution} PPM</strong></div>
+                        <div>🔥 Fires: <strong className={hudData.fires > 0 ? "text-rose-500 animate-pulse font-bold text-sm font-sans-header" : "text-emerald-400 text-sm font-sans-header"}>{hudData.fires}</strong></div>
+                    </div>
+
+                    {/* OVERLAY HEATMAP SWITCHES */}
+                    <div className="flex gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-700/80">
+                        {[
+                            { id: 'NORMAL', label: '🗺️ Map' },
+                            { id: 'POLLUTION', label: '☣️ Smog CA' },
+                            { id: 'FIRE_COVERAGE', label: '🚒 Fire Field' },
+                            { id: 'POLICE_COVERAGE', label: '🚔 Police Field' }
+                        ].map(m => (
+                            <button
+                                key={m.id}
+                                onClick={() => setOverlayMode(m.id)}
+                                className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all ${overlayMode === m.id ? 'bg-sky-500 text-slate-950 shadow-md scale-105' : 'text-slate-400 hover:text-white'}`}
+                            >
+                                {m.label}
+                            </button>
+                        ))}
+                    </div>
+                </header>
+
+                {/* MIDDLE FLOATING TILE INSPECTION HUD */}
+                {inspectTile && (
+                    <div className="absolute top-24 left-6 glass-panel-sm p-3 rounded-xl pointer-events-auto text-[11px] space-y-1 w-48 border border-sky-500/30">
+                        <div className="flex justify-between items-center border-b border-slate-700/60 pb-1 font-bold text-sky-400">
+                            <span>Tile [{inspectTile.x}, {inspectTile.y}]</span>
+                            <span>{TILE_INFO[inspectTile.tile]?.emoji}</span>
+                        </div>
+                        <div className="text-slate-200 font-semibold">{TILE_INFO[inspectTile.tile]?.name}</div>
+                        <div className="flex justify-between text-slate-400">
+                            <span>Smog PPM:</span>
+                            <span className={inspectTile.pollution > 40 ? 'text-amber-400 font-bold' : 'text-slate-200'}>{inspectTile.pollution}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-400">
+                            <span>Fire Station Cov:</span>
+                            <span className="text-rose-400 font-bold">{inspectTile.fireCoverage}%</span>
+                        </div>
+                        <div className="flex justify-between text-slate-400">
+                            <span>Police Station Cov:</span>
+                            <span className="text-blue-400 font-bold">{inspectTile.policeCoverage}%</span>
+                        </div>
+                        {inspectTile.fireState > 0 && (
+                            <div className="text-rose-400 font-bold animate-pulse pt-1 border-t border-slate-800">
+                                ⚠️ ON FIRE (State {inspectTile.fireState})
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* BOTTOM TOOL PALETTE BAR */}
+                <footer className="w-full max-w-4xl mx-auto glass-panel p-3 rounded-2xl pointer-events-auto flex flex-wrap justify-center gap-1.5 text-xs">
+                    {[
+                        { id: 1, label: '🛣️ Road', cost: '$10' },
+                        { id: 2, label: '🏠 Res', cost: '$50' },
+                        { id: 3, label: '🏢 Com', cost: '$60' },
+                        { id: 4, label: '🏭 Ind', cost: '$80' },
+                        { id: 5, label: '⚡ Power', cost: '$300' },
+                        { id: 6, label: '🌳 Park', cost: '$100' },
+                        { id: 7, label: '🚒 Fire Stn', cost: '$400' },
+                        { id: 8, label: '🚔 Police Stn', cost: '$400' },
+                        { id: 0, label: '❌ Demolish', cost: '$5' }
+                    ].map(tool => (
+                        <button
+                            key={tool.id}
+                            onClick={() => setSelectedTool(tool.id)}
+                            className={`px-3 py-2 rounded-xl text-[11px] font-bold transition-all flex flex-col items-center gap-0.5 ${selectedTool === tool.id ? 'bg-sky-500 text-slate-950 shadow-lg scale-105 font-black ring-2 ring-sky-300' : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white'}`}
+                        >
+                            <span>{tool.label}</span>
+                            <span className={`text-[9px] ${selectedTool === tool.id ? 'text-slate-900 font-bold' : 'text-sky-400'}`}>{tool.cost}</span>
+                        </button>
+                    ))}
+                </footer>
+
+            </div>
+        </div>
+    );
+}
+
+ReactDOM.createRoot(document.getElementById('app-root')).render(<CityCaApp />);
+</script>
+</body>
+</html>
