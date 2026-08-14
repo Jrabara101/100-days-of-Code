@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>NEON_SWARM_OS</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#002a24",
+                        "secondary-container": "#00f0cc",
+                        "tertiary-container": "#ff007f",
+                        "outline": "#b34dff",
+                        "primary": "#00f0cc",
+                        "secondary-fixed": "#ff007f",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#4d0099",
+                        "tertiary-fixed": "#ff4db8",
+                        "on-error": "#ffffff",
+                        "on-surface": "#e0f7fa",
+                        "on-primary-fixed-variant": "#004d40",
+                        "on-primary": "#001a14",
+                        "surface": "#0a001a",
+                        "on-tertiary-container": "#ffffff",
+                        "surface-container-lowest": "#05000d",
+                        "background": "#0a001a",
+                        "surface-dim": "#0a001a",
+                        "surface-tint": "#00f0cc",
+                        "primary-fixed": "#4dffdb",
+                        "surface-container-low": "#1a0033",
+                        "surface-container-high": "#330066",
+                        "inverse-surface": "#e0f7fa",
+                        "on-primary-fixed": "#001a14",
+                        "primary-fixed-dim": "#00f0cc",
+                        "inverse-primary": "#006655",
+                        "tertiary": "#ff007f",
+                        "secondary": "#ff007f",
+                        "tertiary-fixed-dim": "#ff1a8c",
+                        "on-secondary-fixed-variant": "#4d0026",
+                        "error": "#ff3333",
+                        "on-tertiary-fixed": "#33001a",
+                        "on-tertiary-fixed-variant": "#660033",
+                        "error-container": "#cc0000",
+                        "surface-container-highest": "#4d0099",
+                        "surface-container": "#26004d",
+                        "primary-container": "#00cca3",
+                        "inverse-on-surface": "#05000d",
+                        "on-surface-variant": "#b3e6ff",
+                        "on-primary-container": "#001a14",
+                        "on-secondary-fixed": "#1a000d",
+                        "surface-bright": "#6600cc",
+                        "secondary-fixed-dim": "#ff007f",
+                        "on-secondary": "#1a000d",
+                        "surface-variant": "#330066",
+                        "on-error-container": "#ffcccc",
+                        "on-background": "#e0f7fa"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "viewport-margin": "16px",
+                        "md": "16px",
+                        "xl": "48px",
+                        "unit": "4px",
+                        "xs": "8px",
+                        "sm": "12px",
+                        "lg": "24px",
+                        "dock-height": "88px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Montserrat", "sans-serif"],
+                        "label-caps": ["Montserrat", "sans-serif"],
+                        "stats-xl": ["Montserrat", "sans-serif"],
+                        "body-lg": ["Montserrat", "sans-serif"],
+                        "headline-lg-mobile": ["Montserrat", "sans-serif"],
+                        "headline-lg": ["Montserrat", "sans-serif"],
+                        "headline-md": ["Montserrat", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "700", "textTransform": "uppercase" }],
+                        "stats-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "800" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "800" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .pixelated {
+            image-rendering: crisp-edges;
+        }
+
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(51, 0, 102, 0.4) 0%, rgba(10, 0, 26, 0.6) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(0, 240, 204, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 240, 204, 0.05);
+        }
+
+        .active-tool {
+            background: linear-gradient(135deg, #00f0cc, #0099ff) !important;
+            color: #001a14 !important;
+            border-color: transparent !important;
+            box-shadow: 0 0 20px rgba(0, 240, 204, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.5) !important;
+            transform: translateY(-2px);
+        }
+
+        .active-filter {
+            background: linear-gradient(135deg, #ff007f, #b300ff) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.4) !important;
+        }
+
+        .colony-cyan {
+            color: #00f0cc;
+            text-shadow: 0 0 10px rgba(0, 240, 204, 0.5);
+        }
+
+        .colony-magenta {
+            color: #ff007f;
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+        }
+
+        .icon-gradient {
+            background: -webkit-linear-gradient(45deg, #00f0cc, #ff007f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .neon-border {
+            border: 1px solid rgba(0, 240, 204, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 204, 0.1);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+            background: radial-gradient(circle at 50% 50%, #1a0033 0%, #0a001a 100%);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background text-on-background font-body-md min-h-screen overflow-hidden flex flex-col items-center justify-center relative select-none">
+    <!-- Background Shader -->
+    <!-- Top AppBar -->
+    <header
+        class="fixed top-0 left-0 w-full flex justify-between items-center px-viewport-margin h-20 z-50 glass-panel !border-t-0 !border-l-0 !border-r-0 !border-b-primary/30 !rounded-none">
+        <div class="flex items-center gap-sm">
+            <span class="material-symbols-outlined icon-gradient text-3xl drop-shadow-[0_0_8px_rgba(0,240,204,0.5)]"
+                data-icon="hive">hive</span>
+            <span
+                class="font-headline-md text-headline-md md:font-headline-lg md:text-headline-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">NEON_SWARM_OS</span>
+        </div>
+        <div class="flex items-center gap-md font-label-caps text-label-caps text-on-surface-variant hidden md:flex">
+            <div class="glass-panel px-sm py-xs rounded-xl flex items-center gap-2">
+                <span class="text-[10px] text-on-surface-variant/70">SWARM_POP [CYAN]</span> <span
+                    class="colony-cyan font-bold text-sm" id="stat-amber">300</span>
+            </div>
+            <div class="glass-panel px-sm py-xs rounded-xl flex items-center gap-2">
+                <span class="text-[10px] text-on-surface-variant/70">SWARM_POP [MAG]</span> <span
+                    class="colony-magenta font-bold text-sm" id="stat-violet">300</span>
+            </div>
+            <div class="glass-panel px-sm py-xs rounded-xl flex items-center gap-2 cursor-pointer hover:bg-surface-bright/40 transition-colors border-error/30 hover:border-error hover:shadow-[0_0_15px_rgba(255,51,51,0.3)]"
+                id="toggle-predator-mode" title="Toggle Annihilation Mode">
+                <span class="material-symbols-outlined text-[16px] text-error" data-icon="target">target</span>
+                <span class="text-error font-bold">ANNIHILATION</span>
+            </div>
+        </div>
+        <button
+            class="hover:bg-surface-container-highest/50 active:scale-95 transition-all duration-200 p-sm rounded-full glass-panel text-primary hover:shadow-[0_0_15px_rgba(0,240,204,0.3)]">
+            <span class="material-symbols-outlined" data-icon="tune">tune</span>
+        </button>
+    </header>
+    <!-- Main Canvas Area -->
+    <main
+        class="relative w-full max-w-4xl aspect-[4/3] max-h-[618px] neon-border rounded-2xl overflow-hidden bg-surface-container-lowest z-10 shadow-[0_0_50px_rgba(51,0,102,0.6)] mx-viewport-margin mt-20 md:mt-0">
+        <canvas class="w-full h-full pixelated" id="simulationCanvas"></canvas>
+        <!-- Mobile Stats Overlay -->
+        <div class="absolute top-sm left-sm right-sm flex justify-between md:hidden pointer-events-none gap-2">
+            <div
+                class="glass-panel px-sm py-xs rounded-lg font-label-caps text-label-caps text-on-surface flex-1 text-center">
+                CYAN:<span class="colony-cyan ml-1 font-bold" id="stat-amber-mobile">300</span>
+            </div>
+            <div
+                class="glass-panel px-sm py-xs rounded-lg font-label-caps text-label-caps text-on-surface flex-1 text-center">
+                MAG:<span class="colony-magenta ml-1 font-bold" id="stat-violet-mobile">300</span>
+            </div>
+        </div>
+    </main>
+    <!-- Bottom Dock -->
+    <div
+        class="fixed bottom-0 left-1/2 -translate-x-1/2 mb-lg w-[95%] max-w-3xl rounded-3xl glass-panel z-50 flex items-center justify-between p-sm h-dock-height transition-all duration-300">
+        <!-- Filters -->
+        <div
+            class="flex gap-sm bg-surface-container-lowest/40 rounded-2xl p-xs overflow-x-auto no-scrollbar shadow-inner border border-surface-bright/20">
+            <button
+                class="filter-btn active-filter flex items-center justify-center rounded-xl w-12 h-12 md:w-auto md:px-4 transition-all duration-300"
+                data-filter="normal" title="Core Vision">
+                <span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+                <span class="hidden md:inline ml-xs font-label-caps text-label-caps font-bold">CORE_VIS</span>
+            </button>
+            <button
+                class="filter-btn flex items-center justify-center text-on-surface-variant rounded-xl w-12 h-12 md:w-auto md:px-4 hover:bg-surface-bright/40 transition-all duration-300"
+                data-filter="food" title="Loot Signatures">
+                <span class="material-symbols-outlined text-xl" data-icon="diamond">diamond</span>
+                <span class="hidden md:inline ml-xs font-label-caps text-label-caps font-bold">LOOT_SIG</span>
+            </button>
+            <button
+                class="filter-btn flex items-center justify-center text-on-surface-variant rounded-xl w-12 h-12 md:w-auto md:px-4 hover:bg-surface-bright/40 transition-all duration-300"
+                data-filter="home" title="Nexus Trails">
+                <span class="material-symbols-outlined text-xl" data-icon="hub">hub</span>
+                <span class="hidden md:inline ml-xs font-label-caps text-label-caps font-bold">NEXUS_TR</span>
+            </button>
+        </div>
+        <!-- Tools -->
+        <div
+            class="flex gap-sm bg-surface-container-lowest/40 rounded-2xl p-xs shadow-inner border border-surface-bright/20">
+            <button
+                class="tool-btn active-tool flex items-center justify-center rounded-xl w-12 h-12 hover:shadow-[0_0_20px_rgba(0,240,204,0.4)] transition-all duration-300"
+                data-tool="food" title="Drop Loot">
+                <span class="material-symbols-outlined text-xl" data-icon="deployed_code">deployed_code</span>
+            </button>
+            <button
+                class="tool-btn flex items-center justify-center text-primary bg-primary/10 border border-primary/20 rounded-xl w-12 h-12 hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(0,240,204,0.2)] transition-all duration-300"
+                data-tool="wall" title="Deploy Barrier">
+                <span class="material-symbols-outlined text-xl" data-icon="grid_4x4">grid_4x4</span>
+            </button>
+            <button
+                class="tool-btn flex items-center justify-center text-secondary bg-secondary/10 border border-secondary/20 rounded-xl w-12 h-12 hover:bg-secondary/20 hover:shadow-[0_0_15px_rgba(255,0,127,0.2)] transition-all duration-300"
+                data-tool="spawn-rival" title="Inject Hostile">
+                <span class="material-symbols-outlined text-xl" data-icon="bug_report">bug_report</span>
+            </button>
+            <button
+                class="tool-btn flex items-center justify-center text-outline bg-outline/10 border border-outline/20 rounded-xl w-12 h-12 hover:bg-outline/20 hover:shadow-[0_0_15px_rgba(179,77,255,0.2)] transition-all duration-300"
+                data-tool="erase" title="Purge Region">
+                <span class="material-symbols-outlined text-xl" data-icon="layers_clear">layers_clear</span>
+            </button>
+        </div>
+        <!-- Actions -->
+        <button
+            class="flex items-center justify-center bg-gradient-to-br from-error to-error-container text-white rounded-xl w-12 h-12 md:w-14 md:h-14 hover:shadow-[0_0_25px_rgba(255,51,51,0.6)] active:scale-90 transition-all duration-300 border border-error/50 ml-xs shrink-0"
+            id="resetBtn" title="Reboot Sim">
+            <span class="material-symbols-outlined text-xl md:text-2xl"
+                data-icon="power_settings_new">power_settings_new</span>
+        </button>
+    </div>
+    <script>
+        // Simple UI Interaction Logic
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('active-filter');
+                    b.classList.add('text-on-surface-variant');
+                });
+                const target = e.currentTarget;
+                target.classList.remove('text-on-surface-variant');
+                target.classList.add('active-filter');
+            });
+        });
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tool-btn').forEach(b => {
+                    b.classList.remove('active-tool');
+                    // Reset to appropriate colored glass state based on data-tool
+                    if (b.dataset.tool === 'wall') b.className = 'tool-btn flex items-center justify-center text-primary bg-primary/10 border border-primary/20 rounded-xl w-12 h-12 hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(0,240,204,0.2)] transition-all duration-300';
+                    else if (b.dataset.tool === 'spawn-rival') b.className = 'tool-btn flex items-center justify-center text-secondary bg-secondary/10 border border-secondary/20 rounded-xl w-12 h-12 hover:bg-secondary/20 hover:shadow-[0_0_15px_rgba(255,0,127,0.2)] transition-all duration-300';
+                    else if (b.dataset.tool === 'erase') b.className = 'tool-btn flex items-center justify-center text-outline bg-outline/10 border border-outline/20 rounded-xl w-12 h-12 hover:bg-outline/20 hover:shadow-[0_0_15px_rgba(179,77,255,0.2)] transition-all duration-300';
+                    else b.className = 'tool-btn flex items-center justify-center text-primary bg-primary/10 border border-primary/20 rounded-xl w-12 h-12 hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(0,240,204,0.2)] transition-all duration-300';
+                });
+                const target = e.currentTarget;
+                target.className = 'tool-btn active-tool flex items-center justify-center rounded-xl w-12 h-12 hover:shadow-[0_0_20px_rgba(0,240,204,0.4)] transition-all duration-300';
+            });
+        });
+
+        document.getElementById('toggle-predator-mode')?.addEventListener('click', function () {
+            this.classList.toggle('bg-error/20');
+            this.classList.toggle('border-error');
+            this.classList.toggle('shadow-[0_0_15px_rgba(255,51,51,0.3)]');
+        });
+
+        // Basic Canvas Setup for visual completeness
+        const canvas = document.getElementById('simulationCanvas');
+        const antSprite = new Image();
+        antSprite.src = 'https://lh3.googleusercontent.com/aida-public/AB6AXuACJTUSN326w0FPIveW-w1JnrHI7thW5qw1lBPGPCyyZBFg9RKXFvaKmaj6YnspRlVQ7PWutgLXpGdiQJbm_4ef7mPwF4KWGkUUgJqa1b-VAc4Yu2qsX1JNYKoMXpRmaGDpNt9vKDNP-skTNQPLwGeRchZ81plApgxGMynt8wmw7nN_ozTIcwf8im3EMXKkfsNEZ16h83PVTNzg3JsXBoJtgBs9uDt_sh0o8Gc8LV4WkTHCV4SC2WW3Mg';
+
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            // Dummy ants for visual representation
+            const ants = [
+                { x: canvas.width / 2 + 50, y: canvas.height / 2 - 50, angle: Math.PI / 4, type: 'cyan' },
+                { x: canvas.width / 2 - 50, y: canvas.height / 2 + 50, angle: -Math.PI * 0.8, type: 'cyan' },
+                { x: canvas.width * (100 / 120) - 40, y: canvas.height * (100 / 120) - 20, angle: Math.PI + 0.5, type: 'magenta' },
+                { x: canvas.width * (100 / 120) + 30, y: canvas.height * (100 / 120) + 40, angle: -0.2, type: 'magenta' }
+            ];
+
+            function drawColonies() {
+                // Background
+                ctx.fillStyle = '#05000d';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Grid lines (Neon style)
+                ctx.strokeStyle = 'rgba(0, 240, 204, 0.05)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < canvas.width; i += 40) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+                }
+                for (let i = 0; i < canvas.height; i += 40) {
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+                }
+
+                // Nest 1 - Cyan
+                ctx.fillStyle = 'rgba(0, 240, 204, 0.2)';
+                ctx.shadowColor = '#00f0cc';
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, canvas.height / 2, 20, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0; // reset
+
+                // Nest 2 - Magenta
+                ctx.fillStyle = 'rgba(255, 0, 127, 0.2)';
+                ctx.shadowColor = '#ff007f';
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.arc(canvas.width * (100 / 120), canvas.height * (100 / 120), 20, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0; // reset
+
+                // Draw Ants
+                const antSize = 12;
+                if (antSprite.complete) {
+                    ants.forEach(ant => {
+                        ctx.save();
+                        ctx.translate(ant.x, ant.y);
+                        ctx.rotate(ant.angle + Math.PI / 2); // Rotate 90deg so they face forward
+
+                        if (ant.type === 'cyan') {
+                            ctx.drawImage(antSprite, 0, 0, 512, 1024, -antSize / 2, -antSize / 2, antSize, antSize);
+                        } else {
+                            ctx.drawImage(antSprite, 512, 0, 512, 1024, -antSize / 2, -antSize / 2, antSize, antSize);
+                        }
+
+                        ctx.restore();
+                    });
+                }
+            }
+
+            antSprite.onload = drawColonies;
+            drawColonies(); // initial draw
+
+            window.addEventListener('resize', () => {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                drawColonies();
+            });
+        }
+    </script>
+</body>
+
+</html>
