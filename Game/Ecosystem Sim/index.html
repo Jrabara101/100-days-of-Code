@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Xenobiotic Interface - 2D Pixel Ecosystem & Evolution Sandbox</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#0d1117",
+                        "on-primary-fixed": "#181c22",
+                        "surface-container-highest": "#353435",
+                        "error-container": "#93000a",
+                        "secondary-container": "#00fbb2",
+                        "surface-container-low": "#1c1b1c",
+                        "on-secondary": "#003825",
+                        "secondary": "#e8fff0",
+                        "primary-fixed-dim": "#c3c6cf",
+                        "inverse-surface": "#e5e2e2",
+                        "background": "#06090e",
+                        "on-background": "#e5e2e2",
+                        "surface-container-high": "#2a2a2a",
+                        "on-surface": "#e5e2e2",
+                        "outline-variant": "#45474b",
+                        "surface-container-lowest": "#0e0e0f",
+                        "surface-tint": "#c3c6cf",
+                        "primary-fixed": "#dfe2eb",
+                        "surface-container": "#201f20",
+                        "surface": "#131314",
+                        "tertiary-container": "#001418",
+                        "on-primary-container": "#797d85",
+                        "secondary-fixed": "#45ffba",
+                        "on-error": "#690005",
+                        "surface-variant": "#353435",
+                        "error": "#ffb4ab",
+                        "inverse-primary": "#5b5e66",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#004e5a",
+                        "tertiary-fixed": "#a5eeff",
+                        "on-surface-variant": "#c6c6cb",
+                        "on-secondary-container": "#006f4c",
+                        "outline": "#8f9095",
+                        "on-secondary-fixed": "#002114",
+                        "inverse-on-surface": "#313031",
+                        "on-primary": "#2d3137",
+                        "on-tertiary-container": "#00899d",
+                        "surface-bright": "#3a3939",
+                        "on-secondary-fixed-variant": "#005237",
+                        "secondary-fixed-dim": "#00e29f",
+                        "tertiary": "#00daf8",
+                        "primary": "#c3c6cf",
+                        "tertiary-fixed-dim": "#00daf8",
+                        "on-tertiary-fixed": "#001f25",
+                        "on-primary-fixed-variant": "#43474e",
+                        "on-tertiary": "#00363f",
+                        "surface-dim": "#131314",
+                        "accent-emerald": "#10b981",
+                        "accent-sky": "#38bdf8",
+                        "accent-rose": "#f43f5e",
+                        "accent-purple": "#a855f7",
+                        "accent-amber": "#f59e0b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "data-num": ["JetBrains Mono", "monospace"],
+                        "display-lg": ["Space Grotesk", "sans-serif"],
+                        "body-md": ["JetBrains Mono", "monospace"],
+                        "label-caps": ["Space Mono", "monospace"],
+                        "headline-md": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@600;700&amp;family=Space+Mono:wght@700&amp;display=swap" rel="stylesheet" />
+    <!-- React & Babel -->
+    <script crossorigin="" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin="" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #06090e;
+            color: #e5e2e2;
+            user-select: none;
+        }
+
+        .glass-panel {
+            background: rgba(13, 17, 23, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(143, 144, 149, 0.25);
+        }
+
+        .glass-panel-light {
+            background: rgba(28, 33, 43, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(143, 144, 149, 0.4);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(143, 144, 149, 0.7);
+        }
+
+        .tool-btn-active {
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+            border-color: #38bdf8 !important;
+            background-color: rgba(56, 189, 248, 0.15) !important;
+        }
+    </style>
+</head>
+
+<body class="bg-background font-body-md text-on-background antialiased flex h-screen w-screen overflow-hidden">
+    <!-- Simulation Viewport Container -->
+    <div class="absolute inset-0 w-full h-full z-0" id="sim-root"></div>
+
+    <!-- React Engine Component Script -->
+    <script type="text/babel">
+        const { useEffect, useRef, useState } = React;
+
+        // ==========================================
+        // 1. SOUND SYNTHESIZER ENGINE (Web Audio API)
+        // ==========================================
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.05) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {}
+            }
+
+            playEat() {
+                this.playTone(587.33, 'sine', 0.08, 0.04);
+            }
+
+            playBirth() {
+                this.playTone(880, 'triangle', 0.15, 0.05);
+            }
+
+            playDeath() {
+                this.playTone(110, 'sawtooth', 0.2, 0.03);
+            }
+
+            playDisaster() {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const bufferSize = this.ctx.sampleRate * 0.4;
+                    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                    const output = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+                    const whiteNoise = this.ctx.createBufferSource();
+                    whiteNoise.buffer = buffer;
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(300, this.ctx.currentTime);
+                    filter.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.4);
+                    const gain = this.ctx.createGain();
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+                    whiteNoise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    whiteNoise.start();
+                } catch (e) {}
+            }
+        }
+
+        const audio = new SoundEngine();
+
+        // ==========================================
+        // 2. VECTOR & SPATIAL HASHING UTILITIES
+        // ==========================================
+        class Vec2 {
+            constructor(x, y) { this.x = x; this.y = y; }
+            add(v) { return new Vec2(this.x + v.x, this.y + v.y); }
+            sub(v) { return new Vec2(this.x - v.x, this.y - v.y); }
+            mult(n) { return new Vec2(this.x * n, this.y * n); }
+            mag() { return Math.sqrt(this.x * this.x + this.y * this.y); }
+            normalize() { let m = this.mag(); return m === 0 ? new Vec2(0, 0) : new Vec2(this.x / m, this.y / m); }
+            dist(v) { return this.sub(v).mag(); }
+            heading() { return Math.atan2(this.y, this.x); }
+        }
+
+        class SpatialGrid {
+            constructor(width, height, cellSize = 60) {
+                this.cellSize = cellSize;
+                this.cols = Math.ceil(width / cellSize);
+                this.rows = Math.ceil(height / cellSize);
+                this.grid = new Array(this.cols * this.rows).fill(null).map(() => []);
+            }
+
+            clear() {
+                for (let i = 0; i < this.grid.length; i++) this.grid[i].length = 0;
+            }
+
+            getKey(x, y) {
+                const c = Math.floor(x / this.cellSize);
+                const r = Math.floor(y / this.cellSize);
+                if (c < 0 || c >= this.cols || r < 0 || r >= this.rows) return -1;
+                return r * this.cols + c;
+            }
+
+            insert(entity) {
+                const k = this.getKey(entity.pos.x, entity.pos.y);
+                if (k >= 0 && k < this.grid.length) {
+                    this.grid[k].push(entity);
+                }
+            }
+
+            queryRadius(x, y, radius) {
+                const results = [];
+                const minC = Math.max(0, Math.floor((x - radius) / this.cellSize));
+                const maxC = Math.min(this.cols - 1, Math.floor((x + radius) / this.cellSize));
+                const minR = Math.max(0, Math.floor((y - radius) / this.cellSize));
+                const maxR = Math.min(this.rows - 1, Math.floor((y + radius) / this.cellSize));
+
+                for (let r = minR; r <= maxR; r++) {
+                    for (let c = minC; c <= maxC; c++) {
+                        const idx = r * this.cols + c;
+                        const cell = this.grid[idx];
+                        for (let i = 0; i < cell.length; i++) {
+                            const e = cell[i];
+                            if (!e.dead && e.pos.dist(new Vec2(x, y)) <= radius) {
+                                results.push(e);
+                            }
+                        }
+                    }
+                }
+                return results;
+            }
+        }
+
+        // ==========================================
+        // 3. GENETICS & ENTITY CLASSES
+        // ==========================================
+        class Genome {
+            constructor(type, parentGenome = null) {
+                this.type = type;
+                if (parentGenome) {
+                    const mut = (val, range = 0.1, min = 0.2) => Math.max(min, val + (Math.random() * 2 - 1) * range);
+                    this.speed = mut(parentGenome.speed, 0.2, 0.8);
+                    this.vision = mut(parentGenome.vision, 8, 30);
+                    this.size = mut(parentGenome.size, 0.4, 2);
+                    this.metabolism = mut(parentGenome.metabolism, 0.02, 0.05);
+                    this.reproduceThreshold = mut(parentGenome.reproduceThreshold, 5, 40);
+                    this.hue = (parentGenome.hue + (Math.random() * 20 - 10) + 360) % 360;
+                } else {
+                    if (type === 'herbivore') {
+                        this.speed = 1.6 + Math.random() * 0.4;
+                        this.vision = 70 + Math.random() * 20;
+                        this.size = 3.5 + Math.random() * 1;
+                        this.metabolism = 0.1;
+                        this.reproduceThreshold = 80;
+                        this.hue = 195;
+                    } else if (type === 'carnivore') {
+                        this.speed = 2.1 + Math.random() * 0.5;
+                        this.vision = 110 + Math.random() * 30;
+                        this.size = 5.5 + Math.random() * 1.5;
+                        this.metabolism = 0.14;
+                        this.reproduceThreshold = 120;
+                        this.hue = 345;
+                    } else if (type === 'apex') {
+                        this.speed = 2.4 + Math.random() * 0.6;
+                        this.vision = 150 + Math.random() * 40;
+                        this.size = 8.5 + Math.random() * 2;
+                        this.metabolism = 0.18;
+                        this.reproduceThreshold = 160;
+                        this.hue = 270;
+                    }
+                }
+            }
+        }
+
+        class Entity {
+            constructor(x, y, type) {
+                this.id = Math.random().toString(36).substring(2, 10);
+                this.pos = new Vec2(x, y);
+                this.type = type;
+                this.age = 0;
+                this.dead = false;
+            }
+        }
+
+        class Plant extends Entity {
+            constructor(x, y, isFertile = false) {
+                super(x, y, 'plant');
+                this.energy = 100;
+                this.size = isFertile ? 4 : 2.5;
+            }
+        }
+
+        class Carcass extends Entity {
+            constructor(x, y, size = 5) {
+                super(x, y, 'carcass');
+                this.energy = size * 20;
+                this.size = size;
+                this.decay = 0;
+            }
+        }
+
+        class Animal extends Entity {
+            constructor(x, y, type, parentGenome = null, generation = 1) {
+                super(x, y, type);
+                this.genome = new Genome(type, parentGenome);
+                this.vel = new Vec2(Math.random() - 0.5, Math.random() - 0.5).normalize();
+                this.energy = type === 'herbivore' ? 60 : type === 'carnivore' ? 90 : 130;
+                this.thirst = 0;
+                this.generation = generation;
+                this.state = 'wander';
+                this.targetEntity = null;
+                this.killCount = 0;
+            }
+
+            update(world) {
+                this.age++;
+                this.energy -= this.genome.metabolism * (this.state === 'flee' || this.state === 'hunt' ? 1.5 : 1.0);
+                this.thirst += 0.05;
+
+                if (this.energy <= 0 || this.age > 1800) {
+                    this.dead = true;
+                    world.carcasses.push(new Carcass(this.pos.x, this.pos.y, this.genome.size));
+                    audio.playDeath();
+                    return;
+                }
+
+                let speedMult = 1.0;
+                const inWater = world.isWater(this.pos.x, this.pos.y);
+                if (inWater) {
+                    speedMult = 0.55;
+                    if (this.thirst > 20) this.thirst = Math.max(0, this.thirst - 2.0);
+                }
+
+                const neighbors = world.grid.queryRadius(this.pos.x, this.pos.y, this.genome.vision);
+
+                let threat = null;
+                let prey = null;
+                let minDistThreat = Infinity;
+                let minDistPrey = Infinity;
+
+                for (let i = 0; i < neighbors.length; i++) {
+                    const other = neighbors[i];
+                    if (other.id === this.id || other.dead) continue;
+
+                    if (this.type === 'herbivore' && (other.type === 'carnivore' || other.type === 'apex')) {
+                        const d = this.pos.dist(other.pos);
+                        if (d < minDistThreat) { minDistThreat = d; threat = other; }
+                    } else if (this.type === 'carnivore' && other.type === 'apex') {
+                        const d = this.pos.dist(other.pos);
+                        if (d < minDistThreat) { minDistThreat = d; threat = other; }
+                    }
+
+                    if (this.type === 'herbivore' && other.type === 'plant') {
+                        const d = this.pos.dist(other.pos);
+                        if (d < minDistPrey) { minDistPrey = d; prey = other; }
+                    } else if (this.type === 'carnivore' && (other.type === 'herbivore' || other.type === 'carcass')) {
+                        const d = this.pos.dist(other.pos);
+                        if (d < minDistPrey) { minDistPrey = d; prey = other; }
+                    } else if (this.type === 'apex' && (other.type === 'carnivore' || other.type === 'herbivore' || other.type === 'carcass')) {
+                        const d = this.pos.dist(other.pos);
+                        if (d < minDistPrey) { minDistPrey = d; prey = other; }
+                    }
+                }
+
+                if (threat) {
+                    this.state = 'flee';
+                    const fleeDir = this.pos.sub(threat.pos).normalize();
+                    this.vel = this.vel.add(fleeDir.mult(0.6)).normalize();
+                    this.targetEntity = threat;
+                } else if (this.thirst > 60 && world.waterPools.length > 0) {
+                    this.state = 'drink';
+                    let closestPool = world.waterPools[0];
+                    let minDist = this.pos.dist(new Vec2(closestPool.x, closestPool.y));
+                    for (let p of world.waterPools) {
+                        let d = this.pos.dist(new Vec2(p.x, p.y));
+                        if (d < minDist) { minDist = d; closestPool = p; }
+                    }
+                    const drinkDir = new Vec2(closestPool.x, closestPool.y).sub(this.pos).normalize();
+                    this.vel = this.vel.add(drinkDir.mult(0.4)).normalize();
+                } else if (prey && this.energy < this.genome.reproduceThreshold * 1.2) {
+                    this.state = this.type === 'herbivore' ? 'forage' : 'hunt';
+                    this.targetEntity = prey;
+                    const preyDir = prey.pos.sub(this.pos).normalize();
+                    this.vel = this.vel.add(preyDir.mult(0.5)).normalize();
+
+                    const eatDist = this.genome.size + (prey.size || 2.5);
+                    if (this.pos.dist(prey.pos) <= eatDist) {
+                        if (prey.type === 'plant') {
+                            this.energy += 25;
+                            prey.dead = true;
+                            audio.playEat();
+                        } else if (prey.type === 'carcass') {
+                            this.energy += 40;
+                            prey.energy -= 40;
+                            if (prey.energy <= 0) prey.dead = true;
+                            audio.playEat();
+                        } else {
+                            this.energy += prey.genome.size * 12;
+                            prey.dead = true;
+                            this.killCount++;
+                            audio.playEat();
+                            world.carcasses.push(new Carcass(prey.pos.x, prey.pos.y, prey.genome.size * 0.7));
+                        }
+                    }
+                } else {
+                    this.state = 'wander';
+                    this.targetEntity = null;
+                    this.vel.x += (Math.random() - 0.5) * 0.3;
+                    this.vel.y += (Math.random() - 0.5) * 0.3;
+                    this.vel = this.vel.normalize();
+                }
+
+                for (let r of world.rocks) {
+                    const rPos = new Vec2(r.x, r.y);
+                    const d = this.pos.dist(rPos);
+                    if (d < r.r + this.genome.size + 5) {
+                        const avoidDir = this.pos.sub(rPos).normalize();
+                        this.vel = this.vel.add(avoidDir.mult(1.2)).normalize();
+                    }
+                }
+
+                const actualSpeed = this.genome.speed * speedMult * (this.state === 'flee' ? 1.25 : 1.0);
+                this.pos = this.pos.add(this.vel.mult(actualSpeed));
+
+                if (this.pos.x < 0) this.pos.x = world.width;
+                if (this.pos.x > world.width) this.pos.x = 0;
+                if (this.pos.y < 0) this.pos.y = world.height;
+                if (this.pos.y > world.height) this.pos.y = 0;
+
+                if (this.energy >= this.genome.reproduceThreshold) {
+                    this.energy /= 2.2;
+                    const child = new Animal(
+                        this.pos.x + (Math.random() * 16 - 8),
+                        this.pos.y + (Math.random() * 16 - 8),
+                        this.type,
+                        this.genome,
+                        this.generation + 1
+                    );
+                    world.spawnQueue.push(child);
+                    audio.playBirth();
+                }
+            }
+        }
+
+        // ==========================================
+        // 4. MAIN ECOSYSTEM SIMULATION CANVAS ENGINE
+        // ==========================================
+        const EcosystemSimulation = () => {
+            const canvasRef = useRef(null);
+            
+            // HUD UI State (Decoupled from high-frequency simulation loop)
+            const [activeTool, setActiveTool] = useState('inspect');
+            const [simSpeed, setSimSpeed] = useState(1);
+            const [isPaused, setIsPaused] = useState(false);
+            const [debugOverlays, setDebugOverlays] = useState({ vision: true, vectors: false, biomes: true });
+            const [selectedEntity, setSelectedEntity] = useState(null);
+            const [weather, setWeather] = useState('clear');
+            const [activeScenario, setActiveScenario] = useState('Eden');
+            const [soundMuted, setSoundMuted] = useState(false);
+            const [showChart, setShowChart] = useState(true);
+
+            // Live HUD Counters State (Updated periodically via setInterval)
+            const [counts, setCounts] = useState({ plants: 0, herbivores: 0, carnivores: 0, apex: 0, carcasses: 0 });
+            const [popHistory, setPopHistory] = useState({ plants: [], herbivores: [], carnivores: [], apex: [] });
+
+            // Mutable Simulation References
+            const simSpeedRef = useRef(simSpeed);
+            const isPausedRef = useRef(isPaused);
+            const weatherRef = useRef(weather);
+            const debugOverlaysRef = useRef(debugOverlays);
+            const selectedEntityRef = useRef(selectedEntity);
+
+            simSpeedRef.current = simSpeed;
+            isPausedRef.current = isPaused;
+            weatherRef.current = weather;
+            debugOverlaysRef.current = debugOverlays;
+            selectedEntityRef.current = selectedEntity;
+
+            const worldRef = useRef({
+                width: window.innerWidth,
+                height: window.innerHeight,
+                timeOfDay: 0.5,
+                plants: [],
+                herbivores: [],
+                carnivores: [],
+                apex: [],
+                carcasses: [],
+                waterPools: [
+                    { x: window.innerWidth * 0.3, y: window.innerHeight * 0.4, r: 90 },
+                    { x: window.innerWidth * 0.75, y: window.innerHeight * 0.65, r: 110 }
+                ],
+                fertilePatches: [
+                    { x: window.innerWidth * 0.2, y: window.innerHeight * 0.7, r: 120 },
+                    { x: window.innerWidth * 0.8, y: window.innerHeight * 0.25, r: 140 }
+                ],
+                rocks: [
+                    { x: window.innerWidth * 0.5, y: window.innerHeight * 0.3, r: 45 },
+                    { x: window.innerWidth * 0.52, y: window.innerHeight * 0.35, r: 35 },
+                    { x: window.innerWidth * 0.25, y: window.innerHeight * 0.2, r: 30 }
+                ],
+                particles: [],
+                grid: new SpatialGrid(window.innerWidth, window.innerHeight, 70),
+                spawnQueue: [],
+                isWater: (x, y) => {
+                    for (let p of worldRef.current.waterPools) {
+                        if (new Vec2(x, y).dist(new Vec2(p.x, p.y)) <= p.r) return true;
+                    }
+                    return false;
+                }
+            });
+
+            const mouseDragRef = useRef({ isDragging: false, entity: null });
+
+            const resetScenario = (scenarioName = 'Eden') => {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                const world = worldRef.current;
+                
+                world.plants = [];
+                world.herbivores = [];
+                world.carnivores = [];
+                world.apex = [];
+                world.carcasses = [];
+                world.particles = [];
+                setSelectedEntity(null);
+                setActiveScenario(scenarioName);
+
+                if (scenarioName === 'Eden') {
+                    for (let i = 0; i < 220; i++) world.plants.push(new Plant(Math.random() * w, Math.random() * h));
+                    for (let i = 0; i < 45; i++) world.herbivores.push(new Animal(Math.random() * w, Math.random() * h, 'herbivore'));
+                    for (let i = 0; i < 10; i++) world.carnivores.push(new Animal(Math.random() * w, Math.random() * h, 'carnivore'));
+                    for (let i = 0; i < 3; i++) world.apex.push(new Animal(Math.random() * w, Math.random() * h, 'apex'));
+                    setWeather('clear');
+                } else if (scenarioName === 'Predator Overload') {
+                    for (let i = 0; i < 150; i++) world.plants.push(new Plant(Math.random() * w, Math.random() * h));
+                    for (let i = 0; i < 60; i++) world.herbivores.push(new Animal(Math.random() * w, Math.random() * h, 'herbivore'));
+                    for (let i = 0; i < 28; i++) world.carnivores.push(new Animal(Math.random() * w, Math.random() * h, 'carnivore'));
+                    for (let i = 0; i < 8; i++) world.apex.push(new Animal(Math.random() * w, Math.random() * h, 'apex'));
+                    setWeather('clear');
+                } else if (scenarioName === 'Extinction Recovery') {
+                    for (let i = 0; i < 80; i++) world.plants.push(new Plant(Math.random() * w, Math.random() * h));
+                    for (let i = 0; i < 8; i++) world.herbivores.push(new Animal(Math.random() * w, Math.random() * h, 'herbivore'));
+                    for (let i = 0; i < 2; i++) world.carnivores.push(new Animal(Math.random() * w, Math.random() * h, 'carnivore'));
+                    setWeather('drought');
+                } else if (scenarioName === 'Night Bioluminescence') {
+                    for (let i = 0; i < 300; i++) world.plants.push(new Plant(Math.random() * w, Math.random() * h, true));
+                    for (let i = 0; i < 50; i++) world.herbivores.push(new Animal(Math.random() * w, Math.random() * h, 'herbivore'));
+                    for (let i = 0; i < 12; i++) world.carnivores.push(new Animal(Math.random() * w, Math.random() * h, 'carnivore'));
+                    for (let i = 0; i < 4; i++) world.apex.push(new Animal(Math.random() * w, Math.random() * h, 'apex'));
+                    world.timeOfDay = 0.0;
+                    setWeather('rain');
+                }
+            };
+
+            useEffect(() => {
+                resetScenario('Eden');
+
+                // UI Telemetry Update Timer (Smooth 5 FPS decoupled from animation loop)
+                const uiTimer = setInterval(() => {
+                    const world = worldRef.current;
+                    const curP = world.plants.length;
+                    const curH = world.herbivores.length;
+                    const curC = world.carnivores.length;
+                    const curA = world.apex.length;
+                    const curCar = world.carcasses.length;
+
+                    setCounts({ plants: curP, herbivores: curH, carnivores: curC, apex: curA, carcasses: curCar });
+
+                    setPopHistory(prev => ({
+                        plants: [...prev.plants, curP].slice(-40),
+                        herbivores: [...prev.herbivores, curH].slice(-40),
+                        carnivores: [...prev.carnivores, curC].slice(-40),
+                        apex: [...prev.apex, curA].slice(-40)
+                    }));
+                }, 400);
+
+                return () => clearInterval(uiTimer);
+            }, []);
+
+            // Smooth 60 FPS Canvas Rendering & Physics Loop
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                let animationId;
+
+                const handleResize = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    worldRef.current.width = canvas.width;
+                    worldRef.current.height = canvas.height;
+                    worldRef.current.grid = new SpatialGrid(canvas.width, canvas.height, 70);
+                };
+                window.addEventListener('resize', handleResize);
+                handleResize();
+
+                const loop = () => {
+                    animationId = requestAnimationFrame(loop);
+
+                    const world = worldRef.current;
+                    const w = world.width;
+                    const h = world.height;
+                    const speed = simSpeedRef.current;
+                    const paused = isPausedRef.current;
+                    const curWeather = weatherRef.current;
+                    const overlays = debugOverlaysRef.current;
+                    const selEntity = selectedEntityRef.current;
+
+                    if (!paused) {
+                        // 1. Time of Day Cycle
+                        world.timeOfDay = (world.timeOfDay + 0.0003 * speed) % 1.0;
+
+                        // 2. Spatial Grid Re-indexing
+                        world.grid.clear();
+                        world.plants.forEach(p => world.grid.insert(p));
+                        world.herbivores.forEach(h => world.grid.insert(h));
+                        world.carnivores.forEach(c => world.grid.insert(c));
+                        world.apex.forEach(a => world.grid.insert(a));
+                        world.carcasses.forEach(c => world.grid.insert(c));
+
+                        // 3. Physics Substeps
+                        for (let step = 0; step < speed; step++) {
+
+                            const daySunFactor = Math.max(0.1, Math.sin(world.timeOfDay * Math.PI * 2));
+                            const growthRate = 0.08 * (curWeather === 'rain' ? 2.5 : curWeather === 'drought' ? 0.2 : 1.0) * daySunFactor;
+
+                            if (Math.random() < growthRate && world.plants.length < 600) {
+                                if (Math.random() < 0.6 && world.fertilePatches.length > 0) {
+                                    const patch = world.fertilePatches[Math.floor(Math.random() * world.fertilePatches.length)];
+                                    const angle = Math.random() * Math.PI * 2;
+                                    const dist = Math.random() * patch.r;
+                                    const px = Math.min(w - 10, Math.max(10, patch.x + Math.cos(angle) * dist));
+                                    const py = Math.min(h - 10, Math.max(10, patch.y + Math.sin(angle) * dist));
+                                    world.plants.push(new Plant(px, py, true));
+                                } else {
+                                    world.plants.push(new Plant(Math.random() * w, Math.random() * h));
+                                }
+                            }
+
+                            if (curWeather === 'rain' && Math.random() < 0.6) {
+                                world.particles.push({
+                                    x: Math.random() * w, y: 0, vx: -1, vy: 8 + Math.random() * 4, life: 60, color: '#38bdf8'
+                                });
+                            } else if (curWeather === 'wildfire' && Math.random() < 0.4) {
+                                if (world.plants.length > 0) {
+                                    const idx = Math.floor(Math.random() * world.plants.length);
+                                    const p = world.plants[idx];
+                                    p.dead = true;
+                                    world.particles.push({
+                                        x: p.pos.x, y: p.pos.y, vx: (Math.random() - 0.5) * 2, vy: -Math.random() * 3, life: 40, color: '#f97316'
+                                    });
+                                }
+                            }
+
+                            for (let i = world.carcasses.length - 1; i >= 0; i--) {
+                                const c = world.carcasses[i];
+                                c.decay++;
+                                if (c.decay > 600 || c.energy <= 0) {
+                                    c.dead = true;
+                                    world.fertilePatches.push({ x: c.pos.x, y: c.pos.y, r: 35 });
+                                    if (world.fertilePatches.length > 8) world.fertilePatches.shift();
+                                }
+                            }
+
+                            const updateList = (list) => {
+                                for (let i = list.length - 1; i >= 0; i--) list[i].update(world);
+                            };
+                            updateList(world.herbivores);
+                            updateList(world.carnivores);
+                            updateList(world.apex);
+
+                            while (world.spawnQueue.length > 0) {
+                                const child = world.spawnQueue.pop();
+                                if (child.type === 'herbivore') world.herbivores.push(child);
+                                else if (child.type === 'carnivore') world.carnivores.push(child);
+                                else if (child.type === 'apex') world.apex.push(child);
+                            }
+
+                            world.plants = world.plants.filter(p => !p.dead);
+                            world.herbivores = world.herbivores.filter(a => !a.dead);
+                            world.carnivores = world.carnivores.filter(a => !a.dead);
+                            world.apex = world.apex.filter(a => !a.dead);
+                            world.carcasses = world.carcasses.filter(c => !c.dead);
+
+                            for (let i = world.particles.length - 1; i >= 0; i--) {
+                                const pt = world.particles[i];
+                                pt.x += pt.vx;
+                                pt.y += pt.vy;
+                                pt.life--;
+                                if (pt.life <= 0) world.particles.splice(i, 1);
+                            }
+                        }
+                    }
+
+                    // 4. CANVAS RENDERING
+                    ctx.clearRect(0, 0, w, h);
+
+                    // Biomes Layer
+                    if (overlays.biomes) {
+                        world.fertilePatches.forEach(fp => {
+                            const grad = ctx.createRadialGradient(fp.x, fp.y, 5, fp.x, fp.y, fp.r);
+                            grad.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
+                            grad.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+                            ctx.fillStyle = grad;
+                            ctx.beginPath();
+                            ctx.arc(fp.x, fp.y, fp.r, 0, Math.PI * 2);
+                            ctx.fill();
+                        });
+
+                        world.waterPools.forEach(wp => {
+                            const grad = ctx.createRadialGradient(wp.x, wp.y, 10, wp.x, wp.y, wp.r);
+                            grad.addColorStop(0, 'rgba(6, 182, 212, 0.35)');
+                            grad.addColorStop(0.8, 'rgba(14, 116, 144, 0.25)');
+                            grad.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+                            ctx.fillStyle = grad;
+                            ctx.beginPath();
+                            ctx.arc(wp.x, wp.y, wp.r, 0, Math.PI * 2);
+                            ctx.fill();
+
+                            ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([4, 4]);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                        });
+
+                        world.rocks.forEach(rk => {
+                            ctx.fillStyle = '#201f20';
+                            ctx.strokeStyle = '#45474b';
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            ctx.arc(rk.x, rk.y, rk.r, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                        });
+                    }
+
+                    // Carcasses Layer
+                    world.carcasses.forEach(c => {
+                        ctx.fillStyle = '#7f1d1d';
+                        ctx.beginPath();
+                        ctx.arc(c.pos.x, c.pos.y, c.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#b91c1c';
+                        ctx.fillRect(c.pos.x - c.size / 2, c.pos.y - c.size / 2, c.size, c.size);
+                    });
+
+                    // Plants Layer
+                    world.plants.forEach(p => {
+                        ctx.fillStyle = p.size > 3 ? '#10b981' : '#059669';
+                        ctx.beginPath();
+                        ctx.arc(p.pos.x, p.pos.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    // Animals Rendering Function
+                    const drawAnimal = (a) => {
+                        const rot = a.vel.heading();
+                        ctx.save();
+                        ctx.translate(a.pos.x, a.pos.y);
+                        ctx.rotate(rot);
+
+                        const color = `hsl(${a.genome.hue}, 85%, 60%)`;
+                        ctx.fillStyle = color;
+                        ctx.strokeStyle = color;
+
+                        if (a.type === 'herbivore') {
+                            ctx.beginPath();
+                            ctx.arc(0, 0, a.genome.size, 0, Math.PI * 2);
+                            ctx.fill();
+                        } else if (a.type === 'carnivore') {
+                            ctx.beginPath();
+                            ctx.moveTo(a.genome.size * 1.5, 0);
+                            ctx.lineTo(-a.genome.size, -a.genome.size);
+                            ctx.lineTo(-a.genome.size, a.genome.size);
+                            ctx.closePath();
+                            ctx.fill();
+                        } else if (a.type === 'apex') {
+                            ctx.beginPath();
+                            ctx.moveTo(a.genome.size * 1.8, 0);
+                            ctx.lineTo(0, -a.genome.size * 1.2);
+                            ctx.lineTo(-a.genome.size * 1.4, 0);
+                            ctx.lineTo(0, a.genome.size * 1.2);
+                            ctx.closePath();
+                            ctx.fill();
+                            ctx.shadowColor = '#a855f7';
+                            ctx.shadowBlur = 10;
+                        }
+
+                        ctx.restore();
+
+                        if (overlays.vision) {
+                            ctx.strokeStyle = `hsla(${a.genome.hue}, 70%, 50%, 0.12)`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.arc(a.pos.x, a.pos.y, a.genome.vision, 0, Math.PI * 2);
+                            ctx.stroke();
+                        }
+
+                        if (overlays.vectors && a.targetEntity) {
+                            ctx.strokeStyle = a.state === 'flee' ? '#f43f5e' : '#38bdf8';
+                            ctx.lineWidth = 1;
+                            ctx.setLineDash([2, 2]);
+                            ctx.beginPath();
+                            ctx.moveTo(a.pos.x, a.pos.y);
+                            ctx.lineTo(a.targetEntity.pos.x, a.targetEntity.pos.y);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                        }
+
+                        if (selEntity && selEntity.id === a.id) {
+                            ctx.strokeStyle = '#f59e0b';
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            ctx.arc(a.pos.x, a.pos.y, a.genome.size + 8, 0, Math.PI * 2);
+                            ctx.stroke();
+
+                            ctx.strokeStyle = '#f59e0b';
+                            ctx.setLineDash([3, 3]);
+                            ctx.beginPath();
+                            ctx.moveTo(a.pos.x, a.pos.y);
+                            ctx.lineTo(a.pos.x + a.vel.x * a.genome.vision, a.pos.y + a.vel.y * a.genome.vision);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                        }
+                    };
+
+                    world.herbivores.forEach(drawAnimal);
+                    world.carnivores.forEach(drawAnimal);
+                    world.apex.forEach(drawAnimal);
+
+                    // Particles Layer
+                    world.particles.forEach(pt => {
+                        ctx.fillStyle = pt.color;
+                        ctx.beginPath();
+                        ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    // Night Lighting Mask
+                    const darkness = Math.sin(world.timeOfDay * Math.PI * 2);
+                    if (darkness < 0) {
+                        const nightOpacity = Math.min(0.65, Math.abs(darkness) * 0.7);
+                        ctx.fillStyle = `rgba(3, 7, 18, ${nightOpacity})`;
+                        ctx.fillRect(0, 0, w, h);
+                    }
+                };
+
+                animationId = requestAnimationFrame(loop);
+                return () => {
+                    window.removeEventListener('resize', handleResize);
+                    cancelAnimationFrame(animationId);
+                };
+            }, []);
+
+            const handlePointerDown = (e) => {
+                audio.init();
+                const rect = canvasRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const world = worldRef.current;
+
+                if (activeTool === 'inspect' || activeTool === 'hand') {
+                    const nearest = world.grid.queryRadius(x, y, 40);
+                    const clickedAnimal = nearest.find(e => e instanceof Animal);
+                    if (clickedAnimal) {
+                        setSelectedEntity(clickedAnimal);
+                        if (activeTool === 'hand') {
+                            mouseDragRef.current = { isDragging: true, entity: clickedAnimal };
+                        }
+                    } else {
+                        setSelectedEntity(null);
+                    }
+                } else if (activeTool === 'plant') {
+                    for (let i = 0; i < 10; i++) {
+                        world.plants.push(new Plant(x + (Math.random() * 40 - 20), y + (Math.random() * 40 - 20)));
+                    }
+                    audio.playEat();
+                } else if (activeTool === 'herbivore') {
+                    world.herbivores.push(new Animal(x, y, 'herbivore'));
+                    audio.playBirth();
+                } else if (activeTool === 'carnivore') {
+                    world.carnivores.push(new Animal(x, y, 'carnivore'));
+                    audio.playBirth();
+                } else if (activeTool === 'apex') {
+                    world.apex.push(new Animal(x, y, 'apex'));
+                    audio.playBirth();
+                } else if (activeTool === 'water') {
+                    world.waterPools.push({ x, y, r: 60 });
+                    if (world.waterPools.length > 6) world.waterPools.shift();
+                } else if (activeTool === 'carcass') {
+                    world.carcasses.push(new Carcass(x, y, 8));
+                } else if (activeTool === 'fire') {
+                    setWeather('wildfire');
+                    audio.playDisaster();
+                }
+            };
+
+            const handlePointerMove = (e) => {
+                if (mouseDragRef.current.isDragging && mouseDragRef.current.entity) {
+                    const rect = canvasRef.current.getBoundingClientRect();
+                    mouseDragRef.current.entity.pos.x = e.clientX - rect.left;
+                    mouseDragRef.current.entity.pos.y = e.clientY - rect.top;
+                }
+            };
+
+            const handlePointerUp = () => {
+                mouseDragRef.current = { isDragging: false, entity: null };
+            };
+
+            const toggleMute = () => {
+                audio.muted = !soundMuted;
+                setSoundMuted(!soundMuted);
+            };
+
+            return (
+                <div class="relative w-full h-full">
+                    {/* Background Simulation Canvas */}
+                    <canvas
+                        ref={canvasRef}
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        className="w-full h-full block cursor-crosshair"
+                    />
+
+                    {/* HUD OVERLAY CONTAINER */}
+                    <div class="absolute inset-0 flex flex-col justify-between p-4 pointer-events-none z-10">
+
+                        {/* TOP BAR: Telemetry & Header */}
+                        <header class="flex w-full justify-between items-start pointer-events-auto">
+                            <div class="flex items-center gap-3 glass-panel rounded-lg p-3 shadow-xl">
+                                <div class="size-7 text-accent-sky flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-2xl">grid_view</span>
+                                </div>
+                                <div>
+                                    <h1 class="text-on-surface font-headline-md text-lg tracking-tight font-bold m-0 flex items-center gap-2">
+                                        Xenobiotic Interface
+                                        <span class="text-[10px] px-2 py-0.5 rounded bg-accent-sky/20 text-accent-sky font-mono border border-accent-sky/30">v2.5 EVO</span>
+                                    </h1>
+                                    <p class="text-xs text-on-surface-variant m-0 font-mono">2D Pixel Ecosystem & Evolution Sandbox</p>
+                                </div>
+                            </div>
+
+                            {/* Live Population Metrics */}
+                            <div class="flex gap-2 glass-panel rounded-lg p-2.5 shadow-xl">
+                                <div class="flex flex-col px-3 border-r border-outline-variant/30">
+                                    <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">🌿 Flora</span>
+                                    <span class="text-accent-emerald font-data-num text-base font-bold">{counts.plants}</span>
+                                </div>
+                                <div class="flex flex-col px-3 border-r border-outline-variant/30">
+                                    <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">🐇 Prey</span>
+                                    <span class="text-accent-sky font-data-num text-base font-bold">{counts.herbivores}</span>
+                                </div>
+                                <div class="flex flex-col px-3 border-r border-outline-variant/30">
+                                    <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">🐺 Hunter</span>
+                                    <span class="text-accent-rose font-data-num text-base font-bold">{counts.carnivores}</span>
+                                </div>
+                                <div class="flex flex-col px-3 border-r border-outline-variant/30">
+                                    <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">🦖 Apex</span>
+                                    <span class="text-accent-purple font-data-num text-base font-bold">{counts.apex}</span>
+                                </div>
+                                <div class="flex flex-col px-3">
+                                    <span class="text-on-surface-variant font-label-caps text-[10px] uppercase">🥩 Carcass</span>
+                                    <span class="text-accent-amber font-data-num text-base font-bold">{counts.carcasses}</span>
+                                </div>
+                            </div>
+                        </header>
+
+                        {/* MIDDLE SIDEBARS: Inspector Panel & Analytics Graph */}
+                        <div class="flex justify-between w-full flex-1 my-3 pointer-events-none overflow-hidden">
+
+                            {/* LEFT SIDEBAR: Selected Organism Inspector */}
+                            <div class="w-80 pointer-events-auto flex flex-col gap-3">
+                                {selectedEntity ? (
+                                    <div class="glass-panel rounded-lg p-4 shadow-xl text-xs space-y-3 border-l-4 border-l-accent-amber">
+                                        <div class="flex justify-between items-center border-b border-outline-variant/30 pb-2">
+                                            <span class="font-bold text-on-surface uppercase flex items-center gap-1 font-mono">
+                                                <span class="material-symbols-outlined text-accent-amber text-base">genetics</span>
+                                                Organism #{selectedEntity.id}
+                                            </span>
+                                            <button onClick={() => setSelectedEntity(null)} class="text-on-surface-variant hover:text-on-surface">✕</button>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2 text-on-surface-variant font-mono">
+                                            <div>Species: <span class="text-on-surface font-bold capitalize">{selectedEntity.type}</span></div>
+                                            <div>Gen: <span class="text-on-surface font-bold">{selectedEntity.generation}</span></div>
+                                            <div>State: <span class="text-accent-sky font-bold capitalize">{selectedEntity.state}</span></div>
+                                            <div>Age: <span class="text-on-surface font-bold">{selectedEntity.age}t</span></div>
+                                            <div>Energy: <span class="text-accent-emerald font-bold">{Math.round(selectedEntity.energy)}</span></div>
+                                            <div>Thirst: <span class="text-accent-rose font-bold">{Math.round(selectedEntity.thirst)}</span></div>
+                                            <div>Kills: <span class="text-accent-purple font-bold">{selectedEntity.killCount}</span></div>
+                                        </div>
+                                        <div class="border-t border-outline-variant/30 pt-2 space-y-1 font-mono">
+                                            <span class="text-[10px] text-on-surface-variant uppercase font-bold">Genome DNA</span>
+                                            <div class="flex justify-between"><span>Speed:</span><span class="text-accent-sky">{selectedEntity.genome.speed.toFixed(2)}</span></div>
+                                            <div class="flex justify-between"><span>Vision:</span><span class="text-accent-sky">{selectedEntity.genome.vision.toFixed(0)}px</span></div>
+                                            <div class="flex justify-between"><span>Size:</span><span class="text-accent-sky">{selectedEntity.genome.size.toFixed(1)}</span></div>
+                                            <div class="flex justify-between"><span>Metabolism:</span><span class="text-accent-sky">{selectedEntity.genome.metabolism.toFixed(3)}</span></div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div class="glass-panel-light rounded-lg p-3 text-xs text-on-surface-variant font-mono">
+                                        💡 Click any creature to inspect live DNA, FSM state & targeting vectors.
+                                    </div>
+                                )}
+
+                                {/* Environmental & Scenario Controls Button */}
+                                <div class="pointer-events-auto glass-panel rounded-lg p-3 shadow-xl space-y-2">
+                                    <span class="text-[10px] font-label-caps text-on-surface-variant uppercase font-bold">Preset Sandboxes</span>
+                                    <div class="grid grid-cols-2 gap-1.5 text-xs">
+                                        {['Eden', 'Predator Overload', 'Extinction Recovery', 'Night Bioluminescence'].map(sc => (
+                                            <button
+                                                key={sc}
+                                                onClick={() => resetScenario(sc)}
+                                                className={`p-1.5 rounded text-[11px] font-mono text-left truncate transition-colors ${activeScenario === sc ? 'bg-accent-sky/20 text-accent-sky border border-accent-sky/40' : 'bg-surface-container hover:bg-surface-bright text-on-surface-variant'}`}
+                                            >
+                                                {sc}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* RIGHT SIDEBAR: Real-time Population Analytics Chart */}
+                            <div class="w-80 pointer-events-auto flex flex-col gap-3">
+                                {showChart && (
+                                    <div class="glass-panel rounded-lg p-3 shadow-xl space-y-2">
+                                        <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1">
+                                            <span class="text-[11px] font-label-caps text-on-surface-variant uppercase font-bold">Population Dynamics</span>
+                                            <button onClick={() => setShowChart(false)} class="text-xs text-on-surface-variant hover:text-on-surface">✕</button>
+                                        </div>
+                                        {/* Real-time SVG Trend Chart */}
+                                        <div class="h-28 w-full relative pt-1">
+                                            <svg class="w-full h-full overflow-visible">
+                                                <polyline
+                                                    fill="none"
+                                                    stroke="#10b981"
+                                                    strokeWidth="2"
+                                                    points={popHistory.plants.map((v, i) => `${(i / 39) * 280},${110 - Math.min(100, (v / 400) * 100)}`).join(' ')}
+                                                />
+                                                <polyline
+                                                    fill="none"
+                                                    stroke="#38bdf8"
+                                                    strokeWidth="2"
+                                                    points={popHistory.herbivores.map((v, i) => `${(i / 39) * 280},${110 - Math.min(100, (v / 100) * 100)}`).join(' ')}
+                                                />
+                                                <polyline
+                                                    fill="none"
+                                                    stroke="#f43f5e"
+                                                    strokeWidth="2"
+                                                    points={popHistory.carnivores.map((v, i) => `${(i / 39) * 280},${110 - Math.min(100, (v / 40) * 100)}`).join(' ')}
+                                                />
+                                                <polyline
+                                                    fill="none"
+                                                    stroke="#a855f7"
+                                                    strokeWidth="2"
+                                                    points={popHistory.apex.map((v, i) => `${(i / 39) * 280},${110 - Math.min(100, (v / 15) * 100)}`).join(' ')}
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div class="flex justify-around text-[10px] font-mono text-on-surface-variant">
+                                            <span class="text-accent-emerald">■ Flora</span>
+                                            <span class="text-accent-sky">■ Prey</span>
+                                            <span class="text-accent-rose">■ Hunter</span>
+                                            <span class="text-accent-purple">■ Apex</span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Weather & Environment Status Panel */}
+                                <div class="glass-panel rounded-lg p-3 shadow-xl space-y-2 text-xs font-mono">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-on-surface-variant uppercase text-[10px]">Environment</span>
+                                        <span class="text-accent-amber capitalize font-bold">{weather}</span>
+                                    </div>
+                                    <div class="flex gap-1 pt-1">
+                                        {['clear', 'rain', 'drought', 'wildfire'].map(w => (
+                                            <button
+                                                key={w}
+                                                onClick={() => setWeather(w)}
+                                                className={`flex-1 py-1 text-[10px] rounded uppercase font-mono ${weather === w ? 'bg-accent-amber/20 text-accent-amber border border-accent-amber/40' : 'bg-surface-container hover:bg-surface-bright text-on-surface-variant'}`}
+                                            >
+                                                {w}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* BOTTOM TOOLBAR: Interventions & Brush Selectors */}
+                        <footer class="flex flex-col items-center gap-2 w-full pointer-events-auto pb-2">
+                            <div class="flex flex-wrap items-center gap-2 glass-panel rounded-xl p-2.5 shadow-2xl border border-outline-variant/40">
+
+                                {/* Interventions & Brushes */}
+                                <div class="flex items-center gap-1 border-r border-outline-variant/30 pr-2">
+                                    <button
+                                        onClick={() => setActiveTool('inspect')}
+                                        title="Inspect Organism"
+                                        className={`p-2 rounded-lg text-xs font-bold font-mono flex items-center gap-1 transition-all ${activeTool === 'inspect' ? 'tool-btn-active' : 'bg-surface-container text-on-surface-variant hover:bg-surface-bright'}`}
+                                    >
+                                        🔍 Inspect
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTool('hand')}
+                                        title="Hand Drag Tool"
+                                        className={`p-2 rounded-lg text-xs font-bold font-mono flex items-center gap-1 transition-all ${activeTool === 'hand' ? 'tool-btn-active' : 'bg-surface-container text-on-surface-variant hover:bg-surface-bright'}`}
+                                    >
+                                        ✋ Move
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTool('plant')}
+                                        title="Seed Flora Brush"
+                                        className={`p-2 rounded-lg text-xs font-bold font-mono flex items-center gap-1 transition-all ${activeTool === 'plant' ? 'tool-btn-active' : 'bg-surface-container text-on-surface-variant hover:bg-surface-bright'}`}
+                                    >
+                                        🌿 Flora
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTool('herbivore')}
+                                        title="Spawn Prey"
+                                        className={`p-2 rounded-lg text-xs font-bold font-mono flex items-center gap-1 transition-all ${activeTool === 'herbivore' ? 'tool-btn-active' : 'bg-surface-container text-on-surface-variant hover:bg-surface-bright'}`}
+                                    >
+                                        🐇 Prey
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTool('carnivore')}
+                                        title="Spawn Carnivore"
+                                        className={`p-2 rounded-lg text-xs font-bold font-mono flex items-center gap-1 transition-all ${activeTool === 'carnivore' ? 'tool-btn-active' : 'bg-surface-container text-on-surface-variant hover:bg-surface-bright'}`}
+                                    >
+                                        🐺 Hunter
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTool('apex')}
+                                        title="Spawn Apex Hunter"
+                                        className={`p-2 rounded-lg text-xs font-bold font-mono flex items-center gap-1 transition-all ${activeTool === 'apex' ? 'tool-btn-active' : 'bg-surface-container text-on-surface-variant hover:bg-surface-bright'}`}
+                                    >
+                                        🦖 Apex
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTool('water')}
+                                        title="Create Water Basin"
+                                        className={`p-2 rounded-lg text-xs font-bold font-mono flex items-center gap-1 transition-all ${activeTool === 'water' ? 'tool-btn-active' : 'bg-surface-container text-on-surface-variant hover:bg-surface-bright'}`}
+                                    >
+                                        💧 Water
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTool('fire')}
+                                        title="Ignite Wildfire"
+                                        className={`p-2 rounded-lg text-xs font-bold font-mono flex items-center gap-1 transition-all ${activeTool === 'fire' ? 'tool-btn-active' : 'bg-surface-container text-on-surface-variant hover:bg-surface-bright'}`}
+                                    >
+                                        🔥 Fire
+                                    </button>
+                                </div>
+
+                                {/* Speed & Playback Controls */}
+                                <div class="flex items-center gap-1 border-r border-outline-variant/30 pr-2">
+                                    <button
+                                        onClick={() => setIsPaused(!isPaused)}
+                                        className="p-2 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface text-xs font-mono"
+                                    >
+                                        {isPaused ? '▶ Play' : '⏸ Pause'}
+                                    </button>
+                                    {[1, 2, 5].map(s => (
+                                        <button
+                                            key={s}
+                                            onClick={() => setSimSpeed(s)}
+                                            className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold ${simSpeed === s ? 'bg-accent-sky/20 text-accent-sky border border-accent-sky/40' : 'bg-surface-container text-on-surface-variant'}`}
+                                        >
+                                            {s}x
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Debug & Audio Toggles */}
+                                <div class="flex items-center gap-1">
+                                    <button
+                                        onClick={() => setDebugOverlays(prev => ({ ...prev, vision: !prev.vision }))}
+                                        className={`p-2 rounded-lg text-xs font-mono ${debugOverlays.vision ? 'bg-accent-sky/20 text-accent-sky border border-accent-sky/30' : 'bg-surface-container text-on-surface-variant'}`}
+                                        title="Toggle Vision Circles"
+                                    >
+                                        👁 Vision
+                                    </button>
+                                    <button
+                                        onClick={() => setDebugOverlays(prev => ({ ...prev, vectors: !prev.vectors }))}
+                                        className={`p-2 rounded-lg text-xs font-mono ${debugOverlays.vectors ? 'bg-accent-sky/20 text-accent-sky border border-accent-sky/30' : 'bg-surface-container text-on-surface-variant'}`}
+                                        title="Toggle Target Vectors"
+                                    >
+                                        🎯 Vectors
+                                    </button>
+                                    <button
+                                        onClick={toggleMute}
+                                        className={`p-2 rounded-lg text-xs font-mono ${!soundMuted ? 'bg-accent-emerald/20 text-accent-emerald' : 'bg-surface-container text-on-surface-variant'}`}
+                                        title="Toggle Sound Effects"
+                                    >
+                                        {!soundMuted ? '🔊 SFX' : '🔇 Mute'}
+                                    </button>
+                                </div>
+
+                            </div>
+                        </footer>
+
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('sim-root'));
+        root.render(<EcosystemSimulation />);
+    </script>
+</body>
+
+</html>
