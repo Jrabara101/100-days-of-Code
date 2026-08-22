@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Granular Cellular Automata & SPH Fluid Engine</title>
+    <!-- Tailwind CSS with Typography & Forms -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- React 18 & ReactDOM 18 -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX Compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #050811;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            color: #e2e8f0;
+        }
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        #webgl-stage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        #react-hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .glass-panel {
+            background: rgba(10, 16, 31, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+        }
+        .glass-panel-subtle {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .custom-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 5px;
+            border-radius: 5px;
+            background: #1e293b;
+            outline: none;
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+            transition: all 0.15s ease;
+        }
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+            background: #7dd3fc;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.25); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.5); }
+    </style>
+</head>
+<body class="select-none">
+
+    <div id="webgl-stage"></div>
+    <div id="react-hud"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+// =========================================================================
+// 1. PROCEDURAL SOUND SYNTHESIS ENGINE (Web Audio API)
+// =========================================================================
+class SoundFXEngine {
+    constructor() {
+        this.ctx = null;
+        this.enabled = true;
+    }
+
+    init() {
+        if (!this.ctx && typeof window !== 'undefined') {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                this.ctx = new AudioCtx();
+            }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    playSpawn(type) {
+        if (!this.enabled || !this.ctx) return;
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const now = this.ctx.currentTime;
+
+            if (type === 1) { // Sand: subtle high frequency hiss
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440 + Math.random() * 200, now);
+                osc.frequency.exponentialRampToValueAtTime(180, now + 0.05);
+                gain.gain.setValueAtTime(0.04, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+            } else if (type === 2) { // Water: fluid blip
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600 + Math.random() * 150, now);
+                osc.frequency.exponentialRampToValueAtTime(320, now + 0.06);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+            } else if (type === 4) { // Lava: deep rumble
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(140 + Math.random() * 40, now);
+                osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            } else if (type === 5) { // Acid: toxic chirp
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(700 + Math.random() * 200, now);
+                osc.frequency.exponentialRampToValueAtTime(250, now + 0.04);
+                gain.gain.setValueAtTime(0.03, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+            } else if (type === 7) { // Explosion / Gunpowder
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.25);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+            } else {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.04);
+                gain.gain.setValueAtTime(0.03, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+            }
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.25);
+        } catch (e) {}
+    }
+
+    playReaction() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(800 + Math.random() * 400, now);
+            osc.frequency.exponentialRampToValueAtTime(200, now + 0.07);
+            gain.gain.setValueAtTime(0.03, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.08);
+        } catch(e) {}
+    }
+}
+
+const soundEngine = new SoundFXEngine();
+
+// =========================================================================
+// 2. HEADLESS 3D CELLULAR AUTOMATA (CA) ENGINE
+// =========================================================================
+const TYPE_EMPTY     = 0;
+const TYPE_SAND      = 1;
+const TYPE_WATER     = 2;
+const TYPE_STONE     = 3;
+const TYPE_LAVA      = 4;
+const TYPE_ACID      = 5;
+const TYPE_FIRE      = 6;
+const TYPE_GUNPOWDER = 7;
+const TYPE_WOOD      = 8;
+const TYPE_STEAM     = 9;
+const TYPE_OIL       = 10;
+const TYPE_GLASS     = 11;
+
+const ELEMENT_DEFS = {
+    [TYPE_EMPTY]:     { name: 'Eraser',    color: [0.0, 0.0, 0.0], icon: '🧹', desc: 'Clears voxels in 3D volume' },
+    [TYPE_SAND]:      { name: 'Sand',      color: [0.94, 0.78, 0.42], icon: '⏳', desc: 'Granular matter, sinks in liquid, forms natural piles' },
+    [TYPE_WATER]:     { name: 'Water',     color: [0.18, 0.58, 0.96], icon: '💧', desc: 'Fluid dynamics, quenches lava, dissolves acid' },
+    [TYPE_STONE]:     { name: 'Stone',     color: [0.46, 0.51, 0.58], icon: '🪨', desc: 'Indestructible solid architecture and barriers' },
+    [TYPE_LAVA]:      { name: 'Lava',      color: [0.98, 0.32, 0.08], icon: '🔥', desc: 'Molten magma, melts sand to glass, turns water to stone+steam' },
+    [TYPE_ACID]:      { name: 'Acid',      color: [0.15, 0.95, 0.35], icon: '🧪', desc: 'Hyper-corrosive chemical, dissolves stone & organics' },
+    [TYPE_FIRE]:      { name: 'Fire',      color: [1.00, 0.45, 0.05], icon: '✨', desc: 'High-temperature plasma, ignites wood, oil, and gunpowder' },
+    [TYPE_GUNPOWDER]: { name: 'Gunpowder', color: [0.30, 0.30, 0.32], icon: '💣', desc: 'Explosive granular fuel, detonates violently on contact with fire' },
+    [TYPE_WOOD]:      { name: 'Wood',      color: [0.55, 0.35, 0.20], icon: '🪵', desc: 'Flammable organic solid material' },
+    [TYPE_STEAM]:     { name: 'Steam',     color: [0.82, 0.88, 0.95], icon: '💨', desc: 'Buoyant gas, rises and condenses over time' },
+    [TYPE_OIL]:       { name: 'Crude Oil', color: [0.25, 0.20, 0.15], icon: '🛢️', desc: 'Viscous flammable liquid, floats on top of water' },
+    [TYPE_GLASS]:     { name: 'Glass',     color: [0.75, 0.90, 0.98], icon: '🪟', desc: 'Vitrified transparent solid created from melted sand' },
+};
+
+class VoxelSandEngine3D {
+    constructor(dimX = 36, dimY = 46, dimZ = 36) {
+        this.dimX = dimX;
+        this.dimY = dimY;
+        this.dimZ = dimZ;
+        this.totalCells = dimX * dimY * dimZ;
+
+        // Flat 1D Cache-Aligned Buffers
+        this.grid = new Uint8Array(this.totalCells);
+        this.updated = new Uint8Array(this.totalCells);
+        this.life = new Uint8Array(this.totalCells);        // Particle life/decay timer
+        this.temp = new Float32Array(this.totalCells);      // Thermal field
+
+        this.activeVoxelCount = 0;
+        this.reactionCount = 0;
+        this.gravityDirection = -1; // -1 = down, 1 = up, 0 = zero-g
+
+        // Pre-allocated neighbor offsets (8-cell horizontal/diagonal ring)
+        this.neighborOffsets = [
+            [-1, -1], [0, -1], [1, -1],
+            [-1,  0],          [1,  0],
+            [-1,  1], [0,  1], [1,  1]
+        ];
+
+        // 6-connectivity 3D adjacency offsets
+        this.adjOffsets3D = [
+            [0, -1, 0], [0, 1, 0],
+            [-1, 0, 0], [1, 0, 0],
+            [0, 0, -1], [0, 0, 1]
+        ];
+
+        // Pre-allocate coordinate shuffling arrays
+        this.xArray = new Int32Array(dimX);
+        for (let i = 0; i < dimX; i++) this.xArray[i] = i;
+
+        this.zArray = new Int32Array(dimZ);
+        for (let i = 0; i < dimZ; i++) this.zArray[i] = i;
+    }
+
+    getIndex(x, y, z) {
+        if (x < 0 || x >= this.dimX || y < 0 || y >= this.dimY || z < 0 || z >= this.dimZ) return -1;
+        return z * (this.dimX * this.dimY) + y * this.dimX + x;
+    }
+
+    getCell(x, y, z) {
+        const idx = this.getIndex(x, y, z);
+        return idx === -1 ? TYPE_STONE : this.grid[idx];
+    }
+
+    setCell(x, y, z, type, initialLife = 100) {
+        const idx = this.getIndex(x, y, z);
+        if (idx !== -1) {
+            this.grid[idx] = type;
+            this.life[idx] = initialLife;
+            if (type === TYPE_LAVA || type === TYPE_FIRE) {
+                this.temp[idx] = 1000.0;
+            } else {
+                this.temp[idx] = 20.0;
+            }
+        }
+    }
+
+    swap(idxA, idxB) {
+        const tempG = this.grid[idxA];
+        const tempL = this.life[idxA];
+        const tempT = this.temp[idxA];
+
+        this.grid[idxA] = this.grid[idxB];
+        this.life[idxA] = this.life[idxB];
+        this.temp[idxA] = this.temp[idxB];
+
+        this.grid[idxB] = tempG;
+        this.life[idxB] = tempL;
+        this.temp[idxB] = tempT;
+
+        this.updated[idxA] = 1;
+        this.updated[idxB] = 1;
+    }
+
+    paintBrush(cx, cy, cz, radius, type, shape = 'sphere') {
+        const rSq = radius * radius;
+        let spawned = 0;
+
+        const minX = Math.max(0, Math.floor(cx - radius));
+        const maxX = Math.min(this.dimX - 1, Math.ceil(cx + radius));
+        const minY = Math.max(0, Math.floor(cy - radius));
+        const maxY = Math.min(this.dimY - 1, Math.ceil(cy + radius));
+        const minZ = Math.max(0, Math.floor(cz - radius));
+        const maxZ = Math.min(this.dimZ - 1, Math.ceil(cz + radius));
+
+        for (let z = minZ; z <= maxZ; z++) {
+            for (let y = minY; y <= maxY; y++) {
+                for (let x = minX; x <= maxX; x++) {
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    const dz = z - cz;
+
+                    let inShape = false;
+                    if (shape === 'sphere') {
+                        inShape = (dx * dx + dy * dy + dz * dz) <= rSq;
+                    } else if (shape === 'cube') {
+                        inShape = Math.abs(dx) <= radius && Math.abs(dy) <= radius && Math.abs(dz) <= radius;
+                    } else if (shape === 'cylinder') {
+                        inShape = (dx * dx + dz * dz) <= rSq && Math.abs(dy) <= radius * 1.5;
+                    }
+
+                    if (inShape) {
+                        const idx = this.getIndex(x, y, z);
+                        if (idx !== -1) {
+                            if (type === TYPE_EMPTY || this.grid[idx] === TYPE_EMPTY || type === TYPE_STONE) {
+                                this.grid[idx] = type;
+                                this.life[idx] = (type === TYPE_FIRE || type === TYPE_STEAM) ? (40 + Math.random() * 40) : 100;
+                                this.temp[idx] = (type === TYPE_LAVA || type === TYPE_FIRE) ? 1000.0 : 20.0;
+                                spawned++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (spawned > 0) {
+            soundEngine.playSpawn(type);
+        }
+    }
+
+    triggerExplosion(cx, cy, cz, radius = 6) {
+        const rSq = radius * radius;
+        for (let dz = -radius; dz <= radius; dz++) {
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const distSq = dx * dx + dy * dy + dz * dz;
+                    if (distSq <= rSq) {
+                        const x = Math.floor(cx + dx);
+                        const y = Math.floor(cy + dy);
+                        const z = Math.floor(cz + dz);
+                        const idx = this.getIndex(x, y, z);
+                        if (idx !== -1) {
+                            if (Math.random() < 0.45) {
+                                this.grid[idx] = TYPE_FIRE;
+                                this.life[idx] = 20 + Math.floor(Math.random() * 30);
+                            } else if (Math.random() < 0.3) {
+                                this.grid[idx] = TYPE_STEAM;
+                                this.life[idx] = 40 + Math.floor(Math.random() * 40);
+                            } else {
+                                this.grid[idx] = TYPE_EMPTY;
+                            }
+                            this.temp[idx] = 2000.0;
+                        }
+                    }
+                }
+            }
+        }
+        soundEngine.playSpawn(TYPE_GUNPOWDER);
+    }
+
+    clear() {
+        this.grid.fill(0);
+        this.updated.fill(0);
+        this.life.fill(0);
+        this.temp.fill(20.0);
+        this.activeVoxelCount = 0;
+    }
+
+    // Step the 3D Cellular Automata Matrix
+    stepSimulation() {
+        this.updated.fill(0);
+        let count = 0;
+        let reactions = 0;
+
+        const gDir = this.gravityDirection;
+        const startY = gDir <= 0 ? 0 : this.dimY - 1;
+        const endY   = gDir <= 0 ? this.dimY : -1;
+        const stepY  = gDir <= 0 ? 1 : -1;
+
+        // Fisher-Yates shuffle for stochastic permutation
+        for (let i = this.dimX - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const tmp = this.xArray[i]; this.xArray[i] = this.xArray[j]; this.xArray[j] = tmp;
+        }
+        for (let i = this.dimZ - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const tmp = this.zArray[i]; this.zArray[i] = this.zArray[j]; this.zArray[j] = tmp;
+        }
+
+        for (let y = startY; y !== endY; y += stepY) {
+            for (let zi = 0; zi < this.dimZ; zi++) {
+                const z = this.zArray[zi];
+                for (let xi = 0; xi < this.dimX; xi++) {
+                    const x = this.xArray[xi];
+                    const idx = z * (this.dimX * this.dimY) + y * this.dimX + x;
+                    const type = this.grid[idx];
+
+                    if (type === TYPE_EMPTY) continue;
+                    count++;
+
+                    if (this.updated[idx] === 1 || type === TYPE_STONE || type === TYPE_GLASS) continue;
+
+                    // ==========================================
+                    // 1. GRANULAR PARTICLES (Sand, Gunpowder)
+                    // ==========================================
+                    if (type === TYPE_SAND || type === TYPE_GUNPOWDER) {
+                        const targetY = y + gDir;
+
+                        // Direct downward fall (displaces air, water, or oil)
+                        const belowIdx = this.getIndex(x, targetY, z);
+                        if (belowIdx !== -1) {
+                            const bType = this.grid[belowIdx];
+                            if (bType === TYPE_EMPTY || bType === TYPE_WATER || bType === TYPE_OIL || bType === TYPE_ACID) {
+                                this.swap(idx, belowIdx);
+                                continue;
+                            }
+                        }
+
+                        // 8-neighbor diagonal slide for natural angle of repose
+                        let moved = false;
+                        const shuffledOffsets = [...this.neighborOffsets].sort(() => Math.random() - 0.5);
+                        for (const [dx, dz] of shuffledOffsets) {
+                            const diagIdx = this.getIndex(x + dx, targetY, z + dz);
+                            if (diagIdx !== -1) {
+                                const dType = this.grid[diagIdx];
+                                if (dType === TYPE_EMPTY || dType === TYPE_WATER || dType === TYPE_OIL || dType === TYPE_ACID) {
+                                    this.swap(idx, diagIdx);
+                                    moved = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (moved) continue;
+                    }
+
+                    // ==========================================
+                    // 2. WATER (Fluid Flow & Quenching)
+                    // ==========================================
+                    else if (type === TYPE_WATER) {
+                        const targetY = y + gDir;
+                        const belowIdx = this.getIndex(x, targetY, z);
+                        if (belowIdx !== -1 && (this.grid[belowIdx] === TYPE_EMPTY || this.grid[belowIdx] === TYPE_FIRE)) {
+                            this.swap(idx, belowIdx);
+                            continue;
+                        }
+
+                        // Downward diagonal
+                        let moved = false;
+                        const shuffledOffsets = [...this.neighborOffsets].sort(() => Math.random() - 0.5);
+                        for (const [dx, dz] of shuffledOffsets) {
+                            const diagIdx = this.getIndex(x + dx, targetY, z + dz);
+                            if (diagIdx !== -1 && this.grid[diagIdx] === TYPE_EMPTY) {
+                                this.swap(idx, diagIdx);
+                                moved = true;
+                                break;
+                            }
+                        }
+                        if (moved) continue;
+
+                        // Lateral dispersion
+                        const latOffsets = [[-1,0],[1,0],[0,-1],[0,1]].sort(() => Math.random() - 0.5);
+                        for (const [dx, dz] of latOffsets) {
+                            const latIdx = this.getIndex(x + dx, y, z + dz);
+                            if (latIdx !== -1 && this.grid[latIdx] === TYPE_EMPTY) {
+                                this.swap(idx, latIdx);
+                                break;
+                            }
+                        }
+                    }
+
+                    // ==========================================
+                    // 3. CRUDE OIL (Flammable Low-Density Liquid)
+                    // ==========================================
+                    else if (type === TYPE_OIL) {
+                        const targetY = y + gDir;
+                        const belowIdx = this.getIndex(x, targetY, z);
+                        if (belowIdx !== -1 && this.grid[belowIdx] === TYPE_EMPTY) {
+                            this.swap(idx, belowIdx);
+                            continue;
+                        }
+
+                        // Lateral spreading
+                        const latOffsets = [[-1,0],[1,0],[0,-1],[0,1]].sort(() => Math.random() - 0.5);
+                        for (const [dx, dz] of latOffsets) {
+                            const latIdx = this.getIndex(x + dx, y, z + dz);
+                            if (latIdx !== -1 && this.grid[latIdx] === TYPE_EMPTY) {
+                                this.swap(idx, latIdx);
+                                break;
+                            }
+                        }
+                    }
+
+                    // ==========================================
+                    // 4. LAVA (High Temperature Fluid & Phase Transitions)
+                    // ==========================================
+                    else if (type === TYPE_LAVA) {
+                        // Check thermal reactions with adjacent voxels
+                        let quenched = false;
+                        for (const [dx, dy, dz] of this.adjOffsets3D) {
+                            const nIdx = this.getIndex(x + dx, y + dy, z + dz);
+                            if (nIdx !== -1) {
+                                const nType = this.grid[nIdx];
+                                if (nType === TYPE_WATER) {
+                                    this.grid[idx] = TYPE_STONE;
+                                    this.grid[nIdx] = TYPE_STEAM;
+                                    this.life[nIdx] = 60;
+                                    quenched = true;
+                                    reactions++;
+                                    break;
+                                } else if (nType === TYPE_SAND) {
+                                    this.grid[nIdx] = TYPE_GLASS;
+                                    reactions++;
+                                } else if (nType === TYPE_WOOD || nType === TYPE_OIL || nType === TYPE_GUNPOWDER) {
+                                    this.grid[nIdx] = TYPE_FIRE;
+                                    this.life[nIdx] = 40;
+                                    reactions++;
+                                }
+                            }
+                        }
+                        if (quenched) continue;
+
+                        // Viscous downward flow
+                        const targetY = y + gDir;
+                        const belowIdx = this.getIndex(x, targetY, z);
+                        if (belowIdx !== -1 && this.grid[belowIdx] === TYPE_EMPTY) {
+                            this.swap(idx, belowIdx);
+                            continue;
+                        }
+
+                        // Slower lateral spread
+                        if (Math.random() < 0.4) {
+                            const latOffsets = [[-1,0],[1,0],[0,-1],[0,1]].sort(() => Math.random() - 0.5);
+                            for (const [dx, dz] of latOffsets) {
+                                const latIdx = this.getIndex(x + dx, y, z + dz);
+                                if (latIdx !== -1 && this.grid[latIdx] === TYPE_EMPTY) {
+                                    this.swap(idx, latIdx);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // ==========================================
+                    // 5. ACID (Corrosive Dissolving Reaction)
+                    // ==========================================
+                    else if (type === TYPE_ACID) {
+                        let dissolved = false;
+                        for (const [dx, dy, dz] of this.adjOffsets3D) {
+                            const nIdx = this.getIndex(x + dx, y + dy, z + dz);
+                            if (nIdx !== -1) {
+                                const nType = this.grid[nIdx];
+                                if (nType === TYPE_STONE || nType === TYPE_SAND || nType === TYPE_WOOD || nType === TYPE_GLASS) {
+                                    this.grid[idx] = TYPE_STEAM;
+                                    this.grid[nIdx] = TYPE_EMPTY;
+                                    this.life[idx] = 30;
+                                    dissolved = true;
+                                    reactions++;
+                                    break;
+                                }
+                            }
+                        }
+                        if (dissolved) continue;
+
+                        // Fall and spread
+                        const targetY = y + gDir;
+                        const belowIdx = this.getIndex(x, targetY, z);
+                        if (belowIdx !== -1 && this.grid[belowIdx] === TYPE_EMPTY) {
+                            this.swap(idx, belowIdx);
+                            continue;
+                        }
+
+                        const latOffsets = [[-1,0],[1,0],[0,-1],[0,1]].sort(() => Math.random() - 0.5);
+                        for (const [dx, dz] of latOffsets) {
+                            const latIdx = this.getIndex(x + dx, y, z + dz);
+                            if (latIdx !== -1 && this.grid[latIdx] === TYPE_EMPTY) {
+                                this.swap(idx, latIdx);
+                                break;
+                            }
+                        }
+                    }
+
+                    // ==========================================
+                    // 6. FIRE & PLASMA (Combustion & Buoyancy)
+                    // ==========================================
+                    else if (type === TYPE_FIRE) {
+                        // Decay life
+                        if (this.life[idx] > 0) this.life[idx]--;
+                        if (this.life[idx] <= 0) {
+                            this.grid[idx] = Math.random() < 0.3 ? TYPE_STEAM : TYPE_EMPTY;
+                            this.life[idx] = 40;
+                            continue;
+                        }
+
+                        // Ignite neighbors
+                        for (const [dx, dy, dz] of this.adjOffsets3D) {
+                            const nIdx = this.getIndex(x + dx, y + dy, z + dz);
+                            if (nIdx !== -1) {
+                                const nType = this.grid[nIdx];
+                                if (nType === TYPE_WOOD || nType === TYPE_OIL) {
+                                    this.grid[nIdx] = TYPE_FIRE;
+                                    this.life[nIdx] = 50 + Math.floor(Math.random() * 30);
+                                    reactions++;
+                                } else if (nType === TYPE_GUNPOWDER) {
+                                    this.triggerExplosion(x + dx, y + dy, z + dz, 5);
+                                    reactions += 10;
+                                    break;
+                                } else if (nType === TYPE_WATER) {
+                                    this.grid[idx] = TYPE_STEAM;
+                                    this.life[idx] = 30;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Upward buoyant movement
+                        const upY = y - gDir; // Opposite to gravity
+                        const upIdx = this.getIndex(x + (Math.random() > 0.6 ? (Math.random() > 0.5 ? 1 : -1) : 0), upY, z + (Math.random() > 0.6 ? (Math.random() > 0.5 ? 1 : -1) : 0));
+                        if (upIdx !== -1 && this.grid[upIdx] === TYPE_EMPTY) {
+                            this.swap(idx, upIdx);
+                        }
+                    }
+
+                    // ==========================================
+                    // 7. STEAM & GAS (Buoyant Diffusion)
+                    // ==========================================
+                    else if (type === TYPE_STEAM) {
+                        if (this.life[idx] > 0) this.life[idx]--;
+                        if (this.life[idx] <= 0) {
+                            this.grid[idx] = Math.random() < 0.2 ? TYPE_WATER : TYPE_EMPTY;
+                            continue;
+                        }
+
+                        const upY = y - gDir;
+                        const rndX = x + Math.floor((Math.random() - 0.5) * 3);
+                        const rndZ = z + Math.floor((Math.random() - 0.5) * 3);
+                        const targetIdx = this.getIndex(rndX, upY, rndZ);
+                        if (targetIdx !== -1 && this.grid[targetIdx] === TYPE_EMPTY) {
+                            this.swap(idx, targetIdx);
+                        }
+                    }
+                }
+            }
+        }
+
+        this.activeVoxelCount = count;
+        this.reactionCount = reactions;
+        if (reactions > 0 && Math.random() < 0.15) {
+            soundEngine.playReaction();
+        }
+    }
+}
+
+// =========================================================================
+// 3. 3D SPH NAVIER-STOKES FLUID DYNAMICS ENGINE
+// =========================================================================
+class SPHFluidEngine3D {
+    constructor(numParticles = 1400) {
+        this.numParticles = numParticles;
+
+        this.boundX = 14.0;
+        this.boundY = 22.0;
+        this.boundZ = 14.0;
+
+        // Physical Constants
+        this.h = 2.4;
+        this.h2 = this.h * this.h;
+        this.mass = 1.0;
+        this.restDensity = 250.0;
+        this.gasStiffness = 350.0;
+        this.viscosity = 6.5;
+        this.gravity = -9.81 * 8.0;
+        this.damping = -0.55;
+
+        // Müller Smoothing Kernel Normalization Multipliers
+        this.poly6 = 315.0 / (64.0 * Math.PI * Math.pow(this.h, 9));
+        this.spikyGrad = -45.0 / (Math.PI * Math.pow(this.h, 6));
+        this.viscLap = 45.0 / (Math.PI * Math.pow(this.h, 6));
+
+        // Flat Struct-of-Arrays (SoA) Buffers
+        this.posX = new Float32Array(numParticles);
+        this.posY = new Float32Array(numParticles);
+        this.posZ = new Float32Array(numParticles);
+
+        this.velX = new Float32Array(numParticles);
+        this.velY = new Float32Array(numParticles);
+        this.velZ = new Float32Array(numParticles);
+
+        this.forceX = new Float32Array(numParticles);
+        this.forceY = new Float32Array(numParticles);
+        this.forceZ = new Float32Array(numParticles);
+
+        this.density = new Float32Array(numParticles);
+        this.pressure = new Float32Array(numParticles);
+
+        // Uniform 3D Spatial Grid
+        this.gridCellSize = this.h;
+        this.gridCols = Math.ceil((this.boundX * 2) / this.gridCellSize);
+        this.gridRows = Math.ceil((this.boundY * 2) / this.gridCellSize);
+        this.gridDepths = Math.ceil((this.boundZ * 2) / this.gridCellSize);
+        this.totalBuckets = this.gridCols * this.gridRows * this.gridDepths;
+
+        this.maxPerBucket = 64;
+        this.gridBuckets = new Int32Array(this.totalBuckets * this.maxPerBucket);
+        this.gridCounts = new Int32Array(this.totalBuckets);
+
+        this.initScenario('dam_break');
+    }
+
+    initScenario(scenario = 'dam_break') {
+        let idx = 0;
+        const spacing = this.h * 0.55;
+
+        if (scenario === 'dam_break') {
+            for (let x = -this.boundX + 1.5; x < 2.0 && idx < this.numParticles; x += spacing) {
+                for (let y = -this.boundY + 1.5; y < this.boundY * 0.6 && idx < this.numParticles; y += spacing) {
+                    for (let z = -this.boundZ + 1.5; z < 2.0 && idx < this.numParticles; z += spacing) {
+                        this.posX[idx] = x + (Math.random() - 0.5) * 0.1;
+                        this.posY[idx] = y + (Math.random() - 0.5) * 0.1;
+                        this.posZ[idx] = z + (Math.random() - 0.5) * 0.1;
+
+                        this.velX[idx] = 0;
+                        this.velY[idx] = 0;
+                        this.velZ[idx] = 0;
+                        idx++;
+                    }
+                }
+            }
+        } else if (scenario === 'dual_jets') {
+            const half = Math.floor(this.numParticles / 2);
+            for (let i = 0; i < half; i++) {
+                this.posX[i] = -this.boundX + 2.0 + (Math.random() - 0.5) * 4;
+                this.posY[i] = this.boundY * 0.4 + (Math.random() - 0.5) * 4;
+                this.posZ[i] = (Math.random() - 0.5) * 4;
+                this.velX[i] = 25.0 + Math.random() * 5.0;
+                this.velY[i] = 0;
+                this.velZ[i] = 0;
+                idx++;
+            }
+            for (let i = half; i < this.numParticles; i++) {
+                this.posX[i] = this.boundX - 2.0 + (Math.random() - 0.5) * 4;
+                this.posY[i] = this.boundY * 0.4 + (Math.random() - 0.5) * 4;
+                this.posZ[i] = (Math.random() - 0.5) * 4;
+                this.velX[i] = -25.0 - Math.random() * 5.0;
+                this.velY[i] = 0;
+                this.velZ[i] = 0;
+                idx++;
+            }
+        } else if (scenario === 'sphere_drop') {
+            const rad = 6.0;
+            while (idx < this.numParticles) {
+                const rx = (Math.random() - 0.5) * rad * 2;
+                const ry = (Math.random() - 0.5) * rad * 2;
+                const rz = (Math.random() - 0.5) * rad * 2;
+                if (rx * rx + ry * ry + rz * rz <= rad * rad) {
+                    this.posX[idx] = rx;
+                    this.posY[idx] = ry + 8.0;
+                    this.posZ[idx] = rz;
+                    this.velX[idx] = 0;
+                    this.velY[idx] = -5.0;
+                    this.velZ[idx] = 0;
+                    idx++;
+                }
+            }
+        }
+        this.numParticles = idx;
+    }
+
+    getBucketIndex(x, y, z) {
+        const gx = Math.floor((x + this.boundX) / this.gridCellSize);
+        const gy = Math.floor((y + this.boundY) / this.gridCellSize);
+        const gz = Math.floor((z + this.boundZ) / this.gridCellSize);
+
+        if (gx < 0 || gx >= this.gridCols || gy < 0 || gy >= this.gridRows || gz < 0 || gz >= this.gridDepths) {
+            return -1;
+        }
+        return gz * (this.gridCols * this.gridRows) + gy * this.gridCols + gx;
+    }
+
+    stepSimulation(dt = 0.007) {
+        // 1. Rebuild Spatial Uniform Hash Grid
+        this.gridCounts.fill(0);
+        for (let i = 0; i < this.numParticles; i++) {
+            const bIdx = this.getBucketIndex(this.posX[i], this.posY[i], this.posZ[i]);
+            if (bIdx !== -1) {
+                const count = this.gridCounts[bIdx];
+                if (count < this.maxPerBucket) {
+                    this.gridBuckets[bIdx * this.maxPerBucket + count] = i;
+                    this.gridCounts[bIdx]++;
+                }
+            }
+        }
+
+        // 2. Density & Pressure Evaluation (W_poly6 & Tait EOS)
+        for (let i = 0; i < this.numParticles; i++) {
+            let rho = 0;
+            const px = this.posX[i];
+            const py = this.posY[i];
+            const pz = this.posZ[i];
+
+            const gx = Math.floor((px + this.boundX) / this.gridCellSize);
+            const gy = Math.floor((py + this.boundY) / this.gridCellSize);
+            const gz = Math.floor((pz + this.boundZ) / this.gridCellSize);
+
+            for (let dz = -1; dz <= 1; dz++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        const cx = gx + dx;
+                        const cy = gy + dy;
+                        const cz = gz + dz;
+
+                        if (cx >= 0 && cx < this.gridCols && cy >= 0 && cy < this.gridRows && cz >= 0 && cz < this.gridDepths) {
+                            const bIdx = cz * (this.gridCols * this.gridRows) + cy * this.gridCols + cx;
+                            const count = this.gridCounts[bIdx];
+
+                            for (let k = 0; k < count; k++) {
+                                const j = this.gridBuckets[bIdx * this.maxPerBucket + k];
+                                const rx = px - this.posX[j];
+                                const ry = py - this.posY[j];
+                                const rz = pz - this.posZ[j];
+                                const distSq = rx * rx + ry * ry + rz * rz;
+
+                                if (distSq < this.h2) {
+                                    rho += this.mass * this.poly6 * Math.pow(this.h2 - distSq, 3);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            this.density[i] = Math.max(this.restDensity, rho);
+            this.pressure[i] = this.gasStiffness * (this.density[i] - this.restDensity);
+        }
+
+        // 3. Force Field Summation (W_spiky Gradient + W_viscosity Laplacian + Gravity)
+        for (let i = 0; i < this.numParticles; i++) {
+            let fPressX = 0, fPressY = 0, fPressZ = 0;
+            let fViscX = 0, fViscY = 0, fViscZ = 0;
+
+            const px = this.posX[i];
+            const py = this.posY[i];
+            const pz = this.posZ[i];
+            const rhoI = this.density[i];
+            const pI = this.pressure[i];
+
+            const gx = Math.floor((px + this.boundX) / this.gridCellSize);
+            const gy = Math.floor((py + this.boundY) / this.gridCellSize);
+            const gz = Math.floor((pz + this.boundZ) / this.gridCellSize);
+
+            for (let dz = -1; dz <= 1; dz++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        const cx = gx + dx;
+                        const cy = gy + dy;
+                        const cz = gz + dz;
+
+                        if (cx >= 0 && cx < this.gridCols && cy >= 0 && cy < this.gridRows && cz >= 0 && cz < this.gridDepths) {
+                            const bIdx = cz * (this.gridCols * this.gridRows) + cy * this.gridCols + cx;
+                            const count = this.gridCounts[bIdx];
+
+                            for (let k = 0; k < count; k++) {
+                                const j = this.gridBuckets[bIdx * this.maxPerBucket + k];
+                                if (i === j) continue;
+
+                                const rx = px - this.posX[j];
+                                const ry = py - this.posY[j];
+                                const rz = pz - this.posZ[j];
+                                const distSq = rx * rx + ry * ry + rz * rz;
+
+                                if (distSq < this.h2 && distSq > 0.0001) {
+                                    const dist = Math.sqrt(distSq);
+                                    const rhoJ = this.density[j];
+                                    const pJ = this.pressure[j];
+
+                                    // Spiky Pressure Gradient Force
+                                    const spikyCoeff = this.spikyGrad * Math.pow(this.h - dist, 2);
+                                    const pressTerm = this.mass * (pI + pJ) / (2.0 * rhoJ) * spikyCoeff;
+                                    fPressX -= (rx / dist) * pressTerm;
+                                    fPressY -= (ry / dist) * pressTerm;
+                                    fPressZ -= (rz / dist) * pressTerm;
+
+                                    // Viscosity Laplacian Force
+                                    const viscCoeff = this.viscosity * this.mass * (this.viscLap * (this.h - dist)) / rhoJ;
+                                    fViscX += (this.velX[j] - this.velX[i]) * viscCoeff;
+                                    fViscY += (this.velY[j] - this.velY[i]) * viscCoeff;
+                                    fViscZ += (this.velZ[j] - this.velZ[i]) * viscCoeff;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            this.forceX[i] = fPressX + fViscX;
+            this.forceY[i] = fPressY + fViscY + (this.gravity * rhoI);
+            this.forceZ[i] = fPressZ + fViscZ;
+        }
+
+        // 4. Time Integration & Boundary Clamping
+        const r = 0.5;
+        for (let i = 0; i < this.numParticles; i++) {
+            const rho = this.density[i];
+
+            this.velX[i] += (this.forceX[i] / rho) * dt;
+            this.velY[i] += (this.forceY[i] / rho) * dt;
+            this.velZ[i] += (this.forceZ[i] / rho) * dt;
+
+            this.posX[i] += this.velX[i] * dt;
+            this.posY[i] += this.velY[i] * dt;
+            this.posZ[i] += this.velZ[i] * dt;
+
+            // Restitution Boundary Collision
+            if (this.posX[i] < -this.boundX + r) { this.posX[i] = -this.boundX + r; this.velX[i] *= this.damping; }
+            if (this.posX[i] >  this.boundX - r) { this.posX[i] =  this.boundX - r; this.velX[i] *= this.damping; }
+
+            if (this.posY[i] < -this.boundY + r) { this.posY[i] = -this.boundY + r; this.velY[i] *= this.damping; }
+            if (this.posY[i] >  this.boundY - r) { this.posY[i] =  this.boundY - r; this.velY[i] *= this.damping; }
+
+            if (this.posZ[i] < -this.boundZ + r) { this.posZ[i] = -this.boundZ + r; this.velZ[i] *= this.damping; }
+            if (this.posZ[i] >  this.boundZ - r) { this.posZ[i] =  this.boundZ - r; this.velZ[i] *= this.damping; }
+        }
+    }
+}
+
+// =========================================================================
+// 4. REACT HUD & THREE.JS UNIFIED CONTROLLER
+// =========================================================================
+function App() {
+    // Engine State
+    const [simMode, setSimMode] = useState('CA'); // 'CA' or 'SPH'
+    const [caEngine] = useState(() => new VoxelSandEngine3D(36, 46, 36));
+    const [sphEngine] = useState(() => new SPHFluidEngine3D(1400));
+
+    // CA Controls
+    const [selectedElement, setSelectedElement] = useState(TYPE_SAND);
+    const [brushRadius, setBrushRadius] = useState(2);
+    const [brushShape, setBrushShape] = useState('sphere');
+    const [sliceY, setSliceY] = useState(46); // Slice plane clip
+    const [gravityDir, setGravityDir] = useState(-1);
+
+    // SPH Controls
+    const [viscosityVal, setViscosityVal] = useState(6.5);
+    const [stiffnessVal, setStiffnessVal] = useState(350.0);
+
+    // General Controls
+    const [isPaused, setIsPaused] = useState(false);
+    const [simSpeed, setSimSpeed] = useState(1);
+    const [soundMuted, setSoundMuted] = useState(false);
+    const [showDocsModal, setShowDocsModal] = useState(false);
+    const [telemetry, setTelemetry] = useState({ activeCount: 0, fps: 60, reactions: 0, kinetic: 0 });
+
+    // Three.js References
+    const sceneRef = useRef(null);
+    const cameraRef = useRef(null);
+    const rendererRef = useRef(null);
+    const controlsRef = useRef(null);
+    const instancedMeshRef = useRef(null);
+    const sliceMeshRef = useRef(null);
+    const bboxRef = useRef(null);
+
+    const raycasterRef = useRef(new THREE.Raycaster());
+    const mouseRef = useRef(new THREE.Vector2());
+    const isPointerDownRef = useRef(false);
+    const dummyMatrix = useRef(new THREE.Matrix4());
+    const dummyColor = useRef(new THREE.Color());
+
+    // Toggle Audio
+    useEffect(() => {
+        soundEngine.enabled = !soundMuted;
+    }, [soundMuted]);
+
+    // Update CA Gravity
+    useEffect(() => {
+        caEngine.gravityDirection = gravityDir;
+    }, [gravityDir, caEngine]);
+
+    // =========================================================================
+    // THREE.JS SCENE INITIALIZATION & UNIFIED DRAW LOOP
+    // =========================================================================
+    useEffect(() => {
+        soundEngine.init();
+        const stageContainer = document.getElementById('webgl-stage');
+        if (!stageContainer) return;
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050811);
+        scene.fog = new THREE.FogExp2(0x050811, 0.012);
+        sceneRef.current = scene;
+
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+        camera.position.set(50, 42, 60);
+        cameraRef.current = camera;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        stageContainer.appendChild(renderer.domElement);
+        rendererRef.current = renderer;
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.target.set(0, 0, 0);
+        controls.mouseButtons = {
+            LEFT: THREE.MOUSE.NONE, // Left click reserved for voxel painting
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.ROTATE
+        };
+        controlsRef.current = controls;
+
+        // Lighting
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.65);
+        scene.add(ambLight);
+
+        const keyLight = new THREE.DirectionalLight(0x38bdf8, 1.3);
+        keyLight.position.set(45, 65, 45);
+        keyLight.castShadow = true;
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0xf43f5e, 0.4);
+        fillLight.position.set(-40, 20, -30);
+        scene.add(fillLight);
+
+        // Bounding Volume Wireframe
+        const bboxGeo = new THREE.BoxGeometry(caEngine.dimX, caEngine.dimY, caEngine.dimZ);
+        const bboxEdges = new THREE.EdgesGeometry(bboxGeo);
+        const bboxLine = new THREE.LineSegments(
+            bboxEdges,
+            new THREE.LineBasicMaterial({ color: 0x38bdf8, opacity: 0.35, transparent: true })
+        );
+        scene.add(bboxLine);
+        bboxRef.current = bboxLine;
+
+        // Ground Platform
+        const platGeo = new THREE.BoxGeometry(caEngine.dimX + 6, 1.2, caEngine.dimZ + 6);
+        const platMat = new THREE.MeshStandardMaterial({ color: 0x0a101f, roughness: 0.85, metalness: 0.2 });
+        const platMesh = new THREE.Mesh(platGeo, platMat);
+        platMesh.position.y = -caEngine.dimY / 2 - 0.6;
+        scene.add(platMesh);
+
+        // Cross-Section Slice Indicator Plane
+        const sliceGeo = new THREE.PlaneGeometry(caEngine.dimX, caEngine.dimZ);
+        const sliceMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, opacity: 0.1, transparent: true, side: THREE.DoubleSide });
+        const sliceMesh = new THREE.Mesh(sliceGeo, sliceMat);
+        sliceMesh.rotation.x = Math.PI / 2;
+        sliceMesh.position.y = caEngine.dimY / 2;
+        scene.add(sliceMesh);
+        sliceMeshRef.current = sliceMesh;
+
+        // Pre-allocate Master InstancedMesh
+        // Allocate max capacity (dimX * dimY * dimZ = ~60k cells)
+        const maxCapacity = Math.max(caEngine.totalCells, sphEngine.numParticles);
+        const cubeGeo = new THREE.BoxGeometry(0.96, 0.96, 0.96);
+        const cubeMat = new THREE.MeshStandardMaterial({ roughness: 0.35, metalness: 0.15 });
+        const instancedMesh = new THREE.InstancedMesh(cubeGeo, cubeMat, maxCapacity);
+        instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        scene.add(instancedMesh);
+        instancedMeshRef.current = instancedMesh;
+
+        // Seed initial obstacle base for CA
+        for (let z = 8; z <= 28; z++) {
+            for (let x = 8; x <= 28; x++) {
+                if ((x * z) % 7 === 0) caEngine.setCell(x, 22, z, TYPE_STONE);
+                if (x === 18 && z >= 12 && z <= 24) caEngine.setCell(x, 15, z, TYPE_WOOD);
+            }
+        }
+
+        // =========================================================================
+        // MASTER ANIMATION & SIMULATION LOOP
+        // =========================================================================
+        let animId;
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let activeEntities = 0;
+
+        const loop = () => {
+            if (!isPaused) {
+                if (simMode === 'CA') {
+                    for (let s = 0; s < simSpeed; s++) {
+                        caEngine.stepSimulation();
+                    }
+                } else {
+                    // SPH sub-stepping
+                    for (let s = 0; s < simSpeed * 2; s++) {
+                        sphEngine.stepSimulation(0.006);
+                    }
+                }
+            }
+
+            // Sync InstancedMesh Buffers
+            if (simMode === 'CA') {
+                let instanceIdx = 0;
+                const offX = -caEngine.dimX / 2 + 0.5;
+                const offY = -caEngine.dimY / 2 + 0.5;
+                const offZ = -caEngine.dimZ / 2 + 0.5;
+
+                for (let z = 0; z < caEngine.dimZ; z++) {
+                    for (let y = 0; y < Math.min(caEngine.dimY, sliceY); y++) {
+                        for (let x = 0; x < caEngine.dimX; x++) {
+                            const type = caEngine.getCell(x, y, z);
+                            if (type !== TYPE_EMPTY) {
+                                dummyMatrix.current.setPosition(x + offX, y + offY, z + offZ);
+                                instancedMesh.setMatrixAt(instanceIdx, dummyMatrix.current);
+
+                                const def = ELEMENT_DEFS[type];
+                                if (def) {
+                                    let [r, g, b] = def.color;
+                                    // Slight temperature / fire glow pulse
+                                    if (type === TYPE_FIRE || type === TYPE_LAVA) {
+                                        const flicker = (Math.sin(performance.now() * 0.01 + x + z) * 0.15);
+                                        r = Math.min(1.0, r + flicker);
+                                    }
+                                    dummyColor.current.setRGB(r, g, b);
+                                    instancedMesh.setColorAt(instanceIdx, dummyColor.current);
+                                }
+                                instanceIdx++;
+                            }
+                        }
+                    }
+                }
+                instancedMesh.count = instanceIdx;
+                activeEntities = instanceIdx;
+            } else {
+                // SPH Mode Sync
+                let maxV = 0;
+                for (let i = 0; i < sphEngine.numParticles; i++) {
+                    dummyMatrix.current.setPosition(sphEngine.posX[i], sphEngine.posY[i], sphEngine.posZ[i]);
+                    instancedMesh.setMatrixAt(i, dummyMatrix.current);
+
+                    const vSq = sphEngine.velX[i]**2 + sphEngine.velY[i]**2 + sphEngine.velZ[i]**2;
+                    const vMag = Math.sqrt(vSq);
+                    if (vMag > maxV) maxV = vMag;
+
+                    // Colorize particles by velocity magnitude
+                    const vNorm = Math.min(1.0, vMag / 28.0);
+                    dummyColor.current.setRGB(0.12 + vNorm * 0.88, 0.5 + vNorm * 0.45, 0.98 + vNorm * 0.02);
+                    instancedMesh.setColorAt(i, dummyColor.current);
+                }
+                instancedMesh.count = sphEngine.numParticles;
+                activeEntities = sphEngine.numParticles;
+            }
+
+            instancedMesh.instanceMatrix.needsUpdate = true;
+            if (instancedMesh.instanceColor) instancedMesh.instanceColor.needsUpdate = true;
+
+            // Update Slice Indicator
+            if (sliceMeshRef.current) {
+                sliceMeshRef.current.position.y = (sliceY - caEngine.dimY / 2);
+                sliceMeshRef.current.visible = (simMode === 'CA' && sliceY < caEngine.dimY);
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+
+            // Handle Continuous Raycast Painting on Pointer Drag
+            if (isPointerDownRef.current && simMode === 'CA') {
+                raycastAndPaint();
+            }
+
+            // Telemetry FPS & Performance Sampling
+            frameCount++;
+            const now = performance.now();
+            if (now - lastTime >= 350) {
+                setTelemetry({
+                    activeCount: activeEntities,
+                    fps: Math.round((frameCount * 1000) / (now - lastTime)),
+                    reactions: caEngine.reactionCount,
+                    kinetic: simMode === 'SPH' ? Math.round(activeEntities * 12.5) : 0
+                });
+                frameCount = 0;
+                lastTime = now;
+            }
+
+            animId = requestAnimationFrame(loop);
+        };
+        animId = requestAnimationFrame(loop);
+
+        const handleResize = () => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        };
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            cancelAnimationFrame(animId);
+            window.removeEventListener('resize', handleResize);
+            if (renderer.domElement) renderer.domElement.remove();
+        };
+    }, [caEngine, sphEngine, simMode, isPaused, simSpeed, sliceY]);
+
+    // =========================================================================
+    // 3D RAYCASTING & VOXEL INTERACTION
+    // =========================================================================
+    const raycastAndPaint = useCallback(() => {
+        if (!cameraRef.current || !sceneRef.current) return;
+        raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
+
+        // Project ray against plane located at mid-box
+        const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        const intersectPoint = new THREE.Vector3();
+        raycasterRef.current.ray.intersectPlane(plane, intersectPoint);
+
+        if (intersectPoint) {
+            const gx = intersectPoint.x + caEngine.dimX / 2;
+            const gy = intersectPoint.y + caEngine.dimY / 2;
+            const gz = intersectPoint.z + caEngine.dimZ / 2;
+
+            if (gx >= 0 && gx < caEngine.dimX && gy >= 0 && gy < caEngine.dimY && gz >= 0 && gz < caEngine.dimZ) {
+                caEngine.paintBrush(gx, gy, gz, brushRadius, selectedElement, brushShape);
+            }
+        }
+    }, [caEngine, selectedElement, brushRadius, brushShape]);
+
+    const handlePointerDown = (e) => {
+        soundEngine.init();
+        if (e.button === 0) { // Left-click paints
+            isPointerDownRef.current = true;
+            mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            if (simMode === 'CA') raycastAndPaint();
+        }
+    };
+
+    const handlePointerMove = (e) => {
+        mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    const handlePointerUp = () => {
+        isPointerDownRef.current = false;
+    };
+
+    // Preset Scenarios
+    const loadPreset = (presetKey) => {
+        soundEngine.init();
+        if (simMode === 'CA') {
+            caEngine.clear();
+            const cx = Math.floor(caEngine.dimX / 2);
+            const cz = Math.floor(caEngine.dimZ / 2);
+
+            if (presetKey === 'volcano') {
+                // Build Stone cone
+                for (let y = 0; y < 22; y++) {
+                    const r = 16 - y * 0.6;
+                    for (let z = 0; z < caEngine.dimZ; z++) {
+                        for (let x = 0; x < caEngine.dimX; x++) {
+                            const dist = Math.hypot(x - cx, z - cz);
+                            if (dist < r && dist > r - 3) {
+                                caEngine.setCell(x, y, z, TYPE_STONE);
+                            }
+                        }
+                    }
+                }
+                // Fill core with Lava
+                caEngine.paintBrush(cx, 16, cz, 4, TYPE_LAVA, 'sphere');
+                caEngine.paintBrush(cx, 8, cz, 3, TYPE_LAVA, 'sphere');
+            } else if (presetKey === 'hourglass') {
+                // Hourglass funnel
+                for (let y = 0; y < 40; y++) {
+                    const r = Math.abs(y - 20) * 0.65 + 2.5;
+                    for (let z = 0; z < caEngine.dimZ; z++) {
+                        for (let x = 0; x < caEngine.dimX; x++) {
+                            const dist = Math.hypot(x - cx, z - cz);
+                            if (Math.abs(dist - r) < 1.0) {
+                                caEngine.setCell(x, y, z, TYPE_GLASS);
+                            }
+                        }
+                    }
+                }
+                // Top chamber filled with Sand
+                for (let y = 26; y < 38; y++) {
+                    caEngine.paintBrush(cx, y, cz, 6, TYPE_SAND, 'sphere');
+                }
+            } else if (presetKey === 'oil_rig') {
+                // Water ocean base
+                for (let y = 0; y < 14; y++) {
+                    for (let z = 0; z < caEngine.dimZ; z++) {
+                        for (let x = 0; x < caEngine.dimX; x++) {
+                            caEngine.setCell(x, y, z, TYPE_WATER);
+                        }
+                    }
+                }
+                // Oil slick layer
+                for (let y = 14; y < 18; y++) {
+                    for (let z = 6; z < caEngine.dimZ - 6; z++) {
+                        for (let x = 6; x < caEngine.dimX - 6; x++) {
+                            caEngine.setCell(x, y, z, TYPE_OIL);
+                        }
+                    }
+                }
+                // Wooden platform
+                for (let z = 12; z < 24; z++) {
+                    for (let x = 12; x < 24; x++) {
+                        caEngine.setCell(x, 24, z, TYPE_WOOD);
+                    }
+                }
+                // Gunpowder barrel
+                caEngine.paintBrush(cx, 26, cz, 2, TYPE_GUNPOWDER, 'cube');
+            } else if (presetKey === 'acid_vat') {
+                // Stone container
+                for (let y = 0; y < 20; y++) {
+                    for (let z = 6; z < caEngine.dimZ - 6; z++) {
+                        for (let x = 6; x < caEngine.dimX - 6; x++) {
+                            if (x === 6 || x === caEngine.dimX - 7 || z === 6 || z === caEngine.dimZ - 7 || y === 0) {
+                                caEngine.setCell(x, y, z, TYPE_STONE);
+                            } else {
+                                caEngine.setCell(x, y, z, TYPE_ACID);
+                            }
+                        }
+                    }
+                }
+                // Wood beam over it
+                for (let z = 0; z < caEngine.dimZ; z++) {
+                    caEngine.setCell(cx, 26, z, TYPE_WOOD);
+                }
+            }
+        } else {
+            sphEngine.initScenario(presetKey);
+        }
+    };
+
+    return (
+        <div 
+            className="w-full h-full relative"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+        >
+            {/* REACT TELEMETRY & MULTI-LAYER HUD */}
+            <div id="react-hud" className="flex flex-col justify-between p-4 md:p-6 select-none overflow-hidden">
+                
+                {/* 1. TOP HEADER & TELEMETRY BAR */}
+                <header className="w-full max-w-6xl mx-auto glass-panel p-3.5 md:p-4 rounded-2xl pointer-events-auto flex flex-wrap justify-between items-center gap-4 transition-all">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-sky-500 flex items-center justify-center text-xl shadow-lg shadow-sky-500/20">
+                            {simMode === 'CA' ? '⏳' : '🌊'}
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h1 className="font-extrabold text-sm md:text-base tracking-wider text-slate-100 uppercase">
+                                    {simMode === 'CA' ? '3D Cellular Automata' : '3D SPH Navier-Stokes'}
+                                </h1>
+                                <span className="px-2 py-0.5 text-[10px] font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-full">
+                                    {simMode === 'CA' ? 'Voxel CA Engine' : 'Lagrangian Hydrodynamics'}
+                                </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 font-mono">
+                                {simMode === 'CA' ? '57k Cell Instanced Matrix // Fisher-Yates 3D Sweep' : 'Müller Poly6/Spiky Kernels // O(N) Spatial Hash Grid'}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Mode Selector Pill */}
+                    <div className="flex bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+                        <button
+                            onClick={() => setSimMode('CA')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${simMode === 'CA' ? 'bg-amber-500 text-slate-950 shadow-md scale-105' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            ⏳ Granular Sand CA
+                        </button>
+                        <button
+                            onClick={() => setSimMode('SPH')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${simMode === 'SPH' ? 'bg-sky-500 text-slate-950 shadow-md scale-105' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            🌊 SPH Fluid Dynamics
+                        </button>
+                    </div>
+
+                    {/* Real-time Telemetry Badges */}
+                    <div className="flex gap-4 md:gap-6 items-center text-xs font-mono">
+                        <div>
+                            <span className="text-slate-400">Entities: </span>
+                            <strong className="text-amber-400">{telemetry.activeCount.toLocaleString()}</strong>
+                        </div>
+                        {simMode === 'CA' && (
+                            <div>
+                                <span className="text-slate-400">Reactions: </span>
+                                <strong className="text-emerald-400">{telemetry.reactions}</strong>
+                            </div>
+                        )}
+                        <div>
+                            <span className="text-slate-400">Rate: </span>
+                            <strong className={telemetry.fps >= 55 ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>
+                                {telemetry.fps} FPS
+                            </strong>
+                        </div>
+                    </div>
+
+                    {/* Quick Action Controls */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setIsPaused(!isPaused)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${isPaused ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`}
+                            title="Pause/Resume Simulation"
+                        >
+                            {isPaused ? '▶ Play' : '⏸ Pause'}
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (simMode === 'CA') caEngine.clear();
+                                else sphEngine.initScenario('dam_break');
+                            }}
+                            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600/90 text-white hover:bg-rose-500 border border-rose-500/30 transition-all shadow-md active:scale-95"
+                            title="Clear Simulation"
+                        >
+                            🗑 Clear
+                        </button>
+                        <button
+                            onClick={() => setSoundMuted(!soundMuted)}
+                            className="p-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700"
+                            title="Toggle Audio Feedback"
+                        >
+                            {soundMuted ? '🔇' : '🔊'}
+                        </button>
+                        <button
+                            onClick={() => setShowDocsModal(true)}
+                            className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30 hover:bg-sky-500/30"
+                            title="Architecture & Math Documentation"
+                        >
+                            📖 Math Docs
+                        </button>
+                    </div>
+                </header>
+
+                {/* 2. SIDEBAR CONTROLS & INTERACTIVE PRESETS */}
+                <div className="flex justify-between items-start pointer-events-none my-auto">
+                    
+                    {/* Left Sidebar: Presets & Physics Params */}
+                    <div className="glass-panel p-3.5 rounded-2xl pointer-events-auto flex flex-col gap-3 max-w-[240px] text-xs">
+                        <span className="font-bold uppercase tracking-wider text-slate-400 text-[10px]">Showcase Presets</span>
+                        <div className="flex flex-col gap-1.5">
+                            {simMode === 'CA' ? (
+                                <>
+                                    <button onClick={() => loadPreset('volcano')} className="text-left px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-medium transition-all">
+                                        🌋 Volcanic Magma Cone
+                                    </button>
+                                    <button onClick={() => loadPreset('hourglass')} className="text-left px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-medium transition-all">
+                                        ⏳ Glass Hourglass Sieve
+                                    </button>
+                                    <button onClick={() => loadPreset('oil_rig')} className="text-left px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-medium transition-all">
+                                        🛢️ Oil Slick & Explosives
+                                    </button>
+                                    <button onClick={() => loadPreset('acid_vat')} className="text-left px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-medium transition-all">
+                                        🧪 Corrosive Acid Vat
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button onClick={() => loadPreset('dam_break')} className="text-left px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-medium transition-all">
+                                        🌊 Classic Dam Break
+                                    </button>
+                                    <button onClick={() => loadPreset('dual_jets')} className="text-left px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-medium transition-all">
+                                        💥 Dual Jet Collision
+                                    </button>
+                                    <button onClick={() => loadPreset('sphere_drop')} className="text-left px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-medium transition-all">
+                                        💧 Fluid Sphere Drop
+                                    </button>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Physical Sliders */}
+                        <div className="border-t border-slate-800 pt-3 flex flex-col gap-2.5">
+                            <span className="font-bold uppercase tracking-wider text-slate-400 text-[10px]">Physics Modifiers</span>
+                            
+                            {simMode === 'CA' ? (
+                                <>
+                                    <div>
+                                        <div className="flex justify-between text-[11px] text-slate-300 mb-1">
+                                            <span>3D Cross Slice Y:</span>
+                                            <span className="font-mono text-sky-400">{sliceY} / {caEngine.dimY}</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="2"
+                                            max={caEngine.dimY}
+                                            value={sliceY}
+                                            onChange={(e) => setSliceY(parseInt(e.target.value))}
+                                            className="custom-slider w-full"
+                                        />
+                                    </div>
+                                    <div className="flex justify-between items-center gap-1">
+                                        <span className="text-[11px] text-slate-300">Gravity:</span>
+                                        <div className="flex gap-1">
+                                            <button
+                                                onClick={() => setGravityDir(-1)}
+                                                className={`px-2 py-1 rounded text-[10px] font-bold ${gravityDir === -1 ? 'bg-sky-500 text-slate-950' : 'bg-slate-800 text-slate-400'}`}
+                                            >
+                                                ⬇ Down
+                                            </button>
+                                            <button
+                                                onClick={() => setGravityDir(0)}
+                                                className={`px-2 py-1 rounded text-[10px] font-bold ${gravityDir === 0 ? 'bg-sky-500 text-slate-950' : 'bg-slate-800 text-slate-400'}`}
+                                            >
+                                                Zero-G
+                                            </button>
+                                            <button
+                                                onClick={() => setGravityDir(1)}
+                                                className={`px-2 py-1 rounded text-[10px] font-bold ${gravityDir === 1 ? 'bg-sky-500 text-slate-950' : 'bg-slate-800 text-slate-400'}`}
+                                            >
+                                                ⬆ Invert
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div>
+                                        <div className="flex justify-between text-[11px] text-slate-300 mb-1">
+                                            <span>Viscosity (&mu;):</span>
+                                            <span className="font-mono text-sky-400">{viscosityVal}</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="0.5"
+                                            max="25.0"
+                                            step="0.5"
+                                            value={viscosityVal}
+                                            onChange={(e) => {
+                                                const v = parseFloat(e.target.value);
+                                                setViscosityVal(v);
+                                                sphEngine.viscosity = v;
+                                            }}
+                                            className="custom-slider w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between text-[11px] text-slate-300 mb-1">
+                                            <span>EOS Stiffness (k):</span>
+                                            <span className="font-mono text-sky-400">{stiffnessVal}</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="50.0"
+                                            max="800.0"
+                                            step="25.0"
+                                            value={stiffnessVal}
+                                            onChange={(e) => {
+                                                const s = parseFloat(e.target.value);
+                                                setStiffnessVal(s);
+                                                sphEngine.gasStiffness = s;
+                                            }}
+                                            className="custom-slider w-full"
+                                        />
+                                    </div>
+                                </>
+                            )}
+
+                            <div>
+                                <div className="flex justify-between text-[11px] text-slate-300 mb-1">
+                                    <span>Simulation Speed:</span>
+                                    <span className="font-mono text-sky-400">{simSpeed}x</span>
+                                </div>
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4].map(spd => (
+                                        <button
+                                            key={spd}
+                                            onClick={() => setSimSpeed(spd)}
+                                            className={`flex-1 py-1 rounded text-[10px] font-bold ${simSpeed === spd ? 'bg-sky-500 text-slate-950 font-extrabold' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
+                                        >
+                                            {spd}x
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right User Guidance Tooltip */}
+                    <div className="glass-panel-subtle px-3 py-2 rounded-xl text-[11px] text-slate-300 flex flex-col gap-1 border border-sky-500/20 max-w-[260px]">
+                        <span className="font-bold text-sky-400">🎮 Viewport Controls:</span>
+                        <div>• <strong>Left Click + Drag:</strong> Paint selected material</div>
+                        <div>• <strong>Right Click + Drag:</strong> 3D Orbit camera</div>
+                        <div>• <strong>Scroll Wheel:</strong> Zoom in / out</div>
+                    </div>
+                </div>
+
+                {/* 3. BOTTOM TOOL PALETTE & MATERIAL SELECTOR */}
+                {simMode === 'CA' ? (
+                    <footer className="w-full max-w-5xl mx-auto glass-panel p-3.5 rounded-2xl pointer-events-auto flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+                        {/* Elements List */}
+                        <div className="flex flex-wrap gap-1.5 items-center justify-center md:justify-start">
+                            {Object.entries(ELEMENT_DEFS).map(([idStr, def]) => {
+                                const id = parseInt(idStr);
+                                const isSelected = selectedElement === id;
+                                return (
+                                    <button
+                                        key={id}
+                                        onClick={() => setSelectedElement(id)}
+                                        className={`px-3 py-2 rounded-xl font-bold flex items-center gap-1.5 transition-all ${
+                                            isSelected 
+                                                ? 'bg-gradient-to-r from-sky-500 to-brand-500 text-slate-950 shadow-lg scale-105 ring-2 ring-sky-300'
+                                                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                                        }`}
+                                        title={def.desc}
+                                    >
+                                        <span>{def.icon}</span>
+                                        <span>{def.name}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Brush Settings */}
+                        <div className="flex items-center gap-4 shrink-0">
+                            {/* Brush Shapes */}
+                            <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
+                                <button
+                                    onClick={() => setBrushShape('sphere')}
+                                    className={`px-2.5 py-1 rounded-lg text-xs font-bold ${brushShape === 'sphere' ? 'bg-sky-500 text-slate-950' : 'text-slate-400'}`}
+                                    title="Sphere Brush"
+                                >
+                                    ● Sphere
+                                </button>
+                                <button
+                                    onClick={() => setBrushShape('cube')}
+                                    className={`px-2.5 py-1 rounded-lg text-xs font-bold ${brushShape === 'cube' ? 'bg-sky-500 text-slate-950' : 'text-slate-400'}`}
+                                    title="Cube Brush"
+                                >
+                                    ■ Cube
+                                </button>
+                            </div>
+
+                            {/* Radius Selector */}
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-slate-400 font-bold text-[11px]">Radius:</span>
+                                {[1, 2, 3, 5].map(r => (
+                                    <button
+                                        key={r}
+                                        onClick={() => setBrushRadius(r)}
+                                        className={`w-7 h-7 rounded-lg font-bold flex items-center justify-center text-xs transition-all ${
+                                            brushRadius === r ? 'bg-amber-400 text-slate-950 font-black scale-110 shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                                        }`}
+                                    >
+                                        {r}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </footer>
+                ) : (
+                    <footer className="w-full max-w-2xl mx-auto glass-panel p-3.5 rounded-2xl pointer-events-auto flex justify-between items-center text-xs">
+                        <div className="flex items-center gap-3">
+                            <span className="text-sky-400 font-bold">SPH Scenario:</span>
+                            <button
+                                onClick={() => sphEngine.initScenario('dam_break')}
+                                className="px-3 py-1.5 rounded-xl font-bold bg-sky-500 text-slate-950 hover:bg-sky-400 transition-all shadow-md"
+                            >
+                                🌊 Dam Break
+                            </button>
+                            <button
+                                onClick={() => sphEngine.initScenario('dual_jets')}
+                                className="px-3 py-1.5 rounded-xl font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all"
+                            >
+                                💥 Dual Jets
+                            </button>
+                            <button
+                                onClick={() => sphEngine.initScenario('sphere_drop')}
+                                className="px-3 py-1.5 rounded-xl font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all"
+                            >
+                                💧 Sphere Drop
+                            </button>
+                        </div>
+                        <div className="text-slate-400 font-mono text-[11px]">
+                            Lagrangian Particles: <strong className="text-sky-400">{sphEngine.numParticles}</strong>
+                        </div>
+                    </footer>
+                )}
+
+            </div>
+
+            {/* 4. ARCHITECTURAL & MATHEMATICAL SPECIFICATION MODAL */}
+            {showDocsModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                    <div className="glass-panel w-full max-w-3xl max-h-[85vh] rounded-3xl p-6 overflow-y-auto flex flex-col gap-6 text-slate-200 border border-sky-500/40">
+                        <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+                            <div>
+                                <h2 className="text-xl font-black text-sky-400 uppercase tracking-wide">
+                                    3D Granular Cellular Automata & SPH Engine Architecture
+                                </h2>
+                                <p className="text-xs text-slate-400 font-mono mt-0.5">Staff Systems Architecture Specification</p>
+                            </div>
+                            <button
+                                onClick={() => setShowDocsModal(false)}
+                                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Content Section 1: CA */}
+                        <div className="space-y-3 text-xs leading-relaxed">
+                            <h3 className="text-sm font-bold text-amber-400 uppercase">1. 3D Cellular Automata Granular Mechanics</h3>
+                            <p>
+                                Standard 2D falling-sand models evaluate 3 candidate neighbors: directly below <code className="text-sky-300">(x, y-1)</code>, and diagonals <code className="text-sky-300">(x-1, y-1), (x+1, y-1)</code>. In 3D space, gravity operates along the negative Y-axis, extending lateral dispersion to an 8-cell downward Moore neighborhood ring:
+                            </p>
+                            <div className="bg-slate-900/90 p-3 rounded-xl font-mono text-[11px] text-sky-300 border border-slate-800">
+                                &#119873;<sub>down</sub>(x, y, z) = &#123; (x + &Delta;x, y - 1, z + &Delta;z) | &Delta;x, &Delta;z &isin; &#123;-1, 0, 1&#125; &#125;
+                            </div>
+                            <p>
+                                <strong>Directional Bias Elimination:</strong> Processed bottom-up <code className="text-amber-300">y = 0 &rarr; H-1</code> with stochastic Fisher-Yates <code className="text-amber-300">(x, z)</code> traversals and randomized candidate neighbor vectors on every frame tick. This prevents multi-cell tunneling and eliminates skewing.
+                            </p>
+                        </div>
+
+                        {/* Content Section 2: SPH */}
+                        <div className="space-y-3 text-xs leading-relaxed border-t border-slate-800 pt-4">
+                            <h3 className="text-sm font-bold text-sky-400 uppercase">2. 3D Smoothed Particle Hydrodynamics (SPH) Navier-Stokes</h3>
+                            <p>
+                                The Lagrangian Navier-Stokes momentum equation governs fluid pressure, viscous diffusion, and external forces without requiring rigid grids:
+                            </p>
+                            <div className="bg-slate-900/90 p-3 rounded-xl font-mono text-[11px] text-sky-300 border border-slate-800 space-y-1">
+                                <div>&rho;<sub>i</sub> = &sum; m<sub>j</sub> W<sub>poly6</sub>(r<sub>ij</sub>, h)</div>
+                                <div>F<sub>pressure</sub> = -&sum; m<sub>j</sub> (p<sub>i</sub> + p<sub>j</sub>) / (2&rho;<sub>j</sub>) &nabla;W<sub>spiky</sub>(r<sub>ij</sub>, h)</div>
+                                <div>F<sub>viscosity</sub> = &mu; &sum; m<sub>j</sub> (v<sub>j</sub> - v<sub>i</sub>) / &rho;<sub>j</sub> &nabla;<sup>2</sup>W<sub>viscosity</sub>(r<sub>ij</sub>, h)</div>
+                            </div>
+                            <p>
+                                <strong>Tensile Instability Prevention:</strong> Employs Müller's specialized <em>Spiky</em> pressure kernel to ensure non-vanishing repulsive gradients at <code className="text-sky-300">r &rarr; 0</code>, eliminating artificial particle clustering and volume collapse.
+                            </p>
+                        </div>
+
+                        {/* Content Section 3: Performance */}
+                        <div className="space-y-3 text-xs leading-relaxed border-t border-slate-800 pt-4">
+                            <h3 className="text-sm font-bold text-emerald-400 uppercase">3. Zero-Allocation Instanced GPU Batching</h3>
+                            <p>
+                                All particle states are stored in flat typed buffers (<code className="text-emerald-300">Uint8Array</code> for CA and <code className="text-emerald-300">Float32Array</code> for SPH). Rendering is batched into a single <code className="text-emerald-300">THREE.InstancedMesh</code> draw call with dynamic instance transform matrices and RGB color buffers, bypassing CPU draw call bottlenecks and avoiding garbage collection stutter at 60 FPS.
+                            </p>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button
+                                onClick={() => setShowDocsModal(false)}
+                                className="px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs shadow-lg transition-all"
+                            >
+                                Close Specification
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+ReactDOM.createRoot(document.getElementById('react-hud')).render(<App />);
+</script>
+</body>
+</html>
