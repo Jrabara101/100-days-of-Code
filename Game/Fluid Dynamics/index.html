@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Incompressible Fluid Dynamics Engine</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            cyan: '#00f2fe',
+                            blue: '#4facfe',
+                            purple: '#7f00ff',
+                            neon: '#38bdf8',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- React 18 & ReactDOM 18 -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #030712; color: #f8fafc; font-family: 'Outfit', sans-serif; }
+        canvas { display: block; outline: none; cursor: crosshair; }
+        #webgl-stage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #react-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        
+        .glass-panel {
+            background: rgba(10, 15, 29, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+        .custom-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 5px;
+            border-radius: 3px;
+            background: rgba(51, 65, 85, 0.6);
+            outline: none;
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 10px #38bdf8;
+            transition: transform 0.1s ease;
+        }
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+    </style>
+</head>
+<body class="select-none bg-slate-950 font-sans antialiased">
+
+    <div id="webgl-stage"></div>
+    <div id="react-hud"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// =========================================================================
+// 1. HIGH-PERFORMANCE ZERO-ALLOCATION 3D EULERIAN FLUID DYNAMICS SOLVER
+// =========================================================================
+class FluidDynamicsEngine3D {
+    constructor(dim = 24) {
+        this.N = dim; // Grid Resolution: N x N x N
+        this.totalCells = dim * dim * dim;
+        this.dt = 0.12;
+        this.diffusion = 0.00005;
+        this.viscosity = 0.00005;
+        this.vorticity = 0.45;
+        this.dyeDissipation = 0.988;
+        this.buoyancy = 0.60;
+        this.jacobiIterations = 20;
+        this.isPaused = false;
+
+        // Flat Struct-of-Arrays (SoA) Contiguous Memory
+        this.uX = new Float32Array(this.totalCells);
+        this.uY = new Float32Array(this.totalCells);
+        this.uZ = new Float32Array(this.totalCells);
+
+        this.uX0 = new Float32Array(this.totalCells);
+        this.uY0 = new Float32Array(this.totalCells);
+        this.uZ0 = new Float32Array(this.totalCells);
+
+        this.densityR = new Float32Array(this.totalCells);
+        this.densityG = new Float32Array(this.totalCells);
+        this.densityB = new Float32Array(this.totalCells);
+
+        this.densityR0 = new Float32Array(this.totalCells);
+        this.densityG0 = new Float32Array(this.totalCells);
+        this.densityB0 = new Float32Array(this.totalCells);
+
+        this.p = new Float32Array(this.totalCells);
+        this.p0 = new Float32Array(this.totalCells);
+        this.div = new Float32Array(this.totalCells);
+
+        // Reusable scratch buffers for 3D Vorticity Confinement (Zero GC allocation)
+        this.curlX = new Float32Array(this.totalCells);
+        this.curlY = new Float32Array(this.totalCells);
+        this.curlZ = new Float32Array(this.totalCells);
+        this.curlNorm = new Float32Array(this.totalCells);
+
+        this.Nsq = this.N * this.N;
+    }
+
+    reconfigure(dim) {
+        if (this.N === dim) return;
+        this.N = dim;
+        this.Nsq = dim * dim;
+        this.totalCells = dim * dim * dim;
+
+        this.uX = new Float32Array(this.totalCells);
+        this.uY = new Float32Array(this.totalCells);
+        this.uZ = new Float32Array(this.totalCells);
+
+        this.uX0 = new Float32Array(this.totalCells);
+        this.uY0 = new Float32Array(this.totalCells);
+        this.uZ0 = new Float32Array(this.totalCells);
+
+        this.densityR = new Float32Array(this.totalCells);
+        this.densityG = new Float32Array(this.totalCells);
+        this.densityB = new Float32Array(this.totalCells);
+
+        this.densityR0 = new Float32Array(this.totalCells);
+        this.densityG0 = new Float32Array(this.totalCells);
+        this.densityB0 = new Float32Array(this.totalCells);
+
+        this.p = new Float32Array(this.totalCells);
+        this.p0 = new Float32Array(this.totalCells);
+        this.div = new Float32Array(this.totalCells);
+
+        this.curlX = new Float32Array(this.totalCells);
+        this.curlY = new Float32Array(this.totalCells);
+        this.curlZ = new Float32Array(this.totalCells);
+        this.curlNorm = new Float32Array(this.totalCells);
+    }
+
+    IX(x, y, z) {
+        const N = this.N;
+        const cx = x < 0 ? 0 : (x >= N ? N - 1 : x | 0);
+        const cy = y < 0 ? 0 : (y >= N ? N - 1 : y | 0);
+        const cz = z < 0 ? 0 : (z >= N ? N - 1 : z | 0);
+        return cz * this.Nsq + cy * N + cx;
+    }
+
+    addSource(target, source) {
+        const dt = this.dt;
+        for (let i = 0; i < this.totalCells; i++) {
+            target[i] += source[i] * dt;
+            source[i] = 0;
+        }
+    }
+
+    setBoundary(b, x) {
+        const N = this.N;
+        for (let j = 1; j < N - 1; j++) {
+            for (let i = 1; i < N - 1; i++) {
+                // X Boundary Faces (i = y, j = z)
+                x[this.IX(0, i, j)]     = b === 1 ? -x[this.IX(1, i, j)] : x[this.IX(1, i, j)];
+                x[this.IX(N - 1, i, j)] = b === 1 ? -x[this.IX(N - 2, i, j)] : x[this.IX(N - 2, i, j)];
+                // Y Boundary Faces (i = x, j = z)
+                x[this.IX(i, 0, j)]     = b === 2 ? -x[this.IX(i, 1, j)] : x[this.IX(i, 1, j)];
+                x[this.IX(i, N - 1, j)] = b === 2 ? -x[this.IX(i, N - 2, j)] : x[this.IX(i, N - 2, j)];
+                // Z Boundary Faces (i = x, j = y)
+                x[this.IX(i, j, 0)]     = b === 3 ? -x[this.IX(i, j, 1)] : x[this.IX(i, j, 1)];
+                x[this.IX(i, j, N - 1)] = b === 3 ? -x[this.IX(i, j, N - 2)] : x[this.IX(i, j, N - 2)];
+            }
+        }
+
+        // Corner boundaries averaging
+        x[this.IX(0, 0, 0)]         = 0.333 * (x[this.IX(1, 0, 0)] + x[this.IX(0, 1, 0)] + x[this.IX(0, 0, 1)]);
+        x[this.IX(N - 1, 0, 0)]     = 0.333 * (x[this.IX(N - 2, 0, 0)] + x[this.IX(N - 1, 1, 0)] + x[this.IX(N - 1, 0, 1)]);
+        x[this.IX(0, N - 1, 0)]     = 0.333 * (x[this.IX(1, N - 1, 0)] + x[this.IX(0, N - 2, 0)] + x[this.IX(0, N - 1, 1)]);
+        x[this.IX(N - 1, N - 1, 0)] = 0.333 * (x[this.IX(N - 2, N - 1, 0)] + x[this.IX(N - 1, N - 2, 0)] + x[this.IX(N - 1, N - 1, 1)]);
+        x[this.IX(0, 0, N - 1)]         = 0.333 * (x[this.IX(1, 0, N - 1)] + x[this.IX(0, 1, N - 1)] + x[this.IX(0, 0, N - 2)]);
+        x[this.IX(N - 1, 0, N - 1)]     = 0.333 * (x[this.IX(N - 2, 0, N - 1)] + x[this.IX(N - 1, 1, N - 1)] + x[this.IX(N - 1, 0, N - 2)]);
+        x[this.IX(0, N - 1, N - 1)]     = 0.333 * (x[this.IX(1, N - 1, N - 1)] + x[this.IX(0, N - 2, N - 1)] + x[this.IX(0, N - 1, N - 2)]);
+        x[this.IX(N - 1, N - 1, N - 1)] = 0.333 * (x[this.IX(N - 2, N - 1, N - 1)] + x[this.IX(N - 1, N - 2, N - 1)] + x[this.IX(N - 1, N - 1, N - 2)]);
+    }
+
+    // 3D Semi-Lagrangian Advection with Trilinear Interpolation
+    advect(b, d, d0, uX, uY, uZ) {
+        const N = this.N;
+        const dt0 = this.dt * (N - 2);
+
+        for (let k = 1; k < N - 1; k++) {
+            for (let j = 1; j < N - 1; j++) {
+                for (let i = 1; i < N - 1; i++) {
+                    const idx = this.IX(i, j, k);
+
+                    // Backtrace trajectory in time
+                    let x = i - dt0 * uX[idx];
+                    let y = j - dt0 * uY[idx];
+                    let z = k - dt0 * uZ[idx];
+
+                    // Clamp to numerical boundary volume
+                    if (x < 0.5) x = 0.5; else if (x > N - 1.5) x = N - 1.5;
+                    if (y < 0.5) y = 0.5; else if (y > N - 1.5) y = N - 1.5;
+                    if (z < 0.5) z = 0.5; else if (z > N - 1.5) z = N - 1.5;
+
+                    const i0 = x | 0, i1 = i0 + 1;
+                    const j0 = y | 0, j1 = j0 + 1;
+                    const k0 = z | 0, k1 = k0 + 1;
+
+                    const s1 = x - i0, s0 = 1.0 - s1;
+                    const t1 = y - j0, t0 = 1.0 - t1;
+                    const u1 = z - k0, u0 = 1.0 - u1;
+
+                    // 3D Trilinear Spatial Blend
+                    const z0_y0_x0 = d0[this.IX(i0, j0, k0)];
+                    const z0_y0_x1 = d0[this.IX(i1, j0, k0)];
+                    const z0_y1_x0 = d0[this.IX(i0, j1, k0)];
+                    const z0_y1_x1 = d0[this.IX(i1, j1, k0)];
+
+                    const z1_y0_x0 = d0[this.IX(i0, j0, k1)];
+                    const z1_y0_x1 = d0[this.IX(i1, j0, k1)];
+                    const z1_y1_x0 = d0[this.IX(i0, j1, k1)];
+                    const z1_y1_x1 = d0[this.IX(i1, j1, k1)];
+
+                    d[idx] = 
+                        u0 * (
+                            t0 * (s0 * z0_y0_x0 + s1 * z0_y0_x1) +
+                            t1 * (s0 * z0_y1_x0 + s1 * z0_y1_x1)
+                        ) +
+                        u1 * (
+                            t0 * (s0 * z1_y0_x0 + s1 * z1_y0_x1) +
+                            t1 * (s0 * z1_y1_x0 + s1 * z1_y1_x1)
+                        );
+                }
+            }
+        }
+        this.setBoundary(b, d);
+    }
+
+    // Jacobi Pressure-Poisson Solver & Helmholtz-Hodge Vector Projection
+    project(uX, uY, uZ, p, div) {
+        const N = this.N;
+
+        // 1. Discrete Divergence Computation
+        for (let k = 1; k < N - 1; k++) {
+            for (let j = 1; j < N - 1; j++) {
+                for (let i = 1; i < N - 1; i++) {
+                    div[this.IX(i, j, k)] = -0.5 * (
+                        uX[this.IX(i + 1, j, k)] - uX[this.IX(i - 1, j, k)] +
+                        uY[this.IX(i, j + 1, k)] - uY[this.IX(i, j - 1, k)] +
+                        uZ[this.IX(i, j, k + 1)] - uZ[this.IX(i, j, k - 1)]
+                    ) / N;
+                    p[this.IX(i, j, k)] = 0;
+                }
+            }
+        }
+        this.setBoundary(0, div);
+        this.setBoundary(0, p);
+
+        // 2. Jacobi Iterative Relaxation Passes
+        const passes = this.jacobiIterations;
+        for (let iter = 0; iter < passes; iter++) {
+            for (let k = 1; k < N - 1; k++) {
+                for (let j = 1; j < N - 1; j++) {
+                    for (let i = 1; i < N - 1; i++) {
+                        p[this.IX(i, j, k)] = (
+                            div[this.IX(i, j, k)] +
+                            p[this.IX(i - 1, j, k)] + p[this.IX(i + 1, j, k)] +
+                            p[this.IX(i, j - 1, k)] + p[this.IX(i, j + 1, k)] +
+                            p[this.IX(i, j, k - 1)] + p[this.IX(i, j, k + 1)]
+                        ) * 0.16666667;
+                    }
+                }
+            }
+            this.setBoundary(0, p);
+        }
+
+        // 3. Subtract Gradient Field to Enforce Incompressibility (div u = 0)
+        for (let k = 1; k < N - 1; k++) {
+            for (let j = 1; j < N - 1; j++) {
+                for (let i = 1; i < N - 1; i++) {
+                    uX[this.IX(i, j, k)] -= 0.5 * (p[this.IX(i + 1, j, k)] - p[this.IX(i - 1, j, k)]) * N;
+                    uY[this.IX(i, j, k)] -= 0.5 * (p[this.IX(i, j + 1, k)] - p[this.IX(i - 1, j, k)]) * N;
+                    uZ[this.IX(i, j, k)] -= 0.5 * (p[this.IX(i, j, k + 1)] - p[this.IX(i, j, k - 1)]) * N;
+                }
+            }
+        }
+        this.setBoundary(1, uX);
+        this.setBoundary(2, uY);
+        this.setBoundary(3, uZ);
+    }
+
+    // 3D Vorticity Confinement (Fedkiw, Stam, Jensen)
+    applyVorticityConfinement() {
+        const N = this.N;
+        const curlX = this.curlX;
+        const curlY = this.curlY;
+        const curlZ = this.curlZ;
+        const curlNorm = this.curlNorm;
+
+        // Step 1: Compute 3D Curl Vector Field w = curl(u)
+        for (let k = 1; k < N - 1; k++) {
+            for (let j = 1; j < N - 1; j++) {
+                for (let i = 1; i < N - 1; i++) {
+                    const idx = this.IX(i, j, k);
+                    const dw_dy = (this.uZ[this.IX(i, j + 1, k)] - this.uZ[this.IX(i, j - 1, k)]) * 0.5;
+                    const dv_dz = (this.uY[this.IX(i, j, k + 1)] - this.uY[this.IX(i, j, k - 1)]) * 0.5;
+                    const du_dz = (this.uX[this.IX(i, j, k + 1)] - this.uX[this.IX(i, j, k - 1)]) * 0.5;
+                    const dw_dx = (this.uZ[this.IX(i + 1, j, k)] - this.uZ[this.IX(i - 1, j, k)]) * 0.5;
+                    const dv_dx = (this.uY[this.IX(i + 1, j, k)] - this.uY[this.IX(i - 1, j, k)]) * 0.5;
+                    const du_dy = (this.uX[this.IX(i, j + 1, k)] - this.uX[this.IX(i, j - 1, k)]) * 0.5;
+
+                    const cx = dw_dy - dv_dz;
+                    const cy = du_dz - dw_dx;
+                    const cz = dv_dx - du_dy;
+
+                    curlX[idx] = cx;
+                    curlY[idx] = cy;
+                    curlZ[idx] = cz;
+                    curlNorm[idx] = Math.sqrt(cx * cx + cy * cy + cz * cz);
+                }
+            }
+        }
+
+        // Step 2: Compute Gradient Vector eta = grad(|w|) / |grad(|w|)| and Inject f_vort = eps * (eta x w)
+        const vortScale = this.vorticity * this.dt;
+        for (let k = 2; k < N - 2; k++) {
+            for (let j = 2; j < N - 2; j++) {
+                for (let i = 2; i < N - 2; i++) {
+                    const idx = this.IX(i, j, k);
+                    const nx = (curlNorm[this.IX(i + 1, j, k)] - curlNorm[this.IX(i - 1, j, k)]) * 0.5;
+                    const ny = (curlNorm[this.IX(i, j + 1, k)] - curlNorm[this.IX(i - 1, j, k)]) * 0.5;
+                    const nz = (curlNorm[this.IX(i, j, k + 1)] - curlNorm[this.IX(i, j, k - 1)]) * 0.5;
+                    const len = Math.sqrt(nx * nx + ny * ny + nz * nz) + 1e-6;
+
+                    const etaX = nx / len;
+                    const etaY = ny / len;
+                    const etaZ = nz / len;
+
+                    const cx = curlX[idx];
+                    const cy = curlY[idx];
+                    const cz = curlZ[idx];
+
+                    // Cross product: eta x w
+                    this.uX[idx] += (etaY * cz - etaZ * cy) * vortScale;
+                    this.uY[idx] += (etaZ * cx - etaX * cz) * vortScale;
+                    this.uZ[idx] += (etaX * cy - etaY * cx) * vortScale;
+                }
+            }
+        }
+    }
+
+    // Buoyancy / Thermal Convection Lift
+    applyBuoyancy() {
+        if (this.buoyancy <= 0.001) return;
+        const N = this.N;
+        const bCoeff = this.buoyancy * this.dt * 2.5;
+        for (let k = 1; k < N - 1; k++) {
+            for (let j = 1; j < N - 1; j++) {
+                for (let i = 1; i < N - 1; i++) {
+                    const idx = this.IX(i, j, k);
+                    const densitySum = this.densityR[idx] + this.densityG[idx] + this.densityB[idx];
+                    if (densitySum > 0.02) {
+                        this.uY[idx] += densitySum * bCoeff;
+                    }
+                }
+            }
+        }
+    }
+
+    stepSimulation() {
+        if (this.isPaused) return;
+
+        // 1. Force Ingestion Pass
+        this.addSource(this.uX, this.uX0);
+        this.addSource(this.uY, this.uY0);
+        this.addSource(this.uZ, this.uZ0);
+
+        this.addSource(this.densityR, this.densityR0);
+        this.addSource(this.densityG, this.densityG0);
+        this.addSource(this.densityB, this.densityB0);
+
+        // 2. Buoyancy & Thermal Convection
+        this.applyBuoyancy();
+
+        // 3. Vorticity Confinement Pass
+        if (this.vorticity > 0.001) {
+            this.applyVorticityConfinement();
+        }
+
+        // 4. Velocity Advection & Jacobi Pressure Projection
+        this.uX0.set(this.uX);
+        this.uY0.set(this.uY);
+        this.uZ0.set(this.uZ);
+
+        this.advect(1, this.uX, this.uX0, this.uX0, this.uY0, this.uZ0);
+        this.advect(2, this.uY, this.uY0, this.uX0, this.uY0, this.uZ0);
+        this.advect(3, this.uZ, this.uZ0, this.uX0, this.uY0, this.uZ0);
+
+        this.project(this.uX, this.uY, this.uZ, this.p, this.div);
+
+        // 5. Density Multi-Channel RGB Advection & Dissipation
+        this.densityR0.set(this.densityR);
+        this.densityG0.set(this.densityG);
+        this.densityB0.set(this.densityB);
+
+        this.advect(0, this.densityR, this.densityR0, this.uX, this.uY, this.uZ);
+        this.advect(0, this.densityG, this.densityG0, this.uX, this.uY, this.uZ);
+        this.advect(0, this.densityB, this.densityB0, this.uX, this.uY, this.uZ);
+
+        const diss = this.dyeDissipation;
+        for (let i = 0; i < this.totalCells; i++) {
+            this.densityR[i] *= diss;
+            this.densityG[i] *= diss;
+            this.densityB[i] *= diss;
+        }
+    }
+
+    flush() {
+        this.uX.fill(0); this.uY.fill(0); this.uZ.fill(0);
+        this.uX0.fill(0); this.uY0.fill(0); this.uZ0.fill(0);
+        this.densityR.fill(0); this.densityG.fill(0); this.densityB.fill(0);
+        this.densityR0.fill(0); this.densityG0.fill(0); this.densityB0.fill(0);
+        this.p.fill(0); this.div.fill(0);
+        this.curlX.fill(0); this.curlY.fill(0); this.curlZ.fill(0); this.curlNorm.fill(0);
+    }
+}
+
+// =========================================================================
+// 2. PALETTES & PRESET SCENARIOS
+// =========================================================================
+const COLOR_PALETTES = {
+    cyberpunk: { name: 'Cyberpunk Neon', r: 0.15, g: 0.95, b: 1.0, secondary: [1.0, 0.15, 0.75] },
+    solar: { name: 'Solar Flare', r: 1.0, g: 0.50, b: 0.05, secondary: [1.0, 0.95, 0.1] },
+    bioluminescence: { name: 'Toxic Bio', r: 0.2, g: 1.0, b: 0.45, secondary: [0.1, 0.85, 0.95] },
+    nebula: { name: 'Deep Space Nebula', r: 0.75, g: 0.15, b: 1.0, secondary: [0.2, 0.6, 1.0] },
+    ocean: { name: 'Abyssal Blue', r: 0.0, g: 0.65, b: 1.0, secondary: [0.0, 1.0, 0.8] },
+    monochrome: { name: 'Pure Smoke', r: 0.92, g: 0.94, b: 0.98, secondary: [0.75, 0.80, 0.85] }
+};
+
+// =========================================================================
+// 3. REACT 18 + THREE.JS CONTAINER APP
+// =========================================================================
+function FluidDynamics3DApp() {
+    const [gridDim, setGridDim] = useState(24);
+    const [engine] = useState(() => new FluidDynamicsEngine3D(24));
+    
+    // UI Parameter Controls
+    const [vorticityVal, setVorticityVal] = useState(0.45);
+    const [dissipationVal, setDissipationVal] = useState(0.988);
+    const [buoyancyVal, setBuoyancyVal] = useState(0.60);
+    const [iterationsVal, setIterationsVal] = useState(20);
+    const [selectedPalette, setSelectedPalette] = useState('cyberpunk');
+    const [emitterMode, setEmitterMode] = useState('thermal_plume'); // 'thermal_plume', 'opposing_jets', 'vortex_ring', 'swirl_cyclone', 'manual_only'
+    const [renderMode, setRenderMode] = useState('volumetric_dense'); // 'volumetric_dense', 'wire_voxels', 'vorticity_field'
+    const [isPaused, setIsPaused] = useState(false);
+    const [isInjectingNotice, setIsInjectingNotice] = useState(false);
+
+    // Telemetry State
+    const [telemetry, setTelemetry] = useState({
+        activeVoxels: 0,
+        fps: 60,
+        kineticEnergy: 0,
+        maxVelocity: '0.00',
+        solverLatencyMs: 0
+    });
+
+    // Refs for Three.js Stage & Loop
+    const sceneRef = useRef(null);
+    const cameraRef = useRef(null);
+    const rendererRef = useRef(null);
+    const controlsRef = useRef(null);
+    const instancedMeshRef = useRef(null);
+    const bboxRef = useRef(null);
+    const brushIndicatorRef = useRef(null);
+
+    const dummyMatrix = useRef(new THREE.Matrix4());
+    const dummyColor = useRef(new THREE.Color());
+    const raycasterRef = useRef(new THREE.Raycaster());
+
+    // Continuous 3D Pointer Ingestion State
+    const pointerStateRef = useRef({
+        isDown: false,
+        isShiftDown: false,
+        clientX: 0,
+        clientY: 0,
+        lastClientX: 0,
+        lastClientY: 0,
+        dx: 0,
+        dy: 0,
+        hasHit: false,
+        hitPoint: new THREE.Vector3()
+    });
+
+    const animFrameRef = useRef(null);
+    const emitterAngleRef = useRef(0);
+
+    // --- SETUP THREE.JS 3D SCENE & ATTACH DIRECT VIEWPORT LISTENERS ---
+    useEffect(() => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x030712);
+        scene.fog = new THREE.FogExp2(0x030712, 0.015);
+        sceneRef.current = scene;
+
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+        camera.position.set(36, 26, 42);
+        cameraRef.current = camera;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.25;
+        
+        const stageDiv = document.getElementById('webgl-stage');
+        stageDiv.innerHTML = '';
+        stageDiv.appendChild(renderer.domElement);
+        rendererRef.current = renderer;
+
+        // Custom Orbit Controls (Right click / Shift+Left click to orbit, Middle click/wheel to zoom)
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.target.set(0, 0, 0);
+        controls.mouseButtons = {
+            LEFT: THREE.MOUSE.NONE, // Left click is 100% reserved for fluid momentum & dye injection!
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.ROTATE
+        };
+        controlsRef.current = controls;
+
+        // Prevent browser right click context menu on canvas
+        renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Dynamic Lighting Rig
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.60);
+        scene.add(ambientLight);
+
+        const keyLight = new THREE.DirectionalLight(0x38bdf8, 1.3);
+        keyLight.position.set(25, 45, 30);
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0x7f00ff, 0.85);
+        fillLight.position.set(-30, -10, -25);
+        scene.add(fillLight);
+
+        // Bounding Cage Box
+        const N = engine.N;
+        const bboxGeo = new THREE.BoxGeometry(N, N, N);
+        const bboxEdges = new THREE.EdgesGeometry(bboxGeo);
+        const bboxLine = new THREE.LineSegments(
+            bboxEdges,
+            new THREE.LineBasicMaterial({ color: 0x38bdf8, opacity: 0.35, transparent: true })
+        );
+        scene.add(bboxLine);
+        bboxRef.current = bboxLine;
+
+        // Subtle Floor Grid
+        const gridHelper = new THREE.GridHelper(N * 1.6, N, 0x1e293b, 0x0f172a);
+        gridHelper.position.y = -N / 2 - 0.05;
+        scene.add(gridHelper);
+
+        // 3D Brush Target Sphere Indicator
+        const brushGeo = new THREE.SphereGeometry(1.2, 16, 16);
+        const brushMat = new THREE.MeshBasicMaterial({
+            color: 0x00f2fe,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.6,
+            visible: false
+        });
+        const brushMesh = new THREE.Mesh(brushGeo, brushMat);
+        scene.add(brushMesh);
+        brushIndicatorRef.current = brushMesh;
+
+        // Create Instanced Mesh
+        createOrUpdateInstancedMesh();
+
+        // -------------------------------------------------------------
+        // DIRECT POINTER EVENT LISTENERS ON CANVAS
+        // -------------------------------------------------------------
+        const dom = renderer.domElement;
+
+        const onPointerDown = (e) => {
+            if (e.button === 0 && !e.shiftKey) {
+                // Left click without Shift -> Ingest 3D fluid impulse
+                pointerStateRef.current.isDown = true;
+                pointerStateRef.current.clientX = e.clientX;
+                pointerStateRef.current.clientY = e.clientY;
+                pointerStateRef.current.lastClientX = e.clientX;
+                pointerStateRef.current.lastClientY = e.clientY;
+                pointerStateRef.current.dx = 0;
+                pointerStateRef.current.dy = 0;
+                setIsInjectingNotice(true);
+            } else if (e.button === 0 && e.shiftKey) {
+                // Shift + Left Click allows orbit fallback for trackpads
+                controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+            }
+        };
+
+        const onPointerMove = (e) => {
+            const state = pointerStateRef.current;
+            state.clientX = e.clientX;
+            state.clientY = e.clientY;
+
+            if (state.isDown) {
+                state.dx = (e.clientX - state.lastClientX) * 0.12;
+                state.dy = -(e.clientY - state.lastClientY) * 0.12;
+                state.lastClientX = e.clientX;
+                state.lastClientY = e.clientY;
+            }
+        };
+
+        const onPointerUp = (e) => {
+            if (e.button === 0) {
+                pointerStateRef.current.isDown = false;
+                pointerStateRef.current.dx = 0;
+                pointerStateRef.current.dy = 0;
+                controls.mouseButtons.LEFT = THREE.MOUSE.NONE;
+                setIsInjectingNotice(false);
+            }
+        };
+
+        const onPointerLeave = () => {
+            pointerStateRef.current.isDown = false;
+            setIsInjectingNotice(false);
+            if (brushIndicatorRef.current) brushIndicatorRef.current.visible = false;
+        };
+
+        dom.addEventListener('pointerdown', onPointerDown);
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+        dom.addEventListener('pointerleave', onPointerLeave);
+
+        // Window resize handler
+        const handleResize = () => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        };
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+            dom.removeEventListener('pointerdown', onPointerDown);
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+            dom.removeEventListener('pointerleave', onPointerLeave);
+            window.removeEventListener('resize', handleResize);
+            renderer.dispose();
+            if (stageDiv) stageDiv.innerHTML = '';
+        };
+    }, []);
+
+    // Create or Recreate InstancedMesh when Resolution or Render Mode changes
+    const createOrUpdateInstancedMesh = useCallback(() => {
+        if (!sceneRef.current) return;
+        const scene = sceneRef.current;
+
+        if (instancedMeshRef.current) {
+            scene.remove(instancedMeshRef.current);
+            instancedMeshRef.current.geometry.dispose();
+            instancedMeshRef.current.material.dispose();
+            instancedMeshRef.current = null;
+        }
+
+        const N = engine.N;
+        let voxelGeo;
+        let voxelMat;
+
+        if (renderMode === 'wire_voxels') {
+            voxelGeo = new THREE.BoxGeometry(0.88, 0.88, 0.88);
+            voxelMat = new THREE.MeshBasicMaterial({
+                wireframe: true,
+                transparent: true,
+                opacity: 0.7
+            });
+        } else {
+            voxelGeo = new THREE.BoxGeometry(0.86, 0.86, 0.86);
+            voxelMat = new THREE.MeshStandardMaterial({
+                roughness: 0.15,
+                metalness: 0.1,
+                transparent: true,
+                opacity: 0.85
+            });
+        }
+
+        const instancedMesh = new THREE.InstancedMesh(voxelGeo, voxelMat, engine.totalCells);
+        instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        scene.add(instancedMesh);
+        instancedMeshRef.current = instancedMesh;
+
+        if (bboxRef.current) {
+            bboxRef.current.geometry.dispose();
+            bboxRef.current.geometry = new THREE.EdgesGeometry(new THREE.BoxGeometry(N, N, N));
+        }
+    }, [engine, renderMode]);
+
+    // Handle Resolution Switch
+    const handleResolutionChange = (newDim) => {
+        setGridDim(newDim);
+        engine.reconfigure(newDim);
+        createOrUpdateInstancedMesh();
+    };
+
+    // Update Engine Parameters
+    useEffect(() => {
+        engine.vorticity = vorticityVal;
+        engine.dyeDissipation = dissipationVal;
+        engine.buoyancy = buoyancyVal;
+        engine.jacobiIterations = iterationsVal;
+        engine.isPaused = isPaused;
+    }, [vorticityVal, dissipationVal, buoyancyVal, iterationsVal, isPaused, engine]);
+
+    // Active Simulation & GPU Render Loop
+    useEffect(() => {
+        let lastTime = performance.now();
+        let frameCount = 0;
+        const N = engine.N;
+
+        const renderLoop = () => {
+            const t0 = performance.now();
+            emitterAngleRef.current += 0.035;
+            const angle = emitterAngleRef.current;
+
+            // --- 1. CONTINUOUS PRESET EMITTER SCENARIOS ---
+            const palette = COLOR_PALETTES[selectedPalette] || COLOR_PALETTES.cyberpunk;
+            const mid = Math.floor(N / 2);
+
+            if (emitterMode === 'thermal_plume') {
+                const cy = 2;
+                for (let oz = -1; oz <= 1; oz++) {
+                    for (let ox = -1; ox <= 1; ox++) {
+                        const idx = engine.IX(mid + ox, cy, mid + oz);
+                        engine.uY0[idx] += 10.5;
+                        engine.uX0[idx] += Math.sin(angle * 1.5) * 1.5;
+                        engine.uZ0[idx] += Math.cos(angle * 1.5) * 1.5;
+
+                        engine.densityR0[idx] += palette.r * 1.2;
+                        engine.densityG0[idx] += palette.g * 1.2;
+                        engine.densityB0[idx] += palette.b * 1.2;
+                    }
+                }
+            } else if (emitterMode === 'opposing_jets') {
+                const yPos = mid;
+                const r1 = 3, r2 = N - 4;
+                for (let oz = -1; oz <= 1; oz++) {
+                    const idx1 = engine.IX(r1, yPos, mid + oz);
+                    engine.uX0[idx1] += 14.0;
+                    engine.densityR0[idx1] += palette.r * 1.4;
+                    engine.densityG0[idx1] += palette.g * 1.4;
+                    engine.densityB0[idx1] += palette.b * 1.4;
+
+                    const idx2 = engine.IX(r2, yPos, mid + oz);
+                    engine.uX0[idx2] -= 14.0;
+                    engine.densityR0[idx2] += palette.secondary[0] * 1.4;
+                    engine.densityG0[idx2] += palette.secondary[1] * 1.4;
+                    engine.densityB0[idx2] += palette.secondary[2] * 1.4;
+                }
+            } else if (emitterMode === 'vortex_ring') {
+                const pulse = (Math.sin(angle * 3) > 0.6) ? 18.0 : 0.0;
+                if (pulse > 0) {
+                    const cy = 2;
+                    for (let oz = -2; oz <= 2; oz++) {
+                        for (let ox = -2; ox <= 2; ox++) {
+                            const dist = Math.sqrt(ox*ox + oz*oz);
+                            if (dist >= 1.0 && dist <= 2.4) {
+                                const idx = engine.IX(mid + ox, cy, mid + oz);
+                                engine.uY0[idx] += pulse;
+                                engine.densityR0[idx] += palette.r * 1.6;
+                                engine.densityG0[idx] += palette.g * 1.6;
+                                engine.densityB0[idx] += palette.b * 1.6;
+                            }
+                        }
+                    }
+                }
+            } else if (emitterMode === 'swirl_cyclone') {
+                const rad = Math.floor(N * 0.28);
+                const ex = Math.floor(mid + Math.cos(angle * 1.8) * rad);
+                const ez = Math.floor(mid + Math.sin(angle * 1.8) * rad);
+                const ey = 3;
+                const idx = engine.IX(ex, ey, ez);
+
+                const tangX = -Math.sin(angle * 1.8) * 9.0;
+                const tangZ = Math.cos(angle * 1.8) * 9.0;
+
+                engine.uX0[idx] += tangX;
+                engine.uY0[idx] += 8.0;
+                engine.uZ0[idx] += tangZ;
+
+                engine.densityR0[idx] += palette.r * 1.6;
+                engine.densityG0[idx] += palette.g * 1.6;
+                engine.densityB0[idx] += palette.b * 1.6;
+            }
+
+            // --- 2. CONTINUOUS 3D RAYCAST IMPULSE INGESTION ---
+            const pState = pointerStateRef.current;
+            if (cameraRef.current) {
+                const camera = cameraRef.current;
+                const mouseNorm = new THREE.Vector2(
+                    (pState.clientX / window.innerWidth) * 2 - 1,
+                    -(pState.clientY / window.innerHeight) * 2 + 1
+                );
+                raycasterRef.current.setFromCamera(mouseNorm, camera);
+
+                // Target interaction plane passing through center (0,0,0) facing camera
+                const cameraDir = new THREE.Vector3();
+                camera.getWorldDirection(cameraDir);
+                const planeNormal = cameraDir.clone().negate();
+                const plane = new THREE.Plane(planeNormal, 0);
+                const hit = new THREE.Vector3();
+
+                if (raycasterRef.current.ray.intersectPlane(plane, hit)) {
+                    pState.hasHit = true;
+                    pState.hitPoint.copy(hit);
+
+                    // Update 3D visual brush indicator position
+                    if (brushIndicatorRef.current) {
+                        brushIndicatorRef.current.position.copy(hit);
+                        brushIndicatorRef.current.visible = true;
+                        brushIndicatorRef.current.material.color.setRGB(palette.r, palette.g, palette.b);
+                    }
+
+                    // If left mouse is pressed down, inject continuous 3D velocity and dye!
+                    if (pState.isDown) {
+                        const offset = N / 2;
+                        const gx = Math.floor(hit.x + offset);
+                        const gy = Math.floor(hit.y + offset);
+                        const gz = Math.floor(hit.z + offset);
+
+                        const cameraRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+                        const cameraUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+
+                        // Impulse vector: Lateral mouse drag + inward push into volume
+                        const dragSpeed = Math.hypot(pState.dx, pState.dy);
+                        let impulse = new THREE.Vector3();
+
+                        if (dragSpeed > 0.001) {
+                            impulse.addScaledVector(cameraRight, pState.dx * 45.0)
+                                   .addScaledVector(cameraUp, pState.dy * 45.0)
+                                   .addScaledVector(cameraDir, 10.0);
+                        } else {
+                            // Steady press: inject continuous upward & inward jet
+                            impulse.addScaledVector(cameraUp, 8.0)
+                                   .addScaledVector(cameraDir, 10.0);
+                        }
+
+                        const radius = Math.max(1.8, N * 0.10);
+                        const rInt = Math.ceil(radius);
+
+                        for (let oz = -rInt; oz <= rInt; oz++) {
+                            for (let oy = -rInt; oy <= rInt; oy++) {
+                                for (let ox = -rInt; ox <= rInt; ox++) {
+                                    const dist = Math.sqrt(ox*ox + oy*oy + oz*oz);
+                                    if (dist <= radius) {
+                                        const cx = gx + ox;
+                                        const cy = gy + oy;
+                                        const cz = gz + oz;
+
+                                        if (cx >= 1 && cx < N - 1 && cy >= 1 && cy < N - 1 && cz >= 1 && cz < N - 1) {
+                                            const cidx = engine.IX(cx, cy, cz);
+                                            const falloff = Math.cos((dist / radius) * (Math.PI / 2));
+                                            const power = falloff * falloff;
+
+                                            engine.uX0[cidx] += impulse.x * power;
+                                            engine.uY0[cidx] += impulse.y * power;
+                                            engine.uZ0[cidx] += impulse.z * power;
+
+                                            // Continuous rich dye injection
+                                            engine.densityR0[cidx] += palette.r * power * 2.8;
+                                            engine.densityG0[cidx] += palette.g * power * 2.8;
+                                            engine.densityB0[cidx] += palette.b * power * 2.8;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Decay instantaneous delta
+                        pState.dx *= 0.4;
+                        pState.dy *= 0.4;
+                    }
+                }
+            }
+
+            // --- 3. STEP EULERIAN SOLVER ---
+            engine.stepSimulation();
+
+            const tSolver = performance.now() - t0;
+
+            // --- 4. MAP DENSITY & VORTICITY TO THREE.JS INSTANCED GPU MESH ---
+            let visibleCount = 0;
+            const offset = -N / 2 + 0.5;
+            let totalKinetic = 0;
+            let maxVelSq = 0;
+            const instancedMesh = instancedMeshRef.current;
+
+            if (instancedMesh) {
+                for (let z = 0; z < N; z++) {
+                    for (let y = 0; y < N; y++) {
+                        for (let x = 0; x < N; x++) {
+                            const idx = engine.IX(x, y, z);
+                            const r = engine.densityR[idx];
+                            const g = engine.densityG[idx];
+                            const b = engine.densityB[idx];
+                            const totalDensity = r + g + b;
+
+                            const ux = engine.uX[idx];
+                            const uy = engine.uY[idx];
+                            const uz = engine.uZ[idx];
+                            const velSq = ux*ux + uy*uy + uz*uz;
+                            totalKinetic += velSq;
+                            if (velSq > maxVelSq) maxVelSq = velSq;
+
+                            if (renderMode === 'vorticity_field') {
+                                const curlVal = engine.curlNorm[idx];
+                                if (curlVal > 0.06) {
+                                    dummyMatrix.current.setPosition(x + offset, y + offset, z + offset);
+                                    const s = Math.min(1.0, 0.4 + curlVal * 0.35);
+                                    dummyMatrix.current.scale(new THREE.Vector3(s, s, s));
+                                    instancedMesh.setMatrixAt(visibleCount, dummyMatrix.current);
+
+                                    dummyColor.current.setHSL(0.75 - Math.min(0.75, curlVal * 0.25), 1.0, 0.55);
+                                    instancedMesh.setColorAt(visibleCount, dummyColor.current);
+                                    visibleCount++;
+                                }
+                            } else {
+                                // Default Density Mode
+                                if (totalDensity > 0.05) {
+                                    dummyMatrix.current.setPosition(x + offset, y + offset, z + offset);
+                                    const scale = Math.min(1.0, 0.45 + totalDensity * 0.35);
+                                    dummyMatrix.current.scale(new THREE.Vector3(scale, scale, scale));
+                                    instancedMesh.setMatrixAt(visibleCount, dummyMatrix.current);
+
+                                    dummyColor.current.setRGB(
+                                        Math.min(1.0, r * 1.15),
+                                        Math.min(1.0, g * 1.15),
+                                        Math.min(1.0, b * 1.15)
+                                    );
+                                    instancedMesh.setColorAt(visibleCount, dummyColor.current);
+                                    visibleCount++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                instancedMesh.count = visibleCount;
+                instancedMesh.instanceMatrix.needsUpdate = true;
+                if (instancedMesh.instanceColor) instancedMesh.instanceColor.needsUpdate = true;
+            }
+
+            if (controlsRef.current) controlsRef.current.update();
+            if (rendererRef.current && sceneRef.current && cameraRef.current) {
+                rendererRef.current.render(sceneRef.current, cameraRef.current);
+            }
+
+            // --- 5. TELEMETRY SAMPLING ---
+            frameCount++;
+            const now = performance.now();
+            if (now - lastTime >= 350) {
+                setTelemetry({
+                    activeVoxels: visibleCount,
+                    fps: Math.round((frameCount * 1000) / (now - lastTime)),
+                    kineticEnergy: Math.round(totalKinetic * 0.1),
+                    maxVelocity: Math.sqrt(maxVelSq).toFixed(2),
+                    solverLatencyMs: tSolver.toFixed(1)
+                });
+                frameCount = 0;
+                lastTime = now;
+            }
+
+            animFrameRef.current = requestAnimationFrame(renderLoop);
+        };
+
+        animFrameRef.current = requestAnimationFrame(renderLoop);
+
+        return () => {
+            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+        };
+    }, [engine, emitterMode, selectedPalette, renderMode]);
+
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.code === 'Space') {
+                setIsPaused(p => !p);
+            } else if (e.code === 'KeyR') {
+                engine.flush();
+            } else if (e.code === 'KeyC') {
+                const keys = Object.keys(COLOR_PALETTES);
+                const nextIdx = (keys.indexOf(selectedPalette) + 1) % keys.length;
+                setSelectedPalette(keys[nextIdx]);
+            } else if (e.code === 'KeyV') {
+                setRenderMode(m => m === 'volumetric_dense' ? 'vorticity_field' : 'volumetric_dense');
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedPalette, engine]);
+
+    return (
+        <div className="w-full h-full relative pointer-events-none">
+            {/* React Glassmorphic HUD Layout */}
+            <div className="absolute inset-0 flex flex-col justify-between p-4 md:p-6 z-20">
+                
+                {/* TOP TELEMETRY & TITLE BAR */}
+                <header className="w-full max-w-5xl mx-auto glass-panel rounded-2xl p-4 pointer-events-auto flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:border-sky-400/40">
+                    <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-purple-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                            <span className="text-lg">🌊</span>
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-sm md:text-base font-bold text-sky-400 font-mono tracking-wider">EULERIAN_FLUID_3D</h1>
+                                <span className="px-2 py-0.5 text-[10px] font-mono bg-sky-500/20 text-sky-300 rounded border border-sky-500/30">N={gridDim}³ ({engine.totalCells.toLocaleString()} Voxels)</span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 font-mono">Helmholtz-Hodge Projection • 3D Vorticity Confinement</p>
+                        </div>
+                    </div>
+
+                    {/* Live Telemetry Chips */}
+                    <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs font-mono">
+                        <div className="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5">
+                            <span className="text-slate-400">FPS:</span>
+                            <strong className={telemetry.fps >= 50 ? "text-emerald-400" : "text-amber-400"}>{telemetry.fps}</strong>
+                        </div>
+                        <div className="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5">
+                            <span className="text-slate-400">Voxels:</span>
+                            <strong className="text-sky-400">{telemetry.activeVoxels.toLocaleString()}</strong>
+                        </div>
+                        <div className="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5">
+                            <span className="text-slate-400">Kinetic:</span>
+                            <strong className="text-purple-400">{telemetry.kineticEnergy}</strong>
+                        </div>
+                        <div className="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5">
+                            <span className="text-slate-400">Solver:</span>
+                            <strong className="text-emerald-400">{telemetry.solverLatencyMs}ms</strong>
+                        </div>
+                    </div>
+                </header>
+
+                {/* MIDDLE INTERACTION INSTRUCTION BADGE */}
+                <div className="w-full flex justify-center pointer-events-none my-2">
+                    <div className={`px-4 py-2 rounded-full glass-panel text-[11px] font-mono text-slate-300 flex items-center gap-3 border transition-all shadow-xl ${
+                        isInjectingNotice ? 'border-sky-400 shadow-sky-500/20 bg-sky-950/70' : 'border-sky-500/20'
+                    }`}>
+                        <span className="flex items-center gap-1.5 text-sky-400 font-bold">
+                            <span className={`w-2 h-2 rounded-full ${isInjectingNotice ? 'bg-sky-400 animate-ping' : 'bg-sky-400'}`}></span>
+                            Left Drag:
+                        </span>
+                        <span>Inject 3D Fluid Impulse</span>
+                        <span className="text-slate-500">|</span>
+                        <span className="text-purple-400 font-bold">Right Drag / Shift+Drag:</span>
+                        <span>Orbit Camera</span>
+                        <span className="text-slate-500">|</span>
+                        <span className="text-amber-400 font-bold">Scroll:</span>
+                        <span>Zoom</span>
+                    </div>
+                </div>
+
+                {/* BOTTOM CONTROL DOCK & SIMULATION TUNERS */}
+                <div className="w-full max-w-5xl mx-auto flex flex-col gap-3 pointer-events-auto">
+                    
+                    {/* Main Control Deck */}
+                    <div className="glass-panel rounded-2xl p-4 transition-all">
+                        <div className="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-slate-800/80 text-xs">
+                            
+                            {/* Scenario / Emitter Mode Selector */}
+                            <div className="flex items-center gap-2">
+                                <span className="text-slate-400 font-mono text-[11px]">EMITTER:</span>
+                                <div className="flex bg-slate-950/70 p-1 rounded-xl border border-slate-800">
+                                    {[
+                                        { id: 'thermal_plume', label: '🔥 Plume' },
+                                        { id: 'opposing_jets', label: '💥 Opposing Jets' },
+                                        { id: 'vortex_ring', label: '🌪️ Toroid' },
+                                        { id: 'swirl_cyclone', label: '🌀 Cyclone' },
+                                        { id: 'manual_only', label: '✋ Manual' }
+                                    ].map(mode => (
+                                        <button
+                                            key={mode.id}
+                                            onClick={() => setEmitterMode(mode.id)}
+                                            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all ${
+                                                emitterMode === mode.id 
+                                                    ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm' 
+                                                    : 'text-slate-400 hover:text-slate-200'
+                                            }`}
+                                        >
+                                            {mode.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Color Palette Selector */}
+                            <div className="flex items-center gap-2">
+                                <span className="text-slate-400 font-mono text-[11px]">PALETTE:</span>
+                                <select 
+                                    value={selectedPalette}
+                                    onChange={(e) => setSelectedPalette(e.target.value)}
+                                    className="bg-slate-950 text-sky-300 border border-slate-800 rounded-lg px-2.5 py-1 text-xs font-mono focus:outline-none focus:border-sky-500"
+                                >
+                                    {Object.entries(COLOR_PALETTES).map(([key, val]) => (
+                                        <option key={key} value={key}>{val.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Render Mode Selector */}
+                            <div className="flex items-center gap-2">
+                                <span className="text-slate-400 font-mono text-[11px]">RENDER:</span>
+                                <select 
+                                    value={renderMode}
+                                    onChange={(e) => setRenderMode(e.target.value)}
+                                    className="bg-slate-950 text-sky-300 border border-slate-800 rounded-lg px-2.5 py-1 text-xs font-mono focus:outline-none focus:border-sky-500"
+                                >
+                                    <option value="volumetric_dense">Solid Voxels</option>
+                                    <option value="wire_voxels">Wireframe Mesh</option>
+                                    <option value="vorticity_field">Vorticity Curl (|ω|)</option>
+                                </select>
+                            </div>
+
+                            {/* Grid Resolution Buttons */}
+                            <div className="flex items-center gap-2">
+                                <span className="text-slate-400 font-mono text-[11px]">GRID:</span>
+                                <div className="flex bg-slate-950/70 p-1 rounded-xl border border-slate-800">
+                                    {[18, 24, 28].map(res => (
+                                        <button
+                                            key={res}
+                                            onClick={() => handleResolutionChange(res)}
+                                            className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all ${
+                                                gridDim === res 
+                                                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40' 
+                                                    : 'text-slate-400 hover:text-slate-200'
+                                            }`}
+                                        >
+                                            {res}³
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Physical Parameter Sliders */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-3 text-xs">
+                            
+                            {/* Vorticity Confinement */}
+                            <div className="flex flex-col gap-1">
+                                <div className="flex justify-between font-mono text-[11px]">
+                                    <span className="text-slate-400">Vorticity Confinement (ε):</span>
+                                    <span className="text-sky-400 font-bold">{vorticityVal.toFixed(2)}</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="0.0"
+                                    max="1.2"
+                                    step="0.05"
+                                    value={vorticityVal}
+                                    onChange={(e) => setVorticityVal(parseFloat(e.target.value))}
+                                    className="custom-slider w-full"
+                                />
+                            </div>
+
+                            {/* Dye Dissipation */}
+                            <div className="flex flex-col gap-1">
+                                <div className="flex justify-between font-mono text-[11px]">
+                                    <span className="text-slate-400">Dye Retention:</span>
+                                    <span className="text-sky-400 font-bold">{(dissipationVal * 100).toFixed(1)}%</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="0.94"
+                                    max="0.999"
+                                    step="0.001"
+                                    value={dissipationVal}
+                                    onChange={(e) => setDissipationVal(parseFloat(e.target.value))}
+                                    className="custom-slider w-full"
+                                />
+                            </div>
+
+                            {/* Buoyancy */}
+                            <div className="flex flex-col gap-1">
+                                <div className="flex justify-between font-mono text-[11px]">
+                                    <span className="text-slate-400">Thermal Buoyancy:</span>
+                                    <span className="text-sky-400 font-bold">{buoyancyVal.toFixed(2)}</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="0.0"
+                                    max="1.5"
+                                    step="0.05"
+                                    value={buoyancyVal}
+                                    onChange={(e) => setBuoyancyVal(parseFloat(e.target.value))}
+                                    className="custom-slider w-full"
+                                />
+                            </div>
+
+                            {/* Jacobi Pressure Iterations */}
+                            <div className="flex flex-col gap-1">
+                                <div className="flex justify-between font-mono text-[11px]">
+                                    <span className="text-slate-400">Jacobi Passes:</span>
+                                    <span className="text-sky-400 font-bold">{iterationsVal} iters</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="5"
+                                    max="35"
+                                    step="1"
+                                    value={iterationsVal}
+                                    onChange={(e) => setIterationsVal(parseInt(e.target.value))}
+                                    className="custom-slider w-full"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Action Buttons Row */}
+                        <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-800/80">
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setIsPaused(p => !p)}
+                                    className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 shadow-md active:scale-95 ${
+                                        isPaused 
+                                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30' 
+                                            : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
+                                    }`}
+                                >
+                                    <span>{isPaused ? '▶ Resume' : '⏸ Pause'}</span>
+                                </button>
+
+                                <button
+                                    onClick={() => engine.flush()}
+                                    className="px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all shadow-md active:scale-95"
+                                >
+                                    🔄 Flush Grid (R)
+                                </button>
+                            </div>
+
+                            <div className="text-[11px] font-mono text-slate-500 hidden md:block">
+                                Press <kbd className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-slate-300">Space</kbd> to Pause • <kbd className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-slate-300">C</kbd> to Cycle Palette • <kbd className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-slate-300">V</kbd> to Toggle Curl
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Mount React Root
+ReactDOM.createRoot(document.getElementById('react-hud')).render(<FluidDynamics3DApp />);
+</script>
+</body>
+</html>
