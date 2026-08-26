@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Procedural Terrain & Particle-Based Hydraulic Erosion Engine</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React 18 & ReactDOM 18 -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #030712; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+        canvas { display: block; }
+        #webgl-stage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; }
+        #react-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.65);
+        }
+        .glass-panel-sub {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+        }
+        /* Custom scrollbar for HUD panels */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.4); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.8); }
+        .pulse-rain {
+            animation: pulse-border 1.5s infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(56, 189, 248, 0.3); }
+            50% { border-color: rgba(56, 189, 248, 0.9); box-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
+        }
+    </style>
+</head>
+<body class="select-none text-slate-200">
+
+    <div id="webgl-stage"></div>
+    <div id="react-hud"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+// =========================================================================
+// 1. FAST PROCEDURAL 2D SIMPLEX NOISE ENGINE
+// =========================================================================
+class FastNoise {
+    constructor(seed = 1337) {
+        this.p = new Uint8Array(256);
+        this.perm = new Uint8Array(512);
+        this.setSeed(seed);
+    }
+
+    setSeed(seed) {
+        let s = seed % 2147483647;
+        if (s <= 0) s += 2147483646;
+        for (let i = 0; i < 256; i++) {
+            s = (s * 16807) % 2147483647;
+            this.p[i] = s & 255;
+        }
+        for (let i = 0; i < 512; i++) {
+            this.perm[i] = this.p[i & 255];
+        }
+    }
+
+    grad(hash, x, y) {
+        const h = hash & 7;
+        const u = h < 4 ? x : y;
+        const v = h < 4 ? y : x;
+        return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
+    }
+
+    noise2D(x, y) {
+        const F2 = 0.5 * (Math.sqrt(3.0) - 1.0);
+        const G2 = (3.0 - Math.sqrt(3.0)) / 6.0;
+
+        const s = (x + y) * F2;
+        const i = Math.floor(x + s);
+        const j = Math.floor(y + s);
+        const t = (i + j) * G2;
+        const X0 = i - t;
+        const Y0 = j - t;
+        const x0 = x - X0;
+        const y0 = y - Y0;
+
+        let i1 = 0, j1 = 1;
+        if (x0 > y0) { i1 = 1; j1 = 0; }
+
+        const x1 = x0 - i1 + G2;
+        const y1 = y0 - j1 + G2;
+        const x2 = x0 - 1.0 + 2.0 * G2;
+        const y2 = y0 - 1.0 + 2.0 * G2;
+
+        const ii = i & 255;
+        const jj = j & 255;
+
+        let t0 = 0.5 - x0 * x0 - y0 * y0;
+        let n0 = 0;
+        if (t0 >= 0) {
+            t0 *= t0;
+            n0 = t0 * t0 * this.grad(this.perm[ii + this.perm[jj]], x0, y0);
+        }
+
+        let t1 = 0.5 - x1 * x1 - y1 * y1;
+        let n1 = 0;
+        if (t1 >= 0) {
+            t1 *= t1;
+            n1 = t1 * t1 * this.grad(this.perm[ii + i1 + this.perm[jj + j1]], x1, y1);
+        }
+
+        let t2 = 0.5 - x2 * x2 - y2 * y2;
+        let n2 = 0;
+        if (t2 >= 0) {
+            t2 *= t2;
+            n2 = t2 * t2 * this.grad(this.perm[ii + 1 + this.perm[jj + 1]], x2, y2);
+        }
+
+        return 70.0 * (n0 + n1 + n2);
+    }
+
+    fBm(x, y, octaves, persistence, lacunarity) {
+        let total = 0;
+        let frequency = 1.0;
+        let amplitude = 1.0;
+        let maxValue = 0;
+
+        for (let i = 0; i < octaves; i++) {
+            total += this.noise2D(x * frequency, y * frequency) * amplitude;
+            maxValue += amplitude;
+            amplitude *= persistence;
+            frequency *= lacunarity;
+        }
+
+        return (total / maxValue + 1.0) * 0.5; // Normalized [0.0, 1.0]
+    }
+}
+
+// =========================================================================
+// 2. HEADLESS PROCEDURAL TERRAIN & HYDRAULIC EROSION ENGINE
+// =========================================================================
+class ProceduralTerrainEngine {
+    constructor(gridRes = 128, worldSize = 120.0) {
+        this.res = gridRes;
+        this.size = worldSize;
+        this.numVertices = (gridRes + 1) * (gridRes + 1);
+
+        this.noise = new FastNoise(4242);
+
+        // Procedural Base Terrain Parameters
+        this.params = {
+            scale: 0.016,
+            heightScale: 28.0,
+            octaves: 6,
+            persistence: 0.48,
+            lacunarity: 2.1,
+            exponent: 1.85,
+            warpStrength: 0.45,
+            waterLevel: 5.5,
+            seed: 4242
+        };
+
+        // Particle-Based Hydraulic Erosion Parameters (Hans Theobald Beyer / Seb Lague Formulation)
+        this.erosionParams = {
+            inertia: 0.08,             // Droplet momentum retention (0.0 = pure gradient, 1.0 = straight path)
+            sedimentCapacityFactor: 4.0,// Multiplier for max sediment volume carried
+            minSedimentCapacity: 0.01,  // Base capacity to avoid zero division on flats
+            depositSpeed: 0.35,         // Sediment deposition fraction when oversaturated
+            erodeSpeed: 0.45,           // Terrain erosion fraction when undersaturated
+            evaporateSpeed: 0.015,      // Water volume loss rate per time step
+            gravity: 12.0,              // Downward acceleration constant
+            maxDropletLifetime: 45,     // Maximum simulation steps per droplet
+            erosionRadius: 3,           // Brush radius in grid units for sediment removal
+            initialWaterVolume: 1.0,    // Droplet initial volume
+            initialSpeed: 1.0           // Droplet initial momentum
+        };
+
+        // Flat Struct-of-Arrays (SoA) Buffers for In-Place VBO Updates
+        this.heightMap = new Float32Array(this.numVertices);        // 2D Elevation Field
+        this.originalHeightMap = new Float32Array(this.numVertices);// Pre-erosion snapshot for delta metrics
+        this.erosionMap = new Float32Array(this.numVertices);       // Accumulation of erosion (negative) & deposition (positive)
+        this.waterAccumMap = new Float32Array(this.numVertices);    // Droplet flow path history for moisture rendering
+
+        // WebGL Vertex Buffer Arrays
+        this.positions = new Float32Array(this.numVertices * 3);
+        this.normals = new Float32Array(this.numVertices * 3);
+        this.colors = new Float32Array(this.numVertices * 3);
+        this.indices = [];
+
+        // Precompute Erosion Brush Kernels for variable radii
+        this.brushIndices = [];
+        this.brushWeights = [];
+        this.initErosionBrush(this.erosionParams.erosionRadius);
+
+        this.buildIndexBuffer();
+        this.totalDropletsSimulated = 0;
+        this.totalSedimentMoved = 0.0;
+    }
+
+    buildIndexBuffer() {
+        this.indices = [];
+        const res = this.res;
+        for (let j = 0; j < res; j++) {
+            for (let i = 0; i < res; i++) {
+                const a = j * (res + 1) + i;
+                const b = (j + 1) * (res + 1) + i;
+                const c = (j + 1) * (res + 1) + (i + 1);
+                const d = j * (res + 1) + (i + 1);
+
+                this.indices.push(a, b, d);
+                this.indices.push(b, c, d);
+            }
+        }
+    }
+
+    // Precalculate weighted radial distribution kernel for hydraulic erosion brush
+    initErosionBrush(radius) {
+        this.brushIndices = [];
+        this.brushWeights = [];
+        const res = this.res;
+
+        for (let j = 0; j <= res; j++) {
+            for (let i = 0; i <= res; i++) {
+                const centerIdx = j * (res + 1) + i;
+                const indices = [];
+                const weights = [];
+                let weightSum = 0;
+
+                for (let rY = -radius; rY <= radius; rY++) {
+                    for (let rX = -radius; rX <= radius; rX++) {
+                        const distSq = rX * rX + rY * rY;
+                        if (distSq <= radius * radius) {
+                            const sampleX = i + rX;
+                            const sampleY = j + rY;
+
+                            if (sampleX >= 0 && sampleX <= res && sampleY >= 0 && sampleY <= res) {
+                                const weight = 1.0 - Math.sqrt(distSq) / radius;
+                                if (weight > 0) {
+                                    indices.push(sampleY * (res + 1) + sampleX);
+                                    weights.push(weight);
+                                    weightSum += weight;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Normalize weights
+                for (let k = 0; k < weights.length; k++) {
+                    weights[k] /= weightSum;
+                }
+
+                this.brushIndices[centerIdx] = indices;
+                this.brushWeights[centerIdx] = weights;
+            }
+        }
+    }
+
+    // Height sample with Domain Warping
+    sampleBaseElevation(x, z) {
+        const p = this.params;
+        const s = p.scale;
+
+        let qX = 0, qZ = 0;
+        if (p.warpStrength > 0) {
+            qX = this.noise.fBm((x + 0.0) * s, (z + 0.0) * s, 3, 0.5, 2.0);
+            qZ = this.noise.fBm((x + 5.2) * s, (z + 1.3) * s, 3, 0.5, 2.0);
+        }
+
+        const warpedX = (x + qX * p.warpStrength * 40.0) * s;
+        const warpedZ = (z + qZ * p.warpStrength * 40.0) * s;
+
+        let h = this.noise.fBm(warpedX, warpedZ, p.octaves, p.persistence, p.lacunarity);
+        h = Math.pow(Math.max(0.0, h), p.exponent);
+        return h * p.heightScale;
+    }
+
+    // Generate pristine base heightfield from noise synthesis
+    generateBaseTerrain() {
+        const res = this.res;
+        const size = this.size;
+        const halfSize = size * 0.5;
+        const step = size / res;
+
+        let idx = 0;
+        for (let j = 0; j <= res; j++) {
+            const z = (j * step) - halfSize;
+            for (let i = 0; i <= res; i++) {
+                const x = (i * step) - halfSize;
+                const h = this.sampleBaseElevation(x, z);
+                this.heightMap[idx] = h;
+                this.originalHeightMap[idx] = h;
+                this.erosionMap[idx] = 0.0;
+                this.waterAccumMap[idx] = 0.0;
+                idx++;
+            }
+        }
+
+        this.totalDropletsSimulated = 0;
+        this.totalSedimentMoved = 0.0;
+        this.recalculateMeshBuffers();
+    }
+
+    // Bilinear Interpolation helper for continuous grid coordinates
+    calculateHeightAndGradient(posX, posZ) {
+        const res = this.res;
+        const coordX = Math.floor(posX);
+        const coordZ = Math.floor(posZ);
+
+        const u = posX - coordX;
+        const v = posZ - coordZ;
+
+        const idx00 = coordZ * (res + 1) + coordX;
+        const idx10 = idx00 + 1;
+        const idx01 = (coordZ + 1) * (res + 1) + coordX;
+        const idx11 = idx01 + 1;
+
+        const h00 = this.heightMap[idx00];
+        const h10 = this.heightMap[idx10];
+        const h01 = this.heightMap[idx01];
+        const h11 = this.heightMap[idx11];
+
+        // Bilinear height calculation
+        const height = h00 * (1 - u) * (1 - v) + h10 * u * (1 - v) + h01 * (1 - u) * v + h11 * u * v;
+
+        // Bilinear partial spatial derivatives
+        const gradX = (h10 - h00) * (1 - v) + (h11 - h01) * v;
+        const gradZ = (h01 - h00) * (1 - u) + (h11 - h10) * u;
+
+        return { height, gradX, gradZ, idx00, idx10, idx01, idx11, u, v };
+    }
+
+    // =====================================================================
+    // 3. PARTICLE-BASED HYDRAULIC EROSION SIMULATOR
+    // =====================================================================
+    simulateHydraulicErosion(numDroplets = 10000, customSpawnPoint = null, spawnRadius = null) {
+        const res = this.res;
+        const ep = this.erosionParams;
+        let sedimentShift = 0.0;
+
+        for (let iter = 0; iter < numDroplets; iter++) {
+            // Spawn droplet: random on terrain or focused near rain brush
+            let posX, posZ;
+            if (customSpawnPoint && spawnRadius) {
+                const angle = Math.random() * Math.PI * 2;
+                const r = Math.sqrt(Math.random()) * spawnRadius;
+                posX = customSpawnPoint.x + Math.cos(angle) * r;
+                posZ = customSpawnPoint.z + Math.sin(angle) * r;
+            } else {
+                posX = Math.random() * (res - 1);
+                posZ = Math.random() * (res - 1);
+            }
+
+            if (posX < 0 || posX >= res - 1 || posZ < 0 || posZ >= res - 1) continue;
+
+            let dirX = 0;
+            let dirZ = 0;
+            let speed = ep.initialSpeed;
+            let water = ep.initialWaterVolume;
+            let sediment = 0;
+
+            for (let step = 0; step < ep.maxDropletLifetime; step++) {
+                const coordX = Math.floor(posX);
+                const coordZ = Math.floor(posZ);
+
+                if (coordX < 0 || coordX >= res || coordZ < 0 || coordZ >= res) break;
+
+                const { height, gradX, gradZ, idx00, idx10, idx01, idx11, u, v } = this.calculateHeightAndGradient(posX, posZ);
+
+                // Update droplet direction with inertia & gradient
+                dirX = (dirX * ep.inertia) - (gradX * (1 - ep.inertia));
+                dirZ = (dirZ * ep.inertia) - (gradZ * (1 - ep.inertia));
+
+                // Normalize velocity direction
+                const dirLen = Math.sqrt(dirX * dirX + dirZ * dirZ);
+                if (dirLen === 0) break;
+
+                dirX /= dirLen;
+                dirZ /= dirLen;
+
+                // Step forward
+                const nextPosX = posX + dirX;
+                const nextPosZ = posZ + dirZ;
+
+                if (nextPosX < 0 || nextPosX >= res - 1 || nextPosZ < 0 || nextPosZ >= res - 1) break;
+
+                // Sample target elevation
+                const nextSample = this.calculateHeightAndGradient(nextPosX, nextPosZ);
+                const heightDelta = nextSample.height - height;
+
+                // Log moisture/water flow for river channel shading
+                this.waterAccumMap[idx00] += water * 0.05;
+
+                // Calculate transport capacity: higher on steep slopes and high velocity
+                const slopeFactor = Math.max(-heightDelta, ep.minSedimentCapacity);
+                const sedimentCapacity = Math.max(slopeFactor * speed * water * ep.sedimentCapacityFactor, ep.minSedimentCapacity);
+
+                if (sediment > sedimentCapacity || heightDelta > 0) {
+                    // DEPOSITION PHASE: Droplet carries too much sediment or moves uphill
+                    const amountToDeposit = (heightDelta > 0)
+                        ? Math.min(heightDelta, sediment)
+                        : (sediment - sedimentCapacity) * ep.depositSpeed;
+
+                    sediment -= amountToDeposit;
+                    sedimentShift += amountToDeposit;
+
+                    // Deposit sediment bilinearly onto 4 surrounding nodes
+                    const d00 = amountToDeposit * (1 - u) * (1 - v);
+                    const d10 = amountToDeposit * u * (1 - v);
+                    const d01 = amountToDeposit * (1 - u) * v;
+                    const d11 = amountToDeposit * u * v;
+
+                    this.heightMap[idx00] += d00;
+                    this.heightMap[idx10] += d10;
+                    this.heightMap[idx01] += d01;
+                    this.heightMap[idx11] += d11;
+
+                    this.erosionMap[idx00] += d00;
+                    this.erosionMap[idx10] += d10;
+                    this.erosionMap[idx01] += d01;
+                    this.erosionMap[idx11] += d11;
+                } else {
+                    // EROSION PHASE: Droplet carves into the terrain
+                    const amountToErode = Math.min((sedimentCapacity - sediment) * ep.erodeSpeed, -heightDelta);
+
+                    const brushCenter = coordZ * (res + 1) + coordX;
+                    const brushNodes = this.brushIndices[brushCenter] || [brushCenter];
+                    const brushWeights = this.brushWeights[brushCenter] || [1.0];
+
+                    for (let b = 0; b < brushNodes.length; b++) {
+                        const nodeIdx = brushNodes[b];
+                        const erodeAmount = amountToErode * brushWeights[b];
+                        this.heightMap[nodeIdx] -= erodeAmount;
+                        this.erosionMap[nodeIdx] -= erodeAmount;
+                    }
+
+                    sediment += amountToErode;
+                    sedimentShift += amountToErode;
+                }
+
+                // Update droplet speed (Kinetic energy from potential height loss)
+                speed = Math.sqrt(Math.max(0.0, speed * speed + heightDelta * ep.gravity));
+                // Evaporate water
+                water *= (1 - ep.evaporateSpeed);
+
+                posX = nextPosX;
+                posZ = nextPosZ;
+            }
+        }
+
+        this.totalDropletsSimulated += numDroplets;
+        this.totalSedimentMoved += sedimentShift;
+    }
+
+    // =====================================================================
+    // 4. MESH BUFFER SYNTHESIS PASS (POSITIONS, FINITE-DIFF NORMALS, BIOME COLORS)
+    // =====================================================================
+    recalculateMeshBuffers() {
+        const res = this.res;
+        const size = this.size;
+        const halfSize = size * 0.5;
+        const step = size / res;
+        const waterLvl = this.params.waterLevel;
+        const maxH = this.params.heightScale;
+
+        let vIdx = 0;
+
+        for (let j = 0; j <= res; j++) {
+            const z = (j * step) - halfSize;
+            for (let i = 0; i <= res; i++) {
+                const x = (i * step) - halfSize;
+                const idx = j * (res + 1) + i;
+                const y = this.heightMap[idx];
+
+                // 1. Position Vector
+                this.positions[vIdx * 3] = x;
+                this.positions[vIdx * 3 + 1] = y;
+                this.positions[vIdx * 3 + 2] = z;
+
+                // 2. Analytical Finite-Difference Normals
+                const left = (i > 0) ? this.heightMap[idx - 1] : y;
+                const right = (i < res) ? this.heightMap[idx + 1] : y;
+                const down = (j > 0) ? this.heightMap[idx - (res + 1)] : y;
+                const up = (j < res) ? this.heightMap[idx + (res + 1)] : y;
+
+                const dhdx = (right - left) / (2.0 * step);
+                const dhdz = (up - down) / (2.0 * step);
+
+                const len = Math.sqrt(dhdx * dhdx + 1.0 + dhdz * dhdz);
+                const nx = -dhdx / len;
+                const ny = 1.0 / len;
+                const nz = -dhdz / len;
+
+                this.normals[vIdx * 3] = nx;
+                this.normals[vIdx * 3 + 1] = ny;
+                this.normals[vIdx * 3 + 2] = nz;
+
+                // 3. Procedural Biome Splatting with Erosion & Slope Overlay
+                const slope = 1.0 - ny; // 0.0 = flat ground, 1.0 = vertical cliff
+                const erosionVal = this.erosionMap[idx];
+                const moisture = Math.min(1.0, this.waterAccumMap[idx] * 0.2);
+
+                let r = 0, g = 0, b = 0;
+
+                if (y <= waterLvl + 0.8) {
+                    // Submerged / Coastal Beach Sand
+                    r = 0.86; g = 0.76; b = 0.52;
+                    if (y <= waterLvl) {
+                        r *= 0.75; g *= 0.72; b *= 0.65; // Wet underwater sand
+                    }
+                } else if (slope > 0.46) {
+                    // Sheer Slate Rock Wall / Scree
+                    const rockTone = 0.38 + (1.0 - slope) * 0.2;
+                    r = rockTone * 0.95;
+                    g = rockTone * 0.98;
+                    b = rockTone * 1.05;
+                } else if (y > maxH * 0.75) {
+                    // Alpine Permafrost & Snow Peaks
+                    if (slope < 0.3) {
+                        r = 0.95; g = 0.97; b = 1.0; // Pure powder snow
+                    } else {
+                        r = 0.65; g = 0.68; b = 0.75; // Rocky snow mix
+                    }
+                } else if (y > maxH * 0.48) {
+                    // Highland Tundra / Sub-alpine scrub
+                    r = 0.32; g = 0.42; b = 0.28;
+                } else {
+                    // Lowland Grass & Fertile Plains
+                    r = 0.20; g = 0.54; b = 0.24;
+                }
+
+                // Silt & Erosion Channel Accents:
+                // Carved gullies (erosionVal < 0) reveal darker mineral bed;
+                // Alluvial fans (erosionVal > 0) display sandy sediment
+                if (erosionVal < -0.4 && slope < 0.4) {
+                    // Dark damp eroded river gulley
+                    r = r * 0.7 + 0.15;
+                    g = g * 0.7 + 0.14;
+                    b = b * 0.7 + 0.12;
+                } else if (erosionVal > 0.35) {
+                    // Deposited silt / alluvial deposit
+                    r = r * 0.6 + 0.38;
+                    g = g * 0.6 + 0.33;
+                    b = g * 0.6 + 0.22;
+                }
+
+                this.colors[vIdx * 3] = r;
+                this.colors[vIdx * 3 + 1] = g;
+                this.colors[vIdx * 3 + 2] = b;
+
+                vIdx++;
+            }
+        }
+    }
+}
+
+// =========================================================================
+// 5. REACT UI & THREE.JS VIEWPORT CONTROLLER
+// =========================================================================
+function ProceduralTerrainApp() {
+    const [engine] = useState(() => new ProceduralTerrainEngine(128, 120.0));
+    const [params, setParams] = useState({ ...engine.params });
+    const [erosionParams, setErosionParams] = useState({ ...engine.erosionParams });
+
+    // UI State
+    const [activeTab, setActiveTab] = useState('EROSION'); // 'EROSION' | 'NOISE' | 'ENVIRONMENT'
+    const [isContinuousRaining, setIsContinuousRaining] = useState(false);
+    const [rainBatchSize, setRainBatchSize] = useState(1200);
+    const [wireframe, setWireframe] = useState(false);
+    const [autoRotate, setAutoRotate] = useState(false);
+    const [showWater, setShowWater] = useState(true);
+    const [brushMode, setBrushMode] = useState(false); // Interactive Rain Cloud tool
+    const [brushRadius, setBrushRadius] = useState(12);
+
+    const [telemetry, setTelemetry] = useState({
+        vertices: 0,
+        triangles: 0,
+        fps: 60,
+        droplets: 0,
+        sedimentMoved: 0,
+        lastErodeTime: 0
+    });
+
+    const sceneRef = useRef(null);
+    const cameraRef = useRef(null);
+    const rendererRef = useRef(null);
+    const controlsRef = useRef(null);
+    const terrainMeshRef = useRef(null);
+    const waterMeshRef = useRef(null);
+    const rainIndicatorRef = useRef(null);
+    const raycasterRef = useRef(new THREE.Raycaster());
+    const mouseRef = useRef(new THREE.Vector2());
+    const isMouseDownRef = useRef(false);
+    const mouseWorldPosRef = useRef(null);
+
+    // Sync BufferGeometry attributes to GPU
+    const commitGeometryUpdate = useCallback(() => {
+        if (terrainMeshRef.current) {
+            const geo = terrainMeshRef.current.geometry;
+            geo.attributes.position.needsUpdate = true;
+            geo.attributes.normal.needsUpdate = true;
+            geo.attributes.color.needsUpdate = true;
+            geo.computeBoundingSphere();
+        }
+
+        if (waterMeshRef.current) {
+            waterMeshRef.current.position.y = params.waterLevel;
+            waterMeshRef.current.visible = showWater;
+        }
+
+        setTelemetry(prev => ({
+            ...prev,
+            vertices: engine.numVertices,
+            triangles: engine.indices.length / 3,
+            droplets: engine.totalDropletsSimulated,
+            sedimentMoved: engine.totalSedimentMoved.toFixed(1)
+        }));
+    }, [engine, params.waterLevel, showWater]);
+
+    // Generate pristine base terrain
+    const handleRebuildBase = useCallback(() => {
+        engine.params = { ...params };
+        engine.noise.setSeed(params.seed);
+        engine.generateBaseTerrain();
+        commitGeometryUpdate();
+    }, [engine, params, commitGeometryUpdate]);
+
+    // Run a discrete hydraulic erosion batch
+    const handleRunErosionBatch = useCallback((count) => {
+        const t0 = performance.now();
+        engine.erosionParams = { ...erosionParams };
+        engine.simulateHydraulicErosion(count);
+        engine.recalculateMeshBuffers();
+        commitGeometryUpdate();
+        const duration = (performance.now() - t0).toFixed(1);
+
+        setTelemetry(prev => ({
+            ...prev,
+            lastErodeTime: duration
+        }));
+    }, [engine, erosionParams, commitGeometryUpdate]);
+
+    // Apply preset geologies
+    const applyPreset = (presetKey) => {
+        const presets = {
+            ALPINE_SPIRES: {
+                noise: { scale: 0.018, heightScale: 34.0, octaves: 6, persistence: 0.50, lacunarity: 2.1, exponent: 2.1, warpStrength: 0.45, waterLevel: 4.0 },
+                erosion: { inertia: 0.08, sedimentCapacityFactor: 5.0, depositSpeed: 0.35, erodeSpeed: 0.55, evaporateSpeed: 0.015, gravity: 16.0, erosionRadius: 3 },
+                runErode: 35000
+            },
+            CANYON_RIVERS: {
+                noise: { scale: 0.014, heightScale: 32.0, octaves: 6, persistence: 0.52, lacunarity: 2.0, exponent: 1.8, warpStrength: 0.55, waterLevel: 5.0 },
+                erosion: { inertia: 0.12, sedimentCapacityFactor: 4.5, depositSpeed: 0.40, erodeSpeed: 0.50, evaporateSpeed: 0.012, gravity: 14.0, erosionRadius: 4 },
+                runErode: 45000
+            },
+            VOLCANIC_ISLAND: {
+                noise: { scale: 0.022, heightScale: 26.0, octaves: 5, persistence: 0.44, lacunarity: 2.2, exponent: 1.5, warpStrength: 0.60, waterLevel: 8.5 },
+                erosion: { inertia: 0.06, sedimentCapacityFactor: 4.0, depositSpeed: 0.30, erodeSpeed: 0.45, evaporateSpeed: 0.020, gravity: 12.0, erosionRadius: 3 },
+                runErode: 25000
+            },
+            ROLLING_VALLEYS: {
+                noise: { scale: 0.011, heightScale: 18.0, octaves: 4, persistence: 0.38, lacunarity: 2.0, exponent: 1.3, warpStrength: 0.30, waterLevel: 2.5 },
+                erosion: { inertia: 0.15, sedimentCapacityFactor: 3.5, depositSpeed: 0.50, erodeSpeed: 0.35, evaporateSpeed: 0.010, gravity: 9.8, erosionRadius: 3 },
+                runErode: 20000
+            }
+        };
+
+        const target = presets[presetKey];
+        if (target) {
+            const nextParams = { ...params, ...target.noise, seed: Math.floor(Math.random() * 999999) };
+            const nextErosion = { ...erosionParams, ...target.erosion };
+            setParams(nextParams);
+            setErosionParams(nextErosion);
+
+            engine.params = nextParams;
+            engine.erosionParams = nextErosion;
+            engine.noise.setSeed(nextParams.seed);
+            engine.initErosionBrush(nextErosion.erosionRadius);
+            engine.generateBaseTerrain();
+            if (target.runErode > 0) {
+                engine.simulateHydraulicErosion(target.runErode);
+                engine.recalculateMeshBuffers();
+            }
+            commitGeometryUpdate();
+        }
+    };
+
+    // --- THREE.JS INITIALIZATION & RUNTIME LOOP ---
+    useEffect(() => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        // 1. Scene & Atmosphere Fog
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x030712);
+        scene.fog = new THREE.FogExp2(0x030712, 0.0065);
+        sceneRef.current = scene;
+
+        // 2. Camera Setup
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1500);
+        camera.position.set(90, 68, 115);
+        cameraRef.current = camera;
+
+        // 3. WebGL Renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.1;
+
+        const stageContainer = document.getElementById('webgl-stage');
+        stageContainer.innerHTML = '';
+        stageContainer.appendChild(renderer.domElement);
+        rendererRef.current = renderer;
+
+        // 4. Orbit Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.maxPolarAngle = Math.PI / 2 - 0.02; // Restrict under-world clipping
+        controlsRef.current = controls;
+
+        // 5. Lighting Rig
+        scene.add(new THREE.AmbientLight(0xcfd8dc, 0.55));
+
+        const sun = new THREE.DirectionalLight(0xffedd5, 1.4);
+        sun.position.set(95, 120, 75);
+        sun.castShadow = true;
+        sun.shadow.mapSize.width = 2048;
+        sun.shadow.mapSize.height = 2048;
+        sun.shadow.camera.near = 10;
+        sun.shadow.camera.far = 350;
+        sun.shadow.camera.left = -90;
+        sun.shadow.camera.right = 90;
+        sun.shadow.camera.top = 90;
+        sun.shadow.camera.bottom = -90;
+        scene.add(sun);
+
+        const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.45);
+        fillLight.position.set(-80, 50, -80);
+        scene.add(fillLight);
+
+        // 6. Build Master Terrain BufferMesh
+        const geo = new THREE.BufferGeometry();
+        engine.generateBaseTerrain();
+
+        geo.setAttribute('position', new THREE.BufferAttribute(engine.positions, 3));
+        geo.setAttribute('normal', new THREE.BufferAttribute(engine.normals, 3));
+        geo.setAttribute('color', new THREE.BufferAttribute(engine.colors, 3));
+        geo.setIndex(engine.indices);
+
+        const mat = new THREE.MeshStandardMaterial({
+            vertexColors: true,
+            roughness: 0.86,
+            metalness: 0.08,
+            flatShading: false
+        });
+
+        const terrainMesh = new THREE.Mesh(geo, mat);
+        terrainMesh.receiveShadow = true;
+        terrainMesh.castShadow = true;
+        scene.add(terrainMesh);
+        terrainMeshRef.current = terrainMesh;
+
+        // 7. Water Plane
+        const waterGeo = new THREE.PlaneGeometry(engine.size * 1.5, engine.size * 1.5);
+        waterGeo.rotateX(-Math.PI / 2);
+        const waterMat = new THREE.MeshStandardMaterial({
+            color: 0x0284c7,
+            roughness: 0.08,
+            metalness: 0.75,
+            transparent: true,
+            opacity: 0.72
+        });
+        const waterMesh = new THREE.Mesh(waterGeo, waterMat);
+        waterMesh.position.y = params.waterLevel;
+        scene.add(waterMesh);
+        waterMeshRef.current = waterMesh;
+
+        // 8. Rain Brush Ring Cursor
+        const ringGeo = new THREE.RingGeometry(1.5, 2.2, 32);
+        ringGeo.rotateX(-Math.PI / 2);
+        const ringMat = new THREE.MeshBasicMaterial({
+            color: 0x38bdf8,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.8
+        });
+        const rainIndicator = new THREE.Mesh(ringGeo, ringMat);
+        rainIndicator.visible = false;
+        scene.add(rainIndicator);
+        rainIndicatorRef.current = rainIndicator;
+
+        // --- MOUSE & RAYCAST INTERACTION HANDLERS ---
+        const onPointerMove = (e) => {
+            mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            if (brushMode && terrainMeshRef.current) {
+                raycasterRef.current.setFromCamera(mouseRef.current, camera);
+                const intersects = raycasterRef.current.intersectObject(terrainMeshRef.current);
+                if (intersects.length > 0) {
+                    const hit = intersects[0].point;
+                    rainIndicator.position.copy(hit);
+                    rainIndicator.position.y += 0.25;
+                    rainIndicator.scale.set(brushRadius * 0.15, brushRadius * 0.15, brushRadius * 0.15);
+                    rainIndicator.visible = true;
+                    mouseWorldPosRef.current = hit;
+                } else {
+                    rainIndicator.visible = false;
+                    mouseWorldPosRef.current = null;
+                }
+            } else {
+                rainIndicator.visible = false;
+            }
+        };
+
+        const onPointerDown = (e) => {
+            if (e.target.closest('#react-hud')) return;
+            isMouseDownRef.current = true;
+        };
+
+        const onPointerUp = () => {
+            isMouseDownRef.current = false;
+        };
+
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerdown', onPointerDown);
+        window.addEventListener('pointerup', onPointerUp);
+
+        // --- ANIMATION & CONTINUOUS SIMULATION LOOP ---
+        let animId;
+        let lastFpsTime = performance.now();
+        let frameCount = 0;
+
+        const loop = () => {
+            if (controlsRef.current) {
+                controlsRef.current.autoRotate = autoRotate;
+                controlsRef.current.autoRotateSpeed = 0.6;
+                controlsRef.current.update();
+            }
+
+            // Interactive Rain Brush Pour or Continuous Global Erosion
+            const isBrushing = brushMode && isMouseDownRef.current && mouseWorldPosRef.current;
+            if (isContinuousRaining || isBrushing) {
+                engine.erosionParams = { ...erosionParams };
+
+                if (isBrushing) {
+                    // Convert 3D world position to grid space (0 to res)
+                    const half = engine.size * 0.5;
+                    const gridX = ((mouseWorldPosRef.current.x + half) / engine.size) * engine.res;
+                    const gridZ = ((mouseWorldPosRef.current.z + half) / engine.size) * engine.res;
+                    engine.simulateHydraulicErosion(800, { x: gridX, z: gridZ }, brushRadius);
+                } else if (isContinuousRaining) {
+                    engine.simulateHydraulicErosion(rainBatchSize);
+                }
+
+                engine.recalculateMeshBuffers();
+                commitGeometryUpdate();
+            }
+
+            renderer.render(scene, camera);
+
+            frameCount++;
+            const now = performance.now();
+            if (now - lastFpsTime >= 500) {
+                setTelemetry(prev => ({
+                    ...prev,
+                    fps: Math.round((frameCount * 1000) / (now - lastFpsTime))
+                }));
+                frameCount = 0;
+                lastFpsTime = now;
+            }
+
+            animId = requestAnimationFrame(loop);
+        };
+        animId = requestAnimationFrame(loop);
+
+        const handleResize = () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            cancelAnimationFrame(animId);
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerdown', onPointerDown);
+            window.removeEventListener('pointerup', onPointerUp);
+            if (renderer.domElement) renderer.domElement.remove();
+        };
+    }, []);
+
+    // Handle wireframe toggling
+    useEffect(() => {
+        if (terrainMeshRef.current) {
+            terrainMeshRef.current.material.wireframe = wireframe;
+        }
+    }, [wireframe]);
+
+    // Handle brush radius & erosion kernel updates
+    useEffect(() => {
+        engine.initErosionBrush(erosionParams.erosionRadius);
+    }, [engine, erosionParams.erosionRadius]);
+
+    return (
+        <div className="w-full h-full relative">
+            {/* Glassmorphic Cyber HUD */}
+            <div id="react-hud" className="w-full h-full flex flex-col justify-between p-4 md:p-6 overflow-hidden">
+                
+                {/* 1. TOP HEADER & TELEMETRY */}
+                <header className="w-full max-w-5xl mx-auto glass-panel p-3.5 md:p-4 rounded-2xl pointer-events-auto flex flex-wrap justify-between items-center gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-sky-400 animate-pulse shadow-lg shadow-sky-500/50"></div>
+                        <div>
+                            <h1 className="text-sky-400 font-black tracking-wider text-sm uppercase flex items-center gap-2">
+                                <span>3D TERRAIN // HYDRAULIC EROSION ENGINE</span>
+                            </h1>
+                            <p className="text-[10px] text-slate-400">PARTICLE-BASED LAGRANGIAN DROPLETS & FINITE-DIFFERENCE NORMALS</p>
+                        </div>
+                    </div>
+
+                    {/* Live Telemetry Display */}
+                    <div className="flex flex-wrap gap-4 items-center text-xs">
+                        <div className="glass-panel-sub px-2.5 py-1 rounded-lg">
+                            💧 Droplets: <strong className="text-sky-400 font-bold">{telemetry.droplets.toLocaleString()}</strong>
+                        </div>
+                        <div className="glass-panel-sub px-2.5 py-1 rounded-lg">
+                            📦 Sediment Moved: <strong className="text-amber-400 font-bold">{telemetry.sedimentMoved} u³</strong>
+                        </div>
+                        <div className="glass-panel-sub px-2.5 py-1 rounded-lg">
+                            ⚡ Step: <strong className="text-emerald-400 font-bold">{telemetry.lastErodeTime} ms</strong>
+                        </div>
+                        <div className="glass-panel-sub px-2.5 py-1 rounded-lg">
+                            📈 <strong className={telemetry.fps >= 50 ? "text-emerald-400" : "text-amber-400"}>{telemetry.fps} FPS</strong>
+                        </div>
+                    </div>
+
+                    {/* Viewport Action Buttons */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setWireframe(!wireframe)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${wireframe ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700'}`}
+                            title="Toggle Wireframe Rendering"
+                        >
+                            {wireframe ? '🌐 Shaded' : '📐 Wire'}
+                        </button>
+                        <button
+                            onClick={() => setShowWater(!showWater)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${showWater ? 'bg-cyan-600 text-white border-cyan-400' : 'bg-slate-800/80 text-slate-400 border-slate-700'}`}
+                            title="Toggle Water Level Plane"
+                        >
+                            🌊 Ocean
+                        </button>
+                        <button
+                            onClick={() => setAutoRotate(!autoRotate)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${autoRotate ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700'}`}
+                            title="Toggle Auto-Orbit Camera"
+                        >
+                            🔄 Orbit
+                        </button>
+                    </div>
+                </header>
+
+                {/* 2. MAIN CONTROL CONSOLE */}
+                <div className="w-full max-w-5xl mx-auto glass-panel p-4 md:p-5 rounded-2xl pointer-events-auto flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+                    
+                    {/* Navigation Tabs & Presets */}
+                    <div className="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800 pb-3">
+                        <div className="flex gap-1.5 p-1 bg-slate-900/80 rounded-xl border border-slate-800 text-xs font-bold">
+                            <button
+                                onClick={() => setActiveTab('EROSION')}
+                                className={`px-3 py-1.5 rounded-lg transition-all ${activeTab === 'EROSION' ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/30' : 'text-slate-400 hover:text-white'}`}
+                            >
+                                💧 Hydraulic Erosion
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('NOISE')}
+                                className={`px-3 py-1.5 rounded-lg transition-all ${activeTab === 'NOISE' ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/30' : 'text-slate-400 hover:text-white'}`}
+                            >
+                                🏔️ Noise & Terrain
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('INTERACTIVE')}
+                                className={`px-3 py-1.5 rounded-lg transition-all ${activeTab === 'INTERACTIVE' ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/30' : 'text-slate-400 hover:text-white'}`}
+                            >
+                                🌧️ Rain Brush & Tools
+                            </button>
+                        </div>
+
+                        {/* Presets Bar */}
+                        <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold">
+                            <span className="text-[10px] text-slate-400 uppercase tracking-widest mr-1">Geology:</span>
+                            {[
+                                { key: 'ALPINE_SPIRES', label: '🏔️ Alpine Spires' },
+                                { key: 'CANYON_RIVERS', label: '🏞️ Canyon Rivers' },
+                                { key: 'VOLCANIC_ISLAND', label: '🏝️ Volcanic Caldera' },
+                                { key: 'ROLLING_VALLEYS', label: '🌾 Soft Valleys' }
+                            ].map(preset => (
+                                <button
+                                    key={preset.key}
+                                    onClick={() => applyPreset(preset.key)}
+                                    className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all active:scale-95"
+                                >
+                                    {preset.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* --- TAB 1: HYDRAULIC EROSION CONTROLS --- */}
+                    {activeTab === 'EROSION' && (
+                        <div className="flex flex-col gap-4">
+                            {/* Erosion Action Trigger Buttons */}
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+                                <button
+                                    onClick={() => handleRunErosionBatch(10000)}
+                                    className="px-3 py-2 rounded-xl font-bold text-xs bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white border border-slate-700 hover:border-sky-400 transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
+                                >
+                                    <span>💧 +10k Rain</span>
+                                </button>
+                                <button
+                                    onClick={() => handleRunErosionBatch(50000)}
+                                    className="px-3 py-2 rounded-xl font-bold text-xs bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white border border-slate-700 hover:border-sky-400 transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
+                                >
+                                    <span>🌊 +50k Monsoon</span>
+                                </button>
+                                <button
+                                    onClick={() => handleRunErosionBatch(100000)}
+                                    className="px-3 py-2 rounded-xl font-bold text-xs bg-sky-600 hover:bg-sky-500 text-white font-black border border-sky-400 transition-all shadow-lg shadow-sky-500/20 active:scale-95 flex items-center justify-center gap-1.5"
+                                >
+                                    <span>⚡ +100k Torrent</span>
+                                </button>
+                                <button
+                                    onClick={() => setIsContinuousRaining(!isContinuousRaining)}
+                                    className={`px-3 py-2 rounded-xl font-bold text-xs border transition-all shadow-lg active:scale-95 flex items-center justify-center gap-1.5 ${isContinuousRaining ? 'bg-emerald-500 text-slate-950 border-emerald-400 pulse-rain' : 'bg-slate-800 text-emerald-400 border-slate-700 hover:bg-slate-700'}`}
+                                >
+                                    <span>{isContinuousRaining ? '⏸️ Stop Continuous Rain' : '🌧️ Continuous Rain'}</span>
+                                </button>
+                                <button
+                                    onClick={handleRebuildBase}
+                                    className="px-3 py-2 rounded-xl font-bold text-xs bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 transition-all active:scale-95 flex items-center justify-center gap-1.5"
+                                    title="Discard all erosion channels and reset to pristine noise heightfield"
+                                >
+                                    <span>🧹 Reset Heightfield</span>
+                                </button>
+                            </div>
+
+                            {/* Hydraulic Physics Parameter Matrix */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Inertia (Momentum):</span>
+                                        <span className="text-sky-400">{erosionParams.inertia}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0.0" max="0.5" step="0.01"
+                                        value={erosionParams.inertia}
+                                        onChange={(e) => setErosionParams({ ...erosionParams, inertia: parseFloat(e.target.value) })}
+                                        className="accent-sky-400"
+                                    />
+                                    <span className="text-[9px] text-slate-500">Higher = droplets carve straighter canyons</span>
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Sediment Capacity:</span>
+                                        <span className="text-sky-400">{erosionParams.sedimentCapacityFactor}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="1.0" max="10.0" step="0.5"
+                                        value={erosionParams.sedimentCapacityFactor}
+                                        onChange={(e) => setErosionParams({ ...erosionParams, sedimentCapacityFactor: parseFloat(e.target.value) })}
+                                        className="accent-sky-400"
+                                    />
+                                    <span className="text-[9px] text-slate-500">Max volume of silt water can transport</span>
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Erosion Rate:</span>
+                                        <span className="text-sky-400">{erosionParams.erodeSpeed}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0.05" max="1.0" step="0.05"
+                                        value={erosionParams.erodeSpeed}
+                                        onChange={(e) => setErosionParams({ ...erosionParams, erodeSpeed: parseFloat(e.target.value) })}
+                                        className="accent-sky-400"
+                                    />
+                                    <span className="text-[9px] text-slate-500">Speed terrain is carved uphill</span>
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Deposition Rate:</span>
+                                        <span className="text-sky-400">{erosionParams.depositSpeed}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0.05" max="1.0" step="0.05"
+                                        value={erosionParams.depositSpeed}
+                                        onChange={(e) => setErosionParams({ ...erosionParams, depositSpeed: parseFloat(e.target.value) })}
+                                        className="accent-sky-400"
+                                    />
+                                    <span className="text-[9px] text-slate-500">Speed silt settles in valleys & fans</span>
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Erosion Brush Radius:</span>
+                                        <span className="text-sky-400">{erosionParams.erosionRadius} px</span>
+                                    </div>
+                                    <input
+                                        type="range" min="1" max="5" step="1"
+                                        value={erosionParams.erosionRadius}
+                                        onChange={(e) => setErosionParams({ ...erosionParams, erosionRadius: parseInt(e.target.value) })}
+                                        className="accent-sky-400"
+                                    />
+                                    <span className="text-[9px] text-slate-500">Radial width of carved riverbed channels</span>
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Gravity (Acceleration):</span>
+                                        <span className="text-sky-400">{erosionParams.gravity}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="4.0" max="25.0" step="1.0"
+                                        value={erosionParams.gravity}
+                                        onChange={(e) => setErosionParams({ ...erosionParams, gravity: parseFloat(e.target.value) })}
+                                        className="accent-sky-400"
+                                    />
+                                    <span className="text-[9px] text-slate-500">Downhill particle acceleration velocity</span>
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Evaporation Rate:</span>
+                                        <span className="text-sky-400">{erosionParams.evaporateSpeed}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0.005" max="0.08" step="0.005"
+                                        value={erosionParams.evaporateSpeed}
+                                        onChange={(e) => setErosionParams({ ...erosionParams, evaporateSpeed: parseFloat(e.target.value) })}
+                                        className="accent-sky-400"
+                                    />
+                                    <span className="text-[9px] text-slate-500">Water volume reduction per time step</span>
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Continuous Rain Rate:</span>
+                                        <span className="text-sky-400">{rainBatchSize} / frame</span>
+                                    </div>
+                                    <input
+                                        type="range" min="300" max="3000" step="100"
+                                        value={rainBatchSize}
+                                        onChange={(e) => setRainBatchSize(parseInt(e.target.value))}
+                                        className="accent-sky-400"
+                                    />
+                                    <span className="text-[9px] text-slate-500">Throughput during real-time continuous rain</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- TAB 2: PROCEDURAL NOISE & TERRAIN BASE --- */}
+                    {activeTab === 'NOISE' && (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex justify-between items-center">
+                                <span className="text-slate-400 text-xs">Configure base Fractional Brownian Motion (fBm) & Domain Warping geometry:</span>
+                                <button
+                                    onClick={() => {
+                                        const next = { ...params, seed: Math.floor(Math.random() * 999999) };
+                                        setParams(next);
+                                        engine.params = next;
+                                        engine.noise.setSeed(next.seed);
+                                        engine.generateBaseTerrain();
+                                        commitGeometryUpdate();
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl font-bold text-xs bg-sky-500 text-slate-950 hover:bg-sky-400 transition-all shadow-md active:scale-95"
+                                >
+                                    🎲 Randomize Seed ({params.seed})
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Height Scale:</span>
+                                        <span className="text-sky-400">{params.heightScale}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="5" max="50" step="1"
+                                        value={params.heightScale}
+                                        onChange={(e) => {
+                                            const v = parseFloat(e.target.value);
+                                            setParams({ ...params, heightScale: v });
+                                            engine.params.heightScale = v;
+                                            engine.generateBaseTerrain();
+                                            commitGeometryUpdate();
+                                        }}
+                                        className="accent-sky-400"
+                                    />
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Domain Warp Intensity:</span>
+                                        <span className="text-sky-400">{params.warpStrength}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0.0" max="1.5" step="0.05"
+                                        value={params.warpStrength}
+                                        onChange={(e) => {
+                                            const v = parseFloat(e.target.value);
+                                            setParams({ ...params, warpStrength: v });
+                                            engine.params.warpStrength = v;
+                                            engine.generateBaseTerrain();
+                                            commitGeometryUpdate();
+                                        }}
+                                        className="accent-sky-400"
+                                    />
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Noise Octaves:</span>
+                                        <span className="text-sky-400">{params.octaves}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="1" max="8" step="1"
+                                        value={params.octaves}
+                                        onChange={(e) => {
+                                            const v = parseInt(e.target.value);
+                                            setParams({ ...params, octaves: v });
+                                            engine.params.octaves = v;
+                                            engine.generateBaseTerrain();
+                                            commitGeometryUpdate();
+                                        }}
+                                        className="accent-sky-400"
+                                    />
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Water Level:</span>
+                                        <span className="text-sky-400">{params.waterLevel}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0.0" max="20.0" step="0.5"
+                                        value={params.waterLevel}
+                                        onChange={(e) => {
+                                            const v = parseFloat(e.target.value);
+                                            setParams({ ...params, waterLevel: v });
+                                            engine.params.waterLevel = v;
+                                            engine.recalculateMeshBuffers();
+                                            commitGeometryUpdate();
+                                        }}
+                                        className="accent-sky-400"
+                                    />
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Persistence:</span>
+                                        <span className="text-sky-400">{params.persistence}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0.2" max="0.7" step="0.02"
+                                        value={params.persistence}
+                                        onChange={(e) => {
+                                            const v = parseFloat(e.target.value);
+                                            setParams({ ...params, persistence: v });
+                                            engine.params.persistence = v;
+                                            engine.generateBaseTerrain();
+                                            commitGeometryUpdate();
+                                        }}
+                                        className="accent-sky-400"
+                                    />
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Lacunarity:</span>
+                                        <span className="text-sky-400">{params.lacunarity}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="1.5" max="3.0" step="0.1"
+                                        value={params.lacunarity}
+                                        onChange={(e) => {
+                                            const v = parseFloat(e.target.value);
+                                            setParams({ ...params, lacunarity: v });
+                                            engine.params.lacunarity = v;
+                                            engine.generateBaseTerrain();
+                                            commitGeometryUpdate();
+                                        }}
+                                        className="accent-sky-400"
+                                    />
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Ridge Exponent:</span>
+                                        <span className="text-sky-400">{params.exponent}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0.8" max="3.5" step="0.1"
+                                        value={params.exponent}
+                                        onChange={(e) => {
+                                            const v = parseFloat(e.target.value);
+                                            setParams({ ...params, exponent: v });
+                                            engine.params.exponent = v;
+                                            engine.generateBaseTerrain();
+                                            commitGeometryUpdate();
+                                        }}
+                                        className="accent-sky-400"
+                                    />
+                                </div>
+
+                                <div className="glass-panel-sub p-2.5 rounded-xl flex flex-col gap-1.5">
+                                    <div className="flex justify-between text-slate-400 font-bold">
+                                        <span>Spatial Frequency:</span>
+                                        <span className="text-sky-400">{params.scale}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0.005" max="0.040" step="0.002"
+                                        value={params.scale}
+                                        onChange={(e) => {
+                                            const v = parseFloat(e.target.value);
+                                            setParams({ ...params, scale: v });
+                                            engine.params.scale = v;
+                                            engine.generateBaseTerrain();
+                                            commitGeometryUpdate();
+                                        }}
+                                        className="accent-sky-400"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- TAB 3: INTERACTIVE RAIN CLOUD & SCULPTING BRUSH --- */}
+                    {activeTab === 'INTERACTIVE' && (
+                        <div className="flex flex-col gap-4 text-xs">
+                            <div className="glass-panel-sub p-3.5 rounded-xl flex flex-col gap-3">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="font-bold text-sky-400 text-sm">🌧️ Interactive Rain Cloud Pointer</h3>
+                                        <p className="text-slate-400 text-[11px]">Click and drag directly on any mountain peak or plateau in the 3D viewport to pour targeted rain torrents and carve real-time river gorges!</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setBrushMode(!brushMode)}
+                                        className={`px-4 py-2 rounded-xl font-bold transition-all ${brushMode ? 'bg-sky-500 text-slate-950 shadow-lg shadow-sky-500/40' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'}`}
+                                    >
+                                        {brushMode ? '⚡ Rain Cloud Active (Click & Drag 3D Mesh)' : 'Enable Rain Cloud'}
+                                    </button>
+                                </div>
+
+                                {brushMode && (
+                                    <div className="flex items-center gap-4 border-t border-slate-800 pt-3">
+                                        <span className="text-slate-400 font-bold">Cloud Radius:</span>
+                                        <input
+                                            type="range" min="4" max="24" step="1"
+                                            value={brushRadius}
+                                            onChange={(e) => setBrushRadius(parseInt(e.target.value))}
+                                            className="flex-1 accent-sky-400"
+                                        />
+                                        <span className="text-sky-400 font-bold">{brushRadius} units</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="glass-panel-sub p-3 rounded-xl flex flex-col gap-1">
+                                    <h4 className="font-bold text-slate-300">1. Lagrangian Particles</h4>
+                                    <p className="text-slate-500 text-[11px]">Water droplets are treated as continuous physical particles with momentum, mass, sediment carrying capacity, and evaporation.</p>
+                                </div>
+                                <div className="glass-panel-sub p-3 rounded-xl flex flex-col gap-1">
+                                    <h4 className="font-bold text-slate-300">2. Alluvial Fan Formation</h4>
+                                    <p className="text-slate-500 text-[11px]">When water droplets decelerate on flatter ground, excess sediment is deposited, creating natural dendritic alluvial fans and delta plains.</p>
+                                </div>
+                                <div className="glass-panel-sub p-3 rounded-xl flex flex-col gap-1">
+                                    <h4 className="font-bold text-slate-300">3. Zero-GC Streaming VBO</h4>
+                                    <p className="text-slate-500 text-[11px]">Calculates finite-difference normals and biome slope colors directly into pre-allocated typed arrays, sustaining 60 FPS in WebGL.</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+ReactDOM.createRoot(document.getElementById('react-hud')).render(<ProceduralTerrainApp />);
+</script>
+</body>
+</html>
