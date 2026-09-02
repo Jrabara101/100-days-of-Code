@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-brutal-yellow: #ffea00;
+    --color-brutal-red: #ff0033;
+    --color-brutal-blue: #0055ff;
+    --color-brutal-cyan: #00f0ff;
+    --color-brutal-green: #00ff66;
+    --color-brutal-purple: #bd00ff;
+    --color-brutal-black: #000000;
+    --color-brutal-white: #ffffff;
+    --color-brutal-gray: #e8e8e8;
+    --color-brutal-dark: #121316;
+  }
+
+  body {
+    background-color: #e5e5e5;
+    color: #000000;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+.font-display {
+  font-family: 'Archivo Black', 'Inter', sans-serif;
+}
+
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.brutal-border {
+  border: 4px solid #000000;
+}
+
+.brutal-border-2 {
+  border: 2px solid #000000;
+}
+
+.brutal-border-6 {
+  border: 6px solid #000000;
+}
+
+.brutal-shadow {
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.brutal-shadow-lg {
+  box-shadow: 10px 10px 0px 0px #000000;
+}
+
+.brutal-shadow-sm {
+  box-shadow: 3px 3px 0px 0px #000000;
+}
+
+.brutal-shadow-hover {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.brutal-shadow-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px 0px #000000;
+}
+
+.brutal-shadow-hover:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.brutal-shadow-blue {
+  box-shadow: 6px 6px 0px 0px #0055ff;
+}
+
+.brutal-shadow-red {
+  box-shadow: 6px 6px 0px 0px #ff0033;
+}
+
+.brutal-shadow-yellow {
+  box-shadow: 6px 6px 0px 0px #ffea00;
+}
+
+.grid-bg {
+  background-color: #e2e4e8;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.dark-grid-bg {
+  background-color: #0b0c10;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Scanline and CRT aesthetics */
+.crt-overlay {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Pulse and Glow Keyframes */
+@keyframes comboPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12) rotate(-2deg); }
+  100% { transform: scale(1); }
+}
+
+.animate-combo-pulse {
+  animation: comboPulse 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes glitchFlicker {
+  0% { opacity: 0.95; }
+  50% { opacity: 1; }
+  52% { opacity: 0.8; transform: translate(1px, -1px); }
+  54% { opacity: 1; transform: translate(0, 0); }
+  100% { opacity: 0.95; }
+}
+
+.animate-glitch {
+  animation: glitchFlicker 3s infinite;
+}
