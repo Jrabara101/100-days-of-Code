@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Apex Arena - Retro Synthwave 80s Arcade Colosseum</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Audiowide&amp;family=Press+Start+2P&amp;family=Righteous&amp;family=VT323&amp;family=JetBrains+Mono:wght@500;700;800&amp;family=Inter:wght@400;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "synth-bg": "#090a1a",
+                        "synth-card": "#12142d",
+                        "synth-card-high": "#1c1f42",
+                        "neon-pink": "#ec4899",
+                        "neon-rose": "#f43f5e",
+                        "neon-cyan": "#06b6d4",
+                        "neon-purple": "#8b5cf6",
+                        "neon-orange": "#f97316",
+                        "neon-yellow": "#fbbf24",
+                        "neon-green": "#10b981",
+                    },
+                    fontFamily: {
+                        arcade: ['"Press Start 2P"', 'monospace'],
+                        crt: ['VT323', 'monospace'],
+                        audiowide: ['Audiowide', 'sans-serif'],
+                        righteous: ['Righteous', 'cursive'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'scanline': 'scanline 8s linear infinite',
+                        'grid-move': 'gridMove 20s linear infinite',
+                        'flicker': 'flicker 0.15s infinite',
+                        'neon-pulse': 'neonPulse 2s ease-in-out infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                    },
+                    keyframes: {
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(1000%)' }
+                        },
+                        gridMove: {
+                            '0%': { backgroundPosition: '0 0' },
+                            '100%': { backgroundPosition: '0 40px' }
+                        },
+                        flicker: {
+                            '0%, 100%': { opacity: '0.98' },
+                            '50%': { opacity: '1' }
+                        },
+                        neonPulse: {
+                            '0%, 100%': { filter: 'drop-shadow(0 0 12px rgba(236,72,153,0.8)) drop-shadow(0 0 25px rgba(236,72,153,0.4))' },
+                            '50%': { filter: 'drop-shadow(0 0 20px rgba(236,72,153,1)) drop-shadow(0 0 40px rgba(244,63,94,0.7))' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Synthwave Retro CRT Screen FX */
+        .crt-screen {
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.9), 0 0 35px rgba(236, 72, 153, 0.35), 0 0 70px rgba(6, 182, 212, 0.2);
+        }
+
+        .crt-screen::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.45) 50%);
+            background-size: 100% 4px;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .crt-screen::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: radial-gradient(circle at center, transparent 65%, rgba(5, 7, 24, 0.85) 100%);
+            pointer-events: none;
+            z-index: 21;
+        }
+
+        /* Chromatic aberration text */
+        .retro-glitch-text {
+            text-shadow: 2px 2px 0px #ec4899, -2px -2px 0px #06b6d4, 0 0 16px rgba(236, 72, 153, 0.7);
+        }
+
+        .neon-cyan-glow {
+            text-shadow: 0 0 8px #06b6d4, 0 0 20px rgba(6, 182, 212, 0.6);
+        }
+
+        .neon-pink-glow {
+            text-shadow: 0 0 8px #ec4899, 0 0 22px rgba(236, 72, 153, 0.7);
+        }
+
+        .neon-orange-glow {
+            text-shadow: 0 0 8px #f97316, 0 0 18px rgba(249, 115, 22, 0.6);
+        }
+
+        /* Retro Synth Grid Floor Background */
+        .synth-grid {
+            background-image:
+                linear-gradient(to right, rgba(139, 92, 246, 0.18) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(236, 72, 153, 0.14) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-synth-bg text-slate-100 font-sans min-h-screen relative overflow-x-hidden selection:bg-neon-pink selection:text-white">
+    <!-- Ambient Synth Horizon & Scanline Backdrop -->
+    <div class="fixed inset-0 pointer-events-none z-0 synth-grid"></div>
+    <div
+        class="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(139,92,246,0.25),rgba(236,72,153,0.12)_45%,transparent_80%)]">
+    </div>
+    <div
+        class="fixed bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-neon-purple/10 to-transparent pointer-events-none z-0">
+    </div>
+    <!-- TOP HUD: RETRO ARCADE BROADCAST DECK -->
+    <header
+        class="fixed top-0 left-0 right-0 z-50 bg-[#090a1a]/95 backdrop-blur-md border-b-2 border-neon-pink/40 shadow-[0_4px_30px_rgba(236,72,153,0.25)]">
+        <div class="h-20 w-full px-4 lg:px-8 flex items-center justify-between gap-4">
+            <!-- Brand & Arcade Badge -->
+            <div class="flex items-center gap-4 shrink-0">
+                <div
+                    class="relative flex items-center justify-center w-12 h-12 bg-gradient-to-tr from-neon-pink via-neon-purple to-neon-cyan p-0.5 rounded-lg shadow-[0_0_15px_rgba(236,72,153,0.6)]">
+                    <div class="w-full h-full bg-[#090a1a] rounded-[6px] flex items-center justify-center">
+                        <span
+                            class="material-symbols-outlined text-neon-pink text-2xl animate-pulse">videogame_asset</span>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-2">
+                        <span
+                            class="font-audiowide text-xl lg:text-2xl font-bold tracking-wider retro-glitch-text text-white">APEX
+                            ARENA</span>
+                        <span
+                            class="font-arcade text-[9px] text-neon-yellow bg-neon-yellow/10 border border-neon-yellow/40 px-1.5 py-0.5 rounded shadow-[0_0_8px_rgba(251,191,36,0.3)]">80s
+                            COLOSSEUM</span>
+                    </div>
+                    <span class="font-crt text-lg text-neon-cyan tracking-widest leading-none">INSERT COIN // STAGE 08
+                        // PRIMETIME SPECTACLE</span>
+                </div>
+                <!-- ON AIR Retro Ticker -->
+                <div
+                    class="hidden sm:flex items-center gap-2 bg-neon-rose/20 border border-neon-rose/50 px-3 py-1 rounded-md shadow-[0_0_12px_rgba(244,63,94,0.4)] ml-2">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-rose opacity-80"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-neon-rose"></span>
+                    </span>
+                    <span class="font-arcade text-[10px] text-neon-rose uppercase tracking-wider">LIVE 1.4M
+                        RECEPTORS</span>
+                </div>
+            </div>
+            <!-- Center Telemetry: High Roller Jackpot & Streak -->
+            <div
+                class="hidden md:flex items-center gap-4 shrink-0 bg-synth-card/90 border border-neon-purple/40 px-4 py-2 rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.25)]">
+                <div class="flex items-center gap-2">
+                    <span class="font-arcade text-[9px] text-neon-purple uppercase">CREDITS:</span>
+                    <span
+                        class="font-crt text-2xl text-neon-cyan font-bold tracking-widest neon-cyan-glow">$50,000</span>
+                </div>
+                <div class="w-px h-6 bg-neon-purple/40"></div>
+                <div
+                    class="flex items-center gap-1.5 bg-neon-orange/15 border border-neon-orange/40 px-2.5 py-0.5 rounded">
+                    <span class="material-symbols-outlined text-neon-orange text-[16px]">local_fire_department</span>
+                    <span class="font-arcade text-[9px] text-neon-orange uppercase tracking-wider">4X COMBO SURGE</span>
+                </div>
+            </div>
+            <!-- Right: Arcade Lifelines / Power-Ups -->
+            <div class="flex items-center gap-3 shrink-0">
+                <div
+                    class="hidden lg:flex items-center gap-2 bg-synth-card-high/80 p-1.5 rounded-xl border border-neon-cyan/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                    <!-- HACK 50/50 -->
+                    <button
+                        class="px-2.5 py-1.5 rounded bg-neon-cyan/20 border border-neon-cyan/60 text-neon-cyan hover:bg-neon-cyan/30 transition-all font-arcade text-[9px] flex items-center gap-1 shadow-[0_0_10px_rgba(6,182,212,0.3)]"
+                        id="btn-hack">
+                        <span class="material-symbols-outlined text-[14px]">bolt</span> HACK 50/50
+                    </button>
+                    <!-- FREEZE TIME -->
+                    <button
+                        class="px-2.5 py-1.5 rounded bg-neon-purple/20 border border-neon-purple/60 text-neon-purple hover:bg-neon-purple/30 transition-all font-arcade text-[9px] flex items-center gap-1 shadow-[0_0_10px_rgba(139,92,246,0.3)]"
+                        id="btn-freeze">
+                        <span class="material-symbols-outlined text-[14px]">hourglass_top</span> FREEZE TIME
+                    </button>
+                    <!-- EXTRA LIFE -->
+                    <button
+                        class="px-2.5 py-1.5 rounded bg-neon-pink/20 border border-neon-pink/60 text-neon-pink hover:bg-neon-pink/30 transition-all font-arcade text-[9px] flex items-center gap-1 shadow-[0_0_10px_rgba(236,72,153,0.3)]">
+                        <span class="material-symbols-outlined text-[14px]">favorite</span> EXTRA LIFE
+                    </button>
+                </div>
+                <!-- Retro Volume & Profile Deck -->
+                <div class="flex items-center gap-2">
+                    <button aria-label="FM Synth Sound Toggle"
+                        class="w-9 h-9 rounded-lg bg-synth-card-high border border-neon-pink/30 hover:border-neon-pink text-neon-pink flex items-center justify-center transition-all shadow-[0_0_8px_rgba(236,72,153,0.2)]">
+                        <span class="material-symbols-outlined text-[18px]">volume_up</span>
+                    </button>
+                    <div
+                        class="w-9 h-9 rounded-lg bg-gradient-to-br from-neon-pink to-neon-orange p-0.5 shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                        <div
+                            class="w-full h-full bg-[#090a1a] rounded-[6px] flex items-center justify-center font-arcade text-xs text-neon-yellow">
+                            1P
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- HORIZONTAL SCROLLING TIER PROGRESS RIBBON (Across Full Width) -->
+        <div class="w-full bg-[#0d0e28] border-t border-b border-neon-purple/30 py-2 px-4 overflow-x-auto">
+            <div class="flex items-center gap-3 min-w-max mx-auto justify-between max-w-7xl">
+                <span
+                    class="font-arcade text-[9px] text-neon-cyan uppercase tracking-widest shrink-0 flex items-center gap-1 mr-2">
+                    <span class="material-symbols-outlined text-[14px] text-neon-yellow">military_tech</span> STAGE
+                    TIERS:
+                </span>
+                <!-- Tiers 01 - 10 with neon checkpoint badges -->
+                <div class="flex items-center gap-2">
+                    <!-- Tier 1 -->
+                    <div
+                        class="flex items-center gap-1.5 px-2 py-1 rounded bg-synth-card/60 border border-slate-700/50 text-slate-400 font-crt text-base">
+                        <span class="text-neon-cyan text-xs">01</span><span>$250</span>
+                        <span class="material-symbols-outlined text-[13px] text-neon-green">check</span>
+                    </div>
+                    <!-- Tier 2 -->
+                    <div
+                        class="flex items-center gap-1.5 px-2 py-1 rounded bg-synth-card/60 border border-slate-700/50 text-slate-400 font-crt text-base">
+                        <span class="text-neon-cyan text-xs">02</span><span>$500</span>
+                        <span class="material-symbols-outlined text-[13px] text-neon-green">check</span>
+                    </div>
+                    <!-- Tier 3 -->
+                    <div
+                        class="flex items-center gap-1.5 px-2 py-1 rounded bg-synth-card/60 border border-slate-700/50 text-slate-400 font-crt text-base">
+                        <span class="text-neon-cyan text-xs">03</span><span>$1,000</span>
+                        <span class="material-symbols-outlined text-[13px] text-neon-green">check</span>
+                    </div>
+                    <!-- Tier 4: SAFE HAVEN -->
+                    <div
+                        class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-neon-green/15 border border-neon-green text-neon-green font-crt text-base shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                        <span class="material-symbols-outlined text-[13px]">shield</span>
+                        <span class="font-bold">04: $2,500</span>
+                        <span class="font-arcade text-[8px] bg-neon-green text-black px-1 rounded">SAFE</span>
+                    </div>
+                    <!-- Tier 5 -->
+                    <div
+                        class="flex items-center gap-1.5 px-2 py-1 rounded bg-synth-card/60 border border-slate-700/50 text-slate-400 font-crt text-base">
+                        <span class="text-neon-cyan text-xs">05</span><span>$5,000</span>
+                        <span class="material-symbols-outlined text-[13px] text-neon-green">check</span>
+                    </div>
+                    <!-- Tier 6 -->
+                    <div
+                        class="flex items-center gap-1.5 px-2 py-1 rounded bg-synth-card/60 border border-slate-700/50 text-slate-400 font-crt text-base">
+                        <span class="text-neon-cyan text-xs">06</span><span>$10,000</span>
+                        <span class="material-symbols-outlined text-[13px] text-neon-green">check</span>
+                    </div>
+                    <!-- Tier 7: SAFE HAVEN -->
+                    <div
+                        class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-neon-cyan/20 border border-neon-cyan text-neon-cyan font-crt text-base shadow-[0_0_12px_rgba(6,182,212,0.35)]">
+                        <span class="material-symbols-outlined text-[13px]">shield</span>
+                        <span class="font-bold">07: $25,000</span>
+                        <span class="font-arcade text-[8px] bg-neon-cyan text-black px-1 rounded">LOCK</span>
+                    </div>
+                    <!-- Tier 8: CURRENT ACTIVE (Blinking Neon Pink) -->
+                    <div
+                        class="flex items-center gap-2 px-3 py-1 rounded-md bg-neon-pink/25 border-2 border-neon-pink text-white font-crt text-lg shadow-[0_0_18px_rgba(236,72,153,0.7)] animate-pulse">
+                        <span class="material-symbols-outlined text-[16px] text-neon-yellow">play_arrow</span>
+                        <span class="font-arcade text-[10px] text-neon-pink font-bold">08 [ACTIVE]</span>
+                        <span class="font-bold text-neon-yellow text-xl tracking-wider">$50,000</span>
+                    </div>
+                    <!-- Tier 9 -->
+                    <div
+                        class="flex items-center gap-1.5 px-2 py-1 rounded bg-synth-card/40 border border-purple-900/40 text-purple-300 font-crt text-base opacity-75">
+                        <span class="text-xs text-neon-purple">09</span><span>$100,000</span>
+                    </div>
+                    <!-- Tier 10: MEGA JACKPOT -->
+                    <div
+                        class="flex items-center gap-2 px-3 py-1 rounded-md bg-gradient-to-r from-neon-purple/30 via-neon-pink/30 to-neon-yellow/30 border border-neon-yellow text-neon-yellow font-crt text-lg shadow-[0_0_20px_rgba(251,191,36,0.4)]">
+                        <span class="material-symbols-outlined text-[15px] text-neon-yellow animate-spin">stars</span>
+                        <span class="font-arcade text-[9px]">10 CHAMPION:</span>
+                        <span class="font-bold tracking-wider">$250,000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- MAIN ARENA COCKPIT -->
+    <main class="w-full pt-32 pb-16 px-4 lg:px-8 relative z-10 max-w-7xl mx-auto flex flex-col gap-6">
+        <!-- SUB-BANNER: RETRO PLAYER STATS & DIGITAL COUNTDOWN RIG -->
+        <div
+            class="w-full bg-synth-card/85 border border-neon-purple/40 rounded-2xl p-4 backdrop-blur-xl shadow-[0_0_30px_rgba(139,92,246,0.2)] flex flex-wrap items-center justify-between gap-4">
+            <!-- Player Profile Info -->
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div
+                        class="w-14 h-14 rounded-xl bg-gradient-to-tr from-neon-pink to-neon-purple p-0.5 shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                        <div class="w-full h-full bg-[#090a1a] rounded-[10px] flex items-center justify-center">
+                            <span class="font-arcade text-neon-cyan text-sm">#09</span>
+                        </div>
+                    </div>
+                    <span
+                        class="absolute -bottom-1 -right-1 w-4 h-4 bg-neon-green rounded-full border-2 border-[#090a1a] shadow-[0_0_8px_#10b981]"></span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-righteous text-lg tracking-wider text-white">DR. ELENA VANCE</span>
+                        <span
+                            class="font-arcade text-[8px] bg-neon-pink/20 border border-neon-pink text-neon-pink px-1.5 py-0.5 rounded uppercase">SYNTH-WIZARD</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-neon-purple font-crt text-lg mt-0.5">
+                        <span class="flex items-center gap-1"><span
+                                class="material-symbols-outlined text-[16px] text-neon-yellow">trophy</span> RANK: 01 /
+                            128 CONTENDERS</span>
+                        <span class="flex items-center gap-1"><span
+                                class="material-symbols-outlined text-[16px] text-neon-cyan">speed</span> AVG TIME:
+                            2.10s</span>
+                    </div>
+                </div>
+            </div>
+            <!-- High-Tension Pressure Clock Simulation -->
+            <div class="flex flex-col items-center md:items-end gap-1 min-w-[240px]">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-neon-rose animate-ping"></span>
+                    <span class="font-arcade text-[10px] text-neon-rose uppercase tracking-widest">PRESSURE TIME</span>
+                    <span class="font-arcade text-xl text-neon-yellow font-bold tabular-nums ml-2 neon-orange-glow"
+                        id="retro-clock">06.8s</span>
+                </div>
+                <!-- Segmented Synth Wave Progress Bar -->
+                <div
+                    class="w-full h-3 bg-black/60 rounded-full border border-neon-rose/40 overflow-hidden p-0.5 shadow-inner">
+                    <div class="h-full bg-gradient-to-r from-neon-green via-neon-yellow to-neon-rose rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(244,63,94,0.8)]"
+                        id="retro-clock-fill" style="width: 45.3%;"></div>
+                </div>
+            </div>
+        </div>
+        <!-- CENTERPIECE: GLOWING CATHODE-RAY TUBE (CRT) TRIVIA CONSOLE -->
+        <div
+            class="crt-screen rounded-3xl bg-[#0d0f26] border-4 border-neon-purple/60 p-6 md:p-8 relative shadow-[0_0_50px_rgba(139,92,246,0.35)]">
+            <!-- Top Console Bezel Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-neon-purple/30">
+                <div
+                    class="flex items-center gap-2 bg-neon-purple/20 border border-neon-purple/50 px-3 py-1.5 rounded-lg shadow-[0_0_10px_rgba(139,92,246,0.3)]">
+                    <span class="material-symbols-outlined text-neon-cyan text-[18px]">memory</span>
+                    <span class="font-arcade text-[10px] text-neon-cyan uppercase tracking-wider">RETRO COMPUTING &amp;
+                        VIDEO GAME HISTORY</span>
+                </div>
+                <div
+                    class="flex items-center gap-2 bg-neon-pink/20 border border-neon-pink/60 px-3 py-1.5 rounded-lg shadow-[0_0_15px_rgba(236,72,153,0.3)]">
+                    <span class="font-arcade text-[10px] text-neon-yellow font-bold uppercase tracking-wider">TIER 8 •
+                        $50,000 BOUNTY</span>
+                </div>
+            </div>
+            <!-- Main CRT Prompt Question -->
+            <div class="py-8 relative">
+                <div class="font-arcade text-xs text-neon-pink mb-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] animate-spin">terminal</span> QUESTION READY //
+                    DECODE HARDWARE SPEC:
+                </div>
+                <h1
+                    class="font-righteous text-2xl sm:text-3xl md:text-4xl text-white tracking-wide leading-relaxed retro-glitch-text">
+                    Which 1982 microcomputer launched with exactly 16KB of RAM and an iconic rainbow stripe on its
+                    rubber-key chassis?
+                </h1>
+            </div>
+            <!-- 2x2 RETRO JOYSTICK / KEYCAP ANSWER MATRIX -->
+            <div aria-label="Trivia Answers" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4" role="radiogroup">
+                <!-- OPTION A: [1] ZX Spectrum 16K (Active Locked in Neon Pink) -->
+                <button aria-checked="true"
+                    class="group relative text-left p-5 rounded-2xl bg-gradient-to-br from-neon-pink/30 via-neon-purple/20 to-synth-card border-2 border-neon-pink text-white shadow-[0_0_35px_rgba(236,72,153,0.5)] transition-all flex flex-col justify-between overflow-hidden cursor-pointer"
+                    type="button">
+                    <!-- Neon scanline glow -->
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-transparent via-neon-pink/15 to-transparent animate-pulse pointer-events-none">
+                    </div>
+                    <div class="flex items-start justify-between gap-4 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <!-- Keycap Badge [1] -->
+                            <span
+                                class="w-10 h-10 rounded-xl bg-neon-pink text-[#090a1a] font-arcade font-black flex items-center justify-center text-sm shadow-[0_0_15px_rgba(236,72,153,0.8)] border border-white/50">
+                                [1]
+                            </span>
+                            <div>
+                                <span
+                                    class="font-righteous text-xl md:text-2xl text-white tracking-wider drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]">
+                                    ZX Spectrum 16K
+                                </span>
+                                <span class="block font-crt text-lg text-neon-yellow tracking-widest">[A] KEY
+                                    REGISTERED</span>
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center gap-1 text-neon-yellow bg-black/50 border border-neon-yellow/50 px-2.5 py-1 rounded-md">
+                            <span class="material-symbols-outlined text-[16px] animate-spin">lock</span>
+                            <span class="font-arcade text-[9px] font-bold tracking-wider">LOCKED IN</span>
+                        </div>
+                    </div>
+                    <!-- Crowd Poll & Confidence Meter -->
+                    <div class="mt-5 pt-3 border-t border-neon-pink/30 flex items-center justify-between relative z-10">
+                        <div class="flex items-center gap-3 w-3/4">
+                            <div class="w-full bg-black/60 h-2 rounded-full overflow-hidden border border-neon-pink/40">
+                                <div class="bg-gradient-to-r from-neon-orange to-neon-pink h-full rounded-full shadow-[0_0_10px_#ec4899]"
+                                    style="width: 72%;"></div>
+                            </div>
+                            <span class="font-arcade text-[10px] text-neon-pink font-bold">72%</span>
+                        </div>
+                        <span class="font-arcade text-[9px] text-neon-yellow uppercase tracking-wider">MAJORITY
+                            PICK</span>
+                    </div>
+                </button>
+                <!-- OPTION B: [2] Commodore 64 -->
+                <button
+                    class="group relative text-left p-5 rounded-2xl bg-synth-card/90 hover:bg-gradient-to-br hover:from-neon-cyan/20 hover:to-synth-card border border-neon-cyan/40 hover:border-neon-cyan transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] flex flex-col justify-between overflow-hidden cursor-pointer"
+                    type="button">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-10 h-10 rounded-xl bg-synth-card-high border border-neon-cyan/50 text-neon-cyan group-hover:bg-neon-cyan group-hover:text-black font-arcade font-bold flex items-center justify-center text-sm transition-colors shadow-md">
+                                [2]
+                            </span>
+                            <div>
+                                <span
+                                    class="font-righteous text-xl md:text-2xl text-slate-200 group-hover:text-white tracking-wider transition-colors">
+                                    Commodore 64
+                                </span>
+                                <span
+                                    class="block font-crt text-lg text-slate-400 group-hover:text-neon-cyan tracking-widest">[B]
+                                    64KB VIC-II CHIP</span>
+                            </div>
+                        </div>
+                        <span
+                            class="material-symbols-outlined text-slate-600 group-hover:text-neon-cyan text-[22px] transition-colors">radio_button_unchecked</span>
+                    </div>
+                    <div
+                        class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between opacity-70 group-hover:opacity-100 transition-opacity">
+                        <div class="flex items-center gap-3 w-3/4">
+                            <div class="w-full bg-black/60 h-2 rounded-full overflow-hidden border border-slate-700">
+                                <div class="bg-neon-cyan h-full rounded-full" style="width: 16%;"></div>
+                            </div>
+                            <span class="font-arcade text-[10px] text-neon-cyan">16%</span>
+                        </div>
+                        <span class="font-arcade text-[8px] text-slate-400 uppercase">AUDIENCE</span>
+                    </div>
+                </button>
+                <!-- OPTION C: [3] BBC Micro Model A -->
+                <button
+                    class="group relative text-left p-5 rounded-2xl bg-synth-card/90 hover:bg-gradient-to-br hover:from-neon-purple/20 hover:to-synth-card border border-neon-purple/40 hover:border-neon-purple transition-all shadow-[0_0_15px_rgba(139,92,246,0.15)] flex flex-col justify-between overflow-hidden cursor-pointer"
+                    type="button">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-10 h-10 rounded-xl bg-synth-card-high border border-neon-purple/50 text-neon-purple group-hover:bg-neon-purple group-hover:text-black font-arcade font-bold flex items-center justify-center text-sm transition-colors shadow-md">
+                                [3]
+                            </span>
+                            <div>
+                                <span
+                                    class="font-righteous text-xl md:text-2xl text-slate-200 group-hover:text-white tracking-wider transition-colors">
+                                    BBC Micro Model A
+                                </span>
+                                <span
+                                    class="block font-crt text-lg text-slate-400 group-hover:text-neon-purple tracking-widest">[C]
+                                    ACORN 6502</span>
+                            </div>
+                        </div>
+                        <span
+                            class="material-symbols-outlined text-slate-600 group-hover:text-neon-purple text-[22px] transition-colors">radio_button_unchecked</span>
+                    </div>
+                    <div
+                        class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between opacity-70 group-hover:opacity-100 transition-opacity">
+                        <div class="flex items-center gap-3 w-3/4">
+                            <div class="w-full bg-black/60 h-2 rounded-full overflow-hidden border border-slate-700">
+                                <div class="bg-neon-purple h-full rounded-full" style="width: 8%;"></div>
+                            </div>
+                            <span class="font-arcade text-[10px] text-neon-purple">08%</span>
+                        </div>
+                        <span class="font-arcade text-[8px] text-slate-400 uppercase">AUDIENCE</span>
+                    </div>
+                </button>
+                <!-- OPTION D: [4] Atari 800XL -->
+                <button
+                    class="group relative text-left p-5 rounded-2xl bg-synth-card/90 hover:bg-gradient-to-br hover:from-neon-orange/20 hover:to-synth-card border border-neon-orange/40 hover:border-neon-orange transition-all shadow-[0_0_15px_rgba(249,115,22,0.15)] flex flex-col justify-between overflow-hidden cursor-pointer"
+                    type="button">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-10 h-10 rounded-xl bg-synth-card-high border border-neon-orange/50 text-neon-orange group-hover:bg-neon-orange group-hover:text-black font-arcade font-bold flex items-center justify-center text-sm transition-colors shadow-md">
+                                [4]
+                            </span>
+                            <div>
+                                <span
+                                    class="font-righteous text-xl md:text-2xl text-slate-200 group-hover:text-white tracking-wider transition-colors">
+                                    Atari 800XL
+                                </span>
+                                <span
+                                    class="block font-crt text-lg text-slate-400 group-hover:text-neon-orange tracking-widest">[D]
+                                    POKEY SOUND ENGINE</span>
+                            </div>
+                        </div>
+                        <span
+                            class="material-symbols-outlined text-slate-600 group-hover:text-neon-orange text-[22px] transition-colors">radio_button_unchecked</span>
+                    </div>
+                    <div
+                        class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between opacity-70 group-hover:opacity-100 transition-opacity">
+                        <div class="flex items-center gap-3 w-3/4">
+                            <div class="w-full bg-black/60 h-2 rounded-full overflow-hidden border border-slate-700">
+                                <div class="bg-neon-orange h-full rounded-full" style="width: 4%;"></div>
+                            </div>
+                            <span class="font-arcade text-[10px] text-neon-orange">04%</span>
+                        </div>
+                        <span class="font-arcade text-[8px] text-slate-400 uppercase">AUDIENCE</span>
+                    </div>
+                </button>
+            </div>
+            <!-- CRT Chassis Telemetry Status Footer -->
+            <div
+                class="mt-6 pt-4 border-t border-neon-purple/30 flex flex-wrap items-center justify-between gap-4 font-crt text-lg text-slate-400">
+                <div class="flex items-center gap-3">
+                    <span class="text-neon-cyan flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">speed</span> HARDWARE CLOCK: 3.50 MHz
+                    </span>
+                    <span class="text-neon-yellow flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">videogame_asset</span> JOYSTICK: KEMPSTON 2
+                        ARMED
+                    </span>
+                </div>
+                <div class="flex items-center gap-2 text-neon-pink">
+                    <span class="material-symbols-outlined text-[16px]">keyboard</span>
+                    <span>QUICK KEYS: [1] [2] [3] [4]</span>
+                </div>
+            </div>
+        </div>
+        <!-- BOTTOM DECK: 8-BIT SYNTHESIZER AUDIO SPECTRUM & RETRO PIXEL SPECTATOR CHEER WALL -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <!-- Left: 8-Bit Synthesizer Audio Spectrum Visualizer (5 Cols) -->
+            <div
+                class="lg:col-span-5 bg-synth-card/90 border border-neon-cyan/40 rounded-2xl p-5 shadow-[0_0_25px_rgba(6,182,212,0.15)] flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-neon-cyan text-lg animate-pulse">graphic_eq</span>
+                        <span class="font-arcade text-[10px] text-neon-cyan uppercase tracking-wider">YM3812 SYNTH
+                            SPECTRUM</span>
+                    </div>
+                    <span class="font-crt text-lg text-neon-yellow">CHIPTUNE STEREO 142BPM</span>
+                </div>
+                <!-- Animated Audio Equalizer Bars -->
+                <div
+                    class="h-24 flex items-end justify-between gap-1.5 px-2 bg-black/60 rounded-xl border border-neon-cyan/30 py-2">
+                    <!-- 16 Segmented Equalizer columns with Synthwave Sunset Gradient -->
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-pink h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-orange h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-orange h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-pink h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-orange h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-purple h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-pink h-3 rounded-xs animate-bounce"></div>
+                        <div class="w-full bg-neon-orange h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-purple h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-orange h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-pink h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-orange h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-pink h-3 rounded-xs animate-pulse"></div>
+                        <div class="w-full bg-neon-orange h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-purple h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-orange h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-pink h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-orange h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-purple h-3 rounded-xs"></div>
+                    </div>
+                    <div class="w-full flex flex-col gap-1 items-center justify-end h-full">
+                        <div class="w-full bg-neon-yellow h-3 rounded-xs"></div>
+                        <div class="w-full bg-neon-cyan h-3 rounded-xs"></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-xs font-crt text-slate-400 mt-2">
+                    <span>64Hz // LOW PASS</span>
+                    <span class="text-neon-pink">BASS BOOST 12dB</span>
+                    <span>16kHz // TREBLE</span>
+                </div>
+            </div>
+            <!-- Right: Retro Pixel Spectator Cheer Wall (7 Cols) -->
+            <div
+                class="lg:col-span-7 bg-synth-card/90 border border-neon-pink/40 rounded-2xl p-5 shadow-[0_0_25px_rgba(236,72,153,0.15)] flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-neon-pink text-lg">groups</span>
+                        <span class="font-arcade text-[10px] text-neon-pink uppercase tracking-wider">PIXEL SPECTATOR
+                            CHEER WALL</span>
+                    </div>
+                    <span
+                        class="font-arcade text-[9px] text-neon-green bg-neon-green/10 border border-neon-green/30 px-2 py-0.5 rounded animate-pulse">
+                        +4,820 HYPED
+                    </span>
+                </div>
+                <!-- 8-Bit Pixel Spectator Avatars & Live Chat Floats -->
+                <div
+                    class="grid grid-cols-6 sm:grid-cols-8 gap-2 bg-black/50 p-3 rounded-xl border border-neon-pink/30 mb-3">
+                    <!-- Pixel Avatar 1 -->
+                    <div class="flex flex-col items-center group relative cursor-pointer">
+                        <div
+                            class="w-9 h-9 rounded bg-neon-pink/20 border border-neon-pink flex items-center justify-center font-arcade text-xs text-neon-pink shadow-[0_0_8px_#ec4899] hover:scale-110 transition-transform">
+                            👾
+                        </div>
+                        <span class="font-crt text-xs text-slate-400 truncate max-w-full">Neo84</span>
+                    </div>
+                    <!-- Pixel Avatar 2 -->
+                    <div class="flex flex-col items-center group relative cursor-pointer">
+                        <div
+                            class="w-9 h-9 rounded bg-neon-cyan/20 border border-neon-cyan flex items-center justify-center font-arcade text-xs text-neon-cyan shadow-[0_0_8px_#06b6d4] hover:scale-110 transition-transform">
+                            🤖
+                        </div>
+                        <span class="font-crt text-xs text-slate-400 truncate max-w-full">Glitch</span>
+                    </div>
+                    <!-- Pixel Avatar 3 -->
+                    <div class="flex flex-col items-center group relative cursor-pointer">
+                        <div
+                            class="w-9 h-9 rounded bg-neon-yellow/20 border border-neon-yellow flex items-center justify-center font-arcade text-xs text-neon-yellow shadow-[0_0_8px_#fbbf24] hover:scale-110 transition-transform">
+                            🕹️
+                        </div>
+                        <span class="font-crt text-xs text-slate-400 truncate max-w-full">WizKey</span>
+                    </div>
+                    <!-- Pixel Avatar 4 -->
+                    <div class="flex flex-col items-center group relative cursor-pointer">
+                        <div
+                            class="w-9 h-9 rounded bg-neon-purple/20 border border-neon-purple flex items-center justify-center font-arcade text-xs text-neon-purple shadow-[0_0_8px_#8b5cf6] hover:scale-110 transition-transform">
+                            🚀
+                        </div>
+                        <span class="font-crt text-xs text-slate-400 truncate max-w-full">Vance</span>
+                    </div>
+                    <!-- Pixel Avatar 5 -->
+                    <div class="flex flex-col items-center group relative cursor-pointer">
+                        <div
+                            class="w-9 h-9 rounded bg-neon-rose/20 border border-neon-rose flex items-center justify-center font-arcade text-xs text-neon-rose shadow-[0_0_8px_#f43f5e] hover:scale-110 transition-transform">
+                            💾
+                        </div>
+                        <span class="font-crt text-xs text-slate-400 truncate max-w-full">Sinclair</span>
+                    </div>
+                    <!-- Pixel Avatar 6 -->
+                    <div class="flex flex-col items-center group relative cursor-pointer">
+                        <div
+                            class="w-9 h-9 rounded bg-neon-green/20 border border-neon-green flex items-center justify-center font-arcade text-xs text-neon-green shadow-[0_0_8px_#10b981] hover:scale-110 transition-transform">
+                            ⚡
+                        </div>
+                        <span class="font-crt text-xs text-slate-400 truncate max-w-full">C64Fan</span>
+                    </div>
+                    <!-- Pixel Avatar 7 -->
+                    <div class="flex flex-col items-center group relative cursor-pointer">
+                        <div
+                            class="w-9 h-9 rounded bg-neon-orange/20 border border-neon-orange flex items-center justify-center font-arcade text-xs text-neon-orange shadow-[0_0_8px_#f97316] hover:scale-110 transition-transform">
+                            ⭐
+                        </div>
+                        <span class="font-crt text-xs text-slate-400 truncate max-w-full">BBS_UK</span>
+                    </div>
+                    <!-- Pixel Avatar 8 -->
+                    <div class="flex flex-col items-center group relative cursor-pointer">
+                        <div
+                            class="w-9 h-9 rounded bg-white/10 border border-white/50 flex items-center justify-center font-arcade text-xs text-white shadow-[0_0_8px_rgba(255,255,255,0.4)] hover:scale-110 transition-transform">
+                            🏆
+                        </div>
+                        <span class="font-crt text-xs text-slate-400 truncate max-w-full">Tokyo88</span>
+                    </div>
+                </div>
+                <!-- Live Retro Crowd Chat Ticker -->
+                <div
+                    class="flex items-center justify-between text-xs font-crt bg-[#090a1a] px-3 py-2 rounded-lg border border-neon-purple/30">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <span class="font-arcade text-[9px] text-neon-cyan">[GlitchBoy]:</span>
+                        <span class="text-slate-300 truncate">ZX Spectrum had the dead rubber keys! Sir Clive is proud!!
+                            🌈</span>
+                    </div>
+                    <span class="text-neon-yellow text-xs shrink-0 ml-2">JUST NOW</span>
+                </div>
+            </div>
+        </div>
+        <!-- POST-ROUND DRAMATIC STANDINGS ACCORDION -->
+        <div
+            class="w-full bg-synth-card/90 border border-neon-purple/40 rounded-2xl p-5 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-12 h-12 rounded-xl bg-neon-pink/20 border border-neon-pink flex items-center justify-center text-neon-pink shadow-[0_0_15px_#ec4899]">
+                    <span class="material-symbols-outlined text-[28px]">sports_esports</span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-righteous text-lg text-white">COLOSSEUM TOURNAMENT LEADERBOARD</span>
+                        <span
+                            class="font-arcade text-[9px] bg-neon-cyan/20 border border-neon-cyan text-neon-cyan px-2 py-0.5 rounded uppercase">ROUND
+                            02 OF 05</span>
+                    </div>
+                    <p class="font-crt text-lg text-slate-400 mt-0.5">Grand Finals broadcast live from Neo-Shinjuku
+                        Colosseum Stage A.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="flex -space-x-2">
+                        <div
+                            class="w-8 h-8 rounded-full bg-neon-pink flex items-center justify-center font-arcade text-[10px] text-black font-bold shadow-md">
+                            01</div>
+                        <div
+                            class="w-8 h-8 rounded-full bg-neon-cyan flex items-center justify-center font-arcade text-[10px] text-black font-bold shadow-md">
+                            02</div>
+                        <div
+                            class="w-8 h-8 rounded-full bg-neon-purple flex items-center justify-center font-arcade text-[10px] text-white font-bold shadow-md">
+                            03</div>
+                    </div>
+                    <span class="font-arcade text-[10px] text-neon-yellow">124 ELIMINATED</span>
+                </div>
+                <button
+                    class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-orange hover:from-neon-rose hover:to-neon-yellow text-white font-arcade text-[10px] uppercase font-bold tracking-wider transition-all shadow-[0_0_20px_rgba(236,72,153,0.5)] flex items-center gap-2"
+                    type="button">
+                    <span>EXPAND MATRIX</span>
+                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                </button>
+            </div>
+        </div>
+    </main>
+    <!-- RETRO FOOTER -->
+    <footer class="w-full bg-[#070814] border-t-2 border-neon-purple/40 py-8 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 rounded-full bg-neon-green shadow-[0_0_10px_#10b981]"></div>
+                <span class="font-crt text-lg text-neon-cyan uppercase tracking-widest">SYNTH NODE: TOKYO-84 // CHIP:
+                    SID-6581 // BAUD: 9600</span>
+            </div>
+            <div class="font-crt text-lg text-slate-400 text-center">
+                © 1984-2025 APEX ARENA SYNTHWAVE BROADCAST NETWORK. ALL RIGHTS PRESERVED.
+            </div>
+            <div class="flex items-center gap-6 font-arcade text-[9px] text-neon-purple">
+                <a class="hover:text-neon-pink transition-colors" href="#">ARCADE RULES</a>
+                <a class="hover:text-neon-pink transition-colors" href="#">SPECTATOR HUD</a>
+                <a class="hover:text-neon-pink transition-colors" href="#">AUDIO MATRIX</a>
+            </div>
+        </div>
+    </footer>
+    <!-- CLIENT-SIDE SENSORY MICRO-INTERACTIONS -->
+    <script>
+            (function () {
+                let timeLeft = 6.8;
+                const clockEl = document.getElementById('retro-clock');
+                const fillEl = document.getElementById('retro-clock-fill');
+
+                const timer = setInterval(() => {
+                    timeLeft -= 0.1;
+                    if (timeLeft <= 0) {
+                        timeLeft = 0.0;
+                        clearInterval(timer);
+                        if (clockEl) {
+                            clockEl.innerText = '00.0s';
+                            clockEl.classList.add('text-neon-rose', 'animate-ping');
+                        }
+                        if (fillEl) {
+                            fillEl.style.width = '0%';
+                        }
+                        return;
+                    }
+                    if (clockEl) {
+                        clockEl.innerText = (timeLeft < 10 ? '0' : '') + timeLeft.toFixed(1) + 's';
+                    }
+                    if (fillEl) {
+                        const percent = (timeLeft / 15.0) * 100;
+                        fillEl.style.width = percent.toFixed(1) + '%';
+                    }
+                }, 100);
+
+                // Freeze Lifeline Event
+                const freezeBtn = document.getElementById('btn-freeze');
+                if (freezeBtn) {
+                    freezeBtn.addEventListener('click', () => {
+                        timeLeft += 5.0;
+                        freezeBtn.classList.add('opacity-40', 'pointer-events-none', 'line-through');
+                        freezeBtn.setAttribute('disabled', 'true');
+                    });
+                }
+
+                // Hack Lifeline Event
+                const hackBtn = document.getElementById('btn-hack');
+                if (hackBtn) {
+                    hackBtn.addEventListener('click', () => {
+                        hackBtn.classList.add('opacity-40', 'pointer-events-none', 'line-through');
+                        hackBtn.setAttribute('disabled', 'true');
+                    });
+                }
+            })();
+    </script>
+</body>
+
+</html>
