@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "primary-fixed-dim": "#4cd7f6", "error-container": "#93000a", "inverse-on-surface": "#313032", "error": "#ffb4ab", "on-error": "#690005", "primary-fixed": "#acedff", "outline": "#869397", "surface-dim": "#131315", "tertiary": "#ddb7ff", "secondary-container": "#ee9800", "on-surface-variant": "#bcc9cd", "outline-variant": "#3d494c", "on-background": "#e5e1e4", "primary": "#4cd7f6", "background": "#131315", "on-tertiary-fixed-variant": "#6900b3", "on-secondary-fixed": "#2a1700", "surface-container-lowest": "#0e0e10", "on-secondary": "#472a00", "secondary": "#ffb95f", "secondary-fixed": "#ffddb8", "on-tertiary-container": "#5a009b", "tertiary-container": "#c78dff", "surface-container": "#201f22", "tertiary-fixed-dim": "#ddb7ff", "on-tertiary": "#490080", "surface-container-highest": "#353437", "on-secondary-fixed-variant": "#653e00", "surface-container-high": "#2a2a2c", "on-primary": "#003640", "surface": "#131315", "surface-bright": "#39393b", "surface-container-low": "#1c1b1d", "on-surface": "#e5e1e4", "tertiary-fixed": "#f0dbff", "on-secondary-container": "#5b3800", "surface-variant": "#353437", "surface-tint": "#4cd7f6", "inverse-primary": "#00687a", "on-tertiary-fixed": "#2c0051", "inverse-surface": "#e5e1e4", "on-primary-fixed": "#001f26", "secondary-fixed-dim": "#ffb95f", "on-primary-fixed-variant": "#004e5c", "on-error-container": "#ffdad6", "on-primary-container": "#00424f", "primary-container": "#06b6d4" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xl": "2.5rem", "margin": "2rem", "space-md": "1rem", "space-sm": "0.5rem", "gutter": "1.5rem", "margin-mobile": "1rem", "gutter-mobile": "0.75rem", "space-lg": "1.5rem", "space-xs": "0.25rem" }, "fontFamily": { "label-md": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "display-lg": ["Space Grotesk"], "headline-lg-mobile": ["Space Grotesk"], "body-md": ["Inter"], "label-sm": ["Space Grotesk"], "headline-sm": ["Space Grotesk"], "headline-lg": ["Space Grotesk"], "label-lg": ["Space Grotesk"], "display-lg-mobile": ["Space Grotesk"], "body-lg": ["Inter"], "body-sm": ["Inter"] }, "fontSize": { "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "600" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.04em", "fontWeight": "600" }], "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }] } } } };</script>
+</head>
+
+<body class="bg-surface font-body-md text-body-md text-on-surface antialiased">
+    <header
+        class="fixed top-0 left-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/80">
+        <div class="h-20 w-full px-gutter flex items-center justify-between gap-space-md">
+            <div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm group"
+                    data-path="my-binder" href="#"><img alt="AetherVault TCG Emblem"
+                        class="h-8 w-auto object-contain transition-transform group-hover:scale-105"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7kvLp5YS46xf4ShwYF3wpaWTnunRVhzDzWqLUro_UXwo9d1GDr8RMZE_9bzIFVdZGSK82QGZK5vulIS2FyB8809r_FoABX5hl-GQCzdT3UsT9v9tva8xcWa1cWMB5C0pnwvbMTyXM2wRNJ2vfVx0fbsISTGHlWdH5FT6luPO9tmJgY43R4QTdSaVmcEMYIfuN1O2M9EPcOMwfvykqVlbhetYzW6h5ucPEmWhvWN_J8V0Kf3pfHvH1" />
+                    <div class="flex flex-col"><span
+                            class="font-label-lg text-label-lg uppercase tracking-wider text-on-surface font-bold">AetherVault</span><span
+                            class="font-label-sm text-label-sm tracking-widest text-primary font-semibold">// TCG
+                            SYSTEM</span></div>
+                </a>
+                <nav class="hidden xl:flex items-center gap-space-sm"
+                    data-active-classes="bg-primary-container text-on-primary-container font-label-md text-label-md rounded px-space-sm py-space-xs">
+                    <a aria-current="page"
+                        class="transition-colors bg-primary-container text-on-primary-container font-label-md text-label-md rounded px-space-sm py-space-xs"
+                        data-path="my-binder" href="#">My Binder</a><a
+                        class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface px-space-sm py-space-xs transition-colors"
+                        data-path="marketplace" href="#">Marketplace</a><a
+                        class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface px-space-sm py-space-xs transition-colors"
+                        data-path="deck-forge" href="#">Deck Forge</a><a
+                        class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface px-space-sm py-space-xs transition-colors"
+                        data-path="quests" href="#">Quests</a><a
+                        class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface px-space-sm py-space-xs transition-colors"
+                        data-path="hall-of-fame" href="#">Hall of Fame</a></nav>
+            </div>
+            <div class="flex items-center gap-space-md">
+                <div
+                    class="hidden md:flex items-center gap-space-xs bg-surface-container-lowest px-space-sm py-space-xs rounded border border-outline-variant/60">
+                    <span class="material-symbols-outlined text-primary text-headline-sm animate-pulse">diamond</span>
+                    <div class="flex flex-col"><span
+                            class="font-label-md text-label-md text-on-surface">14,250</span><span
+                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">AETH Credits</span>
+                    </div>
+                </div>
+                <div
+                    class="hidden md:flex items-center gap-space-xs bg-surface-container-lowest px-space-sm py-space-xs rounded border border-outline-variant/60">
+                    <span class="material-symbols-outlined text-tertiary text-headline-sm">token</span>
+                    <div class="flex flex-col"><span class="font-label-md text-label-md text-on-surface">380</span><span
+                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">Shards</span></div>
+                </div><button
+                    class="relative flex items-center gap-space-xs bg-gradient-to-r from-primary-container to-primary text-on-primary-container font-label-md text-label-md px-space-md py-space-xs rounded shadow-[0_0_16px_rgba(76,215,246,0.35)] hover:shadow-[0_0_24px_rgba(76,215,246,0.55)] transition-all"><span
+                        class="material-symbols-outlined text-headline-sm">auto_awesome</span><span>Open
+                        Packs</span><span
+                        class="bg-on-primary-container text-primary font-label-sm text-label-sm px-1.5 py-0.5 rounded-full ml-space-xs">3</span></button>
+                <div
+                    class="relative flex items-center justify-center w-10 h-10 rounded bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-headline-sm">notifications</span><span
+                        class="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface-container-lowest"></span>
+                </div>
+                <div
+                    class="flex items-center gap-space-sm bg-surface-container-low pl-space-xs pr-space-md py-1 rounded border border-outline-variant/60 cursor-pointer hover:border-primary/50 transition-colors">
+                    <img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-primary"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl7Q-vcOg36q9q7S47EuuXqRhV1y2KPc-ysxDdD17NqrMoGhanrCKh4oixvgE469b11k7KyP4Peu4wiaWNBd-kzHbyNvUQjzEpH0nKl4ilwevXzHdBSTjOVDJ7xrgdBWJGcxIS9qDsxry2ee7QtQyJ7cYGYyzSPuj0vfyidSKDRGhdXc6mBVGC_mQZrtHCGJw-flRTrAE1W-r7gk-Odl_k8s3UHdf6NDcrjtEO-LjrQCHO14PV_yyD" />
+                    <div class="hidden sm:flex flex-col"><span
+                            class="font-label-sm text-label-sm text-primary font-bold leading-tight uppercase">CyberMaster</span><span
+                            class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Lvl 42</span></div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="w-full pt-20 bg-surface min-h-[calc(100vh-5rem)]">
+        <div class="flex flex-col w-full">
+            <!-- Top Telemetry & Binder Overview Bar -->
+            <section class="relative w-full bg-surface-container-lowest px-gutter py-space-lg">
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-primary/5 via-tertiary/5 to-transparent pointer-events-none">
+                </div>
+                <div class="relative flex flex-col gap-space-md w-full">
+                    <!-- Top Title & Metrics Row -->
+                    <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-space-md">
+                        <div class="flex flex-col gap-space-xs">
+                            <div class="flex items-center gap-space-sm">
+                                <span
+                                    class="px-space-xs py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm uppercase tracking-widest">ARCHIVE
+                                    CODE 01</span>
+                                <span class="text-outline-variant font-label-sm text-label-sm">●</span>
+                                <span
+                                    class="text-tertiary font-label-sm text-label-sm uppercase tracking-wider">CYBER-SYNTHETIC
+                                    PROTOCOL</span>
+                            </div>
+                            <h1 class="font-headline-lg text-headline-lg text-on-surface uppercase tracking-tight">
+                                CYBER-SERIES 01 // SYNTHETIC VOID</h1>
+                            <div
+                                class="flex flex-wrap items-center gap-space-md text-on-surface-variant font-body-sm text-body-sm">
+                                <span class="flex items-center gap-1 text-on-surface font-label-md text-label-md">
+                                    <span
+                                        class="material-symbols-outlined text-primary text-headline-sm">collections_bookmark</span>
+                                    <span>84 / 120</span> <span class="text-on-surface-variant font-normal">Cards
+                                        Registered</span>
+                                </span>
+                                <span class="text-outline-variant">|</span>
+                                <span class="text-secondary font-label-md text-label-md">70% Binder Completion</span>
+                                <span class="text-outline-variant">|</span>
+                                <span class="text-on-surface-variant font-body-sm text-body-sm">Estimated Binder
+                                    Valuation: <strong class="text-primary font-label-md text-label-md">48.65
+                                        AETH</strong></span>
+                            </div>
+                        </div>
+                        <!-- Utility Action CTAs -->
+                        <div class="flex flex-wrap items-center gap-space-sm">
+                            <button
+                                class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-high hover:text-primary transition-colors shadow-sm">
+                                <span class="material-symbols-outlined text-headline-sm">sort</span>
+                                <span>Auto-Organize</span>
+                            </button>
+                            <button
+                                class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-high hover:text-secondary transition-colors shadow-sm">
+                                <span class="material-symbols-outlined text-headline-sm">crop_original</span>
+                                <span>Set Display Case</span>
+                            </button>
+                            <button
+                                class="flex items-center gap-space-xs bg-surface-container-high px-space-md py-space-xs rounded font-label-md text-label-md text-primary hover:bg-primary hover:text-on-primary transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-headline-sm">sell</span>
+                                <span>Vault Bulk Sell</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Linear Telemetry Progress Track -->
+                    <div
+                        class="w-full bg-surface-container-low rounded-full h-2.5 overflow-hidden flex items-center p-0.5 shadow-inner">
+                        <div class="h-full rounded-full bg-gradient-to-r from-primary via-primary-container to-tertiary transition-all duration-700 shadow-[0_0_12px_rgba(76,215,246,0.6)]"
+                            style="width: 70%;"></div>
+                    </div>
+                    <!-- Controls & Filter Station -->
+                    <div
+                        class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md pt-space-xs">
+                        <!-- Rarity Segmented Tabs -->
+                        <div
+                            class="flex items-center overflow-x-auto gap-space-xs p-1 bg-surface-container-low rounded">
+                            <button
+                                class="flex items-center gap-1.5 px-space-sm py-1 rounded bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase transition-colors">
+                                <span>All</span>
+                                <span
+                                    class="bg-surface-container-lowest/80 text-primary-fixed font-label-sm text-label-sm px-1 rounded-sm">84</span>
+                            </button>
+                            <button
+                                class="flex items-center gap-1.5 px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm uppercase transition-colors">
+                                <span class="w-2 h-2 rounded-full bg-secondary"></span>
+                                <span>Legendary</span>
+                                <span
+                                    class="bg-surface-container text-secondary font-label-sm text-label-sm px-1 rounded-sm">6</span>
+                            </button>
+                            <button
+                                class="flex items-center gap-1.5 px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm uppercase transition-colors">
+                                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                                <span>Epic</span>
+                                <span
+                                    class="bg-surface-container text-primary font-label-sm text-label-sm px-1 rounded-sm">18</span>
+                            </button>
+                            <button
+                                class="flex items-center gap-1.5 px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm uppercase transition-colors">
+                                <span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                                <span>Rare</span>
+                                <span
+                                    class="bg-surface-container text-tertiary font-label-sm text-label-sm px-1 rounded-sm">28</span>
+                            </button>
+                            <button
+                                class="flex items-center gap-1.5 px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm uppercase transition-colors">
+                                <span class="w-2 h-2 rounded-full bg-outline"></span>
+                                <span>Common</span>
+                                <span
+                                    class="bg-surface-container text-on-surface-variant font-label-sm text-label-sm px-1 rounded-sm">32</span>
+                            </button>
+                        </div>
+                        <!-- Filter Sub-Group & Search Input -->
+                        <div class="flex flex-wrap items-center gap-space-sm">
+                            <!-- Element Toggle Pills -->
+                            <div class="flex items-center bg-surface-container-low rounded p-1 gap-1">
+                                <button
+                                    class="font-label-sm text-label-sm px-space-xs py-1 rounded bg-surface-container-high text-primary hover:text-on-surface transition-colors"
+                                    title="Void Element">VOID</button>
+                                <button
+                                    class="font-label-sm text-label-sm px-space-xs py-1 rounded text-on-surface-variant hover:text-on-surface transition-colors"
+                                    title="Neon Element">NEON</button>
+                                <button
+                                    class="font-label-sm text-label-sm px-space-xs py-1 rounded text-on-surface-variant hover:text-on-surface transition-colors"
+                                    title="Cyber Element">CYBER</button>
+                                <button
+                                    class="font-label-sm text-label-sm px-space-xs py-1 rounded text-on-surface-variant hover:text-on-surface transition-colors"
+                                    title="Glitch Element">GLITCH</button>
+                            </div>
+                            <!-- Sort Select Trigger -->
+                            <div class="relative">
+                                <select
+                                    class="appearance-none bg-surface-container-low text-on-surface font-label-sm text-label-sm rounded pl-space-sm pr-space-lg py-1.5 focus:outline-none focus:bg-surface-container-high cursor-pointer shadow-sm">
+                                    <option>Sort: Highest Value</option>
+                                    <option>Sort: Rarity Tier</option>
+                                    <option>Sort: Level [High-Low]</option>
+                                    <option>Sort: Mint Serial #</option>
+                                </select>
+                                <span
+                                    class="material-symbols-outlined text-headline-sm text-on-surface-variant pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2">expand_more</span>
+                            </div>
+                            <!-- Search Bar -->
+                            <div
+                                class="relative flex items-center bg-surface-container-low rounded px-space-sm py-1 focus-within:bg-surface-container shadow-sm">
+                                <span
+                                    class="material-symbols-outlined text-headline-sm text-on-surface-variant mr-1.5">search</span>
+                                <input
+                                    class="bg-transparent font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none w-32 md:w-44"
+                                    placeholder="Search Binder..." type="text" />
+                                <span
+                                    class="bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm px-1.5 py-0.5 rounded text-[10px]">⌘K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Workspace Shell: Main Card Binder Grid + Active Inspection Drawer -->
+            <section class="relative w-full flex-1 flex flex-col xl:flex-row items-stretch min-h-0 bg-surface">
+                <!-- Main Binder Screen Area -->
+                <div class="flex-1 px-gutter py-space-lg overflow-y-auto">
+                    <div class="flex items-center justify-between pb-space-md">
+                        <div class="flex items-center gap-space-xs">
+                            <span class="font-label-md text-label-md uppercase text-on-surface">POCKET MATRIX [01-08 OF
+                                84]</span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+                        </div>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">HOLO
+                            RENDER ENGINE ACTIVE // 60 FPS</span>
+                    </div>
+                    <!-- 8-Card Responsive Binder Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-gutter"
+                        id="binderGrid">
+                        <!-- Card 1: CHRONO-VALKYRIE PRIME (Legendary) -->
+                        <div class="group relative flex flex-col bg-surface-container-low rounded-xl p-space-xs transition-all duration-300 hover:-translate-y-1.5 shadow-xl shadow-secondary/5 cursor-pointer"
+                            onclick="inspectCard('chrono-valkyrie')">
+                            <div
+                                class="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-secondary via-tertiary to-secondary-container opacity-80 blur-[2px] group-hover:opacity-100 transition-opacity">
+                            </div>
+                            <div
+                                class="relative flex flex-col bg-surface-container-lowest rounded-lg p-space-sm h-full overflow-hidden">
+                                <!-- Card Header Meta -->
+                                <div class="flex items-center justify-between gap-1 pb-space-xs">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold uppercase tracking-wider">LEGENDARY</span>
+                                    <div class="flex items-center gap-space-xs">
+                                        <span class="font-label-sm text-label-sm text-secondary font-bold">LV.99</span>
+                                        <button class="text-on-surface-variant hover:text-error transition-colors p-0.5"
+                                            onclick="event.stopPropagation(); this.classList.toggle('text-error');">
+                                            <span class="material-symbols-outlined text-headline-sm">favorite</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- Card Artwork Viewport -->
+                                <div
+                                    class="relative aspect-[5/6] rounded overflow-hidden bg-surface-container-high mb-space-sm group-hover:shadow-[inset_0_0_24px_rgba(255,185,95,0.4)] transition-all">
+                                    <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                        data-alt="Chrono Valkyrie cybernetic celestial warrior in iridescent amber-gold and deep violet armor, holding a photonic light blade with temporal clocks and celestial energy rings floating around her in a futuristic deep abyss setting with high contrast holographic styling."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq_pxBRQs_WOaaJvK1Tfj6a8XToHc7EcXbbzc38qB71I6owKHYpbL30nSG58oi_k1cCMoOL4wEtIaMDDK66FQtl3XX75XfXH74072nDkJZPCiWZEWB5QZcMfy8M8fFxQgitLMD83SH33UY8pvTyfeqSXb9Esp9fsNoQku5ZmJRo6dMhbopLfm1B4v9V8ApJaUQwMQtw64QgcXeGy18JU89Cnc6L5drfw3nWmIAEzwnPJknjsq9f6uP" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-80">
+                                    </div>
+                                    <!-- Holographic Sheen Layer -->
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-tr from-transparent via-secondary/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none mix-blend-overlay">
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                        <span
+                                            class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded font-label-sm text-label-sm text-secondary tracking-widest uppercase">MINT
+                                            #007/100</span>
+                                        <span
+                                            class="material-symbols-outlined text-headline-sm text-secondary drop-shadow-[0_0_8px_rgba(255,185,95,0.8)]">verified</span>
+                                    </div>
+                                </div>
+                                <!-- Card Title & Attributes -->
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface truncate uppercase">
+                                    CHRONO-VALKYRIE PRIME</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mb-space-xs">
+                                    Temporal Chronomancer // Sector 7</p>
+                                <div
+                                    class="mt-auto grid grid-cols-2 gap-space-xs pt-space-xs bg-surface-container rounded p-space-xs">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">ATK</span>
+                                        <span class="font-label-md text-label-md text-secondary font-bold">9,800</span>
+                                    </div>
+                                    <div class="flex flex-col text-right">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">DEF</span>
+                                        <span class="font-label-md text-label-md text-primary font-bold">8,400</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card 2: NEO-REAPER 0x (Epic) -->
+                        <div class="group relative flex flex-col bg-surface-container-low rounded-xl p-space-xs transition-all duration-300 hover:-translate-y-1.5 shadow-xl shadow-primary/5 cursor-pointer"
+                            onclick="inspectCard('neo-reaper')">
+                            <div
+                                class="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-primary via-primary-container to-tertiary-fixed-dim opacity-70 blur-[2px] group-hover:opacity-100 transition-opacity">
+                            </div>
+                            <div
+                                class="relative flex flex-col bg-surface-container-lowest rounded-lg p-space-sm h-full overflow-hidden">
+                                <div class="flex items-center justify-between gap-1 pb-space-xs">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold uppercase tracking-wider">EPIC</span>
+                                    <div class="flex items-center gap-space-xs">
+                                        <span class="font-label-sm text-label-sm text-primary font-bold">LV.75</span>
+                                        <button class="text-on-surface-variant hover:text-error transition-colors p-0.5"
+                                            onclick="event.stopPropagation(); this.classList.toggle('text-error');">
+                                            <span class="material-symbols-outlined text-headline-sm">favorite</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="relative aspect-[5/6] rounded overflow-hidden bg-surface-container-high mb-space-sm group-hover:shadow-[inset_0_0_24px_rgba(76,215,246,0.4)] transition-all">
+                                    <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                        data-alt="Neo Reaper 0x cyberpunk cybernetic death specter wielding a cyan energy scythe, surrounded by neon circuit lines and dark digital matrix code rain with hyper detailed biomechanical plating."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQUTOwisfPefLZ4zt3oXJoeVWJKokKPPWREB6oMgiitpJgJW_2w1-7NkeVUjtF1Jv6P8ICjwvY5nnwn7krzi-HBNUYypCPlLt545t6AH2LdiZ4ol4-pmDgDHFYvWGWxwf5doXyoVK1gTjsMABFBJOqtIB-tA-gy5BYejTQqSfmmiwg6sGI6VVY7RRHSGApt_Uq9novOuhWTYc1yRMBrKZfYjxTMWAMUDM5HfVKU_tZ8e2GCrVKoAn0" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-80">
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                        <span
+                                            class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded font-label-sm text-label-sm text-primary tracking-widest uppercase">MINT
+                                            #042/250</span>
+                                        <span
+                                            class="material-symbols-outlined text-headline-sm text-primary">token</span>
+                                    </div>
+                                </div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface truncate uppercase">
+                                    NEO-REAPER 0x</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mb-space-xs">Matrix
+                                    Executioner // Syndicate</p>
+                                <div
+                                    class="mt-auto grid grid-cols-2 gap-space-xs pt-space-xs bg-surface-container rounded p-space-xs">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">ATK</span>
+                                        <span class="font-label-md text-label-md text-primary font-bold">7,200</span>
+                                    </div>
+                                    <div class="flex flex-col text-right">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">DEF</span>
+                                        <span class="font-label-md text-label-md text-on-surface font-bold">6,100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card 3: AETHER-WYRM SERAPH (Legendary) -->
+                        <div class="group relative flex flex-col bg-surface-container-low rounded-xl p-space-xs transition-all duration-300 hover:-translate-y-1.5 shadow-xl shadow-secondary/5 cursor-pointer"
+                            onclick="inspectCard('aether-wyrm')">
+                            <div
+                                class="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-secondary via-secondary-fixed to-tertiary opacity-75 blur-[2px] group-hover:opacity-100 transition-opacity">
+                            </div>
+                            <div
+                                class="relative flex flex-col bg-surface-container-lowest rounded-lg p-space-sm h-full overflow-hidden">
+                                <div class="flex items-center justify-between gap-1 pb-space-xs">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold uppercase tracking-wider">LEGENDARY</span>
+                                    <div class="flex items-center gap-space-xs">
+                                        <span class="font-label-sm text-label-sm text-secondary font-bold">LV.95</span>
+                                        <button class="text-on-surface-variant hover:text-error transition-colors p-0.5"
+                                            onclick="event.stopPropagation(); this.classList.toggle('text-error');">
+                                            <span class="material-symbols-outlined text-headline-sm">favorite</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="relative aspect-[5/6] rounded overflow-hidden bg-surface-container-high mb-space-sm group-hover:shadow-[inset_0_0_24px_rgba(255,185,95,0.4)] transition-all">
+                                    <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                        data-alt="Aether Wyrm Seraph colossal synthetic dragon beast soaring across an electronic nebula, golden cybernetic scales shimmering with purple plasma thrusters and quantum wings against dark outer space."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1ff_1efgbCe78s3X6y9_GMcuX9By_iJj_Az28O3FTefwjYx733XGsz99_nv6tuEtexp_wqPuHL-wcoNC9f4I65jaZiqoeBekDQmvCD9f2B22dLQn3PNKZsV-6MqS1ZR1bSIsCrbYq9DU_cGP2ERvlWC5ctVanh6rwEG5rVJwwTUvLci0gc745F9BDYA8mCoduYAaIIEbd0EV7kAU9WprU8tny0kzaMgqS991gYKIKzzXxsozbOfOh" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-80">
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                        <span
+                                            class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded font-label-sm text-label-sm text-secondary tracking-widest uppercase">MINT
+                                            #012/100</span>
+                                        <span
+                                            class="material-symbols-outlined text-headline-sm text-secondary">star</span>
+                                    </div>
+                                </div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface truncate uppercase">
+                                    AETHER-WYRM SERAPH</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mb-space-xs">Cosmic
+                                    Bio-Mech // Void Apex</p>
+                                <div
+                                    class="mt-auto grid grid-cols-2 gap-space-xs pt-space-xs bg-surface-container rounded p-space-xs">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">ATK</span>
+                                        <span class="font-label-md text-label-md text-secondary font-bold">9,400</span>
+                                    </div>
+                                    <div class="flex flex-col text-right">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">DEF</span>
+                                        <span class="font-label-md text-label-md text-tertiary font-bold">9,100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card 4: GLITCH-STRIKER KAI (Epic) -->
+                        <div class="group relative flex flex-col bg-surface-container-low rounded-xl p-space-xs transition-all duration-300 hover:-translate-y-1.5 shadow-xl cursor-pointer"
+                            onclick="inspectCard('glitch-striker')">
+                            <div
+                                class="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-tertiary via-primary to-surface-tint opacity-70 blur-[2px] group-hover:opacity-100 transition-opacity">
+                            </div>
+                            <div
+                                class="relative flex flex-col bg-surface-container-lowest rounded-lg p-space-sm h-full overflow-hidden">
+                                <div class="flex items-center justify-between gap-1 pb-space-xs">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-bold uppercase tracking-wider">EPIC</span>
+                                    <div class="flex items-center gap-space-xs">
+                                        <span class="font-label-sm text-label-sm text-tertiary font-bold">LV.68</span>
+                                        <button class="text-on-surface-variant hover:text-error transition-colors p-0.5"
+                                            onclick="event.stopPropagation(); this.classList.toggle('text-error');">
+                                            <span class="material-symbols-outlined text-headline-sm">favorite</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="relative aspect-[5/6] rounded overflow-hidden bg-surface-container-high mb-space-sm group-hover:shadow-[inset_0_0_24px_rgba(221,183,255,0.4)] transition-all">
+                                    <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                        data-alt="Glitch Striker Kai tactical cyberpunk assassin operative with glowing magenta HUD visor, chrome prosthetic blades, chromatic aberration glitch distortion effects on dark obsidian backdrop."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkpmlwfIAxFDlAViZZenlCOM15_vloQdm8F29Im5pORLDq3rtONPJu9fXZd-1dTd_JGrjM8sysVruGMKzxsRlZt0zI91CFPAVFhb4y_SZ2tyHktAdTFKtsAD9hIdxav24g408lZWU9W956nWKxVknI34jZX6PjM2rjIHISTKC4bFLF0UOJnsaPsVGvhIUaWmGmgbFJgZ-bRAKhAN6-6IPzDOKL_yUcg2x8zyTSf7UMrQvln2-gYhfR" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-80">
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                        <span
+                                            class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded font-label-sm text-label-sm text-tertiary tracking-widest uppercase">MINT
+                                            #115/500</span>
+                                        <span
+                                            class="material-symbols-outlined text-headline-sm text-tertiary">bolt</span>
+                                    </div>
+                                </div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface truncate uppercase">
+                                    GLITCH-STRIKER KAI</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mb-space-xs">
+                                    Phantasm Operative // Grid Core</p>
+                                <div
+                                    class="mt-auto grid grid-cols-2 gap-space-xs pt-space-xs bg-surface-container rounded p-space-xs">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">ATK</span>
+                                        <span class="font-label-md text-label-md text-tertiary font-bold">6,800</span>
+                                    </div>
+                                    <div class="flex flex-col text-right">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">DEF</span>
+                                        <span class="font-label-md text-label-md text-primary font-bold">5,900</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card 5: VIRTUAL SPECTRE V2 (Rare) -->
+                        <div class="group relative flex flex-col bg-surface-container-low rounded-xl p-space-xs transition-all duration-300 hover:-translate-y-1.5 shadow-lg cursor-pointer"
+                            onclick="inspectCard('virtual-spectre')">
+                            <div
+                                class="absolute -inset-0.5 rounded-xl bg-tertiary-container opacity-40 blur-[1px] group-hover:opacity-80 transition-opacity">
+                            </div>
+                            <div
+                                class="relative flex flex-col bg-surface-container-lowest rounded-lg p-space-sm h-full overflow-hidden">
+                                <div class="flex items-center justify-between gap-1 pb-space-xs">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-surface-container-highest text-tertiary font-label-sm text-label-sm font-bold uppercase tracking-wider">RARE</span>
+                                    <div class="flex items-center gap-space-xs">
+                                        <span class="font-label-sm text-label-sm text-on-surface font-bold">LV.54</span>
+                                        <button class="text-on-surface-variant hover:text-error transition-colors p-0.5"
+                                            onclick="event.stopPropagation(); this.classList.toggle('text-error');">
+                                            <span class="material-symbols-outlined text-headline-sm">favorite</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="relative aspect-[5/6] rounded overflow-hidden bg-surface-container-high mb-space-sm">
+                                    <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                        data-alt="Virtual Spectre V2 ghostly purple digital android silhouette dissolving into particle streams and holographic volumetric fog in dark cyber room."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhRi5JlcDYnY6CEfvb0nFfHO6zqGCPaaA7yNMyjJEOlBrt7YSnL9A7_bY82DjAblefxCVmlf4hddlboSSTsMHqktvuAMRv0u3jaM4fN9tWvMwVsivkg4JqxT1HhE3qUmfeGamArz5rxnkemgBxDykdvhTYf_yQMHCpoFZcKU9TpzjuSdb7BgSw5d4Qp9EusxSsyczsTayANBGIoMTrJO7LnOoSmvdbvhPkLLtas5XTk5aKRyIpR40d" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-80">
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                        <span
+                                            class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant tracking-widest uppercase">MINT
+                                            #280/1000</span>
+                                        <span
+                                            class="material-symbols-outlined text-headline-sm text-tertiary">blur_on</span>
+                                    </div>
+                                </div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface truncate uppercase">VIRTUAL
+                                    SPECTRE V2</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mb-space-xs">
+                                    Infiltration Daemon // Protocol 9</p>
+                                <div
+                                    class="mt-auto grid grid-cols-2 gap-space-xs pt-space-xs bg-surface-container rounded p-space-xs">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">ATK</span>
+                                        <span class="font-label-md text-label-md text-on-surface font-bold">5,400</span>
+                                    </div>
+                                    <div class="flex flex-col text-right">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">DEF</span>
+                                        <span class="font-label-md text-label-md text-on-surface font-bold">4,900</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card 6: NANITE SWARM CORE (Rare) -->
+                        <div class="group relative flex flex-col bg-surface-container-low rounded-xl p-space-xs transition-all duration-300 hover:-translate-y-1.5 shadow-lg cursor-pointer"
+                            onclick="inspectCard('nanite-swarm')">
+                            <div
+                                class="absolute -inset-0.5 rounded-xl bg-gradient-to-b from-primary to-surface-variant opacity-40 blur-[1px] group-hover:opacity-80 transition-opacity">
+                            </div>
+                            <div
+                                class="relative flex flex-col bg-surface-container-lowest rounded-lg p-space-sm h-full overflow-hidden">
+                                <div class="flex items-center justify-between gap-1 pb-space-xs">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm font-bold uppercase tracking-wider">RARE</span>
+                                    <div class="flex items-center gap-space-xs">
+                                        <span class="font-label-sm text-label-sm text-on-surface font-bold">LV.50</span>
+                                        <button class="text-on-surface-variant hover:text-error transition-colors p-0.5"
+                                            onclick="event.stopPropagation(); this.classList.toggle('text-error');">
+                                            <span class="material-symbols-outlined text-headline-sm">favorite</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="relative aspect-[5/6] rounded overflow-hidden bg-surface-container-high mb-space-sm">
+                                    <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                        data-alt="Nanite Swarm Core glowing geometric levitating cube pulsating with microscopic bio-tech nanobots and electric cyan honeycomb field against dark tech laboratory."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmiXijpTmXsgSYDTkAfoy4zCi56IagfmrXvszFV1UZzAwBrDrj3Wu5zzNE4dVpkPRYkvEeNFQ2KJ69TIqtiCMhiSF_4_f4DEt171vTWszAO5SM3Tv7YClXkXA0lUK43k8YXW3o_B0zzWkrgLnySTLLnw-Rd5JYkYbOS0eK5j2wTb-BHOoXbymw200SgU74QkZVcAL0eMM9bNrCtADwkldVqGnt0qyIPyChVgyjL2qL-bQQ_TSF4ell" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-80">
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                        <span
+                                            class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant tracking-widest uppercase">MINT
+                                            #314/1000</span>
+                                        <span
+                                            class="material-symbols-outlined text-headline-sm text-primary">hive</span>
+                                    </div>
+                                </div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface truncate uppercase">NANITE
+                                    SWARM CORE</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mb-space-xs">
+                                    Autonomous Cluster // Bio-Engine</p>
+                                <div
+                                    class="mt-auto grid grid-cols-2 gap-space-xs pt-space-xs bg-surface-container rounded p-space-xs">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">ATK</span>
+                                        <span class="font-label-md text-label-md text-on-surface font-bold">5,100</span>
+                                    </div>
+                                    <div class="flex flex-col text-right">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">DEF</span>
+                                        <span class="font-label-md text-label-md text-primary font-bold">5,300</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card 7: SYNTH-SCOUT DRONE (Common) -->
+                        <div class="group relative flex flex-col bg-surface-container-low rounded-xl p-space-xs transition-all duration-300 hover:-translate-y-1.5 shadow-md cursor-pointer"
+                            onclick="inspectCard('synth-scout')">
+                            <div
+                                class="absolute -inset-0.5 rounded-xl bg-outline-variant opacity-40 blur-[0.5px] group-hover:opacity-75 transition-opacity">
+                            </div>
+                            <div
+                                class="relative flex flex-col bg-surface-container-lowest rounded-lg p-space-sm h-full overflow-hidden">
+                                <div class="flex items-center justify-between gap-1 pb-space-xs">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">COMMON</span>
+                                    <div class="flex items-center gap-space-xs">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant font-bold">LV.25</span>
+                                        <button class="text-on-surface-variant hover:text-error transition-colors p-0.5"
+                                            onclick="event.stopPropagation(); this.classList.toggle('text-error');">
+                                            <span class="material-symbols-outlined text-headline-sm">favorite</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="relative aspect-[5/6] rounded overflow-hidden bg-surface-container-high mb-space-sm">
+                                    <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                        data-alt="Synth Scout Drone quadruped reconnaissance robotic drone scanning a dark dystopian alleyway with red infrared lasers and matte titanium plating."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuADdTrf5mUg9xyL5uPRXQXIHhiCN7sV-GxV79igRT0A1kItaVMt0aC3ZQj94cxMjM_qLwhJxMVnslJV82lgyJ4Ss-toZDXgmE3_7cutZ8PMKXSRShZDqvqL3v0qVd3dks587GNOVpZEoWVkBrUPbi9EO4D63QTx2NYX7K724CFOixpZhQ-WCM9HXXNTCZlZcw26kAUXvdpxIjiicAT9dPNboYx0RXxmthaiJ0Pg_2Pr-4T7a3UBnDY1" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-80">
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                        <span
+                                            class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded font-label-sm text-label-sm text-outline tracking-widest uppercase">MINT
+                                            #820/5000</span>
+                                        <span
+                                            class="material-symbols-outlined text-headline-sm text-outline">radar</span>
+                                    </div>
+                                </div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface truncate uppercase">
+                                    SYNTH-SCOUT DRONE</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mb-space-xs">Recon
+                                    Module // Outpost 04</p>
+                                <div
+                                    class="mt-auto grid grid-cols-2 gap-space-xs pt-space-xs bg-surface-container rounded p-space-xs">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">ATK</span>
+                                        <span
+                                            class="font-label-md text-label-md text-on-surface-variant font-bold">2,400</span>
+                                    </div>
+                                    <div class="flex flex-col text-right">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">DEF</span>
+                                        <span
+                                            class="font-label-md text-label-md text-on-surface-variant font-bold">2,100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card 8: GRID RUNNER APPRENTICE (Common) -->
+                        <div class="group relative flex flex-col bg-surface-container-low rounded-xl p-space-xs transition-all duration-300 hover:-translate-y-1.5 shadow-md cursor-pointer"
+                            onclick="inspectCard('grid-runner')">
+                            <div
+                                class="absolute -inset-0.5 rounded-xl bg-outline-variant opacity-40 blur-[0.5px] group-hover:opacity-75 transition-opacity">
+                            </div>
+                            <div
+                                class="relative flex flex-col bg-surface-container-lowest rounded-lg p-space-sm h-full overflow-hidden">
+                                <div class="flex items-center justify-between gap-1 pb-space-xs">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">COMMON</span>
+                                    <div class="flex items-center gap-space-xs">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant font-bold">LV.30</span>
+                                        <button class="text-on-surface-variant hover:text-error transition-colors p-0.5"
+                                            onclick="event.stopPropagation(); this.classList.toggle('text-error');">
+                                            <span class="material-symbols-outlined text-headline-sm">favorite</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="relative aspect-[5/6] rounded overflow-hidden bg-surface-container-high mb-space-sm">
+                                    <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                        data-alt="Grid Runner Apprentice young cyberpunk street messenger courier wearing tactical jacket with orange safety reflectors and holographic sports visor."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBam4SfFojoJMEaeU6YO6P9goo9cemdr9CYP-sKH0bbg_69tgHHd2KIzmT6-o67rbnQgfUsL6OdF1wznaGOrD_Th4SMWSf6VIwDfrEG-pzD2bLjR18AIZYN0ks4XoJSgowvwom5fwuYRGv1_iYqk7jNFP1b8mQoPTDcrR5ML-WZ2U5XD8CXpXduW98ItknPChosOkqP8kWlRdkYl8pUgd4sEuYFYoW42XB6YSafVJhz6hQtYWNkpwZh" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-80">
+                                    </div>
+                                    <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                                        <span
+                                            class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded font-label-sm text-label-sm text-outline tracking-widest uppercase">MINT
+                                            #944/5000</span>
+                                        <span
+                                            class="material-symbols-outlined text-headline-sm text-outline">directions_run</span>
+                                    </div>
+                                </div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface truncate uppercase">GRID
+                                    RUNNER APPRENTICE</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mb-space-xs">Street
+                                    Courier // Under-Spire</p>
+                                <div
+                                    class="mt-auto grid grid-cols-2 gap-space-xs pt-space-xs bg-surface-container rounded p-space-xs">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">ATK</span>
+                                        <span
+                                            class="font-label-md text-label-md text-on-surface-variant font-bold">2,800</span>
+                                    </div>
+                                    <div class="flex flex-col text-right">
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant uppercase">DEF</span>
+                                        <span
+                                            class="font-label-md text-label-md text-on-surface-variant font-bold">2,600</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide-Out Card Inspection Detail Drawer (Right Side Panel) -->
+                <aside
+                    class="w-full xl:w-[460px] 2xl:w-[500px] bg-surface-container-low/95 backdrop-blur-2xl border-l-0 xl:border-l border-outline-variant/50 p-space-md lg:p-space-lg flex flex-col gap-space-md overflow-y-auto shrink-0 transition-transform"
+                    id="inspectorDrawer">
+                    <!-- Drawer Control Header -->
+                    <div class="flex items-center justify-between pb-space-xs">
+                        <div class="flex items-center gap-space-xs">
+                            <span class="material-symbols-outlined text-secondary text-headline-sm">verified</span>
+                            <span
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">INSPECTION
+                                NODE // ID #007</span>
+                        </div>
+                        <div class="flex items-center gap-space-xs">
+                            <button
+                                class="w-8 h-8 rounded bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                                title="3D Holo Rotate">
+                                <span class="material-symbols-outlined text-headline-sm">3d_rotation</span>
+                            </button>
+                            <button
+                                class="w-8 h-8 rounded bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                                title="Share Spec">
+                                <span class="material-symbols-outlined text-headline-sm">share</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 3D Holographic Card Interactive Display Unit -->
+                    <div class="relative w-full aspect-[5/7] max-w-[320px] mx-auto rounded-xl p-1 bg-gradient-to-br from-secondary via-tertiary to-primary shadow-2xl shadow-secondary/20 group perspective-1000"
+                        id="cardHoloViewer">
+                        <div
+                            class="relative w-full h-full rounded-lg overflow-hidden bg-surface-container-lowest flex flex-col p-space-sm">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-tr from-secondary/20 via-transparent to-primary/20 pointer-events-none mix-blend-overlay">
+                            </div>
+                            <!-- Top Holographic Card Badge -->
+                            <div class="relative z-10 flex items-center justify-between">
+                                <div
+                                    class="flex items-center gap-1 bg-surface-container-lowest/90 px-2 py-0.5 rounded shadow">
+                                    <span class="material-symbols-outlined text-label-md text-secondary">diamond</span>
+                                    <span class="font-label-sm text-label-sm text-secondary font-bold uppercase">GENESIS
+                                        FOIL #007</span>
+                                </div>
+                                <span
+                                    class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-secondary text-on-secondary font-bold">LV.99
+                                    MAX</span>
+                            </div>
+                            <!-- Hero Image Inside Card Viewport -->
+                            <div class="relative flex-1 rounded my-space-xs overflow-hidden bg-surface-container-high">
+                                <img class="w-full h-full object-cover"
+                                    data-alt="Chrono Valkyrie cybernetic celestial warrior in iridescent amber-gold and deep violet armor, holding a photonic light blade with temporal clocks and celestial energy rings floating around her in a futuristic deep abyss setting with high contrast holographic styling."
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsr-1cPRGkXZkU-Yugl8LXjwLFYrbKNnje5IvMckwDBSxhOYnta8J2eChbPyx9fHDJHuUV1hlkzIg9UE8_sGILghhtFLCQ1gF-vO2U51x264cj3E9hTveUP-pIVujfkAzcwm2s5zZE8F1TO800wfAZY7qYrz0Po33d3bsnAP9lDhVaT71_H-OQE8_Wn-H-ag5Q9ohpg1mesbv8ZdrXmkUHsLYgD1SEp8n1ebT7H1B4PTkM_H9kv8ma" />
+                                <!-- Dynamic Foil Sheen Overlay -->
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-r from-transparent via-secondary/30 to-transparent transform -skew-x-12 animate-pulse pointer-events-none">
+                                </div>
+                            </div>
+                            <!-- Base Plate Info -->
+                            <div class="relative z-10 flex items-center justify-between pt-1">
+                                <div>
+                                    <p
+                                        class="font-headline-sm text-headline-sm text-on-surface font-bold uppercase tracking-tight">
+                                        CHRONO-VALKYRIE</p>
+                                    <p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">
+                                        AETHER VAULT GENESIS // TIER IV</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-label-md text-label-md text-primary font-bold">9.8k</span>
+                                    <span
+                                        class="font-label-sm text-label-sm text-on-surface-variant block uppercase">Power</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Meta Details Card -->
+                    <div class="bg-surface-container rounded-lg p-space-sm flex flex-col gap-space-xs">
+                        <div
+                            class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+                            <span>ON-CHAIN CONTRACT</span>
+                            <span class="text-primary font-mono hover:underline cursor-pointer">0x7F...c8A2
+                                [Verified]</span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+                            <span>STUDIO ORIGIN</span>
+                            <span class="text-on-surface">NullSector Labs</span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+                            <span>ESTIMATED VALUE</span>
+                            <span class="text-secondary font-label-md text-label-md">4.25 AETH (~$14,800)</span>
+                        </div>
+                    </div>
+                    <!-- Attribute Gauge Telemetry -->
+                    <div class="flex flex-col gap-space-xs bg-surface-container-lowest rounded-lg p-space-sm">
+                        <span
+                            class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">CHRONO
+                            ATTRIBUTE MATRIX</span>
+                        <!-- Metric 1 -->
+                        <div class="flex flex-col gap-1">
+                            <div class="flex justify-between font-label-sm text-label-sm">
+                                <span class="text-on-surface">Chrono Manipulation</span>
+                                <span class="text-secondary font-bold">98%</span>
+                            </div>
+                            <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-secondary h-full rounded-full" style="width: 98%;"></div>
+                            </div>
+                        </div>
+                        <!-- Metric 2 -->
+                        <div class="flex flex-col gap-1">
+                            <div class="flex justify-between font-label-sm text-label-sm">
+                                <span class="text-on-surface">Temporal Shielding</span>
+                                <span class="text-primary font-bold">84%</span>
+                            </div>
+                            <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-primary h-full rounded-full" style="width: 84%;"></div>
+                            </div>
+                        </div>
+                        <!-- Metric 3 -->
+                        <div class="flex flex-col gap-1">
+                            <div class="flex justify-between font-label-sm text-label-sm">
+                                <span class="text-on-surface">Quantum Warp Velocity</span>
+                                <span class="text-tertiary font-bold">92%</span>
+                            </div>
+                            <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-tertiary h-full rounded-full" style="width: 92%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Synergy & Lore Box -->
+                    <div class="bg-surface-container-lowest rounded-lg p-space-sm flex flex-col gap-space-xs">
+                        <div class="flex items-center gap-1 text-primary font-label-sm text-label-sm uppercase">
+                            <span class="material-symbols-outlined text-headline-sm">auto_fix_high</span>
+                            <span>Deck Synergy Bonus: +25% Haste to Void Units</span>
+                        </div>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant italic leading-relaxed">
+                            “Forged in the collapsing core of Sector 7, her blade slices through tick-rates of reality
+                            itself. A single strike rewinds the foe’s defensive firmware to state-zero.”
+                        </p>
+                    </div>
+                    <!-- Action Panel Buttons -->
+                    <div class="flex flex-col gap-space-xs mt-auto">
+                        <div class="grid grid-cols-2 gap-space-xs">
+                            <button
+                                class="w-full bg-primary text-on-primary font-label-md text-label-md py-space-xs rounded font-bold hover:bg-primary-fixed-dim transition-colors shadow-[0_0_12px_rgba(76,215,246,0.3)]">
+                                Equip to Deck
+                            </button>
+                            <button
+                                class="w-full bg-surface-container-high text-secondary font-label-md text-label-md py-space-xs rounded font-bold hover:bg-secondary hover:text-on-secondary transition-colors">
+                                List (4.25 AETH)
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-space-xs">
+                            <button
+                                class="w-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm py-2 rounded hover:text-on-surface hover:bg-surface-container-high transition-colors">
+                                Upgrade Holo Tier
+                            </button>
+                            <button
+                                class="w-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm py-2 rounded hover:text-on-surface hover:bg-surface-container-high transition-colors">
+                                Transfer Card
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+            </section>
+            <!-- Secondary Floating Bottom Action Hub Dock -->
+            <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-4xl w-[calc(100%-2rem)]">
+                <div
+                    class="relative bg-surface-container-lowest/85 backdrop-blur-xl border border-outline-variant/40 rounded-full px-space-md md:px-space-lg py-space-sm flex items-center justify-between gap-space-md shadow-[0_16px_40px_rgba(0,0,0,0.8)]">
+                    <!-- Left: Mystery Pack Telemetry -->
+                    <div class="flex items-center gap-space-sm">
+                        <div
+                            class="relative w-9 h-9 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+                            <span class="material-symbols-outlined text-headline-sm animate-bounce">inventory_2</span>
+                            <span
+                                class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-secondary text-on-secondary font-label-sm text-label-sm flex items-center justify-center font-bold">3</span>
+                        </div>
+                        <div class="hidden sm:flex flex-col">
+                            <span class="font-label-sm text-label-sm text-on-surface uppercase font-bold">Tier-IV
+                                Booster Packs</span>
+                            <span class="font-body-sm text-body-sm text-secondary">Ready to Decrypt &amp; Mint</span>
+                        </div>
+                    </div>
+                    <!-- Center: Key CTA to Open/Unbox -->
+                    <button
+                        class="relative flex items-center gap-space-xs px-space-lg py-2 rounded-full bg-gradient-to-r from-primary via-primary-container to-tertiary text-on-primary font-label-md text-label-md font-bold shadow-[0_0_20px_rgba(76,215,246,0.4)] hover:shadow-[0_0_28px_rgba(76,215,246,0.6)] hover:scale-105 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-headline-sm">cyclone</span>
+                        <span>Unbox Next Pack</span>
+                        <span
+                            class="hidden md:inline bg-on-primary/20 text-on-primary font-label-sm text-label-sm px-2 py-0.5 rounded-full ml-1 font-mono">[SPACE]</span>
+                    </button>
+                    <!-- Right: Trade Offers & Shortcut -->
+                    <div class="flex items-center gap-space-sm">
+                        <div class="hidden lg:flex flex-col text-right">
+                            <span class="font-label-sm text-label-sm text-on-surface uppercase font-bold">P2P Trade
+                                Desk</span>
+                            <span class="font-body-sm text-body-sm text-primary">12 Offers Pending</span>
+                        </div>
+                        <button
+                            class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors relative"
+                            title="View Trade Requests">
+                            <span class="material-symbols-outlined text-headline-sm">swap_horiz</span>
+                            <span
+                                class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-primary ring-2 ring-surface-container-lowest"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Inline Script for Card Tilt Micro-Interaction and Card Select -->
+            <script>
+                function inspectCard(cardId) {
+                    const drawer = document.getElementById('inspectorDrawer');
+                    if (drawer) {
+                        drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        // Visual cue feedback
+                        drawer.classList.add('ring-1', 'ring-primary/40');
+                        setTimeout(() => drawer.classList.remove('ring-1', 'ring-primary/40'), 800);
+                    }
+                }
+
+                // 3D Card Parallax Tilt on Mouse Move
+                const holoViewer = document.getElementById('cardHoloViewer');
+                if (holoViewer) {
+                    holoViewer.addEventListener('mousemove', (e) => {
+                        const rect = holoViewer.getBoundingClientRect();
+                        const x = e.clientX - rect.left - rect.width / 2;
+                        const y = e.clientY - rect.top - rect.height / 2;
+                        const rotateX = (-y / (rect.height / 2)) * 12;
+                        const rotateY = (x / (rect.width / 2)) * 12;
+                        holoViewer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    });
+
+                    holoViewer.addEventListener('mouseleave', () => {
+                        holoViewer.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+                    });
+                }
+
+                // Quick Spacebar Pack Unboxing Listener
+                window.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        const btn = document.querySelector('button span.material-symbols-outlined');
+                        if (btn) {
+                            btn.classList.add('animate-spin');
+                            setTimeout(() => btn.classList.remove('animate-spin'), 1000);
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </main>
+    <footer class="w-full bg-surface-container-lowest border-t border-outline-variant/80 py-space-md">
+        <div
+            class="w-full px-gutter flex flex-col md:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
+            <div class="flex items-center gap-space-md">
+                <div class="flex items-center gap-space-xs"><span
+                        class="w-2 h-2 rounded-full bg-primary animate-ping"></span><span
+                        class="text-on-surface">Server: HyperMesh-US // Synced (4ms)</span></div><span
+                    class="text-outline-variant">|</span>
+                <div class="flex items-center gap-space-xs"><span
+                        class="material-symbols-outlined text-label-md text-tertiary">verified</span><span
+                        class="text-on-surface">Mint Engine: Active [Block #942104]</span></div>
+            </div>
+            <div class="flex items-center gap-space-md"><a class="hover:text-on-surface transition-colors"
+                    href="#">Smart Contract</a><a class="hover:text-on-surface transition-colors" href="#">Trading
+                    Policy</a><a class="hover:text-on-surface transition-colors" href="#">Terms of Registry</a><span>©
+                    2025 AETHERVAULT LABS</span></div>
+        </div>
+    </footer>
+</body>
+
+</html>
