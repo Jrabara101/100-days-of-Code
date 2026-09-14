@@ -1,0 +1,119 @@
+{
+    "id": "WF-992-ALPHA",
+    "name": "Stripe Inbound Invoice Processing Pipeline",
+    "description": "Enterprise event-driven BPA workflow that receives invoice webhook events, extracts customer metadata, renders PDFs asynchronously via Redis worker, emails receipts, and notifies operations on Slack.",
+    "trigger_type": "Inbound Webhook (Stripe Invoice)",
+    "version": "1.0.0",
+    "nodes": [
+        {
+            "key": "WebhookReceiverNode",
+            "class": "App\\Nodes\\Core\\WebhookReceiverNode",
+            "order": 1,
+            "async": false,
+            "depends_on": [],
+            "config_type": "App\\Models\\Configurations\\WebhookNodeConfig",
+            "config": {
+                "webhook_secret": "whsec_992_alpha_stripe_live_key",
+                "signature_header": "Stripe-Signature",
+                "expected_event": "invoice.payment_succeeded",
+                "ip_allowlist": ["54.187.174.169", "54.187.205.235", "54.187.216.72"]
+            }
+        },
+        {
+            "key": "ExtractCustomerDataNode",
+            "class": "App\\Nodes\\Core\\ExtractCustomerDataNode",
+            "order": 2,
+            "async": false,
+            "depends_on": ["WebhookReceiverNode"],
+            "config_type": "App\\Models\\Configurations\\ExtractDataNodeConfig",
+            "config": {
+                "mapping_rules": {
+                    "customer_id": "customer.id",
+                    "email": "customer.email",
+                    "amount": "invoice.amount"
+                },
+                "strict_validation": true
+            }
+        },
+        {
+            "key": "GeneratePdfInvoiceNode",
+            "class": "App\\Nodes\\Core\\GeneratePdfInvoiceNode",
+            "order": 3,
+            "async": true,
+            "queue": "high-priority",
+            "max_attempts": 3,
+            "depends_on": ["ExtractCustomerDataNode"],
+            "config_type": "App\\Models\\Configurations\\AsyncPdfNodeConfig",
+            "config": {
+                "template_name": "enterprise_invoice_v2",
+                "page_orientation": "portrait",
+                "high_compression": true,
+                "queue_name": "high-priority"
+            }
+        },
+        {
+            "key": "EmailCustomerNode",
+            "class": "App\\Nodes\\Core\\EmailCustomerNode",
+            "order": 4,
+            "async": false,
+            "depends_on": ["GeneratePdfInvoiceNode"],
+            "config_type": "App\\Models\\Configurations\\EmailNodeConfig",
+            "config": {
+                "sender_email": "billing@automata.enterprise",
+                "recipient_field": "extracted.customer.email",
+                "subject_template": "Your Invoice #{{invoice_id}} is ready",
+                "attach_pdf": true
+            }
+        },
+        {
+            "key": "SlackNotifyOpsNode",
+            "class": "App\\Nodes\\Core\\SlackNotifyOpsNode",
+            "order": 5,
+            "async": false,
+            "depends_on": ["EmailCustomerNode"],
+            "config_type": "App\\Models\\Configurations\\SlackNodeConfig",
+            "config": {
+                "webhook_url": "https://hooks.slack.com/services/T00/B00/XXXX",
+                "channel": "#ops-alerts",
+                "bot_name": "AutomataOpsBot",
+                "mention_roles": "@finance-team"
+            }
+        }
+    ],
+    "sample_payload": {
+        "event_type": "invoice.payment_succeeded",
+        "type": "invoice.payment_succeeded",
+        "id": "evt_1NtV4B2eZvKYlo2C992",
+        "customer": {
+            "id": "CUST_883",
+            "name": "Sarah Connor",
+            "email": "sarah.connor@cyberdyne.io"
+        },
+        "invoice": {
+            "id": "in_1NtV4B2eZvKYlo2C883",
+            "amount": 145000,
+            "currency": "usd",
+            "subtotal": 145000,
+            "tax": 0,
+            "billing_reason": "subscription_cycle",
+            "status": "paid",
+            "lines": [
+                {
+                    "description": "Automata Cloud Enterprise Tier - September 2026",
+                    "amount": 120000,
+                    "quantity": 1
+                },
+                {
+                    "description": "Dedicated Redis Horizon Cluster",
+                    "amount": 25000,
+                    "quantity": 1
+                }
+            ]
+        },
+        "_meta": {
+            "source": "stripe_webhook",
+            "ip": "54.187.174.169",
+            "timestamp": 1789372931
+        }
+    }
+}

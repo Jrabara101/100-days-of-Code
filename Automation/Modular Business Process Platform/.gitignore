@@ -1,0 +1,38 @@
+*.log
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.backup
+.env.production
+
+# Dependencies
+/vendor
+/test_junc
+
+# Database
+database/*.sqlite
+database/*.sqlite-journal
+database/*.sqlite-shm
+database/*.sqlite-wal
+
+# Storage & framework cache
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+!/storage/framework/cache/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+!/storage/logs/.gitignore
+
+# Bootstrap cache
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+
+# IDEs & caches
+/.idea
+/.vscode
+/.phpunit.cache
+.phpunit.result.cache
