@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #0D1117;
+  --color-panel: #161B22;
+  --color-panel-muted: #21262D;
+  --color-player-one: #58A6FF;
+  --color-player-two: #D29922;
+}
+
+:root {
+  --bg-canvas: #0D1117;
+  --player-one: #58A6FF;
+  --player-two: #D29922;
+  --panel-surface: #161B22;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0D1117;
+  color: #E6EDF3;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-align: left;
+}
+
+/* Custom Industrial Sci-Fi Effects */
+.glass-panel {
+  background: rgba(22, 27, 34, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(88, 166, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-panel-p1 {
+  border-color: rgba(88, 166, 255, 0.4);
+  box-shadow: 0 0 20px rgba(88, 166, 255, 0.15), inset 0 0 15px rgba(88, 166, 255, 0.05);
+}
+
+.glass-panel-p2 {
+  border-color: rgba(210, 153, 34, 0.4);
+  box-shadow: 0 0 20px rgba(210, 153, 34, 0.15), inset 0 0 15px rgba(210, 153, 34, 0.05);
+}
+
+/* CRT Scanline Overlay */
+.crt-overlay {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Glowing text helpers */
+.glow-p1 {
+  text-shadow: 0 0 10px rgba(88, 166, 255, 0.7), 0 0 20px rgba(88, 166, 255, 0.3);
+}
+
+.glow-p2 {
+  text-shadow: 0 0 10px rgba(210, 153, 34, 0.7), 0 0 20px rgba(210, 153, 34, 0.3);
+}
+
+/* Pulsing radar sonar animation */
+@keyframes pingRadar {
+  0% {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3.5);
+    opacity: 0;
+  }
+}
+
+.animate-ping-radar {
+  animation: pingRadar 1.4s cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0D1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #21262D;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #58A6FF;
+}
