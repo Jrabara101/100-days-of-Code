@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-surface":"#e7e0ed","primary-fixed":"#e9ddff","on-primary-fixed":"#23005c","on-tertiary-container":"#3f2300","surface-panel":"#12131A","surface-bright":"#3b3742","on-tertiary":"#482900","surface":"#15121b","tertiary-container":"#ca801e","inverse-on-surface":"#322f39","inverse-surface":"#e7e0ed","outline":"#958ea0","background":"#15121b","text-muted":"#71717A","on-secondary-fixed-variant":"#004e5c","on-error-container":"#ffdad6","surface-variant":"#37333d","error":"#ffb4ab","primary-container":"#a078ff","tertiary-fixed":"#ffdcbb","surface-container-lowest":"#0f0d15","on-primary-fixed-variant":"#5516be","bg-canvas":"#090A0F","on-background":"#e7e0ed","secondary-fixed-dim":"#4cd7f6","secondary-fixed":"#acedff","text-main":"#F4F4F5","surface-tint":"#d0bcff","secondary-container":"#03b5d3","surface-dim":"#15121b","primary":"#d0bcff","on-secondary-container":"#00424e","primary-fixed-dim":"#d0bcff","on-error":"#690005","border-subtle":"#262838","on-surface-variant":"#cbc3d7","surface-container":"#211e27","inverse-primary":"#6d3bd7","surface-elevated":"#1A1C26","surface-container-high":"#2c2832","on-primary":"#3c0091","on-tertiary-fixed-variant":"#673d00","secondary":"#4cd7f6","on-secondary":"#003640","tertiary":"#ffb869","error-container":"#93000a","outline-variant":"#494454","surface-container-highest":"#37333d","on-tertiary-fixed":"#2c1700","on-secondary-fixed":"#001f26","surface-container-low":"#1d1a23","on-primary-container":"#340080","tertiary-fixed-dim":"#ffb869"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xs":"0.25rem","margin":"1rem","space-md":"0.75rem","gutter":"1rem","space-lg":"1rem","space-xl":"1.5rem","space-sm":"0.5rem"},"fontFamily":{"headline-lg":["Inter"],"headline-sm":["Inter"],"body-sm":["Inter"],"body-md":["Inter"],"label-mono":["JetBrains Mono"],"headline-md":["Inter"]},"fontSize":{"headline-lg":["24px",{"lineHeight":"32px","fontWeight":"600"}],"headline-sm":["14px",{"lineHeight":"20px","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"label-mono":["11px",{"lineHeight":"14px","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface"><header class="fixed top-0 w-full z-50 bg-surface-panel/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 max-w-full px-space-xl flex items-center justify-between"><div class="flex items-center gap-space-xl"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[20px]">grid_view</span><span class="font-headline-md text-on-surface tracking-tight">SpriteForge Pro</span></div><nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-bold rounded-lg"><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="editor" href="#">Editor</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="timeline" href="#">Timeline</a><a aria-current="page" class="px-space-md py-space-xs transition-colors bg-primary-container text-on-primary-container font-bold rounded-lg" data-path="palettes" href="#">Palettes</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="layers" href="#">Layers</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="export" href="#">Export</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-space-xs bg-surface-container px-space-sm py-space-xs rounded-lg border border-border-subtle"><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">zoom_out</span></button><span class="font-label-mono text-xs text-on-surface-variant px-space-xs">100%</span><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">zoom_in</span></button><span class="w-[1px] h-4 bg-border-subtle mx-space-xs"></span><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">grid_on</span></button></div><button class="flex items-center gap-space-xs bg-primary text-on-primary px-space-md py-space-xs rounded-lg font-headline-sm hover:bg-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">download</span>Export</button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-14 bg-bg-canvas min-h-[calc(100vh-3.5rem)]"><div class="flex flex-col w-full min-h-[calc(100vh-3.5rem)] text-on-surface bg-background">
+<div class="flex flex-1 w-full overflow-hidden">
+<!-- Left Sidebar: Palette Tools -->
+<aside class="w-16 bg-surface-panel flex flex-col items-center py-space-xl gap-space-md border-r border-border-subtle z-10 shrink-0">
+<button class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-colors group relative" title="Eyedropper Tool">
+<span class="material-symbols-outlined text-[20px]">colorize</span>
+<span class="absolute left-full ml-2 px-space-sm py-xs bg-surface-elevated text-text-main text-body-sm rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Eyedropper</span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-surface flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors group relative" title="Gradient Mapper">
+<span class="material-symbols-outlined text-[20px]">gradient</span>
+<span class="absolute left-full ml-2 px-space-sm py-xs bg-surface-elevated text-text-main text-body-sm rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Gradient Mapper</span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-surface flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors group relative" title="Color Picker">
+<span class="material-symbols-outlined text-[20px]">palette</span>
+<span class="absolute left-full ml-2 px-space-sm py-xs bg-surface-elevated text-text-main text-body-sm rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Color Picker</span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-surface flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors group relative" title="Contrast Checker">
+<span class="material-symbols-outlined text-[20px]">contrast</span>
+<span class="absolute left-full ml-2 px-space-sm py-xs bg-surface-elevated text-text-main text-body-sm rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Contrast Checker</span>
+</button>
+<div class="w-8 h-[1px] bg-border-subtle my-space-xs"></div>
+<button class="w-10 h-10 rounded-lg bg-surface flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors group relative" title="Shift Hue">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+<span class="absolute left-full ml-2 px-space-sm py-xs bg-surface-elevated text-text-main text-body-sm rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Shift Hue</span>
+</button>
+</aside>
+<!-- Main Workspace Center -->
+<main class="flex-1 flex flex-col bg-bg-canvas overflow-y-auto">
+<!-- Toolbar / Presets Header -->
+<div class="px-space-xl py-space-lg bg-surface-panel/60 backdrop-blur-md flex flex-wrap items-center justify-between gap-space-md border-b border-border-subtle">
+<div class="flex items-center gap-space-md">
+<div>
+<div class="text-label-mono text-text-muted uppercase tracking-wider">Active Preset</div>
+<div class="text-headline-md text-text-main flex items-center gap-space-xs">
+              Cyberpunk Neon 32
+              <span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-space-xs rounded-lg border border-border-subtle">
+<select class="bg-transparent text-on-surface text-body-sm outline-none cursor-pointer">
+<option class="bg-surface">Cyberpunk Neon 32</option>
+<option class="bg-surface">Pico-8 (16)</option>
+<option class="bg-surface">Gameboy Classic (4)</option>
+<option class="bg-surface">Endesga 32</option>
+<option class="bg-surface">Commodore 64 (16)</option>
+</select>
+<span class="material-symbols-outlined text-text-muted text-[16px]">expand_more</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center bg-surface-container rounded-lg p-1 border border-border-subtle">
+<button class="px-space-sm py-xs text-body-sm bg-primary text-on-primary rounded font-medium transition-colors">Luminance</button>
+<button class="px-space-sm py-xs text-body-sm text-on-surface-variant hover:text-on-surface transition-colors">Hue</button>
+<button class="px-space-sm py-xs text-body-sm text-on-surface-variant hover:text-on-surface transition-colors">Saturation</button>
+</div>
+<button class="flex items-center gap-space-xs bg-surface-container hover:bg-surface-container-high px-space-md py-space-xs rounded-lg text-body-sm text-on-surface transition-colors border border-border-subtle">
+<span class="material-symbols-outlined text-[16px]">add</span>
+            Add Color
+          </button>
+<button class="flex items-center gap-space-xs bg-error-container/30 hover:bg-error-container/50 text-error px-space-md py-space-xs rounded-lg text-body-sm transition-colors border border-error/30">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+            Purge Unused
+          </button>
+</div>
+</div>
+<!-- Swatches Grid Area -->
+<div class="p-space-xl flex-1 max-w-7xl mx-auto w-full">
+<div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-space-md">
+<!-- Swatch Item 1 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#090A0F] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<div class="absolute inset-0 bg-[#090A0F]"></div>
+<span class="material-symbols-outlined text-text-muted text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#090A0F</span>
+<span class="text-body-sm text-text-muted">Void Black</span>
+</div>
+</div>
+<!-- Swatch Item 2 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm ring-1 ring-primary">
+<div class="w-full h-16 rounded bg-[#d0bcff] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#D0BCFF</span>
+<span class="text-body-sm text-text-muted">Neon Violet</span>
+</div>
+</div>
+<!-- Swatch Item 3 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#4cd7f6] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#4CD7F6</span>
+<span class="text-body-sm text-text-muted">Cyber Cyan</span>
+</div>
+</div>
+<!-- Swatch Item 4 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#ffb869] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#FFB869</span>
+<span class="text-body-sm text-text-muted">Laser Amber</span>
+</div>
+</div>
+<!-- Swatch Item 5 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#93000a] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-error-container text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#93000A</span>
+<span class="text-body-sm text-text-muted">Blood Grid</span>
+</div>
+</div>
+<!-- Swatch Item 6 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#211e27] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#211E27</span>
+<span class="text-body-sm text-text-muted">Panel Dark</span>
+</div>
+</div>
+<!-- Swatch Item 7 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#37333d] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#37333D</span>
+<span class="text-body-sm text-text-muted">Surface High</span>
+</div>
+</div>
+<!-- Swatch Item 8 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#acedff] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#ACEDFF</span>
+<span class="text-body-sm text-text-muted">Ice Fixed</span>
+</div>
+</div>
+<!-- Swatch Item 9 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#e9ddff] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-fixed text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#E9DDFF</span>
+<span class="text-body-sm text-text-muted">Lavender Light</span>
+</div>
+</div>
+<!-- Swatch Item 10 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#ca801e] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-container text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#CA801E</span>
+<span class="text-body-sm text-text-muted">Rust Orange</span>
+</div>
+</div>
+<!-- Swatch Item 11 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#ffdcbb] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-fixed text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#FFDCBB</span>
+<span class="text-body-sm text-text-muted">Peach Glow</span>
+</div>
+</div>
+<!-- Swatch Item 12 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#03b5d3] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#03B5D3</span>
+<span class="text-body-sm text-text-muted">Deep Teal</span>
+</div>
+</div>
+<!-- Swatch Item 13 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#3b3742] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#3B3742</span>
+<span class="text-body-sm text-text-muted">Surface Bright</span>
+</div>
+</div>
+<!-- Swatch Item 14 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#2c2832] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#2C2832</span>
+<span class="text-body-sm text-text-muted">Mid Slate</span>
+</div>
+</div>
+<!-- Swatch Item 15 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#1d1a23] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#1D1A23</span>
+<span class="text-body-sm text-text-muted">Dark Base</span>
+</div>
+</div>
+<!-- Swatch Item 16 -->
+<div class="group relative bg-surface-panel rounded-lg p-space-sm border border-border-subtle hover:border-primary transition-all cursor-pointer flex flex-col gap-space-xs shadow-sm">
+<div class="w-full h-16 rounded bg-[#a078ff] border border-border-subtle relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-[16px] opacity-0 group-hover:opacity-100 transition-opacity z-10">edit</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-text-main text-xs">#A078FF</span>
+<span class="text-body-sm text-text-muted">Electric Violet</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Right Inspector Dock -->
+<aside class="w-80 bg-surface-panel flex flex-col border-l border-border-subtle z-10 shrink-0 overflow-y-auto">
+<div class="p-space-lg border-b border-border-subtle flex items-center justify-between">
+<span class="font-headline-sm text-text-main flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">tune</span>
+          Palette Inspector
+        </span>
+<span class="font-label-mono text-text-muted text-xs">32 Colors</span>
+</div>
+<div class="p-space-lg flex flex-col gap-space-xl">
+<!-- Selected Color Properties -->
+<div class="flex flex-col gap-space-sm">
+<span class="text-label-mono text-text-muted uppercase">Selected Color</span>
+<div class="flex items-center gap-space-md bg-surface p-space-sm rounded-lg border border-border-subtle">
+<div class="w-12 h-12 rounded bg-[#d0bcff] border border-border-subtle shrink-0"></div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-label-mono text-text-main font-medium">#D0BCFF</span>
+<span class="text-xs text-secondary font-label-mono">Index #02</span>
+</div>
+<span class="text-body-sm text-text-muted truncate">RGB(208, 188, 255)</span>
+</div>
+</div>
+</div>
+<!-- Color Adjustment Sliders -->
+<div class="flex flex-col gap-space-md">
+<span class="text-label-mono text-text-muted uppercase">Color Adjustments</span>
+<div class="flex flex-col gap-space-xs">
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Hue</span>
+<span class="font-label-mono text-text-main">261°</span>
+</div>
+<input class="w-full accent-primary bg-surface-container h-1.5 rounded-lg cursor-pointer" max="360" min="0" type="range" value="261"/>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Saturation</span>
+<span class="font-label-mono text-text-main">100%</span>
+</div>
+<input class="w-full accent-primary bg-surface-container h-1.5 rounded-lg cursor-pointer" max="100" min="0" type="range" value="100"/>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Lightness</span>
+<span class="font-label-mono text-text-main">87%</span>
+</div>
+<input class="w-full accent-primary bg-surface-container h-1.5 rounded-lg cursor-pointer" max="100" min="0" type="range" value="87"/>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Contrast Ratio</span>
+<span class="font-label-mono text-success">11.4:1 (AAA)</span>
+</div>
+<input class="w-full accent-primary bg-surface-container h-1.5 rounded-lg cursor-pointer" max="100" min="0" type="range" value="90"/>
+</div>
+</div>
+<!-- Color Harmony Generator -->
+<div class="flex flex-col gap-space-sm">
+<span class="text-label-mono text-text-muted uppercase">Harmony Generator</span>
+<div class="grid grid-cols-3 gap-space-xs bg-surface p-space-xs rounded-lg border border-border-subtle">
+<button class="py-space-xs px-space-sm bg-primary text-on-primary rounded text-body-sm font-medium transition-colors text-center">Comp</button>
+<button class="py-space-xs px-space-sm text-on-surface-variant hover:text-on-surface rounded text-body-sm transition-colors text-center">Analog</button>
+<button class="py-space-xs px-space-sm text-on-surface-variant hover:text-on-surface rounded text-body-sm transition-colors text-center">Triadic</button>
+</div>
+<div class="flex items-center gap-space-xs mt-1">
+<div class="w-8 h-8 rounded bg-[#d0bcff] border border-border-subtle cursor-pointer hover:scale-105 transition-transform"></div>
+<div class="w-8 h-8 rounded bg-[#4cd7f6] border border-border-subtle cursor-pointer hover:scale-105 transition-transform"></div>
+<div class="w-8 h-8 rounded bg-[#ffb869] border border-border-subtle cursor-pointer hover:scale-105 transition-transform"></div>
+<div class="w-8 h-8 rounded bg-[#ca801e] border border-border-subtle cursor-pointer hover:scale-105 transition-transform"></div>
+<button class="w-8 h-8 rounded bg-surface border border-border-subtle flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+<!-- Export Palette Options -->
+<div class="flex flex-col gap-space-sm pt-space-md border-t border-border-subtle">
+<span class="text-label-mono text-text-muted uppercase">Export Format</span>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="flex items-center justify-center gap-space-xs bg-surface hover:bg-surface-container-high py-space-sm px-space-md rounded-lg text-body-sm text-on-surface border border-border-subtle transition-colors">
+<span class="material-symbols-outlined text-[16px] text-primary">code</span>
+              .JSON
+            </button>
+<button class="flex items-center justify-center gap-space-xs bg-surface hover:bg-surface-container-high py-space-sm px-space-md rounded-lg text-body-sm text-on-surface border border-border-subtle transition-colors">
+<span class="material-symbols-outlined text-[16px] text-secondary">palette</span>
+              .GPL
+            </button>
+<button class="flex items-center justify-center gap-space-xs bg-surface hover:bg-surface-container-high py-space-sm px-space-md rounded-lg text-body-sm text-on-surface border border-border-subtle transition-colors">
+<span class="material-symbols-outlined text-[16px] text-tertiary">tag</span>
+              .HEX
+            </button>
+<button class="flex items-center justify-center gap-space-xs bg-surface hover:bg-surface-container-high py-space-sm px-space-md rounded-lg text-body-sm text-on-surface border border-border-subtle transition-colors">
+<span class="material-symbols-outlined text-[16px] text-text-muted">css</span>
+              CSS vars
+            </button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div></main></body></html>

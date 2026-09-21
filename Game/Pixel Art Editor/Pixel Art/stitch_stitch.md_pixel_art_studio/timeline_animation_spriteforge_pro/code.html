@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-surface":"#e7e0ed","primary-fixed":"#e9ddff","on-primary-fixed":"#23005c","on-tertiary-container":"#3f2300","surface-panel":"#12131A","surface-bright":"#3b3742","on-tertiary":"#482900","surface":"#15121b","tertiary-container":"#ca801e","inverse-on-surface":"#322f39","inverse-surface":"#e7e0ed","outline":"#958ea0","background":"#15121b","text-muted":"#71717A","on-secondary-fixed-variant":"#004e5c","on-error-container":"#ffdad6","surface-variant":"#37333d","error":"#ffb4ab","primary-container":"#a078ff","tertiary-fixed":"#ffdcbb","surface-container-lowest":"#0f0d15","on-primary-fixed-variant":"#5516be","bg-canvas":"#090A0F","on-background":"#e7e0ed","secondary-fixed-dim":"#4cd7f6","secondary-fixed":"#acedff","text-main":"#F4F4F5","surface-tint":"#d0bcff","secondary-container":"#03b5d3","surface-dim":"#15121b","primary":"#d0bcff","on-secondary-container":"#00424e","primary-fixed-dim":"#d0bcff","on-error":"#690005","border-subtle":"#262838","on-surface-variant":"#cbc3d7","surface-container":"#211e27","inverse-primary":"#6d3bd7","surface-elevated":"#1A1C26","surface-container-high":"#2c2832","on-primary":"#3c0091","on-tertiary-fixed-variant":"#673d00","secondary":"#4cd7f6","on-secondary":"#003640","tertiary":"#ffb869","error-container":"#93000a","outline-variant":"#494454","surface-container-highest":"#37333d","on-tertiary-fixed":"#2c1700","on-secondary-fixed":"#001f26","surface-container-low":"#1d1a23","on-primary-container":"#340080","tertiary-fixed-dim":"#ffb869"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xs":"0.25rem","margin":"1rem","space-md":"0.75rem","gutter":"1rem","space-lg":"1rem","space-xl":"1.5rem","space-sm":"0.5rem"},"fontFamily":{"headline-lg":["Inter"],"headline-sm":["Inter"],"body-sm":["Inter"],"body-md":["Inter"],"label-mono":["JetBrains Mono"],"headline-md":["Inter"]},"fontSize":{"headline-lg":["24px",{"lineHeight":"32px","fontWeight":"600"}],"headline-sm":["14px",{"lineHeight":"20px","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"label-mono":["11px",{"lineHeight":"14px","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface"><header class="fixed top-0 w-full z-50 bg-surface-panel/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 max-w-full px-space-xl flex items-center justify-between"><div class="flex items-center gap-space-xl"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[20px]">grid_view</span><span class="font-headline-md text-on-surface tracking-tight">SpriteForge Pro</span></div><nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-bold rounded-lg"><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="editor" href="#">Editor</a><a aria-current="page" class="px-space-md py-space-xs transition-colors bg-primary-container text-on-primary-container font-bold rounded-lg" data-path="timeline" href="#">Timeline</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="palettes" href="#">Palettes</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="layers" href="#">Layers</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="export" href="#">Export</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-space-xs bg-surface-container px-space-sm py-space-xs rounded-lg border border-border-subtle"><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">zoom_out</span></button><span class="font-label-mono text-xs text-on-surface-variant px-space-xs">100%</span><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">zoom_in</span></button><span class="w-[1px] h-4 bg-border-subtle mx-space-xs"></span><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">grid_on</span></button></div><button class="flex items-center gap-space-xs bg-primary text-on-primary px-space-md py-space-xs rounded-lg font-headline-sm hover:bg-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">download</span>Export</button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-14 bg-bg-canvas min-h-[calc(100vh-3.5rem)]"><div class="flex flex-col w-full h-[calc(100vh-3.5rem)] overflow-hidden bg-bg-canvas text-on-surface">
+<!-- Top Workspace Toolbar Sub-header -->
+<div class="h-12 bg-surface-panel flex items-center justify-between px-space-xl border-b border-border-subtle shrink-0">
+<div class="flex items-center gap-space-md">
+<span class="font-headline-md text-primary tracking-wide">Timeline Sequencer</span>
+<span class="text-xs font-label-mono px-2 py-0.5 rounded bg-surface-container text-on-surface-variant">SEQ_01_RUN_CYCLE</span>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-2 bg-surface-container-low px-3 py-1 rounded-lg">
+<span class="material-symbols-outlined text-[16px] text-secondary">speed</span>
+<span class="text-xs font-label-mono text-on-surface-variant">FPS:</span>
+<input class="w-20 accent-primary cursor-pointer" id="fps-slider" max="60" min="1" type="range" value="12"/>
+<span class="text-xs font-label-mono text-primary font-bold w-8 text-right" id="fps-value">12 FPS</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-low p-0.5 rounded-lg">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Loop Mode: Loop">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">repeat</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-text-muted hover:text-on-surface transition-colors" title="Loop Mode: Ping-Pong">
+<span class="material-symbols-outlined text-[16px]">sync_alt</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-text-muted hover:text-on-surface transition-colors" title="Loop Mode: Once">
+<span class="material-symbols-outlined text-[16px]">play_disabled</span>
+</button>
+</div>
+<button class="flex items-center gap-1 px-3 py-1 bg-secondary text-on-secondary rounded-lg font-headline-sm hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined text-[16px]">fiber_smart_record</span>
+        Onion Skin
+      </button>
+</div>
+</div>
+<!-- Main Workspace Area -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Dock: Layers & Channels -->
+<aside class="w-64 bg-surface-panel flex flex-col border-r border-border-subtle shrink-0">
+<div class="p-space-md border-b border-border-subtle flex items-center justify-between">
+<span class="font-headline-sm text-on-surface">Animation Tracks</span>
+<button class="p-1 hover:bg-surface-container rounded text-primary">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-2 space-y-1">
+<!-- Track Item 1 -->
+<div class="flex items-center justify-between p-2 rounded bg-surface-container-high border-l-2 border-primary group">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">visibility</span>
+<span class="text-body-sm font-medium text-text-main">Character_Base</span>
+</div>
+<div class="flex items-center gap-1 opacity-60 group-hover:opacity-100">
+<span class="material-symbols-outlined text-[14px] text-text-muted cursor-pointer hover:text-on-surface">lock_open</span>
+<span class="material-symbols-outlined text-[14px] text-text-muted cursor-pointer hover:text-on-surface">palette</span>
+</div>
+</div>
+<!-- Track Item 2 -->
+<div class="flex items-center justify-between p-2 rounded bg-surface-container hover:bg-surface-container-high group">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-secondary">visibility</span>
+<span class="text-body-sm text-on-surface-variant">FX_Trail_Particles</span>
+</div>
+<div class="flex items-center gap-1 opacity-60 group-hover:opacity-100">
+<span class="material-symbols-outlined text-[14px] text-text-muted cursor-pointer hover:text-on-surface">lock_open</span>
+<span class="material-symbols-outlined text-[14px] text-text-muted cursor-pointer hover:text-on-surface">palette</span>
+</div>
+</div>
+<!-- Track Item 3 -->
+<div class="flex items-center justify-between p-2 rounded bg-surface-container hover:bg-surface-container-high group">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary">visibility</span>
+<span class="text-body-sm text-on-surface-variant">Lighting_Glow</span>
+</div>
+<div class="flex items-center gap-1 opacity-60 group-hover:opacity-100">
+<span class="material-symbols-outlined text-[14px] text-text-muted cursor-pointer hover:text-on-surface">lock_open</span>
+<span class="material-symbols-outlined text-[14px] text-text-muted cursor-pointer hover:text-on-surface">palette</span>
+</div>
+</div>
+</div>
+<div class="p-space-md border-t border-border-subtle bg-surface-container-lowest">
+<div class="text-[11px] font-label-mono text-text-muted mb-2">TRACK SETTINGS</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span>Interpolation</span>
+<span class="font-label-mono text-primary">Step / Hold</span>
+</div>
+</div>
+</aside>
+<!-- Center Stage / Preview Canvas -->
+<div class="flex-1 flex flex-col bg-bg-canvas relative overflow-hidden">
+<div class="absolute inset-0 flex items-center justify-center p-space-xl">
+<div class="relative w-96 h-96 bg-surface-container-lowest rounded-xl shadow-2xl flex items-center justify-center border border-border-subtle overflow-hidden">
+<!-- Checkerboard background for transparency -->
+<div class="absolute inset-0 opacity-10 bg-[radial-gradient(#d0bcff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+<!-- Pixel Art Sprite Preview Placeholder -->
+<div class="relative z-10 w-64 h-64 flex items-center justify-center">
+<div class="w-32 h-32 rounded bg-gradient-to-br from-primary-container via-secondary to-tertiary shadow-xl flex items-center justify-center animate-pulse">
+<span class="material-symbols-outlined text-on-primary text-[48px]">directions_run</span>
+</div>
+</div>
+<!-- On-canvas HUD -->
+<div class="absolute top-3 left-3 px-2 py-1 bg-surface-panel/80 backdrop-blur rounded text-[10px] font-label-mono text-primary">
+            FRAME: 04 / 16
+          </div>
+<div class="absolute top-3 right-3 px-2 py-1 bg-surface-panel/80 backdrop-blur rounded text-[10px] font-label-mono text-secondary">
+            ONION SKIN: -1, +1
+          </div>
+</div>
+</div>
+</div>
+<!-- Right Dock: Frame Inspector & Ease Curve -->
+<aside class="w-72 bg-surface-panel flex flex-col border-l border-border-subtle shrink-0">
+<div class="p-space-md border-b border-border-subtle">
+<span class="font-headline-sm text-on-surface">Frame Inspector</span>
+</div>
+<div class="p-space-md space-y-4 flex-1 overflow-y-auto">
+<div>
+<label class="text-xs font-label-mono text-text-muted block mb-1">SELECTED FRAME</label>
+<div class="flex items-center gap-2">
+<input class="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs font-label-mono border border-border-subtle focus:outline-none focus:border-primary" type="text" value="Frame 04"/>
+<button class="p-1.5 bg-surface-container rounded hover:bg-surface-container-high text-on-surface"><span class="material-symbols-outlined text-[16px]">content_copy</span></button>
+</div>
+</div>
+<div>
+<label class="text-xs font-label-mono text-text-muted block mb-1">HOLD DURATION (TICKS)</label>
+<div class="flex items-center gap-2">
+<input class="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs font-label-mono border border-border-subtle focus:outline-none focus:border-primary" type="number" value="3"/>
+</div>
+</div>
+<div>
+<label class="text-xs font-label-mono text-text-muted block mb-1">FRAME LABEL / EVENT</label>
+<input class="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs font-label-mono border border-border-subtle focus:outline-none focus:border-primary" type="text" value="step_impact_right"/>
+</div>
+<div class="pt-2 border-t border-border-subtle">
+<label class="text-xs font-label-mono text-text-muted block mb-2">CUSTOM EASING CURVE</label>
+<div class="w-full h-32 bg-surface-container rounded-lg relative flex items-center justify-center p-2 border border-border-subtle">
+<svg class="w-full h-full text-primary" fill="none" viewbox="0 0 100 100">
+<path d="M 0 100 C 50 100, 50 0, 100 0" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<circle cx="50" cy="50" fill="#4cd7f6" r="4"></circle>
+</svg>
+<div class="absolute bottom-1 right-2 text-[10px] font-label-mono text-text-muted">EASE-IN-OUT</div>
+</div>
+</div>
+</div>
+<div class="p-space-md border-t border-border-subtle bg-surface-container-lowest">
+<button class="w-full py-2 bg-primary text-on-primary rounded font-headline-sm hover:bg-primary-container transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">auto_fix_high</span>
+          Generate Tween
+        </button>
+</div>
+</aside>
+</div>
+<!-- Bottom Frame Sequencer / Multi-Track Timeline -->
+<footer class="h-44 bg-surface-panel border-t border-border-subtle flex flex-col shrink-0">
+<!-- Playback Controls Bar -->
+<div class="h-10 px-space-xl flex items-center justify-between border-b border-border-subtle bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface" title="First Frame">
+<span class="material-symbols-outlined text-[18px]">first_page</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface" title="Previous Frame">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow hover:bg-primary-container transition-colors" title="Play / Pause">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface" title="Next Frame">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface" title="Last Frame">
+<span class="material-symbols-outlined text-[18px]">last_page</span>
+</button>
+<span class="w-[1px] h-4 bg-border-subtle mx-2"></span>
+<div class="flex items-center gap-1 bg-surface-container px-2 py-0.5 rounded text-xs font-label-mono text-on-surface">
+<span class="text-primary font-bold">04</span> / 16 FRAMES
+        </div>
+</div>
+<div class="flex items-center gap-space-md">
+<button class="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[16px]">add_box</span>
+          Add Blank Frame
+        </button>
+<button class="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+          Duplicate
+        </button>
+<button class="flex items-center gap-1 text-xs text-error hover:text-error-container">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+          Delete
+        </button>
+</div>
+</div>
+<!-- Thumbnail Strip & Keyframe Grid -->
+<div class="flex-1 overflow-x-auto overflow-y-hidden p-2 flex items-center gap-2 relative select-none">
+<!-- Playhead Line Indicator (Simulated absolute position over frame 4) -->
+<div class="absolute top-0 bottom-0 left-[264px] w-[2px] bg-secondary z-20 pointer-events-none flex flex-col items-center">
+<div class="w-3 h-3 bg-secondary rounded-full shadow-md -mt-1"></div>
+</div>
+<!-- Frame 1 -->
+<div class="w-24 h-28 bg-surface-container rounded-lg border border-border-subtle flex flex-col overflow-hidden shrink-0 group hover:border-primary cursor-pointer transition-colors">
+<div class="flex-1 bg-surface-container-lowest flex items-center justify-center relative">
+<div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[16px]">accessibility_new</span>
+</div>
+<span class="absolute top-1 left-1 text-[10px] font-label-mono text-text-muted">01</span>
+</div>
+<div class="h-6 bg-surface-container-high flex items-center justify-center px-2">
+<span class="text-[10px] font-label-mono text-on-surface-variant">Keyframe</span>
+</div>
+</div>
+<!-- Frame 2 -->
+<div class="w-24 h-28 bg-surface-container rounded-lg border border-border-subtle flex flex-col overflow-hidden shrink-0 group hover:border-primary cursor-pointer transition-colors">
+<div class="flex-1 bg-surface-container-lowest flex items-center justify-center relative">
+<div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[16px]">accessibility_new</span>
+</div>
+<span class="absolute top-1 left-1 text-[10px] font-label-mono text-text-muted">02</span>
+</div>
+<div class="h-6 bg-surface-container-high flex items-center justify-center px-2">
+<span class="text-[10px] font-label-mono text-text-muted">Tween</span>
+</div>
+</div>
+<!-- Frame 3 -->
+<div class="w-24 h-28 bg-surface-container rounded-lg border border-border-subtle flex flex-col overflow-hidden shrink-0 group hover:border-primary cursor-pointer transition-colors">
+<div class="flex-1 bg-surface-container-lowest flex items-center justify-center relative">
+<div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[16px]">accessibility_new</span>
+</div>
+<span class="absolute top-1 left-1 text-[10px] font-label-mono text-text-muted">03</span>
+</div>
+<div class="h-6 bg-surface-container-high flex items-center justify-center px-2">
+<span class="text-[10px] font-label-mono text-text-muted">Tween</span>
+</div>
+</div>
+<!-- Frame 4 (Active Selected Frame) -->
+<div class="w-24 h-28 bg-surface-container rounded-lg border-2 border-primary flex flex-col overflow-hidden shrink-0 group cursor-pointer shadow-lg shadow-primary/10">
+<div class="flex-1 bg-surface-container-lowest flex items-center justify-center relative">
+<div class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">accessibility_new</span>
+</div>
+<span class="absolute top-1 left-1 text-[10px] font-label-mono text-primary font-bold">04</span>
+</div>
+<div class="h-6 bg-primary-container flex items-center justify-center px-2">
+<span class="text-[10px] font-label-mono text-on-primary-container font-bold">Active</span>
+</div>
+</div>
+<!-- Frame 5 -->
+<div class="w-24 h-28 bg-surface-container rounded-lg border border-border-subtle flex flex-col overflow-hidden shrink-0 group hover:border-primary cursor-pointer transition-colors">
+<div class="flex-1 bg-surface-container-lowest flex items-center justify-center relative">
+<div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[16px]">accessibility_new</span>
+</div>
+<span class="absolute top-1 left-1 text-[10px] font-label-mono text-text-muted">05</span>
+</div>
+<div class="h-6 bg-surface-container-high flex items-center justify-center px-2">
+<span class="text-[10px] font-label-mono text-text-muted">Keyframe</span>
+</div>
+</div>
+<!-- Frame 6 -->
+<div class="w-24 h-28 bg-surface-container rounded-lg border border-border-subtle flex flex-col overflow-hidden shrink-0 group hover:border-primary cursor-pointer transition-colors">
+<div class="flex-1 bg-surface-container-lowest flex items-center justify-center relative">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-text-muted text-[16px]">remove</span>
+</div>
+<span class="absolute top-1 left-1 text-[10px] font-label-mono text-text-muted">06</span>
+</div>
+<div class="h-6 bg-surface-container-high flex items-center justify-center px-2">
+<span class="text-[10px] font-label-mono text-text-muted">Blank</span>
+</div>
+</div>
+<!-- Frame 7 -->
+<div class="w-24 h-28 bg-surface-container rounded-lg border border-border-subtle flex flex-col overflow-hidden shrink-0 group hover:border-primary cursor-pointer transition-colors">
+<div class="flex-1 bg-surface-container-lowest flex items-center justify-center relative">
+<span class="absolute top-1 left-1 text-[10px] font-label-mono text-text-muted">07</span>
+</div>
+<div class="h-6 bg-surface-container-high flex items-center justify-center px-2">
+<span class="text-[10px] font-label-mono text-text-muted">Blank</span>
+</div>
+</div>
+<!-- Frame 8 -->
+<div class="w-24 h-28 bg-surface-container rounded-lg border border-border-subtle flex flex-col overflow-hidden shrink-0 group hover:border-primary cursor-pointer transition-colors">
+<div class="flex-1 bg-surface-container-lowest flex items-center justify-center relative">
+<span class="absolute top-1 left-1 text-[10px] font-label-mono text-text-muted">08</span>
+</div>
+<div class="h-6 bg-surface-container-high flex items-center justify-center px-2">
+<span class="text-[10px] font-label-mono text-text-muted">Blank</span>
+</div>
+</div>
+<!-- Add Frame Button at end of strip -->
+<div class="w-16 h-28 bg-surface-container-low rounded-lg border border-dashed border-border-subtle flex items-center justify-center shrink-0 cursor-pointer hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[24px]">add</span>
+</div>
+</div>
+</footer>
+</div>
+<script>
+  // Simple interactive slider sync
+  const slider = document.getElementById('fps-slider');
+  const valueLabel = document.getElementById('fps-value');
+  if (slider && valueLabel) {
+    slider.addEventListener('input', (e) => {
+      valueLabel.textContent = e.target.value + ' FPS';
+    });
+  }
+</script></main></body></html>

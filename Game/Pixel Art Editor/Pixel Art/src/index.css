@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: #15121b;
+    color: #e7e0ed;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #12131A;
+}
+::-webkit-scrollbar-thumb {
+  background: #262838;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #37333d;
+}
+
+/* Pixel rendering styling */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Checkerboard background for transparent pixels */
+.bg-checkerboard {
+  background-color: #0f0d15;
+  background-image: 
+    linear-gradient(45deg, #1d1a23 25%, transparent 25%), 
+    linear-gradient(-45deg, #1d1a23 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #1d1a23 75%), 
+    linear-gradient(-45deg, transparent 75%, #1d1a23 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
+.bg-checkerboard-sm {
+  background-color: #0f0d15;
+  background-image: 
+    linear-gradient(45deg, #1a1722 25%, transparent 25%), 
+    linear-gradient(-45deg, #1a1722 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #1a1722 75%), 
+    linear-gradient(-45deg, transparent 75%, #1a1722 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+}

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-surface":"#e7e0ed","primary-fixed":"#e9ddff","on-primary-fixed":"#23005c","on-tertiary-container":"#3f2300","surface-panel":"#12131A","surface-bright":"#3b3742","on-tertiary":"#482900","surface":"#15121b","tertiary-container":"#ca801e","inverse-on-surface":"#322f39","inverse-surface":"#e7e0ed","outline":"#958ea0","background":"#15121b","text-muted":"#71717A","on-secondary-fixed-variant":"#004e5c","on-error-container":"#ffdad6","surface-variant":"#37333d","error":"#ffb4ab","primary-container":"#a078ff","tertiary-fixed":"#ffdcbb","surface-container-lowest":"#0f0d15","on-primary-fixed-variant":"#5516be","bg-canvas":"#090A0F","on-background":"#e7e0ed","secondary-fixed-dim":"#4cd7f6","secondary-fixed":"#acedff","text-main":"#F4F4F5","surface-tint":"#d0bcff","secondary-container":"#03b5d3","surface-dim":"#15121b","primary":"#d0bcff","on-secondary-container":"#00424e","primary-fixed-dim":"#d0bcff","on-error":"#690005","border-subtle":"#262838","on-surface-variant":"#cbc3d7","surface-container":"#211e27","inverse-primary":"#6d3bd7","surface-elevated":"#1A1C26","surface-container-high":"#2c2832","on-primary":"#3c0091","on-tertiary-fixed-variant":"#673d00","secondary":"#4cd7f6","on-secondary":"#003640","tertiary":"#ffb869","error-container":"#93000a","outline-variant":"#494454","surface-container-highest":"#37333d","on-tertiary-fixed":"#2c1700","on-secondary-fixed":"#001f26","surface-container-low":"#1d1a23","on-primary-container":"#340080","tertiary-fixed-dim":"#ffb869"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xs":"0.25rem","margin":"1rem","space-md":"0.75rem","gutter":"1rem","space-lg":"1rem","space-xl":"1.5rem","space-sm":"0.5rem"},"fontFamily":{"headline-lg":["Inter"],"headline-sm":["Inter"],"body-sm":["Inter"],"body-md":["Inter"],"label-mono":["JetBrains Mono"],"headline-md":["Inter"]},"fontSize":{"headline-lg":["24px",{"lineHeight":"32px","fontWeight":"600"}],"headline-sm":["14px",{"lineHeight":"20px","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"label-mono":["11px",{"lineHeight":"14px","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface"><header class="fixed top-0 w-full z-50 bg-surface-panel/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 max-w-full px-space-xl flex items-center justify-between"><div class="flex items-center gap-space-xl"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[20px]">grid_view</span><span class="font-headline-md text-on-surface tracking-tight">SpriteForge Pro</span></div><nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-bold rounded-lg"><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="editor" href="#">Editor</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="timeline" href="#">Timeline</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="palettes" href="#">Palettes</a><a aria-current="page" class="px-space-md py-space-xs transition-colors bg-primary-container text-on-primary-container font-bold rounded-lg" data-path="layers" href="#">Layers</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="export" href="#">Export</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-space-xs bg-surface-container px-space-sm py-space-xs rounded-lg border border-border-subtle"><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">zoom_out</span></button><span class="font-label-mono text-xs text-on-surface-variant px-space-xs">100%</span><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">zoom_in</span></button><span class="w-[1px] h-4 bg-border-subtle mx-space-xs"></span><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">grid_on</span></button></div><button class="flex items-center gap-space-xs bg-primary text-on-primary px-space-md py-space-xs rounded-lg font-headline-sm hover:bg-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">download</span>Export</button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-14 bg-bg-canvas min-h-[calc(100vh-3.5rem)]"><div class="flex flex-col w-full min-h-[calc(100vh-3.5rem)] text-on-surface">
+<div class="flex flex-1 w-full h-[calc(100vh-3.5rem)] overflow-hidden">
+<!-- Left Dock: Tools -->
+<aside class="w-16 bg-surface-panel flex flex-col items-center py-space-md gap-space-md z-10 select-none">
+<div class="flex flex-col gap-space-xs w-full px-space-xs">
+<button class="w-full aspect-square flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Move Tool (V)">
+<span class="material-symbols-outlined text-[20px]">near_me</span>
+</button>
+<button class="w-full aspect-square flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Marquee Select (M)">
+<span class="material-symbols-outlined text-[20px]">cloud_download</span>
+</button>
+<button class="w-full aspect-square flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Lasso Tool (L)">
+<span class="material-symbols-outlined text-[20px]">explore</span>
+</button>
+<button class="w-full aspect-square flex items-center justify-center rounded-lg bg-primary-container text-on-primary-container font-bold shadow-sm" title="Brush Tool (B)">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">brush</span>
+</button>
+<button class="w-full aspect-square flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Eraser (E)">
+<span class="material-symbols-outlined text-[20px]">destruction</span>
+</button>
+<button class="w-full aspect-square flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Paint Bucket (G)">
+<span class="material-symbols-outlined text-[20px]">format_color_fill</span>
+</button>
+<button class="w-full aspect-square flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Color Picker (I)">
+<span class="material-symbols-outlined text-[20px]">colorize</span>
+</button>
+</div>
+<div class="w-8 h-[1px] bg-border-subtle my-space-xs"></div>
+<div class="flex flex-col gap-space-xs w-full px-space-xs">
+<button class="w-full aspect-square flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Dither Matrix">
+<span class="material-symbols-outlined text-[20px]">grain</span>
+</button>
+<button class="w-full aspect-square flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Pixel Perfect Outline">
+<span class="material-symbols-outlined text-[20px]">tap_and_play</span>
+</button>
+</div>
+<div class="mt-auto flex flex-col gap-space-xs w-full px-space-xs pb-space-xs">
+<div class="w-full aspect-square rounded-lg bg-surface-container flex flex-col items-center justify-center relative cursor-pointer group">
+<div class="w-4 h-4 rounded-sm bg-primary absolute top-2 left-2 shadow-sm border border-border-subtle"></div>
+<div class="w-4 h-4 rounded-sm bg-secondary absolute bottom-2 right-2 shadow-sm border border-border-subtle"></div>
+</div>
+<button class="w-full aspect-square flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Settings">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</aside>
+<!-- Center Canvas Area -->
+<div class="flex-1 flex flex-col relative overflow-hidden bg-bg-canvas">
+<!-- Top info bar overlay -->
+<div class="absolute top-4 left-4 z-20 flex items-center gap-space-md bg-surface-panel/80 backdrop-blur-md px-space-md py-space-xs rounded-xl shadow-md border border-border-subtle">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-headline-sm text-on-surface">Hero_Sprite_Anim_04.aseprite</span>
+</div>
+<span class="text-text-muted">|</span>
+<span class="font-label-mono text-xs text-on-surface-variant">64 × 64 px</span>
+<span class="text-text-muted">|</span>
+<span class="font-label-mono text-xs text-secondary">32 Color Palette</span>
+</div>
+<!-- Canvas viewport -->
+<div class="flex-1 flex items-center justify-center p-space-xl relative overflow-auto">
+<!-- Checkerboard background for transparency -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#958ea0 1px, transparent 1px); background-size: 16px 16px;"></div>
+<!-- Interactive Pixel Art Stage Mockup -->
+<div class="w-[480px] h-[480px] bg-surface-container-lowest rounded-xl shadow-2xl relative flex items-center justify-center border border-border-subtle overflow-hidden group">
+<div class="absolute inset-0 grid grid-cols-8 grid-rows-8 opacity-20 pointer-events-none">
+<div class="border border-outline/20"></div><div class="border border-outline/20"></div><div class="border border-outline/20"></div><div class="border border-outline/20"></div><div class="border border-outline/20"></div><div class="border border-outline/20"></div><div class="border border-outline/20"></div><div class="border border-outline/20"></div>
+<!-- Grid representation -->
+</div>
+<!-- Central sprite representation using CSS art/shapes -->
+<div class="relative w-64 h-64 flex items-center justify-center">
+<!-- Glow background layer -->
+<div class="absolute inset-0 bg-primary/20 rounded-full filter blur-xl animate-pulse"></div>
+<!-- Sprite Character Mock -->
+<div class="relative flex flex-col items-center">
+<!-- Head -->
+<div class="w-20 h-16 bg-surface-bright rounded-t-xl relative border-2 border-primary shadow-lg flex items-center justify-center">
+<div class="flex gap-3">
+<div class="w-3 h-3 bg-secondary rounded-sm animate-pulse"></div>
+<div class="w-3 h-3 bg-secondary rounded-sm animate-pulse"></div>
+</div>
+<div class="absolute -top-3 w-6 h-4 bg-tertiary rounded-t-full"></div>
+</div>
+<!-- Torso & Armor -->
+<div class="w-28 h-24 bg-surface-container-high rounded-xl relative border-2 border-border-subtle flex flex-col items-center justify-center shadow-md">
+<div class="w-12 h-10 bg-primary-container/40 rounded-lg flex items-center justify-center border border-primary/40">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+</div>
+<!-- Cape / Back Layer -->
+<div class="absolute -z-10 top-12 w-36 h-28 bg-gradient-to-b from-secondary to-primary-container opacity-80 rounded-b-2xl transform skew-x-6"></div>
+</div>
+</div>
+<!-- Selection marquee overlay border -->
+<div class="absolute inset-12 border border-dashed border-secondary pointer-events-none"></div>
+<!-- Floating quick action toolbar over canvas -->
+<div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-space-xs bg-surface-panel/90 backdrop-blur-md px-space-md py-space-xs rounded-full shadow-lg border border-border-subtle">
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">undo</span></button>
+<span class="w-[1px] h-3 bg-border-subtle"></span>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">redo</span></button>
+<span class="w-[1px] h-3 bg-border-subtle"></span>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">dehaze</span></button>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">dehaze</span></button>
+<span class="w-[1px] h-3 bg-border-subtle"></span>
+<span class="font-label-mono text-[10px] text-text-muted">ZOOM 400%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Inspector Dock: Layers & Compositing -->
+<aside class="w-80 bg-surface-panel flex flex-col border-l border-border-subtle z-10">
+<!-- Panel Header Tabs -->
+<div class="flex items-center justify-between px-space-md h-12 border-b border-border-subtle bg-surface-container-low">
+<div class="flex items-center gap-space-md">
+<button class="font-headline-sm text-on-surface pb-1 border-b-2 border-primary">Layers</button>
+<button class="font-headline-sm text-text-muted hover:text-on-surface transition-colors pb-1">Channels</button>
+<button class="font-headline-sm text-text-muted hover:text-on-surface transition-colors pb-1">Masks</button>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="p-1 text-on-surface-variant hover:text-on-surface" title="Create Folder"><span class="material-symbols-outlined text-[18px]">folder_open</span></button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface" title="New Layer"><span class="material-symbols-outlined text-[18px]">add_box</span></button>
+</div>
+</div>
+<!-- Compositing Controls Bar (Blend mode & Opacity) -->
+<div class="p-space-md bg-surface flex flex-col gap-space-sm border-b border-border-subtle">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex-1 flex items-center justify-between bg-surface-container px-space-sm py-1.5 rounded-lg border border-border-subtle cursor-pointer hover:border-outline transition-colors">
+<span class="font-label-mono text-xs text-on-surface">Normal</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+<div class="w-24 flex items-center gap-space-xs bg-surface-container px-space-sm py-1.5 rounded-lg border border-border-subtle">
+<span class="font-label-mono text-[10px] text-text-muted">OP</span>
+<span class="font-label-mono text-xs text-on-surface w-full text-right">100%</span>
+</div>
+</div>
+<!-- Lock Toggles Subbar -->
+<div class="flex items-center justify-between text-on-surface-variant pt-1">
+<button class="p-1.5 rounded hover:bg-surface-container hover:text-on-surface transition-colors" title="Lock Transparent Pixels">
+<span class="material-symbols-outlined text-[16px]">chess</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container hover:text-on-surface transition-colors" title="Lock Image Pixels">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container hover:text-on-surface transition-colors" title="Lock Position">
+<span class="material-symbols-outlined text-[16px]">open_with</span>
+</button>
+<button class="p-1.5 rounded bg-surface-container text-primary transition-colors" title="Auto-Select Layer">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">near_me</span>
+</button>
+</div>
+</div>
+<!-- Layer Stack List -->
+<div class="flex-1 overflow-y-auto p-space-sm flex flex-col gap-space-xs">
+<!-- Folder Group Item -->
+<div class="flex flex-col bg-surface-container-low rounded-lg overflow-hidden border border-border-subtle">
+<div class="flex items-center justify-between px-space-sm py-2 bg-surface-container hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="font-headline-sm text-on-surface">Character FX</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-mono text-[10px] bg-surface-panel px-1.5 py-0.5 rounded text-text-muted">Overlay</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">visibility</span>
+</div>
+</div>
+<!-- Folder Children -->
+<div class="flex flex-col gap-1 p-1 bg-surface-panel/40">
+<!-- Sublayer 1 -->
+<div class="flex items-center justify-between px-2 py-1.5 rounded hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">visibility</span>
+<div class="w-6 h-6 rounded bg-surface-container-high flex items-center justify-center border border-border-subtle overflow-hidden">
+<div class="w-3 h-3 bg-tertiary rounded-full"></div>
+</div>
+<span class="font-body-md text-on-surface-variant group-hover:text-on-surface">Glow Rim</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-mono text-[10px] text-text-muted">80%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Layer Item -->
+<div class="flex items-center justify-between px-space-sm py-2.5 rounded-lg bg-surface-container-high border-l-4 border-primary shadow-sm cursor-pointer">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface">visibility</span>
+<div class="w-7 h-7 rounded bg-surface-container flex items-center justify-center border border-primary overflow-hidden relative">
+<div class="absolute inset-1 bg-primary/30 rounded-sm"></div>
+<span class="material-symbols-outlined text-primary text-[14px]">bolt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-on-surface">Armor Highlights</span>
+<span class="font-label-mono text-[10px] text-primary">Add Mode</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-mono text-xs text-on-surface-variant">100%</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">flip_camera_ios</span>
+</div>
+</div>
+<!-- Standard Layer Item -->
+<div class="flex items-center justify-between px-space-sm py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">visibility</span>
+<div class="w-7 h-7 rounded bg-surface-container-low flex items-center justify-center border border-border-subtle overflow-hidden">
+<div class="w-4 h-4 bg-secondary rounded-sm"></div>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface group-hover:text-on-surface-variant">Base Silhouette</span>
+<span class="font-label-mono text-[10px] text-text-muted">Normal</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-mono text-xs text-text-muted">100%</span>
+</div>
+</div>
+<!-- Background Layer Item -->
+<div class="flex items-center justify-between px-space-sm py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors cursor-pointer group opacity-75">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">visibility</span>
+<div class="w-7 h-7 rounded bg-surface-container-low flex items-center justify-center border border-border-subtle">
+<span class="material-symbols-outlined text-[14px] text-text-muted">grid_on</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface">Background Grid</span>
+<span class="font-label-mono text-[10px] text-text-muted">Locked</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[14px] text-text-muted">lock</span>
+</div>
+</div>
+</div>
+<!-- Layer Actions Bottom Bar -->
+<div class="p-space-md bg-surface border-t border-border-subtle flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Layer Mask">
+<span class="material-symbols-outlined text-[18px]">box_add</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Adjustment Layer">
+<span class="material-symbols-outlined text-[18px]">contrast</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Merge Down">
+<span class="material-symbols-outlined text-[18px]">merge</span>
+</button>
+</div>
+<button class="p-1.5 rounded hover:bg-error-container/20 text-error transition-colors" title="Delete Layer">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</aside>
+</div>
+</div></main></body></html>

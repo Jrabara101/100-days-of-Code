@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-surface":"#e7e0ed","primary-fixed":"#e9ddff","on-primary-fixed":"#23005c","on-tertiary-container":"#3f2300","surface-panel":"#12131A","surface-bright":"#3b3742","on-tertiary":"#482900","surface":"#15121b","tertiary-container":"#ca801e","inverse-on-surface":"#322f39","inverse-surface":"#e7e0ed","outline":"#958ea0","background":"#15121b","text-muted":"#71717A","on-secondary-fixed-variant":"#004e5c","on-error-container":"#ffdad6","surface-variant":"#37333d","error":"#ffb4ab","primary-container":"#a078ff","tertiary-fixed":"#ffdcbb","surface-container-lowest":"#0f0d15","on-primary-fixed-variant":"#5516be","bg-canvas":"#090A0F","on-background":"#e7e0ed","secondary-fixed-dim":"#4cd7f6","secondary-fixed":"#acedff","text-main":"#F4F4F5","surface-tint":"#d0bcff","secondary-container":"#03b5d3","surface-dim":"#15121b","primary":"#d0bcff","on-secondary-container":"#00424e","primary-fixed-dim":"#d0bcff","on-error":"#690005","border-subtle":"#262838","on-surface-variant":"#cbc3d7","surface-container":"#211e27","inverse-primary":"#6d3bd7","surface-elevated":"#1A1C26","surface-container-high":"#2c2832","on-primary":"#3c0091","on-tertiary-fixed-variant":"#673d00","secondary":"#4cd7f6","on-secondary":"#003640","tertiary":"#ffb869","error-container":"#93000a","outline-variant":"#494454","surface-container-highest":"#37333d","on-tertiary-fixed":"#2c1700","on-secondary-fixed":"#001f26","surface-container-low":"#1d1a23","on-primary-container":"#340080","tertiary-fixed-dim":"#ffb869"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xs":"0.25rem","margin":"1rem","space-md":"0.75rem","gutter":"1rem","space-lg":"1rem","space-xl":"1.5rem","space-sm":"0.5rem"},"fontFamily":{"headline-lg":["Inter"],"headline-sm":["Inter"],"body-sm":["Inter"],"body-md":["Inter"],"label-mono":["JetBrains Mono"],"headline-md":["Inter"]},"fontSize":{"headline-lg":["24px",{"lineHeight":"32px","fontWeight":"600"}],"headline-sm":["14px",{"lineHeight":"20px","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"label-mono":["11px",{"lineHeight":"14px","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface"><header class="fixed top-0 w-full z-50 bg-surface-panel/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 max-w-full px-space-xl flex items-center justify-between"><div class="flex items-center gap-space-xl"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[20px]">grid_view</span><span class="font-headline-md text-on-surface tracking-tight">SpriteForge Pro</span></div><nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-bold rounded-lg"><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="editor" href="#">Editor</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="timeline" href="#">Timeline</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="palettes" href="#">Palettes</a><a class="px-space-md py-space-xs text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors rounded-lg" data-path="layers" href="#">Layers</a><a aria-current="page" class="px-space-md py-space-xs transition-colors bg-primary-container text-on-primary-container font-bold rounded-lg" data-path="export" href="#">Export</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-space-xs bg-surface-container px-space-sm py-space-xs rounded-lg border border-border-subtle"><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">zoom_out</span></button><span class="font-label-mono text-xs text-on-surface-variant px-space-xs">100%</span><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">zoom_in</span></button><span class="w-[1px] h-4 bg-border-subtle mx-space-xs"></span><button class="p-space-xs text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[16px]">grid_on</span></button></div><button class="flex items-center gap-space-xs bg-primary text-on-primary px-space-md py-space-xs rounded-lg font-headline-sm hover:bg-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">download</span>Export</button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-14 bg-bg-canvas min-h-[calc(100vh-3.5rem)]"><div class="flex flex-col w-full min-h-[calc(100vh-3.5rem)] text-on-surface bg-bg-canvas font-body-md">
+<!-- Top Status Bar -->
+<div class="w-full bg-surface-panel px-space-xl py-space-md flex flex-wrap items-center justify-between gap-space-md shadow-sm border-b border-border-subtle">
+<div class="flex items-center gap-space-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary border border-border-subtle">
+<span class="material-symbols-outlined text-[18px]">movie</span>
+</div>
+<div>
+<div class="flex items-center gap-space-sm">
+<h2 class="font-headline-md text-on-surface tracking-tight">Hero_Sprite_Anim_04.aseprite</h2>
+<span class="px-space-xs py-0.5 bg-primary/10 text-primary rounded font-label-mono text-[10px]">Active Project</span>
+</div>
+<p class="text-body-sm text-text-muted font-label-mono mt-0.5">64x64px • 16 Frames • 32 Color Palette • 4.2 KB Uncompressed</p>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded-lg border border-border-subtle">
+<span class="material-symbols-outlined text-[16px] text-secondary">cloud_done</span>
+<span class="text-body-sm text-on-surface-variant font-label-mono">Synced to Cloud</span>
+</div>
+<button class="flex items-center gap-space-xs bg-surface-container-high hover:bg-surface-bright text-on-surface px-space-md py-space-xs rounded-lg font-headline-sm transition-colors border border-border-subtle">
+<span class="material-symbols-outlined text-[16px]">history</span>
+        Version History
+      </button>
+</div>
+</div>
+<!-- Main Content Layout -->
+<div class="w-full max-w-[1600px] mx-auto p-space-xl grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<!-- Left Column: Export Configuration & Formats (7 cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-xl">
+<!-- Section A: Sprite Sheet / Atlas Export -->
+<div class="bg-surface-panel rounded-xl p-space-xl border border-border-subtle shadow-lg flex flex-col gap-space-lg relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">grid_view</span>
+<h3 class="font-headline-md text-on-surface">Sprite Sheet / Atlas Export</h3>
+</div>
+<span class="font-label-mono text-xs text-text-muted">Module 01</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-mono text-on-surface-variant">File Format</label>
+<select class="bg-surface-container text-on-surface px-space-md py-space-sm rounded-lg border border-border-subtle font-body-md focus:outline-none focus:border-primary">
+<option>PNG Spritesheet (.png)</option>
+<option>WebP Atlas (.webp)</option>
+<option>ZIP Frame Sequence (.zip)</option>
+</select>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-mono text-on-surface-variant">Scale Factor</label>
+<select class="bg-surface-container text-on-surface px-space-md py-space-sm rounded-lg border border-border-subtle font-body-md focus:outline-none focus:border-primary">
+<option>1x (Original 64px)</option>
+<option selected="">2x (128px HD)</option>
+<option>4x (256px Retina)</option>
+<option>8x (512px Ultra)</option>
+</select>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-mono text-on-surface-variant">Layout Grid</label>
+<select class="bg-surface-container text-on-surface px-space-md py-space-sm rounded-lg border border-border-subtle font-body-md focus:outline-none focus:border-primary">
+<option>Auto (Square Row x Col)</option>
+<option>Horizontal Strip (1 x 16)</option>
+<option>Vertical Column (16 x 1)</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md pt-space-xs">
+<div class="flex items-center justify-between bg-surface-container p-space-md rounded-lg border border-border-subtle">
+<div>
+<div class="font-headline-sm text-on-surface">Frame Padding</div>
+<div class="text-body-sm text-text-muted">Bleed pixels to avoid atlas bleeding</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<input class="w-16 bg-surface text-center text-on-surface py-1 rounded border border-border-subtle font-label-mono" type="number" value="2"/>
+<span class="text-body-sm text-text-muted">px</span>
+</div>
+</div>
+<div class="flex items-center justify-between bg-surface-container p-space-md rounded-lg border border-border-subtle">
+<div>
+<div class="font-headline-sm text-on-surface">Trim Alpha Edges</div>
+<div class="text-body-sm text-text-muted">Remove transparent bounding boxes</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Section B: Animation / GIF Export -->
+<div class="bg-surface-panel rounded-xl p-space-xl border border-border-subtle shadow-lg flex flex-col gap-space-lg relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[20px]">play_circle</span>
+<h3 class="font-headline-md text-on-surface">Animation / GIF Export</h3>
+</div>
+<span class="font-label-mono text-xs text-text-muted">Module 02</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-mono text-on-surface-variant">Framerate (FPS)</label>
+<div class="flex items-center gap-space-sm bg-surface-container px-space-md py-space-sm rounded-lg border border-border-subtle">
+<input class="w-full accent-secondary" max="60" min="1" type="range" value="12"/>
+<span class="font-label-mono text-secondary w-8 text-right">12</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-mono text-on-surface-variant">Loop Count</label>
+<select class="bg-surface-container text-on-surface px-space-md py-space-sm rounded-lg border border-border-subtle font-body-md focus:outline-none focus:border-secondary">
+<option>Infinite Loop</option>
+<option>Play Once</option>
+<option>Custom Count (3x)</option>
+</select>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-mono text-on-surface-variant">Frame Range</label>
+<div class="flex items-center gap-space-xs">
+<input class="w-full bg-surface-container text-center text-on-surface py-2 rounded-lg border border-border-subtle font-label-mono" type="text" value="1"/>
+<span class="text-text-muted">to</span>
+<input class="w-full bg-surface-container text-center text-on-surface py-2 rounded-lg border border-border-subtle font-label-mono" type="text" value="16"/>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between bg-surface-container p-space-md rounded-lg border border-border-subtle">
+<div>
+<div class="font-headline-sm text-on-surface">Transparent Background for GIFs</div>
+<div class="text-body-sm text-text-muted">Enable alpha channel support in animated WebP/GIF exports</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+</div>
+<!-- Section C: Game Engine & Code Export -->
+<div class="bg-surface-panel rounded-xl p-space-xl border border-border-subtle shadow-lg flex flex-col gap-space-lg relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-tertiary text-[20px]">code</span>
+<h3 class="font-headline-md text-on-surface">Game Engine &amp; Code Export</h3>
+</div>
+<span class="font-label-mono text-xs text-text-muted">Module 03</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-md">
+<button class="flex flex-col items-start p-space-md rounded-lg bg-surface-container hover:bg-surface-container-high border border-border-subtle text-left transition-all group">
+<span class="material-symbols-outlined text-tertiary mb-2 text-[20px]">data_object</span>
+<span class="font-headline-sm text-on-surface group-hover:text-tertiary transition-colors">TexturePacker</span>
+<span class="text-body-sm text-text-muted mt-1">JSON Hash / Array</span>
+</button>
+<button class="flex flex-col items-start p-space-md rounded-lg bg-surface-container hover:bg-surface-container-high border border-border-subtle text-left transition-all group">
+<span class="material-symbols-outlined text-tertiary mb-2 text-[20px]">css</span>
+<span class="font-headline-sm text-on-surface group-hover:text-tertiary transition-colors">CSS Keyframes</span>
+<span class="text-body-sm text-text-muted mt-1">Sprite steps() anim</span>
+</button>
+<button class="flex flex-col items-start p-space-md rounded-lg bg-surface-container hover:bg-surface-container-high border border-border-subtle text-left transition-all group">
+<span class="material-symbols-outlined text-tertiary mb-2 text-[20px]">stadia_controller</span>
+<span class="font-headline-sm text-on-surface group-hover:text-tertiary transition-colors">Godot Engine</span>
+<span class="text-body-sm text-text-muted mt-1">.tres SpriteFrames</span>
+</button>
+<button class="flex flex-col items-start p-space-md rounded-lg bg-surface-container hover:bg-surface-container-high border border-border-subtle text-left transition-all group">
+<span class="material-symbols-outlined text-tertiary mb-2 text-[20px]">sports_esports</span>
+<span class="font-headline-sm text-on-surface group-hover:text-tertiary transition-colors">Phaser.js</span>
+<span class="text-body-sm text-text-muted mt-1">Atlas JSON format</span>
+</button>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-lg border border-border-subtle font-label-mono text-xs text-text-muted overflow-x-auto">
+<span class="text-tertiary">//@SpriteForge Animation Config Output</span><br/>
+<span class="text-on-surface-variant">{ "frames": 16, "fps": 12, "size": {"w": 64, "h": 64}, "scale": 2, "format": "RGBA8888" }</span>
+</div>
+</div>
+<!-- Section D: Cloud & Community Gallery -->
+<div class="bg-surface-panel rounded-xl p-space-xl border border-border-subtle shadow-lg flex flex-col gap-space-lg relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary-container"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary-container text-[20px]">public</span>
+<h3 class="font-headline-md text-on-surface">Cloud &amp; Community Gallery</h3>
+</div>
+<span class="font-label-mono text-xs text-text-muted">Module 04</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-mono text-on-surface-variant">Project Title</label>
+<input class="bg-surface-container text-on-surface px-space-md py-space-sm rounded-lg border border-border-subtle font-body-md focus:outline-none focus:border-primary" type="text" value="Neon Cyber Knight Run Cycle"/>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-mono text-on-surface-variant">Tags (Comma Separated)</label>
+<input class="bg-surface-container text-on-surface px-space-md py-space-sm rounded-lg border border-border-subtle font-body-md focus:outline-none focus:border-primary" type="text" value="pixelart, cyberpunk, platformer, hero"/>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-mono text-on-surface-variant">Project Description</label>
+<textarea class="bg-surface-container text-on-surface px-space-md py-space-sm rounded-lg border border-border-subtle font-body-md focus:outline-none focus:border-primary resize-none" rows="2">A smooth 16-frame run cycle for a futuristic cyberpunk protagonist with cyan glowing blades and violet armor accents.</textarea>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center gap-space-md">
+<label class="flex items-center gap-space-xs cursor-pointer">
+<input checked="" class="text-primary accent-primary" name="visibility" type="radio"/>
+<span class="text-on-surface font-headline-sm">Public Gallery</span>
+</label>
+<label class="flex items-center gap-space-xs cursor-pointer">
+<input class="text-primary accent-primary" name="visibility" type="radio"/>
+<span class="text-on-surface font-headline-sm">Unlisted Link</span>
+</label>
+<label class="flex items-center gap-space-xs cursor-pointer">
+<input class="text-primary accent-primary" name="visibility" type="radio"/>
+<span class="text-on-surface font-headline-sm">Private Storage</span>
+</label>
+</div>
+<span class="text-body-sm text-text-muted font-label-mono">Sync Ready</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Live Export Preview & Actions (5 cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-xl sticky top-20">
+<!-- Live Animated Sprite Preview Card -->
+<div class="bg-surface-panel rounded-xl p-space-xl border border-border-subtle shadow-xl flex flex-col gap-space-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[20px]">visibility</span>
+<h3 class="font-headline-md text-on-surface">Live Export Preview</h3>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-mono text-xs text-secondary">12 FPS Loop</span>
+</div>
+</div>
+<!-- Canvas Frame Container -->
+<div class="relative w-full aspect-square bg-[#0f0d15] rounded-xl border border-border-subtle flex items-center justify-center overflow-hidden group">
+<!-- Background Grid Pattern Mock -->
+<div class="absolute inset-0 opacity-10 bg-[radial-gradient(#4cd7f6_1px,transparent_1px)] [background-size:16px_16px]"></div>
+<!-- Animated Sprite Placeholder -->
+<div class="relative z-10 w-48 h-48 flex items-center justify-center bg-surface-container/50 rounded-xl border border-border-subtle/50 backdrop-blur-sm">
+<img class="w-32 h-32 object-contain image-rendering-pixelated" data-alt="A detailed pixel art animation frame of a cybernetic warrior running with glowing neon violet armor and cyan accents against a dark void background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnmmny8SUMdfPNfgpIpn364xjlLAFQpq98kxg84GzuZXi5C27S0OgNAZGd9omwTNeZTK_YVpaas9pmy2se86m8nil8KXqtuXfugw5s8SG4UJWoTEI12oFxWhjKDORf84P6ZO8heYqyHIQW9ILc4YA6Q1KO2PKtKep2S9-IOd5D9WfUSZRYKE243jIpVKLsAPZc6bcTOEsSXFdnlKbevsFl6a6eefmo4gG91PzUckE2hRfJ92kKXNPE"/>
+</div>
+<!-- Zoom & Info Overlay -->
+<div class="absolute bottom-space-md left-space-md right-space-md flex items-center justify-between bg-surface-panel/80 backdrop-blur-md px-space-md py-space-xs rounded-lg border border-border-subtle text-body-sm font-label-mono">
+<span class="text-on-surface-variant">Resolution: <strong class="text-on-surface">128x128px</strong> (2x)</span>
+<span class="text-secondary">Est: <strong class="text-on-surface">14.2 KB</strong></span>
+</div>
+</div>
+<!-- Quick Stats Breakdown -->
+<div class="grid grid-cols-3 gap-space-md text-center">
+<div class="bg-surface-container p-space-md rounded-lg border border-border-subtle">
+<div class="text-text-muted text-body-sm font-label-mono">Frames</div>
+<div class="font-headline-md text-on-surface mt-1">16</div>
+</div>
+<div class="bg-surface-container p-space-md rounded-lg border border-border-subtle">
+<div class="text-text-muted text-body-sm font-label-mono">Palette</div>
+<div class="font-headline-md text-secondary mt-1">32 Col</div>
+</div>
+<div class="bg-surface-container p-space-md rounded-lg border border-border-subtle">
+<div class="text-text-muted text-body-sm font-label-mono">Compression</div>
+<div class="font-headline-md text-primary mt-1">Lossless</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons Card -->
+<div class="bg-surface-panel rounded-xl p-space-xl border border-border-subtle shadow-xl flex flex-col gap-space-md">
+<h3 class="font-headline-md text-on-surface mb-1">Execute Export</h3>
+<button class="w-full flex items-center justify-center gap-space-sm bg-primary text-on-primary py-space-md rounded-lg font-headline-md hover:bg-primary-container transition-all shadow-lg shadow-primary/20 cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">download</span>
+          Download Export Package (.zip)
+        </button>
+<div class="grid grid-cols-2 gap-space-md">
+<button class="flex items-center justify-center gap-space-xs bg-surface-container hover:bg-surface-container-high text-on-surface py-space-md rounded-lg font-headline-sm transition-all border border-border-subtle cursor-pointer">
+<span class="material-symbols-outlined text-[18px] text-secondary">link</span>
+            Copy Share Link
+          </button>
+<button class="flex items-center justify-center gap-space-xs bg-surface-container hover:bg-surface-container-high text-on-surface py-space-md rounded-lg font-headline-sm transition-all border border-border-subtle cursor-pointer">
+<span class="material-symbols-outlined text-[18px] text-tertiary">publish</span>
+            Publish to Gallery
+          </button>
+</div>
+<div class="flex items-center justify-center gap-space-xs pt-space-sm text-text-muted text-body-sm font-label-mono">
+<span class="material-symbols-outlined text-[14px] text-primary">verified</span>
+<span>Encrypted CDN delivery with instant cache invalidation</span>
+</div>
+</div>
+</div>
+</div>
+</div></main></body></html>
