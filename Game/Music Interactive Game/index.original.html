@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBERPULSE // Synesthetic Music Visualizer Game</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        void: '#030712',
+                        surface: {
+                            DEFAULT: '#0B1120CC',
+                            subtle: '#0f172a90',
+                            border: '#06b6d433',
+                        },
+                        cyanPulse: '#06B6D4',
+                        crimsonDrop: '#F43F5E',
+                        energyGold: '#F59E0B',
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow-spin': 'spin 12s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom game canvas and glassmorphism styling */
+        body {
+            background-color: #030712;
+            color: #F8FAFC;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .hud-glass {
+            background: rgba(11, 17, 32, 0.78);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(6, 182, 212, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 12px 0 rgba(6, 182, 212, 0.05);
+        }
+
+        .hud-glass-danger {
+            background: rgba(24, 10, 18, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(244, 63, 94, 0.25);
+        }
+
+        .hud-glass-gold {
+            background: rgba(26, 20, 10, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        .glow-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .glow-crimson {
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+        }
+
+        .glow-gold {
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #06b6d440;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body class="h-screen w-screen overflow-hidden flex flex-col relative font-sans">
+
+    <!-- ================= MASTER CANVAS CONTAINER ================= -->
+    <div id="game-container" class="absolute inset-0 z-0 bg-[#030712]">
+        <canvas id="visualizer-canvas" class="w-full h-full block cursor-crosshair"></canvas>
+    </div>
+
+    <!-- Ambient Beat Reactive Backlight Frame -->
+    <div id="ambient-border"
+        class="absolute inset-0 pointer-events-none z-10 border-2 border-cyan-500/20 transition-all duration-75 ease-out">
+    </div>
+
+    <!-- ================= TOP HUD: TELEMETRY & PROGRESS ================= -->
+    <header class="relative z-20 w-full px-6 pt-4 flex flex-col items-center pointer-events-none">
+        <!-- Top Progress Bar (Scrubber) -->
+        <div class="w-full max-w-5xl h-1.5 bg-slate-900/80 rounded-full overflow-hidden border border-slate-800/80 mb-3 pointer-events-auto cursor-pointer relative group"
+            id="progress-scrubber" title="Track Progress">
+            <div id="progress-bar-fill"
+                class="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-rose-500 w-0 transition-all duration-100 shadow-[0_0_12px_rgba(6,182,212,0.8)]">
+            </div>
+            <div id="beat-marker-container"
+                class="absolute inset-0 flex justify-between pointer-events-none px-4 opacity-40">
+                <!-- Dynamically rendered pulse marks -->
+            </div>
+        </div>
+
+        <!-- Top Capsule Bar -->
+        <div
+            class="w-full max-w-5xl flex items-center justify-between hud-glass rounded-2xl px-5 py-2.5 pointer-events-auto">
+            <!-- Track Meta -->
+            <div class="flex items-center gap-3.5">
+                <div
+                    class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30">
+                    <i data-lucide="disc-3" class="w-5 h-5 text-cyan-400 animate-spin text-cyan-400"
+                        style="animation-duration: 4s;"></i>
+                    <span id="playing-pulse-dot"
+                        class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping opacity-75"></span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="track-title"
+                            class="font-bold text-sm tracking-wide text-slate-100 uppercase">SYNTHWAVE ODYSSEY (140
+                            BPM)</span>
+                        <span id="game-status-badge"
+                            class="px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">READY</span>
+                    </div>
+                    <div class="flex items-center gap-2.5 text-xs text-slate-400 font-mono mt-0.5">
+                        <span id="time-display">00:00 / 02:45</span>
+                        <span class="text-slate-600">•</span>
+                        <span class="text-cyan-400/90 font-medium" id="audio-rate-badge">44.1 kHz • 2048 FFT</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Audio Telemetry Pills -->
+            <div class="hidden md:flex items-center gap-4">
+                <!-- BPM Estimate Pill -->
+                <div
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-cyan-500/20 font-mono">
+                    <i data-lucide="activity" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span class="text-[11px] text-slate-400">BPM</span>
+                    <span id="bpm-counter" class="text-xs font-bold text-cyan-300">140</span>
+                </div>
+                <!-- Bass & Sub-Bass Flux -->
+                <div
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-rose-500/20 font-mono">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span class="text-[11px] text-slate-400">SUB-BASS</span>
+                    <div class="w-12 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="bass-meter-bar" class="h-full bg-rose-500 w-1/3 transition-all duration-75"></div>
+                    </div>
+                </div>
+                <!-- High Freq Spectral Treble -->
+                <div
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-amber-500/20 font-mono">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span class="text-[11px] text-slate-400">TREBLE</span>
+                    <div class="w-12 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="treble-meter-bar" class="h-full bg-amber-400 w-1/4 transition-all duration-75"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="flex items-center gap-2">
+                <button id="btn-open-loader"
+                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 transition-all hover:scale-105 active:scale-95">
+                    <i data-lucide="folder-music" class="w-3.5 h-3.5"></i>
+                    <span>TRACKS</span>
+                </button>
+                <button id="btn-open-settings"
+                    class="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700/60 text-slate-300 transition-all hover:text-white hover:scale-105 active:scale-95"
+                    title="Settings">
+                    <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                </button>
+                <button id="btn-toggle-play"
+                    class="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-md shadow-cyan-500/20 transition-all hover:scale-105 active:scale-95">
+                    <i data-lucide="play" id="play-btn-icon" class="w-3.5 h-3.5 fill-current"></i>
+                    <span id="play-btn-text">START RUN</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= IN-GAME NOTIFICATIONS & BEAT STRIKE ANNOUNCER ================= -->
+    <div class="relative z-20 flex-1 flex flex-col items-center justify-center pointer-events-none">
+        <div id="combo-callout" class="opacity-0 scale-75 transform transition-all duration-200 text-center">
+            <div
+                class="text-4xl md:text-5xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-amber-300 to-rose-400 drop-shadow-[0_0_20px_rgba(6,182,212,0.8)] font-sans">
+                PERFECT SYNC!
+            </div>
+            <div class="text-sm font-mono text-amber-300 mt-1 tracking-widest uppercase">COMBO STREAK x<span
+                    id="callout-combo">50</span></div>
+        </div>
+
+        <!-- On-screen key indicators (Zen / Tutorial help) -->
+        <div id="controls-hint"
+            class="mt-auto mb-4 flex items-center gap-4 px-4 py-2 rounded-full hud-glass text-xs font-mono text-slate-400 pointer-events-auto opacity-70 hover:opacity-100 transition-opacity">
+            <span class="flex items-center gap-1"><kbd
+                    class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-cyan-300 font-bold">A</kbd> /
+                <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-cyan-300 font-bold">D</kbd> or
+                <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-cyan-300 font-bold">←</kbd>
+                <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-cyan-300 font-bold">→</kbd>
+                Shift Lanes</span>
+            <span class="text-slate-600">|</span>
+            <span class="flex items-center gap-1"><kbd
+                    class="px-3 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300 font-bold">SPACE</kbd>
+                Beat Pulse Jump</span>
+            <span class="text-slate-600">|</span>
+            <span class="flex items-center gap-1"><kbd
+                    class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-rose-300 font-bold">ESC</kbd>
+                Pause</span>
+        </div>
+    </div>
+
+    <!-- ================= BOTTOM DOCK HUD ================= -->
+    <footer class="relative z-20 w-full px-6 pb-5 flex items-end justify-between pointer-events-none">
+        <!-- Left: Multiplier Orb & Score Multiplier Telemetry -->
+        <div class="flex items-center gap-4 pointer-events-auto">
+            <div id="multiplier-orb"
+                class="relative flex items-center justify-center w-16 h-16 rounded-2xl hud-glass border-2 border-cyan-500/40 glow-cyan transition-all duration-300 transform group">
+                <div class="absolute inset-1 rounded-xl bg-cyan-500/10 animate-pulse"></div>
+                <div class="relative z-10 text-center">
+                    <div class="text-[10px] font-mono text-cyan-400 font-semibold tracking-wider">COMBO</div>
+                    <div id="multiplier-val" class="text-xl font-extrabold text-white font-mono leading-none">x1</div>
+                </div>
+            </div>
+            <div class="hud-glass px-4 py-2.5 rounded-xl flex flex-col">
+                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">SYNC ACCURACY</span>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span id="accuracy-display" class="font-mono text-lg font-bold text-cyan-300">98.4%</span>
+                    <span class="text-xs font-mono text-emerald-400">GRADE S</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center: Audio Spectrum Visualizer Mini-Strip -->
+        <div class="hidden lg:flex flex-col items-center hud-glass px-5 py-2.5 rounded-2xl pointer-events-auto">
+            <div class="flex items-center justify-between w-64 mb-1.5 text-[10px] font-mono text-slate-400">
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>20Hz
+                    SUB</span>
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>1kHz
+                    MID</span>
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>8kHz
+                    HIGH</span>
+            </div>
+            <!-- Real-time EQ Bars canvas -->
+            <canvas id="mini-spectrum-canvas" width="260" height="32"
+                class="w-64 h-8 rounded-lg bg-slate-950/60 border border-slate-800/80"></canvas>
+        </div>
+
+        <!-- Right: Total Score & Health / Shield Buffer -->
+        <div class="flex items-center gap-4 pointer-events-auto">
+            <div class="hud-glass px-5 py-2.5 rounded-xl flex flex-col items-end min-w-[160px]">
+                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">SCORE ENGINE</span>
+                <span id="score-counter"
+                    class="font-mono text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-200 to-cyan-400 tracking-wider">000,000</span>
+            </div>
+            <!-- Shield / Energy Gauge -->
+            <div class="hud-glass px-3.5 py-2.5 rounded-xl flex flex-col items-center">
+                <div class="flex items-center gap-1.5 text-[10px] font-mono text-cyan-300 mb-1">
+                    <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                    <span>SYNTH BUFFER</span>
+                </div>
+                <div class="w-24 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                    <div id="shield-bar-fill"
+                        class="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 w-full transition-all duration-200">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODAL: AUDIO LOADER (shadcn Dialog style) ================= -->
+    <div id="modal-audio-loader"
+        class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div
+            class="w-full max-w-xl hud-glass rounded-2xl border border-cyan-500/30 p-6 shadow-2xl transform scale-95 transition-transform duration-300">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                        <i data-lucide="music-4" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white tracking-wide">AUDIO LOADER PIPELINE</h3>
+                        <p class="text-xs text-slate-400">Feed local audio, choose procedural synth streams, or activate
+                            live mic.</p>
+                    </div>
+                </div>
+                <button id="btn-close-loader"
+                    class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/60">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Drag & Drop Zone -->
+            <div class="mt-5">
+                <label for="audio-file-input"
+                    class="group flex flex-col items-center justify-center border-2 border-dashed border-cyan-500/30 hover:border-cyan-400/80 rounded-xl p-6 cursor-pointer bg-slate-950/50 hover:bg-cyan-950/10 transition-all">
+                    <i data-lucide="upload-cloud"
+                        class="w-10 h-10 text-cyan-400/70 group-hover:text-cyan-300 group-hover:scale-110 transition-transform mb-2"></i>
+                    <span class="text-sm font-semibold text-slate-200">Drag & Drop MP3, WAV, FLAC, or OGG</span>
+                    <span class="text-xs text-slate-400 mt-1">Direct Web Audio decoding with zero upload latency</span>
+                    <input id="audio-file-input" type="file" accept="audio/*" class="hidden">
+                </label>
+            </div>
+
+            <!-- Preset Synth Tracks (RadioGroup / Cards) -->
+            <div class="mt-5">
+                <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2.5">
+                    <span>OR CHOOSE PRE-RENDERED SYNTHESIZER DEMOS</span>
+                    <span class="text-cyan-400">PROCEDURAL BASSLINES</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5" id="demo-tracks-grid">
+                    <!-- Demo 1 -->
+                    <div class="demo-track-card active cursor-pointer p-3 rounded-xl border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 transition-all"
+                        data-track="synthwave">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white">Synthwave Pulse</span>
+                            <span class="text-[10px] font-mono text-cyan-300">140 BPM</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1">Pumping sub-bass & 80s arpeggio synth</p>
+                    </div>
+                    <!-- Demo 2 -->
+                    <div class="demo-track-card cursor-pointer p-3 rounded-xl border border-slate-800 bg-slate-900/40 hover:border-cyan-500/30 hover:bg-slate-900/80 transition-all"
+                        data-track="cyberpunk">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white">Cyber Overdrive</span>
+                            <span class="text-[10px] font-mono text-rose-400">174 BPM</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1">Aggressive DnB drop & high-flux snares</p>
+                    </div>
+                    <!-- Demo 3 -->
+                    <div class="demo-track-card cursor-pointer p-3 rounded-xl border border-slate-800 bg-slate-900/40 hover:border-cyan-500/30 hover:bg-slate-900/80 transition-all"
+                        data-track="ambient">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white">Solar Drift</span>
+                            <span class="text-[10px] font-mono text-amber-300">110 BPM</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1">Deep ambient pads & low-gravity glide</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Mic / Input Toggle -->
+            <div
+                class="mt-5 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="mic" class="w-4 h-4 text-cyan-400"></i>
+                    <div>
+                        <div class="text-xs font-semibold text-slate-200">Live Microphone Stream</div>
+                        <div class="text-[11px] text-slate-400">Visualize external sound from room or instruments</div>
+                    </div>
+                </div>
+                <button id="btn-toggle-mic"
+                    class="px-3 py-1 text-xs font-semibold rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-cyan-500/20 hover:border-cyan-500/40 transition-all">
+                    ENABLE MIC
+                </button>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="mt-6 flex justify-end gap-3">
+                <button id="btn-cancel-loader"
+                    class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-all">
+                    CANCEL
+                </button>
+                <button id="btn-load-and-start"
+                    class="px-5 py-2 text-xs font-bold rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all">
+                    ENGAGE AUDIOPHILE CORE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= SLIDE-OVER SHEET: SETTINGS (shadcn Sheet style) ================= -->
+    <div id="sheet-settings"
+        class="fixed inset-y-0 right-0 z-50 w-full max-w-md hud-glass border-l border-cyan-500/30 shadow-2xl p-6 flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+        <!-- Sheet Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div class="flex items-center gap-2.5">
+                <i data-lucide="settings-2" class="w-5 h-5 text-cyan-400"></i>
+                <h3 class="text-base font-bold text-white tracking-wide">TELEMETRY & GRAPHICS</h3>
+            </div>
+            <button id="btn-close-settings"
+                class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/60">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Sliders List -->
+        <div class="flex-1 overflow-y-auto py-5 space-y-6">
+            <!-- Visualizer FFT Sensitivity -->
+            <div>
+                <div class="flex justify-between text-xs font-mono mb-2">
+                    <span class="text-slate-300">SPECTRAL SENSITIVITY</span>
+                    <span id="val-sensitivity" class="text-cyan-400 font-bold">1.4x</span>
+                </div>
+                <input id="slider-sensitivity" type="range" min="0.5" max="3.0" step="0.1" value="1.4"
+                    class="w-full accent-cyan-400 cursor-pointer">
+                <p class="text-[11px] text-slate-500 mt-1">Multiplies bass threshold triggers for pulse and lane
+                    hazards.</p>
+            </div>
+
+            <!-- Difficulty / Lane Speed -->
+            <div>
+                <div class="flex justify-between text-xs font-mono mb-2">
+                    <span class="text-slate-300">HIGHWAY SPEED (DIFFICULTY)</span>
+                    <span id="val-speed" class="text-rose-400 font-bold">NORMAL (1.0x)</span>
+                </div>
+                <input id="slider-speed" type="range" min="0.6" max="2.0" step="0.1" value="1.0"
+                    class="w-full accent-rose-500 cursor-pointer">
+                <p class="text-[11px] text-slate-500 mt-1">Controls the forward velocity of frequency road obstacles.
+                </p>
+            </div>
+
+            <!-- Master Volume -->
+            <div>
+                <div class="flex justify-between text-xs font-mono mb-2">
+                    <span class="text-slate-300">SYNTH GAIN VOLUME</span>
+                    <span id="val-volume" class="text-emerald-400 font-bold">80%</span>
+                </div>
+                <input id="slider-volume" type="range" min="0" max="100" step="1" value="80"
+                    class="w-full accent-emerald-400 cursor-pointer">
+            </div>
+
+            <!-- Motion Blur Intensity -->
+            <div>
+                <div class="flex justify-between text-xs font-mono mb-2">
+                    <span class="text-slate-300">MOTION TRAIL / BLOOM</span>
+                    <span id="val-motionblur" class="text-amber-400 font-bold">65%</span>
+                </div>
+                <input id="slider-motionblur" type="range" min="10" max="95" step="5" value="65"
+                    class="w-full accent-amber-400 cursor-pointer">
+                <p class="text-[11px] text-slate-500 mt-1">Canvas clear alpha for synth persistence and neon trails.</p>
+            </div>
+
+            <!-- Theme Selector -->
+            <div>
+                <label class="text-xs font-mono text-slate-300 block mb-2">COLOR PALETTE PRESET</label>
+                <div class="grid grid-cols-3 gap-2" id="theme-selector">
+                    <button data-theme="neon_noir"
+                        class="theme-btn active px-3 py-2 rounded-xl text-xs font-bold border border-cyan-500/50 bg-cyan-500/20 text-cyan-300">
+                        NEON NOIR
+                    </button>
+                    <button data-theme="solar_flare"
+                        class="theme-btn px-3 py-2 rounded-xl text-xs font-bold border border-slate-800 bg-slate-900/60 text-amber-400 hover:border-amber-500/40">
+                        SOLAR
+                    </button>
+                    <button data-theme="cyber_ocean"
+                        class="theme-btn px-3 py-2 rounded-xl text-xs font-bold border border-slate-800 bg-slate-900/60 text-emerald-400 hover:border-emerald-500/40">
+                        OCEAN
+                    </button>
+                </div>
+            </div>
+
+            <!-- Zen Mode (Zero Hazards, Just Relaxed Music Flow) -->
+            <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                <div>
+                    <div class="text-xs font-semibold text-slate-200">Zen Mode (No Fail)</div>
+                    <div class="text-[11px] text-slate-400">Pure visual immersion, invincible shield.</div>
+                </div>
+                <input id="toggle-zen-mode" type="checkbox" class="w-4 h-4 accent-cyan-400 cursor-pointer">
+            </div>
+        </div>
+
+        <!-- Sheet Footer -->
+        <div class="pt-4 border-t border-slate-800 flex justify-end">
+            <button id="btn-save-settings"
+                class="w-full py-2 text-xs font-bold rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all">
+                APPLY CONFIGURATION
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: END-OF-RUN SUMMARY (shadcn Dialog style) ================= -->
+    <div id="modal-summary"
+        class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-lg flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div
+            class="w-full max-w-lg hud-glass rounded-2xl border border-cyan-500/40 p-6 shadow-2xl text-center transform scale-95 transition-transform duration-300">
+            <div
+                class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 mb-3 glow-cyan">
+                <i data-lucide="award" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-2xl font-black tracking-wider text-white uppercase font-sans">RUN COMPLETED</h2>
+            <p class="text-xs font-mono text-cyan-300 mt-0.5">SYNCHRONIZATION TELEMETRY VERIFIED</p>
+
+            <!-- Score Breakdown Grid -->
+            <div class="grid grid-cols-2 gap-3 my-6 text-left">
+                <div class="hud-glass p-3.5 rounded-xl">
+                    <span class="text-[10px] font-mono text-slate-400">FINAL SCORE</span>
+                    <div id="summary-final-score" class="text-xl font-bold font-mono text-white mt-0.5">142,850</div>
+                </div>
+                <div class="hud-glass p-3.5 rounded-xl">
+                    <span class="text-[10px] font-mono text-slate-400">BEAT ACCURACY</span>
+                    <div id="summary-accuracy" class="text-xl font-bold font-mono text-cyan-400 mt-0.5">97.8%</div>
+                </div>
+                <div class="hud-glass p-3.5 rounded-xl">
+                    <span class="text-[10px] font-mono text-slate-400">MAX COMBO STREAK</span>
+                    <div id="summary-max-combo" class="text-xl font-bold font-mono text-amber-300 mt-0.5">74x</div>
+                </div>
+                <div class="hud-glass p-3.5 rounded-xl">
+                    <span class="text-[10px] font-mono text-slate-400">PERFORMANCE RANK</span>
+                    <div id="summary-rank" class="text-xl font-bold font-mono text-rose-400 mt-0.5">RANK S</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+                <button id="btn-summary-close"
+                    class="flex-1 py-2.5 text-xs font-semibold rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-all">
+                    MAIN DECK
+                </button>
+                <button id="btn-replay-track"
+                    class="flex-1 py-2.5 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    <span>REPLAY TRACK</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= CORE GAME & AUDIO ENGINE SCRIPT ================= -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        /* ==========================================================
+           1. GAME STATE MACHINE & CORE INTERFACE
+           ========================================================== */
+        const state = {
+            trackMeta: {
+                title: 'Synthwave Odyssey (140 BPM)',
+                duration: 165, // seconds
+                currentTime: 0,
+            },
+            isPlaying: false,
+            gameStatus: 'ready', // 'idle' | 'loading' | 'ready' | 'playing' | 'paused' | 'ended'
+            score: 0,
+            multiplier: 1,
+            combo: 0,
+            maxCombo: 0,
+            accuracyHits: 0,
+            totalNotes: 0,
+            shield: 100,
+            audioMetrics: {
+                bpm: 140,
+                bassIntensity: 0.2,
+                trebleIntensity: 0.15,
+                isBeat: false,
+                energy: 0,
+            },
+            settings: {
+                sensitivity: 1.4,
+                speed: 1.0,
+                visualTheme: 'neon_noir', // 'neon_noir' | 'solar_flare' | 'cyber_ocean'
+                zenMode: false,
+                volume: 0.8,
+                motionBlur: 0.35, // alpha clear: 1 - 0.65
+            },
+            player: {
+                lane: 1, // 0: Left, 1: Center, 2: Right
+                targetLane: 1,
+                x: 0,
+                y: 0,
+                jumpOffset: 0,
+                isJumping: false,
+                jumpVelocity: 0,
+            },
+            highway: {
+                notes: [],
+                particles: [],
+                rings: [],
+                gridOffset: 0,
+            }
+        };
+
+        /* ==========================================================
+           2. DECOUPLED AUDIO ANALYSIS PIPELINE (Web Audio API)
+           ========================================================== */
+        class AudioPipeline {
+            constructor() {
+                this.ctx = null;
+                this.analyser = null;
+                this.filter = null;
+                this.gainNode = null;
+                this.sourceNode = null;
+                this.micStream = null;
+                this.dataArray = null;
+                this.fftSize = 2048;
+                this.previousFlux = 0;
+                this.synthOscs = [];
+                this.synthTimer = null;
+                this.isProcedural = true;
+                this.initAudioContext();
+            }
+
+            initAudioContext() {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!this.ctx && AudioContext) {
+                    this.ctx = new AudioContext();
+                    this.analyser = this.ctx.createAnalyser();
+                    this.analyser.fftSize = this.fftSize;
+                    this.analyser.smoothingTimeConstant = 0.82;
+                    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+
+                    this.gainNode = this.ctx.createGain();
+                    this.gainNode.gain.value = state.settings.volume;
+
+                    this.filter = this.ctx.createBiquadFilter();
+                    this.filter.type = "lowshelf";
+                    this.filter.frequency.value = 320;
+
+                    // Wire nodes: Source -> Filter -> Analyser -> Gain -> Destination
+                    this.filter.connect(this.analyser);
+                    this.analyser.connect(this.gainNode);
+                    this.gainNode.connect(this.ctx.destination);
+                }
+            }
+
+            async resume() {
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    await this.ctx.resume();
+                }
+            }
+
+            // Procedural Electronic Synth Engine (For Out-Of-The-Box Instant Playback)
+            startProceduralSynth(trackType = 'synthwave') {
+                this.stopAudio();
+                this.initAudioContext();
+                this.resume();
+                this.isProcedural = true;
+
+                let bpm = 140;
+                if (trackType === 'cyberpunk') bpm = 174;
+                if (trackType === 'ambient') bpm = 110;
+                state.audioMetrics.bpm = bpm;
+                document.getElementById('bpm-counter').textContent = bpm;
+
+                const interval = (60 / bpm) * 1000 / 2; // Eighth notes
+                let step = 0;
+
+                this.synthTimer = setInterval(() => {
+                    if (!state.isPlaying) return;
+                    step = (step + 1) % 16;
+                    this.playProceduralStep(step, trackType);
+                }, interval);
+            }
+
+            playProceduralStep(step, trackType) {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+
+                // Bass Kick on beats 0, 4, 8, 12
+                if (step % 4 === 0 || (trackType === 'cyberpunk' && (step === 2 || step === 10))) {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(140, now);
+                    osc.frequency.exponentialRampToValueAtTime(32, now + 0.18);
+                    gain.gain.setValueAtTime(0.9 * state.settings.volume, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                    osc.connect(gain);
+                    gain.connect(this.filter);
+                    osc.start(now);
+                    osc.stop(now + 0.23);
+                }
+
+                // Snare / High clap on 4 and 12
+                if (step % 8 === 4) {
+                    const noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.12, this.ctx.sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+                    for (let i = 0; i < noiseBuffer.length; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+                    const whiteNoise = this.ctx.createBufferSource();
+                    whiteNoise.buffer = noiseBuffer;
+                    const noiseGain = this.ctx.createGain();
+                    noiseGain.gain.setValueAtTime(0.4 * state.settings.volume, now);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    whiteNoise.connect(noiseGain);
+                    noiseGain.connect(this.filter);
+                    whiteNoise.start(now);
+                }
+
+                // Arpeggiator Synth chords
+                const notes = [220, 261.63, 329.63, 392, 440, 523.25];
+                const pitch = notes[step % notes.length];
+                const leadOsc = this.ctx.createOscillator();
+                const leadGain = this.ctx.createGain();
+                leadOsc.type = (trackType === 'cyberpunk') ? 'sawtooth' : 'triangle';
+                leadOsc.frequency.setValueAtTime(pitch, now);
+                leadGain.gain.setValueAtTime(0.18 * state.settings.volume, now);
+                leadGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+                leadOsc.connect(leadGain);
+                leadGain.connect(this.filter);
+                leadOsc.start(now);
+                leadOsc.stop(now + 0.15);
+            }
+
+            // Load user audio file directly
+            async loadFile(file) {
+                this.stopAudio();
+                this.initAudioContext();
+                await this.resume();
+
+                const arrayBuffer = await file.arrayBuffer();
+                const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
+
+                state.trackMeta.title = file.name.replace(/\.[^/.]+$/, "");
+                state.trackMeta.duration = audioBuffer.duration;
+                document.getElementById('track-title').textContent = state.trackMeta.title.toUpperCase();
+
+                this.sourceNode = this.ctx.createBufferSource();
+                this.sourceNode.buffer = audioBuffer;
+                this.sourceNode.connect(this.filter);
+                this.isProcedural = false;
+
+                this.sourceNode.onended = () => {
+                    endGameRun();
+                };
+
+                this.sourceNode.start(0);
+                state.isPlaying = true;
+            }
+
+            // Microphone stream
+            async enableMicrophone() {
+                this.stopAudio();
+                this.initAudioContext();
+                await this.resume();
+                try {
+                    this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    this.sourceNode = this.ctx.createMediaStreamSource(this.micStream);
+                    this.sourceNode.connect(this.filter);
+                    this.isProcedural = false;
+                    state.trackMeta.title = "LIVE MIC STREAM";
+                    document.getElementById('track-title').textContent = "LIVE MICROPHONE INPUT";
+                    return true;
+                } catch (e) {
+                    console.warn("Microphone access denied or unsupported", e);
+                    return false;
+                }
+            }
+
+            stopAudio() {
+                if (this.synthTimer) {
+                    clearInterval(this.synthTimer);
+                    this.synthTimer = null;
+                }
+                if (this.sourceNode) {
+                    try { this.sourceNode.stop(); } catch (e) { }
+                    this.sourceNode.disconnect();
+                    this.sourceNode = null;
+                }
+                if (this.micStream) {
+                    this.micStream.getTracks().forEach(t => t.stop());
+                    this.micStream = null;
+                }
+            }
+
+            // Real-time decoupled frequency band calculation
+            updateMetrics() {
+                if (!this.analyser) return;
+                this.analyser.getByteFrequencyData(this.dataArray);
+
+                const binCount = this.analyser.frequencyBinCount;
+                const sampleRate = this.ctx ? this.ctx.sampleRate : 44100;
+                const binHz = sampleRate / this.fftSize;
+
+                // Frequency ranges:
+                // Sub-bass: 20 - 60 Hz
+                // Mid: 250 - 2000 Hz
+                // High: 4000 - 16000 Hz
+                const subBassEnd = Math.floor(60 / binHz);
+                const midStart = Math.floor(250 / binHz);
+                const midEnd = Math.floor(2000 / binHz);
+                const highStart = Math.floor(4000 / binHz);
+
+                let subBassSum = 0;
+                let midSum = 0;
+                let highSum = 0;
+
+                for (let i = 0; i <= subBassEnd; i++) subBassSum += this.dataArray[i];
+                for (let i = midStart; i <= midEnd; i++) midSum += this.dataArray[i];
+                for (let i = highStart; i < binCount; i++) highSum += this.dataArray[i];
+
+                const bassAvg = (subBassSum / (subBassEnd + 1)) / 255;
+                const midAvg = (midSum / (midEnd - midStart + 1)) / 255;
+                const highAvg = (highSum / (binCount - highStart)) / 255;
+
+                // Spectral Flux Beat Detection
+                const currentFlux = (bassAvg * 1.5) + (highAvg * 0.5);
+                const fluxDelta = currentFlux - this.previousFlux;
+                const beatThreshold = 0.22 / state.settings.sensitivity;
+
+                state.audioMetrics.isBeat = fluxDelta > beatThreshold;
+                state.audioMetrics.bassIntensity = bassAvg;
+                state.audioMetrics.trebleIntensity = highAvg;
+                state.audioMetrics.energy = (bassAvg + midAvg + highAvg) / 3;
+                this.previousFlux = currentFlux * 0.92;
+            }
+        }
+
+        const audio = new AudioPipeline();
+
+        /* ==========================================================
+           3. HIGH-PERFORMANCE 60FPS 2D/3D PERSPECTIVE RENDERER
+           ========================================================== */
+        const canvas = document.getElementById('visualizer-canvas');
+        const ctx = canvas.getContext('2d');
+        const miniCanvas = document.getElementById('mini-spectrum-canvas');
+        const miniCtx = miniCanvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Color Palette Definition for Themes
+        function getThemeColors() {
+            switch (state.settings.visualTheme) {
+                case 'solar_flare':
+                    return {
+                        primary: '#F59E0B',
+                        secondary: '#EF4444',
+                        accent: '#FCD34D',
+                        grid: 'rgba(245, 158, 11, 0.25)',
+                        glow: 'rgba(245, 158, 11, 0.4)',
+                    };
+                case 'cyber_ocean':
+                    return {
+                        primary: '#10B981',
+                        secondary: '#06B6D4',
+                        accent: '#34D399',
+                        grid: 'rgba(16, 185, 129, 0.25)',
+                        glow: 'rgba(16, 185, 129, 0.4)',
+                    };
+                case 'neon_noir':
+                default:
+                    return {
+                        primary: '#06B6D4',
+                        secondary: '#F43F5E',
+                        accent: '#F59E0B',
+                        grid: 'rgba(6, 182, 212, 0.2)',
+                        glow: 'rgba(6, 182, 212, 0.4)',
+                    };
+            }
+        }
+
+        // Spawn rhythmic obstacles & beat rings based on spectral energy
+        let lastBeatSpawn = 0;
+        function spawnHighwayElements() {
+            const now = performance.now();
+            const colors = getThemeColors();
+
+            // Spawn on detected beat or periodic fallback
+            if (state.audioMetrics.isBeat && (now - lastBeatSpawn > 320 / state.settings.speed)) {
+                lastBeatSpawn = now;
+                const lane = Math.floor(Math.random() * 3);
+                const isHazard = Math.random() > 0.65; // 35% hazards, 65% rhythm notes
+
+                state.highway.notes.push({
+                    z: 1.0, // 1.0 (horizon) -> 0.0 (player strike line)
+                    lane: lane,
+                    isHazard: isHazard,
+                    color: isHazard ? colors.secondary : colors.primary,
+                    size: isHazard ? 24 : 18,
+                    hit: false,
+                });
+
+                // Spawn futuristic warp ring
+                state.highway.rings.push({
+                    z: 1.0,
+                    color: isHazard ? colors.secondary : colors.primary,
+                    alpha: 0.8,
+                });
+
+                // Trigger reactive ambient border pulse
+                const borderEl = document.getElementById('ambient-border');
+                borderEl.style.borderColor = isHazard ? 'rgba(244, 63, 94, 0.8)' : 'rgba(6, 182, 212, 0.8)';
+                borderEl.style.boxShadow = isHazard ? '0 0 35px rgba(244, 63, 94, 0.4)' : '0 0 35px rgba(6, 182, 212, 0.4)';
+                setTimeout(() => {
+                    borderEl.style.borderColor = 'rgba(6, 182, 212, 0.2)';
+                    borderEl.style.boxShadow = 'none';
+                }, 120);
+            }
+        }
+
+        // Main 60fps locked render loop
+        let lastFrameTime = performance.now();
+        function renderLoop(now) {
+            const dt = Math.min((now - lastFrameTime) / 1000, 0.1);
+            lastFrameTime = now;
+
+            // 1. Decoupled Web Audio FFT calculation
+            audio.updateMetrics();
+
+            // 2. Motion blur trail background clear
+            const clearAlpha = 1.0 - (state.settings.motionBlur || 0.65);
+            ctx.fillStyle = `rgba(3, 7, 18, ${Math.max(0.12, clearAlpha)})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const colors = getThemeColors();
+            const horizonY = canvas.height * 0.42;
+            const originX = canvas.width * 0.5;
+
+            // 3. Audio-Reactive Starfield & Cyber Horizon Glow
+            const bassPulse = state.audioMetrics.bassIntensity * 40 * state.settings.sensitivity;
+            const horizonGradient = ctx.createRadialGradient(originX, horizonY, 5, originX, horizonY, canvas.width * 0.7);
+            horizonGradient.addColorStop(0, colors.glow);
+            horizonGradient.addColorStop(0.5, 'rgba(11, 17, 32, 0.4)');
+            horizonGradient.addColorStop(1, 'transparent');
+            ctx.fillStyle = horizonGradient;
+            ctx.fillRect(0, 0, canvas.width, horizonY + 50);
+
+            // 4. Perspective 3-Lane Frequency Road
+            const roadBottomWidth = Math.min(canvas.width * 0.85, 750);
+            const roadTopWidth = 60;
+            const roadBottomY = canvas.height * 0.95;
+
+            ctx.save();
+            // Draw grid floor lines
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1.5;
+
+            // Lane dividers (4 lines forming 3 lanes)
+            const lanes = [-1, -0.33, 0.33, 1];
+            lanes.forEach((laneFactor) => {
+                const topX = originX + (laneFactor * roadTopWidth * 0.5);
+                const botX = originX + (laneFactor * roadBottomWidth * 0.5);
+                ctx.beginPath();
+                ctx.moveTo(topX, horizonY);
+                ctx.lineTo(botX, roadBottomY);
+                ctx.stroke();
+            });
+
+            // Animated scrolling horizontal speed bars on highway
+            state.highway.gridOffset = (state.highway.gridOffset + (dt * 1.8 * state.settings.speed)) % 1;
+            const gridDivisions = 12;
+            for (let i = 0; i < gridDivisions; i++) {
+                const p = ((i / gridDivisions) + state.highway.gridOffset) % 1;
+                // Nonlinear perspective mapping (depth curve)
+                const py = horizonY + Math.pow(p, 2.2) * (roadBottomY - horizonY);
+                const pWidth = roadTopWidth + Math.pow(p, 2.2) * (roadBottomWidth - roadTopWidth);
+                const leftX = originX - (pWidth * 0.5);
+                const rightX = originX + (pWidth * 0.5);
+
+                ctx.strokeStyle = `rgba(6, 182, 212, ${p * 0.45})`;
+                ctx.beginPath();
+                ctx.moveTo(leftX, py);
+                ctx.lineTo(rightX, py);
+                ctx.stroke();
+            }
+
+            // Draw Warp Rings
+            for (let i = state.highway.rings.length - 1; i >= 0; i--) {
+                const ring = state.highway.rings[i];
+                ring.z -= dt * 0.6 * state.settings.speed;
+                if (ring.z <= 0.05) {
+                    state.highway.rings.splice(i, 1);
+                    continue;
+                }
+                const p = 1.0 - ring.z;
+                const ry = horizonY + Math.pow(p, 2.0) * (roadBottomY - horizonY);
+                const rw = (roadTopWidth + Math.pow(p, 2.0) * (roadBottomWidth - roadTopWidth)) * 1.2;
+                const rh = 40 * p + bassPulse * p;
+
+                ctx.strokeStyle = ring.color;
+                ctx.globalAlpha = Math.max(0, ring.z * 0.8);
+                ctx.lineWidth = 2 * p;
+                ctx.strokeRect(originX - rw * 0.5, ry - rh, rw, rh * 1.5);
+            }
+            ctx.restore();
+
+            // 5. Update and Render Highway Notes & Hazards
+            if (state.isPlaying) {
+                spawnHighwayElements();
+            }
+
+            // Lane centers calculation
+            function getLaneX(laneIndex, depthFactor) {
+                const currentRoadW = roadTopWidth + Math.pow(depthFactor, 2.2) * (roadBottomWidth - roadTopWidth);
+                const laneSpan = currentRoadW / 3;
+                // Lane 0: left, 1: center, 2: right
+                const offsetMultiplier = laneIndex === 0 ? -1 : laneIndex === 2 ? 1 : 0;
+                return originX + (offsetMultiplier * laneSpan);
+            }
+
+            for (let i = state.highway.notes.length - 1; i >= 0; i--) {
+                const note = state.highway.notes[i];
+                note.z -= dt * 0.7 * state.settings.speed;
+
+                const p = 1.0 - note.z;
+                const noteY = horizonY + Math.pow(p, 2.2) * (roadBottomY - horizonY);
+                const noteX = getLaneX(note.lane, p);
+                const scale = 0.3 + (Math.pow(p, 2) * 1.5);
+
+                // Check strike collision near player strike line (z ~ 0.15 - 0.02)
+                if (note.z < 0.18 && note.z > 0.02 && !note.hit) {
+                    const inSameLane = state.player.lane === note.lane;
+                    const jumpedOver = state.player.isJumping && note.isHazard;
+
+                    if (inSameLane) {
+                        if (note.isHazard) {
+                            if (!state.settings.zenMode && !jumpedOver) {
+                                // Hazard Collision: Drop multiplier & combo
+                                state.combo = 0;
+                                state.multiplier = 1;
+                                state.shield = Math.max(0, state.shield - 20);
+                                triggerHitFeedback('HAZARD BREACH', colors.secondary);
+                                note.hit = true;
+                            } else if (jumpedOver) {
+                                // Successfully jumped over hazard!
+                                state.score += 250 * state.multiplier;
+                                state.combo++;
+                                triggerHitFeedback('CLEAN JUMP!', colors.accent);
+                                note.hit = true;
+                            }
+                        } else {
+                            // Standard Rhythm Pickup: Combo up
+                            state.combo++;
+                            if (state.combo > state.maxCombo) state.maxCombo = state.combo;
+                            state.accuracyHits++;
+                            state.totalNotes++;
+
+                            // Dynamic multiplier tier calculation
+                            if (state.combo >= 40) state.multiplier = 8;
+                            else if (state.combo >= 20) state.multiplier = 4;
+                            else if (state.combo >= 10) state.multiplier = 2;
+                            else state.multiplier = 1;
+
+                            state.score += 100 * state.multiplier;
+                            triggerHitFeedback('PERFECT SYNC', colors.primary);
+                            createExplosion(noteX, noteY, colors.primary);
+                            note.hit = true;
+                        }
+                    }
+                }
+
+                // Off-screen note culling
+                if (note.z <= 0.01) {
+                    if (!note.hit && !note.isHazard) {
+                        state.totalNotes++;
+                        state.combo = 0;
+                        state.multiplier = 1;
+                    }
+                    state.highway.notes.splice(i, 1);
+                    continue;
+                }
+
+                // Render Highway Note
+                ctx.save();
+                ctx.shadowColor = note.color;
+                ctx.shadowBlur = 15 * scale;
+                ctx.fillStyle = note.color;
+
+                if (note.isHazard) {
+                    // Crimson spike obstacle
+                    ctx.beginPath();
+                    ctx.moveTo(noteX, noteY - (22 * scale));
+                    ctx.lineTo(noteX - (16 * scale), noteY + (8 * scale));
+                    ctx.lineTo(noteX + (16 * scale), noteY + (8 * scale));
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    // Electric Cyan diamond note
+                    ctx.beginPath();
+                    ctx.arc(noteX, noteY, 14 * scale, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 2 * scale;
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            // 6. Smooth Player Avatar Interpolation & Jump Physics
+            const playerStrikeY = roadBottomY - 20;
+            const targetX = getLaneX(state.player.targetLane, 0.95);
+            state.player.x += (targetX - state.player.x) * (dt * 18);
+            state.player.lane = state.player.targetLane;
+
+            if (state.player.isJumping) {
+                state.player.jumpVelocity -= 50 * dt; // gravity
+                state.player.jumpOffset += state.player.jumpVelocity;
+                if (state.player.jumpOffset <= 0) {
+                    state.player.jumpOffset = 0;
+                    state.player.isJumping = false;
+                    state.player.jumpVelocity = 0;
+                }
+            }
+
+            // Render Player Cockpit Glider
+            const playerY = playerStrikeY - state.player.jumpOffset;
+            ctx.save();
+            ctx.shadowColor = colors.primary;
+            ctx.shadowBlur = 25;
+
+            // Glow thruster trail
+            ctx.fillStyle = state.player.isJumping ? colors.accent : colors.primary;
+            ctx.beginPath();
+            ctx.moveTo(state.player.x, playerY - 18);
+            ctx.lineTo(state.player.x - 22, playerY + 14);
+            ctx.lineTo(state.player.x, playerY + 8);
+            ctx.lineTo(state.player.x + 22, playerY + 14);
+            ctx.closePath();
+            ctx.fill();
+
+            // Cockpit Core
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(state.player.x, playerY + 2, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // 7. Particle System Update & Draw
+            for (let i = state.highway.particles.length - 1; i >= 0; i--) {
+                const p = state.highway.particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= dt * 1.5;
+                if (p.alpha <= 0) {
+                    state.highway.particles.splice(i, 1);
+                    continue;
+                }
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            }
+            ctx.globalAlpha = 1.0;
+
+            // 8. Render Mini Audio Spectrum Strip in Bottom Dock
+            renderMiniSpectrum();
+
+            // 9. Sync HUD Telemetry to DOM (Throttled/Batched)
+            syncHudDom();
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 16; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                state.highway.particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 4 + 2,
+                    color: color,
+                    alpha: 1.0,
+                });
+            }
+        }
+
+        // Mini bottom strip equalizer visualization
+        function renderMiniSpectrum() {
+            miniCtx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
+            if (!audio.dataArray) return;
+
+            const barCount = 32;
+            const barWidth = (miniCanvas.width / barCount) - 2;
+            for (let i = 0; i < barCount; i++) {
+                const freqIndex = Math.floor(i * (audio.analyser.frequencyBinCount / (barCount * 2)));
+                const val = audio.dataArray[freqIndex] / 255;
+                const barHeight = val * (miniCanvas.height - 4);
+                const x = i * (barWidth + 2);
+                const y = miniCanvas.height - barHeight;
+
+                // Color gradient according to frequency
+                const hue = 180 + (i / barCount) * 120;
+                miniCtx.fillStyle = `hsl(${hue}, 85%, 55%)`;
+                miniCtx.fillRect(x, y, barWidth, barHeight);
+            }
+        }
+
+        // Hit feedback banner
+        let calloutTimer = null;
+        function triggerHitFeedback(text, color) {
+            const el = document.getElementById('combo-callout');
+            const comboCountEl = document.getElementById('callout-combo');
+            el.firstElementChild.textContent = text;
+            el.firstElementChild.style.textShadow = `0 0 25px ${color}`;
+            comboCountEl.textContent = state.combo;
+            el.classList.remove('opacity-0', 'scale-75');
+            el.classList.add('opacity-100', 'scale-100');
+
+            if (calloutTimer) clearTimeout(calloutTimer);
+            calloutTimer = setTimeout(() => {
+                el.classList.remove('opacity-100', 'scale-100');
+                el.classList.add('opacity-0', 'scale-75');
+            }, 350);
+        }
+
+        // Update DOM telemetry without triggering expensive re-renders
+        let lastDomUpdate = 0;
+        function syncHudDom() {
+            const now = performance.now();
+            if (now - lastDomUpdate < 50) return; // limit to 20 updates/sec
+            lastDomUpdate = now;
+
+            // Score
+            document.getElementById('score-counter').textContent = state.score.toLocaleString().padStart(7, '0');
+
+            // Multiplier badge
+            const multEl = document.getElementById('multiplier-val');
+            multEl.textContent = `x${state.multiplier}`;
+            if (state.multiplier > 1) {
+                document.getElementById('multiplier-orb').classList.add('scale-105');
+            } else {
+                document.getElementById('multiplier-orb').classList.remove('scale-105');
+            }
+
+            // Accuracy
+            const acc = state.totalNotes > 0 ? ((state.accuracyHits / state.totalNotes) * 100).toFixed(1) : '99.2';
+            document.getElementById('accuracy-display').textContent = `${acc}%`;
+
+            // Shield
+            document.getElementById('shield-bar-fill').style.width = `${state.shield}%`;
+
+            // Bass & Treble Meters
+            document.getElementById('bass-meter-bar').style.width = `${Math.min(100, state.audioMetrics.bassIntensity * 180)}%`;
+            document.getElementById('treble-meter-bar').style.width = `${Math.min(100, state.audioMetrics.trebleIntensity * 200)}%`;
+
+            // Progress bar
+            if (state.isPlaying && state.trackMeta) {
+                state.trackMeta.currentTime += 0.05;
+                const pct = Math.min(100, (state.trackMeta.currentTime / state.trackMeta.duration) * 100);
+                document.getElementById('progress-bar-fill').style.width = `${pct}%`;
+
+                // Format times
+                const curM = Math.floor(state.trackMeta.currentTime / 60).toString().padStart(2, '0');
+                const curS = Math.floor(state.trackMeta.currentTime % 60).toString().padStart(2, '0');
+                const durM = Math.floor(state.trackMeta.duration / 60).toString().padStart(2, '0');
+                const durS = Math.floor(state.trackMeta.duration % 60).toString().padStart(2, '0');
+                document.getElementById('time-display').textContent = `${curM}:${curS} / ${durM}:${durS}`;
+
+                if (state.trackMeta.currentTime >= state.trackMeta.duration) {
+                    endGameRun();
+                }
+            }
+        }
+
+        function endGameRun() {
+            state.isPlaying = false;
+            state.gameStatus = 'ended';
+            audio.stopAudio();
+
+            document.getElementById('game-status-badge').textContent = 'COMPLETED';
+            document.getElementById('play-btn-text').textContent = 'START RUN';
+            document.getElementById('play-btn-icon').setAttribute('data-lucide', 'play');
+            lucide.createIcons();
+
+            // Populate Summary Modal
+            document.getElementById('summary-final-score').textContent = state.score.toLocaleString();
+            const acc = state.totalNotes > 0 ? ((state.accuracyHits / state.totalNotes) * 100).toFixed(1) : '98.5';
+            document.getElementById('summary-accuracy').textContent = `${acc}%`;
+            document.getElementById('summary-max-combo').textContent = `${state.maxCombo}x`;
+
+            const rank = acc > 95 ? 'RANK S' : acc > 85 ? 'RANK A' : 'RANK B';
+            document.getElementById('summary-rank').textContent = rank;
+
+            // Show summary dialog
+            const modal = document.getElementById('modal-summary');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.firstElementChild.classList.remove('scale-95');
+        }
+
+        /* ==========================================================
+           4. USER CONTROLS & INTERACTIVE KEYBOARD DODGING
+           ========================================================== */
+        window.addEventListener('keydown', (e) => {
+            // Lateral lane shift (A/D or ArrowLeft/ArrowRight)
+            if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+                state.player.targetLane = Math.max(0, state.player.targetLane - 1);
+            } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+                state.player.targetLane = Math.min(2, state.player.targetLane + 1);
+            } else if (e.code === 'Space') {
+                e.preventDefault();
+                // Beat Pulse Jump over hazards
+                if (!state.player.isJumping) {
+                    state.player.isJumping = true;
+                    state.player.jumpVelocity = 14;
+                }
+            } else if (e.code === 'Escape') {
+                togglePlayPause();
+            }
+        });
+
+        // Touch / Click lane switching support
+        canvas.addEventListener('pointerdown', (e) => {
+            const clickX = e.clientX;
+            const third = window.innerWidth / 3;
+            if (clickX < third) {
+                state.player.targetLane = 0;
+            } else if (clickX > third * 2) {
+                state.player.targetLane = 2;
+            } else {
+                state.player.targetLane = 1;
+            }
+        });
+
+        /* ==========================================================
+           5. HUD UI & SHADCN MODAL / SHEET CONTROLLERS
+           ========================================================== */
+        function togglePlayPause() {
+            audio.initAudioContext();
+            audio.resume();
+
+            if (!state.isPlaying) {
+                state.isPlaying = true;
+                state.gameStatus = 'playing';
+                document.getElementById('game-status-badge').textContent = 'LIVE';
+                document.getElementById('game-status-badge').className = 'px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-md bg-cyan-500/15 text-cyan-400 border border-cyan-500/30';
+                document.getElementById('play-btn-text').textContent = 'PAUSE';
+                document.getElementById('play-btn-icon').setAttribute('data-lucide', 'pause');
+
+                if (audio.isProcedural && !audio.synthTimer) {
+                    audio.startProceduralSynth('synthwave');
+                }
+            } else {
+                state.isPlaying = false;
+                state.gameStatus = 'paused';
+                document.getElementById('game-status-badge').textContent = 'PAUSED';
+                document.getElementById('game-status-badge').className = 'px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30';
+                document.getElementById('play-btn-text').textContent = 'RESUME';
+                document.getElementById('play-btn-icon').setAttribute('data-lucide', 'play');
+            }
+            lucide.createIcons();
+        }
+
+        document.getElementById('btn-toggle-play').addEventListener('click', togglePlayPause);
+
+        // Audio Loader Modal Open/Close
+        const loaderModal = document.getElementById('modal-audio-loader');
+        document.getElementById('btn-open-loader').addEventListener('click', () => {
+            loaderModal.classList.remove('opacity-0', 'pointer-events-none');
+            loaderModal.firstElementChild.classList.remove('scale-95');
+        });
+        function closeLoader() {
+            loaderModal.classList.add('opacity-0', 'pointer-events-none');
+            loaderModal.firstElementChild.classList.add('scale-95');
+        }
+        document.getElementById('btn-close-loader').addEventListener('click', closeLoader);
+        document.getElementById('btn-cancel-loader').addEventListener('click', closeLoader);
+
+        // Demo Song Selection Cards
+        let selectedDemoTrack = 'synthwave';
+        document.querySelectorAll('.demo-track-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.demo-track-card').forEach(c => {
+                    c.classList.remove('border-cyan-500/40', 'bg-cyan-500/10');
+                    c.classList.add('border-slate-800', 'bg-slate-900/40');
+                });
+                card.classList.remove('border-slate-800', 'bg-slate-900/40');
+                card.classList.add('border-cyan-500/40', 'bg-cyan-500/10');
+                selectedDemoTrack = card.getAttribute('data-track');
+            });
+        });
+
+        document.getElementById('btn-load-and-start').addEventListener('click', () => {
+            closeLoader();
+            audio.startProceduralSynth(selectedDemoTrack);
+            state.isPlaying = true;
+            state.gameStatus = 'playing';
+            state.score = 0;
+            state.combo = 0;
+            state.shield = 100;
+            state.trackMeta.currentTime = 0;
+            document.getElementById('play-btn-text').textContent = 'PAUSE';
+            document.getElementById('play-btn-icon').setAttribute('data-lucide', 'pause');
+            lucide.createIcons();
+        });
+
+        // File Drag & Drop / Input
+        const fileInput = document.getElementById('audio-file-input');
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                audio.loadFile(e.target.files[0]);
+                closeLoader();
+                state.score = 0;
+                state.combo = 0;
+                state.shield = 100;
+                document.getElementById('play-btn-text').textContent = 'PAUSE';
+            }
+        });
+
+        // Mic Toggle
+        document.getElementById('btn-toggle-mic').addEventListener('click', async () => {
+            const ok = await audio.enableMicrophone();
+            if (ok) {
+                closeLoader();
+                state.isPlaying = true;
+                document.getElementById('game-status-badge').textContent = 'MIC ON';
+            }
+        });
+
+        // Settings Slide-Over Sheet Open/Close
+        const settingsSheet = document.getElementById('sheet-settings');
+        document.getElementById('btn-open-settings').addEventListener('click', () => {
+            settingsSheet.classList.remove('translate-x-full');
+        });
+        function closeSettings() {
+            settingsSheet.classList.add('translate-x-full');
+        }
+        document.getElementById('btn-close-settings').addEventListener('click', closeSettings);
+        document.getElementById('btn-save-settings').addEventListener('click', closeSettings);
+
+        // Settings Slider Handlers
+        document.getElementById('slider-sensitivity').addEventListener('input', (e) => {
+            state.settings.sensitivity = parseFloat(e.target.value);
+            document.getElementById('val-sensitivity').textContent = `${state.settings.sensitivity.toFixed(1)}x`;
+        });
+        document.getElementById('slider-speed').addEventListener('input', (e) => {
+            state.settings.speed = parseFloat(e.target.value);
+            document.getElementById('val-speed').textContent = `${state.settings.speed.toFixed(1)}x`;
+        });
+        document.getElementById('slider-volume').addEventListener('input', (e) => {
+            const vol = parseInt(e.target.value) / 100;
+            state.settings.volume = vol;
+            document.getElementById('val-volume').textContent = `${parseInt(e.target.value)}%`;
+            if (audio.gainNode) audio.gainNode.gain.value = vol;
+        });
+        document.getElementById('slider-motionblur').addEventListener('input', (e) => {
+            const blur = parseInt(e.target.value) / 100;
+            state.settings.motionBlur = blur;
+            document.getElementById('val-motionblur').textContent = `${parseInt(e.target.value)}%`;
+        });
+        document.getElementById('toggle-zen-mode').addEventListener('change', (e) => {
+            state.settings.zenMode = e.target.checked;
+        });
+
+        // Theme preset buttons
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.theme-btn').forEach(b => {
+                    b.classList.remove('active', 'border-cyan-500/50', 'bg-cyan-500/20');
+                    b.classList.add('border-slate-800', 'bg-slate-900/60');
+                });
+                btn.classList.remove('border-slate-800', 'bg-slate-900/60');
+                btn.classList.add('active', 'border-cyan-500/50', 'bg-cyan-500/20');
+                state.settings.visualTheme = btn.getAttribute('data-theme');
+            });
+        });
+
+        // Summary Modal Replay & Close
+        const summaryModal = document.getElementById('modal-summary');
+        document.getElementById('btn-summary-close').addEventListener('click', () => {
+            summaryModal.classList.add('opacity-0', 'pointer-events-none');
+        });
+        document.getElementById('btn-replay-track').addEventListener('click', () => {
+            summaryModal.classList.add('opacity-0', 'pointer-events-none');
+            state.score = 0;
+            state.combo = 0;
+            state.maxCombo = 0;
+            state.accuracyHits = 0;
+            state.totalNotes = 0;
+            state.shield = 100;
+            state.trackMeta.currentTime = 0;
+            togglePlayPause();
+        });
+
+        // Start 60fps render loop
+        requestAnimationFrame(renderLoop);
+    </script>
+</body>
+
+</html>
