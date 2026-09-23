@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #F59E0B;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0C0A09;
+}
+::-webkit-scrollbar-thumb {
+  background: #2E2A27;
+  border-radius: 3px;
+}
+
+/* Hardware stipple pattern */
+.texture-stipple {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  background-size: 8px 8px;
+}
+
+/* Pad pulse animation when triggered */
+@keyframes hitFlash {
+  0% {
+    filter: brightness(2.6) saturate(1.4);
+    transform: scale(0.96);
+  }
+  100% {
+    filter: brightness(1) saturate(1);
+    transform: scale(1);
+  }
+}
+
+.pad-trigger-pulse {
+  animation: hitFlash 0.12s ease-out;
+}

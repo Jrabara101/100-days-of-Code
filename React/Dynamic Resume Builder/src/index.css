@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #131315;
+    color: #e5e1e4;
+    overscroll-behavior: none;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a2c;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #353437;
+  }
+}
+
+/* Custom Print Rules for Vector PDF */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0mm;
+  }
+
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Hide app shell UI during print */
+  aside,
+  header,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Ensure the A4 canvas container expands naturally for paper sheets */
+  #root,
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .print-page-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    padding: 15mm 20mm !important;
+  }
+
+  .print-break-indicator {
+    display: none !important;
+  }
+
+  .print-selection-rigging {
+    display: none !important;
+  }
+}

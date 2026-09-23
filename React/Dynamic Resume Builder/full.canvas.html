@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="web_dashboard" name="shell-type" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "tertiary-fixed-dim": "#ffb95f", "primary-fixed-dim": "#c0c1ff", "surface-variant": "#353437", "on-tertiary": "#472a00", "primary": "#c0c1ff", "on-secondary": "#003824", "surface-container-lowest": "#0e0e10", "on-tertiary-container": "#3e2400", "outline": "#908fa0", "surface-container": "#201f22", "surface-container-low": "#1c1b1d", "on-surface": "#e5e1e4", "background": "#131315", "on-error": "#690005", "secondary-fixed-dim": "#4edea3", "on-primary-fixed": "#07006c", "on-primary-container": "#0d0096", "surface-container-high": "#2a2a2c", "on-error-container": "#ffdad6", "on-secondary-fixed-variant": "#005236", "inverse-primary": "#494bd6", "primary-fixed": "#e1e0ff", "on-secondary-fixed": "#002113", "on-tertiary-fixed": "#2a1700", "inverse-surface": "#e5e1e4", "tertiary-fixed": "#ffddb8", "surface-bright": "#39393b", "error-container": "#93000a", "secondary-container": "#00a572", "surface-container-highest": "#353437", "on-tertiary-fixed-variant": "#653e00", "on-primary-fixed-variant": "#2f2ebe", "primary-container": "#8083ff", "outline-variant": "#464554", "on-background": "#e5e1e4", "error": "#ffb4ab", "surface-tint": "#c0c1ff", "on-secondary-container": "#00311f", "secondary": "#4edea3", "on-primary": "#1000a9", "tertiary": "#ffb95f", "inverse-on-surface": "#313032", "tertiary-container": "#ca8100", "surface-dim": "#131315", "secondary-fixed": "#6ffbbe", "on-surface-variant": "#c7c4d7", "surface": "#131315" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" }, spacing: { "space-lg": "1rem", "space-xs": "0.25rem", gutter: "1rem", margin: "1.5rem", "space-md": "0.75rem", "space-sm": "0.5rem", "space-xl": "1.5rem" }, fontFamily: { "headline-sm": ["Inter"], "code-metric": ["Inter"], "label-sm": ["Inter"], "body-md": ["Inter"], title: ["Inter"], "label-md": ["Inter"], display: ["Inter"], "body-lg": ["Inter"], "headline-md": ["Inter"], "headline-lg": ["Inter"], "headline-lg-mobile": ["Inter"], "body-sm": ["Inter"] }, fontSize: { "headline-sm": ["1.125rem", { lineHeight: "1.5rem", letterSpacing: "-0.01em", fontWeight: "600" }], "code-metric": ["0.75rem", { lineHeight: "1rem", letterSpacing: "-0.01em", fontWeight: "500" }], "label-sm": ["0.6875rem", { lineHeight: "0.875rem", letterSpacing: "0.025em", fontWeight: "600" }], "body-md": ["0.875rem", { lineHeight: "1.375rem", fontWeight: "400" }], title: ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "-0.005em", fontWeight: "600" }], "label-md": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0.01em", fontWeight: "500" }], display: ["2.25rem", { lineHeight: "2.75rem", letterSpacing: "-0.025em", fontWeight: "600" }], "body-lg": ["1rem", { lineHeight: "1.5rem", fontWeight: "400" }], "headline-md": ["1.25rem", { lineHeight: "1.75rem", letterSpacing: "-0.015em", fontWeight: "600" }], "headline-lg": ["1.75rem", { lineHeight: "2.25rem", letterSpacing: "-0.02em", fontWeight: "600" }], "headline-lg-mobile": ["1.5rem", { lineHeight: "2rem", letterSpacing: "-0.015em", fontWeight: "600" }], "body-sm": ["0.75rem", { lineHeight: "1.125rem", fontWeight: "400" }] } } } }</script>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md text-body-md">
+    <aside
+        class="fixed left-0 top-0 h-full w-16 bg-surface-container-lowest z-50 flex flex-col items-center py-space-md justify-between shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+        <div class="flex flex-col items-center gap-space-lg">
+            <div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[22px]">token</span></div>
+            <nav class="flex flex-col items-center gap-space-xs"
+                data-active-classes="bg-surface-container-highest text-primary font-label-md rounded-lg"><a
+                    class="w-10 h-10 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                    data-path="spatial-studio" href="#" title="Spatial Studio"><span
+                        class="material-symbols-outlined text-[20px]">grid_view</span></a><a
+                    class="w-10 h-10 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                    data-path="career-timeline" href="#" title="Career Timeline"><span
+                        class="material-symbols-outlined text-[20px]">timeline</span></a><a
+                    class="w-10 h-10 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                    data-path="ats-optimizer" href="#" title="ATS Analyzer"><span
+                        class="material-symbols-outlined text-[20px]">fact_check</span></a><a
+                    class="w-10 h-10 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                    data-path="document-history" href="#" title="Version Revisions"><span
+                        class="material-symbols-outlined text-[20px]">history</span></a></nav>
+        </div>
+        <div class="flex flex-col items-center gap-space-sm"><button
+                class="w-10 h-10 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                title="Settings" type="button"><span
+                    class="material-symbols-outlined text-[20px]">settings</span></button>
+            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span
+                    class="material-symbols-outlined text-on-primary text-[18px]">person</span></div>
+        </div>
+    </aside>
+    <div class="pl-16">
+        <header
+            class="fixed top-0 left-16 right-0 h-14 bg-surface-container-lowest/90 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.25)]">
+            <div class="h-14 w-full px-gutter flex items-center justify-between gap-space-md">
+                <div class="flex items-center gap-space-md shrink-0">
+                    <div class="flex items-center gap-space-xs"><span
+                            class="material-symbols-outlined text-primary text-[20px]">layers</span><span
+                            class="font-title text-title text-on-surface tracking-tight hidden lg:inline-block">Spatial
+                            Career Engine</span></div><span
+                        class="text-outline-variant font-code-metric text-code-metric">/</span>
+                    <div
+                        class="flex items-center gap-space-xs bg-surface-container-low px-space-sm py-space-xs rounded-lg hover:bg-surface-container-high transition-colors">
+                        <span
+                            class="material-symbols-outlined text-on-surface-variant text-[16px]">description</span><input
+                            aria-label="Document title"
+                            class="bg-transparent text-on-surface font-code-metric text-code-metric focus:outline-none w-56 truncate"
+                            type="text" value="Senior_Product_Designer_Resume_2025.pdf" /></div>
+                    <div class="flex items-center bg-surface-container-low rounded-lg p-0.5"><button
+                            class="w-7 h-7 flex items-center justify-center rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                            title="Undo (⌘Z)" type="button"><span
+                                class="material-symbols-outlined text-[16px]">undo</span></button><button
+                            class="w-7 h-7 flex items-center justify-center rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                            title="Redo (⇧⌘Z)" type="button"><span
+                                class="material-symbols-outlined text-[16px]">redo</span></button></div>
+                    <div
+                        class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span><span>Auto-saved</span></div>
+                </div>
+                <div class="flex items-center gap-space-md shrink-0">
+                    <div class="flex items-center bg-surface-container-low rounded-full px-space-xs py-0.5"><button
+                            class="w-6 h-6 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+                            title="Zoom out" type="button"><span
+                                class="material-symbols-outlined text-[14px]">remove</span></button><span
+                            class="px-space-xs font-code-metric text-code-metric text-on-surface-variant">100%</span><button
+                            class="w-6 h-6 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+                            title="Zoom in" type="button"><span
+                                class="material-symbols-outlined text-[14px]">add</span></button></div>
+                    <nav class="flex items-center bg-surface-container-lowest p-0.5 rounded-lg"
+                        data-active-classes="bg-surface-container-highest text-on-surface font-label-md"><a
+                            class="px-space-sm py-space-xs rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors"
+                            data-path="spatial-studio" href="#">Editor</a><a
+                            class="px-space-sm py-space-xs rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors"
+                            data-path="split-view" href="#">Split View</a><a aria-current="page"
+                            class="px-space-sm py-space-xs rounded-md transition-colors bg-primary text-on-primary font-label-md shadow-sm flex items-center gap-1"
+                            data-path="canvas-preview" href="#"><span
+                                class="material-symbols-outlined text-[14px]">visibility</span><span>Preview</span></a>
+                    </nav>
+                    <div
+                        class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-md bg-surface-container font-label-sm text-label-sm text-on-surface-variant">
+                        <span class="material-symbols-outlined text-[14px]">auto_stories</span><span>Page 1 of 2</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-space-md shrink-0">
+                    <div class="flex items-center -space-x-2">
+                        <div
+                            class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center ring-2 ring-surface-container-lowest text-on-secondary font-label-sm text-label-sm">
+                            AC</div>
+                        <div
+                            class="w-6 h-6 rounded-full bg-tertiary-container flex items-center justify-center ring-2 ring-surface-container-lowest text-on-tertiary font-label-sm text-label-sm">
+                            SR</div>
+                    </div><a
+                        class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-lg bg-surface-container text-primary hover:bg-surface-container-high transition-colors font-label-md text-label-md border border-primary/30"
+                        href="#" title="Return to Split View"><span
+                            class="material-symbols-outlined text-[16px]">splitscreen</span><span>Exit
+                            Preview</span></a>
+                    <div
+                        class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-full bg-secondary-container/20 text-secondary font-code-metric text-code-metric">
+                        <span class="material-symbols-outlined text-secondary text-[14px]">verified</span><span
+                            class="font-label-md text-label-md">ATS: 88</span></div>
+                    <div class="flex items-center"><button
+                            class="flex items-center gap-space-xs bg-primary text-on-primary px-space-md py-space-xs rounded-l-lg hover:bg-primary-fixed-dim transition-colors font-label-md text-label-md"
+                            type="button"><span
+                                class="material-symbols-outlined text-[16px]">picture_as_pdf</span><span>Export
+                                PDF</span></button><button
+                            class="bg-primary text-on-primary px-space-xs py-space-xs rounded-r-lg hover:bg-primary-fixed-dim transition-colors"
+                            type="button"><span
+                                class="material-symbols-outlined text-[16px]">arrow_drop_down</span></button></div>
+                </div>
+            </div>
+        </header>
+        <main class="relative pt-14 w-full bg-surface-container-lowest">
+            <div class="flex flex-col w-full">
+                <!-- 3-Column Studio Workspace Grid without outer viewport scrolling -->
+                <div class="flex w-full h-[calc(100vh-56px)] overflow-hidden bg-surface-container-lowest">
+                    <!-- ========================================================================= -->
+                    <!-- COLUMN 1: Left Form Editor Pane (Structured Input / Accordion Stack)      -->
+                    <!-- ========================================================================= -->
+                    <section aria-label="Resume Content Editor"
+                        class="w-96 min-w-[360px] max-w-[400px] bg-surface-container-low/95 backdrop-blur-xl flex flex-col h-full shrink-0 shadow-[2px_0_12px_rgba(0,0,0,0.5)] z-20 hidden">
+                        <!-- Top Sub-Header & Navigation Tabs -->
+                        <div class="p-space-md bg-surface-container-lowest/80 flex flex-col gap-space-sm">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-space-xs">
+                                    <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                                    <span class="font-title text-title text-on-surface tracking-tight">Structured
+                                        Content</span>
+                                </div>
+                                <span
+                                    class="px-space-xs py-0.5 rounded bg-surface-container font-code-metric text-code-metric text-on-surface-variant">⌘K
+                                    to jump</span>
+                            </div>
+                            <!-- Mode Switches -->
+                            <div class="grid grid-cols-3 bg-surface-container-low p-1 rounded-lg">
+                                <button
+                                    class="py-1 rounded text-center font-label-md text-label-md bg-surface-container-high text-primary shadow-sm flex items-center justify-center gap-1"
+                                    type="button">
+                                    <span class="material-symbols-outlined text-[14px]">edit_note</span> Content
+                                </button>
+                                <button
+                                    class="py-1 rounded text-center font-label-md text-label-md text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1 transition-colors"
+                                    type="button">
+                                    <span class="material-symbols-outlined text-[14px]">auto_awesome</span> AI Co-pilot
+                                </button>
+                                <button
+                                    class="py-1 rounded text-center font-label-md text-label-md text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1 transition-colors"
+                                    type="button">
+                                    <span class="material-symbols-outlined text-[14px]">history</span> Revisions
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Accordion Stack Scroll Area -->
+                        <div class="flex-1 overflow-y-auto px-space-md py-space-sm space-y-space-sm">
+                            <!-- SECTION 1: Personal Info (Collapsed preview state) -->
+                            <div
+                                class="bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all hover:bg-surface-container-high/80">
+                                <div class="p-space-sm flex items-center justify-between cursor-pointer">
+                                    <div class="flex items-center gap-space-sm">
+                                        <span
+                                            class="material-symbols-outlined text-outline text-[18px] cursor-grab hover:text-on-surface">drag_indicator</span>
+                                        <div>
+                                            <span class="font-title text-title text-on-surface block">Personal
+                                                Details</span>
+                                            <span class="font-body-sm text-body-sm text-on-surface-variant">Alexander
+                                                Chen • SF, CA</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                        <span
+                                            class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- SECTION 2: Work Experience (Active / Expanded) -->
+                            <div class="bg-surface-container rounded-xl overflow-hidden shadow-md">
+                                <div class="p-space-sm bg-surface-container-high flex items-center justify-between">
+                                    <div class="flex items-center gap-space-sm">
+                                        <span
+                                            class="material-symbols-outlined text-primary text-[18px] cursor-grab">drag_indicator</span>
+                                        <div class="flex items-center gap-space-xs">
+                                            <span class="font-title text-title text-on-surface font-semibold">Work
+                                                Experience</span>
+                                            <span
+                                                class="bg-primary-container text-on-primary-container px-1.5 py-0.5 rounded font-label-sm text-label-sm">2
+                                                Roles</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-space-xs">
+                                        <button
+                                            class="w-6 h-6 rounded bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface"
+                                            title="Add Experience" type="button">
+                                            <span class="material-symbols-outlined text-[16px]">add</span>
+                                        </button>
+                                        <span
+                                            class="material-symbols-outlined text-primary text-[18px]">expand_less</span>
+                                    </div>
+                                </div>
+                                <div class="p-space-md space-y-space-md bg-surface-container">
+                                    <!-- Experience Item 1: Stripe (Detailed active form) -->
+                                    <div
+                                        class="bg-surface-container-low p-space-sm rounded-lg shadow-sm space-y-space-sm">
+                                        <div class="flex items-center justify-between pb-1">
+                                            <div class="flex items-center gap-space-xs">
+                                                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                                                <span
+                                                    class="font-label-md text-label-md text-primary uppercase tracking-wide">Primary
+                                                    Entry</span>
+                                            </div>
+                                            <div class="flex items-center gap-1">
+                                                <button
+                                                    class="text-on-surface-variant hover:text-on-surface text-[14px] p-0.5"
+                                                    type="button"><span
+                                                        class="material-symbols-outlined text-[16px]">visibility</span></button>
+                                                <button
+                                                    class="text-on-surface-variant hover:text-error text-[14px] p-0.5"
+                                                    type="button"><span
+                                                        class="material-symbols-outlined text-[16px]">delete</span></button>
+                                            </div>
+                                        </div>
+                                        <!-- Input Grid -->
+                                        <div class="grid grid-cols-2 gap-space-xs">
+                                            <div class="flex flex-col gap-0.5">
+                                                <label class="font-label-sm text-label-sm text-on-surface-variant">Role
+                                                    Title</label>
+                                                <input
+                                                    class="bg-surface-container-lowest px-space-xs py-1 rounded text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-high transition-colors"
+                                                    id="input-role-title" type="text"
+                                                    value="Staff Design Technologist" />
+                                            </div>
+                                            <div class="flex flex-col gap-0.5">
+                                                <label
+                                                    class="font-label-sm text-label-sm text-on-surface-variant">Organization</label>
+                                                <input
+                                                    class="bg-surface-container-lowest px-space-xs py-1 rounded text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-high transition-colors"
+                                                    id="input-company-name" type="text" value="Stripe" />
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-space-xs">
+                                            <div class="flex flex-col gap-0.5">
+                                                <label class="font-label-sm text-label-sm text-on-surface-variant">Date
+                                                    Range</label>
+                                                <input
+                                                    class="bg-surface-container-lowest px-space-xs py-1 rounded text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-high transition-colors"
+                                                    type="text" value="2022 — Present" />
+                                            </div>
+                                            <div class="flex flex-col gap-0.5">
+                                                <label
+                                                    class="font-label-sm text-label-sm text-on-surface-variant">Location</label>
+                                                <input
+                                                    class="bg-surface-container-lowest px-space-xs py-1 rounded text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-high transition-colors"
+                                                    type="text" value="San Francisco, CA" />
+                                            </div>
+                                        </div>
+                                        <!-- Bullet Points / Dynamic Live Textarea -->
+                                        <div class="flex flex-col gap-1 pt-1">
+                                            <div class="flex items-center justify-between">
+                                                <label
+                                                    class="font-label-sm text-label-sm text-on-surface-variant">Achievements
+                                                    &amp; Metrics</label>
+                                                <button
+                                                    class="text-secondary font-label-sm text-label-sm flex items-center gap-0.5 hover:underline"
+                                                    type="button">
+                                                    <span class="material-symbols-outlined text-[13px]">bolt</span>
+                                                    Enhance Metric
+                                                </button>
+                                            </div>
+                                            <textarea
+                                                class="w-full bg-surface-container-lowest p-space-xs rounded text-on-surface font-body-sm text-body-sm focus:outline-none leading-relaxed resize-none"
+                                                id="input-bullet-1"
+                                                rows="3">Scaled design token architecture across 42 web surfaces, decreasing engineering handoff time by 34% and accelerating release cycles.</textarea>
+                                            <!-- Action Verb Recommendation Pills -->
+                                            <div class="flex items-center gap-1 flex-wrap pt-0.5">
+                                                <span
+                                                    class="font-label-sm text-label-sm text-on-surface-variant">Suggestions:</span>
+                                                <button
+                                                    class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary hover:bg-primary hover:text-on-primary font-code-metric text-code-metric transition-colors"
+                                                    type="button">+ Orchestrated</button>
+                                                <button
+                                                    class="px-1.5 py-0.5 rounded bg-surface-container-high text-secondary hover:bg-secondary hover:text-on-secondary font-code-metric text-code-metric transition-colors"
+                                                    type="button">+ Accelerated</button>
+                                                <button
+                                                    class="px-1.5 py-0.5 rounded bg-surface-container-high text-tertiary hover:bg-tertiary hover:text-on-tertiary font-code-metric text-code-metric transition-colors"
+                                                    type="button">+ Spearheaded</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Experience Item 2: Airbnb -->
+                                    <div
+                                        class="bg-surface-container-low/60 p-space-sm rounded-lg flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+                                        <div class="flex flex-col">
+                                            <span class="font-title text-title text-on-surface">Senior UI Architect @
+                                                Airbnb</span>
+                                            <span class="font-body-sm text-body-sm text-on-surface-variant">2019 — 2022
+                                                • Core Web Platform</span>
+                                        </div>
+                                        <span
+                                            class="material-symbols-outlined text-on-surface-variant text-[18px]">open_in_full</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- SECTION 3: Executive Summary -->
+                            <div class="bg-surface-container rounded-xl overflow-hidden shadow-sm">
+                                <div class="p-space-sm flex items-center justify-between">
+                                    <div class="flex items-center gap-space-sm">
+                                        <span
+                                            class="material-symbols-outlined text-outline text-[18px] cursor-grab">drag_indicator</span>
+                                        <span class="font-title text-title text-on-surface font-semibold">Executive
+                                            Summary</span>
+                                    </div>
+                                    <div class="flex items-center gap-space-xs">
+                                        <span
+                                            class="px-1.5 py-0.5 rounded-full bg-secondary-container/20 text-secondary font-label-sm text-label-sm">82
+                                            words</span>
+                                        <span
+                                            class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- SECTION 4: Skills & Core Competencies -->
+                            <div class="bg-surface-container rounded-xl overflow-hidden shadow-sm p-space-sm">
+                                <div class="flex items-center justify-between pb-space-xs">
+                                    <div class="flex items-center gap-space-sm">
+                                        <span
+                                            class="material-symbols-outlined text-outline text-[18px] cursor-grab">drag_indicator</span>
+                                        <span class="font-title text-title text-on-surface font-semibold">Key
+                                            Capabilities</span>
+                                    </div>
+                                    <button class="text-primary font-label-sm text-label-sm hover:underline"
+                                        type="button">+ Add</button>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5 pt-1">
+                                    <span
+                                        class="px-2 py-1 rounded bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1">Design
+                                        Systems <span class="text-secondary font-code-metric">98%</span></span>
+                                    <span
+                                        class="px-2 py-1 rounded bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1">WebGL
+                                        / Canvas <span class="text-secondary font-code-metric">92%</span></span>
+                                    <span
+                                        class="px-2 py-1 rounded bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1">TypeScript
+                                        <span class="text-secondary font-code-metric">95%</span></span>
+                                    <span
+                                        class="px-2 py-1 rounded bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1">ATS
+                                        Optimization <span class="text-primary font-code-metric">100%</span></span>
+                                </div>
+                            </div>
+                            <!-- SECTION 5: Education & Credentials -->
+                            <div
+                                class="bg-surface-container rounded-xl overflow-hidden shadow-sm p-space-sm flex items-center justify-between">
+                                <div class="flex items-center gap-space-sm">
+                                    <span
+                                        class="material-symbols-outlined text-outline text-[18px] cursor-grab">drag_indicator</span>
+                                    <div>
+                                        <span class="font-title text-title text-on-surface block">Education</span>
+                                        <span class="font-body-sm text-body-sm text-on-surface-variant">B.S. Computer
+                                            Science • UC Berkeley</span>
+                                    </div>
+                                </div>
+                                <span
+                                    class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span>
+                            </div>
+                        </div>
+                        <!-- Bottom Form Actions -->
+                        <div
+                            class="p-space-md bg-surface-container-lowest flex items-center justify-between shadow-[0_-2px_8px_rgba(0,0,0,0.3)]">
+                            <button
+                                class="flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-label-md text-label-md transition-colors"
+                                type="button">
+                                <span class="material-symbols-outlined text-primary text-[18px]">add_circle</span> Add
+                                Section
+                            </button>
+                            <div class="flex items-center gap-space-xs">
+                                <span class="font-label-sm text-label-sm text-on-surface-variant">AI Auto-Tune</span>
+                                <button class="w-8 h-4 rounded-full bg-primary flex items-center justify-end px-0.5"
+                                    title="Toggle AI Auto-Tune" type="button">
+                                    <span class="w-3 h-3 rounded-full bg-surface-container-lowest"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- ========================================================================= -->
+                    <!-- COLUMN 2: Center Live A4 Spatial Canvas Viewport                           -->
+                    <!-- ========================================================================= -->
+                    <main
+                        class="flex-1 bg-surface-container-lowest overflow-auto relative flex justify-center py-10 px-8 select-none">
+                        <!-- Subtle Canvas Dot Grid Pattern SVG Background Overlay -->
+                        <div
+                            class="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#908fa0_1px,transparent_1px)] [background-size:24px_24px]">
+                        </div>
+                        <!-- Canvas Floating Tool HUD Pill -->
+                        <nav aria-label="Canvas HUD Controls"
+                            class="fixed top-16 left-1/2 -translate-x-1/2 z-30 bg-surface-container-high/90 backdrop-blur-xl px-space-md py-1.5 rounded-full shadow-2xl flex items-center gap-space-md">
+                            <div class="flex items-center gap-1">
+                                <button
+                                    class="w-7 h-7 rounded-full bg-surface-container-highest text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-colors"
+                                    title="Pan Mode (H)" type="button">
+                                    <span class="material-symbols-outlined text-[16px]">pan_tool</span>
+                                </button>
+                                <button
+                                    class="w-7 h-7 rounded-full text-on-surface-variant flex items-center justify-center hover:bg-surface-container-highest hover:text-on-surface transition-colors"
+                                    title="Select Tool (V)" type="button">
+                                    <span class="material-symbols-outlined text-[16px]">near_me</span>
+                                </button>
+                            </div>
+                            <div class="h-4 w-px bg-surface-variant"></div>
+                            <!-- Zoom HUD -->
+                            <div class="flex items-center gap-space-xs">
+                                <span class="font-code-metric text-code-metric text-on-surface px-1">100%</span>
+                                <button
+                                    class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface px-1.5 py-0.5 rounded bg-surface-container-low"
+                                    type="button">Fit</button>
+                                <button
+                                    class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface px-1.5 py-0.5 rounded bg-surface-container-low"
+                                    type="button">Actual</button>
+                            </div>
+                            <div class="h-4 w-px bg-surface-variant"></div>
+                            <!-- Interactive Beacon Sync -->
+                            <div class="flex items-center gap-1.5 text-secondary font-label-sm text-label-sm">
+                                <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+                                <span>Live Rendering</span>
+                            </div>
+                        </nav>
+                        <!-- Physical A4 Canvas Sheet Wrapper (True Proportions 794px x 1123px per page) -->
+                        <div
+                            class="w-[794px] min-h-[1480px] bg-white text-slate-900 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] rounded-sm relative flex flex-col my-auto transition-transform duration-200">
+                            <!-- PAGE 1 CONTENT AREA (Inside A4 Boundaries) -->
+                            <div class="p-12 flex flex-col flex-1 relative min-h-[1123px]">
+                                <!-- RESUME HEADER -->
+                                <header class="pb-6 relative group">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h1
+                                                class="text-3xl font-extrabold tracking-tight text-slate-950 font-display">
+                                                ALEXANDER CHEN</h1>
+                                            <p class="text-sm font-semibold tracking-wide text-indigo-700 uppercase mt-1"
+                                                id="canvas-role">Staff Design Technologist &amp; UI Architect</p>
+                                        </div>
+                                        <div
+                                            class="flex flex-col items-end text-xs text-slate-500 font-code-metric space-y-0.5">
+                                            <span>San Francisco, CA</span>
+                                            <span>alex.chen@spatial.design</span>
+                                            <span>github.com/alexchen</span>
+                                            <span>+1 (415) 892-0192</span>
+                                        </div>
+                                    </div>
+                                    <!-- Visual Divider inside Document -->
+                                    <div class="w-full h-0.5 bg-slate-950 mt-4 mb-2"></div>
+                                </header>
+                                <!-- SUMMARY SECTION (Highlighted as active canvas node) -->
+                                <section class="py-3 relative group">
+                                    <!-- Active Selection Rigging Box Overlay -->
+                                    <div
+                                        class="absolute -inset-2 rounded ring-2 ring-indigo-500/80 bg-indigo-50/20 pointer-events-none transition-all hidden">
+                                        <span
+                                            class="absolute -top-3 left-2 bg-indigo-600 text-white font-code-metric text-[10px] px-1.5 py-0.5 rounded tracking-wider uppercase shadow">Selected
+                                            Node: Summary</span>
+                                    </div>
+                                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-900 mb-1">
+                                        Executive Summary</h2>
+                                    <p class="text-xs text-slate-700 leading-relaxed">
+                                        Design Technologist with 9+ years bridging high-fidelity interaction craft and
+                                        ultra-scalable production systems. Pioneer in tokenized UI architectures,
+                                        multi-platform design compiler infrastructure, and spatial web experiences
+                                        across web, canvas, and WebGL runtimes. Proven leader delivering low-latency
+                                        design pipelines for Tier-1 technology companies.
+                                    </p>
+                                </section>
+                                <!-- EXPERIENCE SECTION -->
+                                <section class="py-4 space-y-5">
+                                    <h2
+                                        class="text-xs font-bold uppercase tracking-widest text-slate-900 border-b border-slate-300 pb-1">
+                                        Professional Experience</h2>
+                                    <!-- Entry 1: Stripe -->
+                                    <div class="space-y-1.5">
+                                        <div class="flex justify-between items-baseline">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-xs font-bold text-slate-900"
+                                                    id="canvas-entry-title">Staff Design Technologist</span>
+                                                <span class="text-xs text-slate-400">•</span>
+                                                <span class="text-xs font-semibold text-indigo-600"
+                                                    id="canvas-entry-company">Stripe</span>
+                                            </div>
+                                            <span class="text-xs text-slate-500 font-code-metric">2022 — Present | San
+                                                Francisco, CA</span>
+                                        </div>
+                                        <ul
+                                            class="list-disc list-outside ml-4 text-xs text-slate-700 space-y-1 leading-relaxed">
+                                            <li id="canvas-bullet-1">Scaled design token architecture across 42 web
+                                                surfaces, decreasing engineering handoff time by 34% and accelerating
+                                                release cycles.</li>
+                                            <li>Architected headless design system components handling 18M+ daily
+                                                checkout sessions with strict sub-50ms render latency.</li>
+                                            <li>Mentored team of 14 front-end engineers and designers in accessible WCAG
+                                                AAA patterns and high-performance WebGL visualization.</li>
+                                        </ul>
+                                    </div>
+                                    <!-- Spatial Reorder Indicator Line between Entries -->
+                                    <div
+                                        class="relative py-1 flex items-center justify-center group cursor-pointer hidden">
+                                        <div class="w-full h-0.5 bg-indigo-500"></div>
+                                        <span
+                                            class="absolute bg-indigo-600 text-white font-code-metric text-[9px] px-2 py-0.5 rounded-full shadow-md uppercase tracking-wider">Drop
+                                            Insertion Target</span>
+                                    </div>
+                                    <!-- Entry 2: Airbnb -->
+                                    <div class="space-y-1.5">
+                                        <div class="flex justify-between items-baseline">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-xs font-bold text-slate-900">Senior UI
+                                                    Architect</span>
+                                                <span class="text-xs text-slate-400">•</span>
+                                                <span class="text-xs font-semibold text-slate-800">Airbnb</span>
+                                            </div>
+                                            <span class="text-xs text-slate-500 font-code-metric">2019 — 2022 | San
+                                                Francisco, CA</span>
+                                        </div>
+                                        <ul
+                                            class="list-disc list-outside ml-4 text-xs text-slate-700 space-y-1 leading-relaxed">
+                                            <li>Formulated core design token compilers converting Figma styles to
+                                                multi-platform CSS, Swift, and Jetpack Compose tokens.</li>
+                                            <li>Created browser-based vector layout rendering engine reducing
+                                                interactive mockup latency by 58%.</li>
+                                            <li>Authored universal motion primitives standard adopted by 120+
+                                                cross-functional platform engineers.</li>
+                                        </ul>
+                                    </div>
+                                    <!-- Entry 3: Figma Ecosystem Partner -->
+                                    <div class="space-y-1.5">
+                                        <div class="flex justify-between items-baseline">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-xs font-bold text-slate-900">Lead Design Systems
+                                                    Engineer</span>
+                                                <span class="text-xs text-slate-400">•</span>
+                                                <span class="text-xs font-semibold text-slate-800">Palantir
+                                                    Technologies</span>
+                                            </div>
+                                            <span class="text-xs text-slate-500 font-code-metric">2016 — 2019 | Palo
+                                                Alto, CA</span>
+                                        </div>
+                                        <ul
+                                            class="list-disc list-outside ml-4 text-xs text-slate-700 space-y-1 leading-relaxed">
+                                            <li>Constructed Blueprint UI data visualization library rendering up to
+                                                200,000 real-time nodes on canvas.</li>
+                                            <li>Standardized developer documentation portals driving 94% component reuse
+                                                across 6 foundational mission suites.</li>
+                                        </ul>
+                                    </div>
+                                </section>
+                                <!-- SKILLS SECTION (Bottom of Page 1) -->
+                                <section class="py-3">
+                                    <h2
+                                        class="text-xs font-bold uppercase tracking-widest text-slate-900 border-b border-slate-300 pb-1 mb-2">
+                                        Technical Competencies</h2>
+                                    <div class="grid grid-cols-3 gap-2 text-xs text-slate-700">
+                                        <div><strong class="font-semibold text-slate-900">Languages:</strong>
+                                            TypeScript, Rust, GLSL, HTML5/CSS3</div>
+                                        <div><strong class="font-semibold text-slate-900">Frameworks:</strong> React,
+                                            Next.js, WebGL, Tailwind CSS</div>
+                                        <div><strong class="font-semibold text-slate-900">Methodologies:</strong> Token
+                                            Architecture, WCAG AAA, ATS Tuning</div>
+                                    </div>
+                                </section>
+                            </div>
+                            <!-- ===================================================================== -->
+                            <!-- PHYSICAL A4 PAGE BREAK VISUALIZER                                     -->
+                            <!-- ===================================================================== -->
+                            <div class="relative w-full">
+                                <!-- Dashed Red Line marking Page 1 threshold (1123px) -->
+                                <div
+                                    class="w-full border-t-2 border-dashed border-error relative z-10 flex items-center justify-between">
+                                    <span
+                                        class="bg-error text-on-error font-code-metric text-[10px] px-2 py-0.5 tracking-wider uppercase rounded-br font-semibold shadow">A4
+                                        Page 1 End • 1123px Limit</span>
+                                    <span
+                                        class="bg-secondary text-on-secondary font-code-metric text-[10px] px-2 py-0.5 tracking-wider uppercase rounded-bl font-semibold">Content
+                                        Safe • 0 Overflow</span>
+                                </div>
+                            </div>
+                            <!-- PAGE 2 CONTINUATION PREVIEW (Patents & Publications) -->
+                            <div class="p-12 flex flex-col flex-1 bg-slate-50/50">
+                                <section class="py-2 space-y-3">
+                                    <h2
+                                        class="text-xs font-bold uppercase tracking-widest text-slate-900 border-b border-slate-300 pb-1">
+                                        Patents &amp; Open Source</h2>
+                                    <div class="space-y-1">
+                                        <div class="flex justify-between text-xs">
+                                            <span class="font-bold text-slate-900">US Patent 11,489,201: Dynamic Token
+                                                Compiler for Vector Interfaces</span>
+                                            <span class="text-slate-500 font-code-metric">Granted 2023</span>
+                                        </div>
+                                        <p class="text-xs text-slate-600">Method and apparatus for instant hot-reloading
+                                            of visual variables across heterogenous runtime environments.</p>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <div class="flex justify-between text-xs">
+                                            <span class="font-bold text-slate-900">Spatial-Engine-Core (Creator &amp;
+                                                Maintainer)</span>
+                                            <span class="text-slate-500 font-code-metric">GitHub: 4.8k Stars</span>
+                                        </div>
+                                        <p class="text-xs text-slate-600">High-performance canvas layout math engine
+                                            designed for real-time document manipulation.</p>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </main>
+                    <!-- ========================================================================= -->
+                    <!-- COLUMN 3: Right Sidebar - Style & ATS Control Inspector                   -->
+                    <!-- ========================================================================= -->
+                    <aside aria-label="Style and Layout Inspector"
+                        class="w-80 min-w-[320px] max-w-[340px] bg-surface-container-low/95 backdrop-blur-xl flex flex-col h-full shrink-0 p-space-md overflow-y-auto space-y-space-lg shadow-[-2px_0_12px_rgba(0,0,0,0.5)] z-20 hidden">
+                        <!-- Panel Header -->
+                        <div class="flex items-center justify-between pb-space-xs">
+                            <span class="font-title text-title text-on-surface font-semibold">Inspector &amp;
+                                Tuning</span>
+                            <button class="text-on-surface-variant hover:text-on-surface" title="Reset to Defaults"
+                                type="button">
+                                <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+                            </button>
+                        </div>
+                        <!-- Typography Choice Stack -->
+                        <div class="space-y-space-xs">
+                            <label
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Document
+                                Typography</label>
+                            <div class="grid grid-cols-2 gap-space-xs">
+                                <button
+                                    class="p-2 rounded-lg bg-surface-container-high text-primary ring-2 ring-primary flex flex-col items-start text-left"
+                                    type="button">
+                                    <span class="font-title text-title font-bold">Inter</span>
+                                    <span class="font-code-metric text-code-metric text-on-surface-variant">Modern
+                                        Neo-Grotesque</span>
+                                </button>
+                                <button
+                                    class="p-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high flex flex-col items-start text-left transition-colors"
+                                    type="button">
+                                    <span class="font-title text-title font-serif">Merriweather</span>
+                                    <span class="font-code-metric text-code-metric text-on-surface-variant">Classic
+                                        Editorial</span>
+                                </button>
+                                <button
+                                    class="p-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high flex flex-col items-start text-left transition-colors"
+                                    type="button">
+                                    <span class="font-title text-title font-mono text-sm">Roboto Mono</span>
+                                    <span class="font-code-metric text-code-metric text-on-surface-variant">Technical
+                                        Minimal</span>
+                                </button>
+                                <button
+                                    class="p-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high flex flex-col items-start text-left transition-colors"
+                                    type="button">
+                                    <span class="font-title text-title tracking-wider text-sm">Cinzel</span>
+                                    <span class="font-code-metric text-code-metric text-on-surface-variant">Executive
+                                        Trajan</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Spacing, Margin & Line Height Sliders -->
+                        <div class="space-y-space-md bg-surface-container p-space-sm rounded-xl">
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <label class="font-label-sm text-label-sm text-on-surface-variant">Line
+                                        Height</label>
+                                    <span class="font-code-metric text-code-metric text-primary">1.45</span>
+                                </div>
+                                <input
+                                    class="w-full accent-primary h-1 bg-surface-container-lowest rounded-lg cursor-pointer"
+                                    max="1.8" min="1.1" step="0.05" type="range" value="1.45" />
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <label class="font-label-sm text-label-sm text-on-surface-variant">Content
+                                        Density</label>
+                                    <span class="font-code-metric text-code-metric text-secondary">Optimal</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-1 bg-surface-container-lowest p-0.5 rounded-lg">
+                                    <button
+                                        class="py-1 text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface rounded"
+                                        type="button">Compact</button>
+                                    <button
+                                        class="py-1 text-center font-label-sm text-label-sm bg-surface-container-high text-on-surface rounded font-semibold"
+                                        type="button">Normal</button>
+                                    <button
+                                        class="py-1 text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface rounded"
+                                        type="button">Relaxed</button>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <label class="font-label-sm text-label-sm text-on-surface-variant">Base Font
+                                        Scale</label>
+                                    <span class="font-code-metric text-code-metric text-on-surface">11 pt</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-1 bg-surface-container-lowest p-0.5 rounded-lg">
+                                    <button
+                                        class="py-1 text-center font-label-sm text-label-sm text-on-surface-variant rounded"
+                                        type="button">10 pt</button>
+                                    <button
+                                        class="py-1 text-center font-label-sm text-label-sm bg-surface-container-high text-primary rounded font-semibold"
+                                        type="button">11 pt</button>
+                                    <button
+                                        class="py-1 text-center font-label-sm text-label-sm text-on-surface-variant rounded"
+                                        type="button">12 pt</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Accent Color Swatch Picker -->
+                        <div class="space-y-space-xs">
+                            <label
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Accent
+                                Palette</label>
+                            <div class="flex items-center justify-between p-space-xs bg-surface-container rounded-xl">
+                                <button
+                                    class="w-8 h-8 rounded-full bg-slate-900 ring-2 ring-offset-2 ring-offset-surface ring-primary flex items-center justify-center"
+                                    title="Obsidian" type="button">
+                                    <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-indigo-600 hover:scale-105 transition-transform"
+                                    title="Deep Indigo" type="button"></button>
+                                <button class="w-8 h-8 rounded-full bg-emerald-600 hover:scale-105 transition-transform"
+                                    title="Emerald" type="button"></button>
+                                <button class="w-8 h-8 rounded-full bg-slate-600 hover:scale-105 transition-transform"
+                                    title="Slate" type="button"></button>
+                                <button class="w-8 h-8 rounded-full bg-rose-800 hover:scale-105 transition-transform"
+                                    title="Bordeaux" type="button"></button>
+                            </div>
+                        </div>
+                        <!-- Layout Architecture Presets -->
+                        <div class="space-y-space-xs">
+                            <label
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Layout
+                                Structure</label>
+                            <div class="grid grid-cols-2 gap-space-xs">
+                                <button
+                                    class="p-2 rounded-lg bg-surface-container-high text-primary ring-1 ring-primary/40 flex flex-col items-center justify-center gap-1"
+                                    type="button">
+                                    <span class="material-symbols-outlined text-[20px]">view_column</span>
+                                    <span class="font-label-sm text-label-sm">Modern Split</span>
+                                </button>
+                                <button
+                                    class="p-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface flex flex-col items-center justify-center gap-1 transition-colors"
+                                    type="button">
+                                    <span class="material-symbols-outlined text-[20px]">view_agenda</span>
+                                    <span class="font-label-sm text-label-sm">Minimal Single</span>
+                                </button>
+                                <button
+                                    class="p-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface flex flex-col items-center justify-center gap-1 transition-colors"
+                                    type="button">
+                                    <span class="material-symbols-outlined text-[20px]">vertical_split</span>
+                                    <span class="font-label-sm text-label-sm">Executive Dual</span>
+                                </button>
+                                <button
+                                    class="p-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface flex flex-col items-center justify-center gap-1 transition-colors"
+                                    type="button">
+                                    <span class="material-symbols-outlined text-[20px]">grid_view</span>
+                                    <span class="font-label-sm text-label-sm">Technical Grid</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Section Visibility Checklist -->
+                        <div class="space-y-space-xs">
+                            <label
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Visible
+                                Sections</label>
+                            <div class="space-y-1 bg-surface-container p-space-xs rounded-xl">
+                                <label
+                                    class="flex items-center justify-between p-1.5 rounded hover:bg-surface-container-high cursor-pointer">
+                                    <span class="font-body-sm text-body-sm text-on-surface">Header &amp; Contacts</span>
+                                    <input checked="" class="accent-primary" type="checkbox" />
+                                </label>
+                                <label
+                                    class="flex items-center justify-between p-1.5 rounded hover:bg-surface-container-high cursor-pointer">
+                                    <span class="font-body-sm text-body-sm text-on-surface">Executive Summary</span>
+                                    <input checked="" class="accent-primary" type="checkbox" />
+                                </label>
+                                <label
+                                    class="flex items-center justify-between p-1.5 rounded hover:bg-surface-container-high cursor-pointer">
+                                    <span class="font-body-sm text-body-sm text-on-surface">Work Experience</span>
+                                    <input checked="" class="accent-primary" type="checkbox" />
+                                </label>
+                                <label
+                                    class="flex items-center justify-between p-1.5 rounded hover:bg-surface-container-high cursor-pointer">
+                                    <span class="font-body-sm text-body-sm text-on-surface">Technical
+                                        Competencies</span>
+                                    <input checked="" class="accent-primary" type="checkbox" />
+                                </label>
+                                <label
+                                    class="flex items-center justify-between p-1.5 rounded hover:bg-surface-container-high cursor-pointer">
+                                    <span class="font-body-sm text-body-sm text-on-surface">Patents &amp; Open
+                                        Source</span>
+                                    <input checked="" class="accent-primary" type="checkbox" />
+                                </label>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+                <!-- ========================================================================= -->
+                <!-- GAMIFIED FLOATING ATS HUD OVERLAY (Bottom Right Floating Card)             -->
+                <!-- ========================================================================= -->
+                <aside aria-label="ATS Score Diagnostics"
+                    class="fixed bottom-6 right-10 z-40 bg-surface-container-high/95 backdrop-blur-2xl rounded-full px-space-md py-2 shadow-2xl flex items-center gap-space-sm ring-1 ring-white/10">
+                    <div class="flex items-center gap-1.5">
+                        <div
+                            class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary font-code-metric text-[10px] font-bold">
+                            88</div><span class="font-title text-title text-on-surface font-semibold">ATS Match</span>
+                    </div><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span><span
+                        class="font-label-sm text-label-sm text-secondary font-medium">Strong Fit (460
+                        words)</span><button
+                        class="ml-4 text-on-surface-variant hover:text-on-surface text-[14px] p-0.5"
+                        title="Expand ATS Details" type="button"><span
+                            class="material-symbols-outlined text-[16px]">open_in_full</span></button>
+                </aside>
+                <!-- ========================================================================= -->
+                <!-- INLINE CLIENT-SIDE SCRIPT: Live Input Sync & Micro-Interactions           -->
+                <!-- ========================================================================= -->
+                <script>
+                        (function () {
+                            // Live input bindings for immediate visual feedback on the canvas
+                            const roleInput = document.getElementById('input-role-title');
+                            const companyInput = document.getElementById('input-company-name');
+                            const bulletInput = document.getElementById('input-bullet-1');
+
+                            const canvasRole = document.getElementById('canvas-role');
+                            const canvasEntryTitle = document.getElementById('canvas-entry-title');
+                            const canvasEntryCompany = document.getElementById('canvas-entry-company');
+                            const canvasBullet1 = document.getElementById('canvas-bullet-1');
+
+                            if (roleInput && canvasEntryTitle) {
+                                roleInput.addEventListener('input', (e) => {
+                                    canvasEntryTitle.textContent = e.target.value || 'Staff Design Technologist';
+                                    if (canvasRole) canvasRole.textContent = (e.target.value || 'Staff Design Technologist') + ' & UI Architect';
+                                });
+                            }
+
+                            if (companyInput && canvasEntryCompany) {
+                                companyInput.addEventListener('input', (e) => {
+                                    canvasEntryCompany.textContent = e.target.value || 'Stripe';
+                                });
+                            }
+
+                            if (bulletInput && canvasBullet1) {
+                                bulletInput.addEventListener('input', (e) => {
+                                    canvasBullet1.textContent = e.target.value || 'Scaled design token architecture across 42 web surfaces.';
+                                });
+                            }
+                        })();
+                </script>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

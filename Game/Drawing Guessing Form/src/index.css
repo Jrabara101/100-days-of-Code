@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #34241B;
+    background-image: 
+      radial-gradient(circle at 50% 15%, rgba(97, 72, 56, 0.45) 0%, transparent 70%),
+      linear-gradient(180deg, #38271E 0%, #281B14 100%);
+    color: #1E2638;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+.paper-texture {
+  background-color: #F8F4EC;
+  background-image: radial-gradient(#d3c7b3 0.65px, transparent 0.65px);
+  background-size: 14px 14px;
+}
+
+.spiral-binding {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 16px,
+    #442F24 16px,
+    #442F24 22px
+  );
+}
+
+.touch-none {
+  touch-action: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(232, 222, 200, 0.4);
+  border-radius: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #C4B69E;
+  border-radius: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #A8987E;
+}
+
+/* Washi tape visual detail */
+.washi-tape {
+  background: rgba(232, 222, 200, 0.75);
+  border-left: 2px dashed rgba(180, 160, 140, 0.5);
+  border-right: 2px dashed rgba(180, 160, 140, 0.5);
+}

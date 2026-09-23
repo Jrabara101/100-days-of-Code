@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Doodlr Studio - Cozy Papercraft &amp; Artist Atelier</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- Google Fonts: Caveat (Handwritten), Lora (Literary Serif), Outfit (Warm Friendly Sans) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&amp;family=Lora:ital,wght@0,500;0,600;0,700;1,400;1,600&amp;family=Outfit:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+            serif: ['Lora', 'Georgia', 'serif'],
+            hand: ['Caveat', 'cursive'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            studio: {
+              cream: '#FDFBF7',
+              paper: '#F5EFEB',
+              aged: '#EAE1D0',
+              oat: '#E8DEC8',
+              sienna: '#C85A32',
+              siennaLight: '#E87D56',
+              moss: '#3B5E41',
+              mossLight: '#527C59',
+              ink: '#1E2638',
+              charcoal: '#333D4F',
+              wood: '#442F24',
+              woodDark: '#2E1E16',
+              woodLight: '#614838',
+              sticky: '#FEF9C3',
+              stickyBorder: '#FDE047'
+            }
+          },
+          boxShadow: {
+            'sketchbook': '0 20px 45px -10px rgba(30, 20, 10, 0.28), 0 0 0 1px rgba(100, 70, 45, 0.1)',
+            'paper-lift': '0 8px 24px -4px rgba(45, 30, 20, 0.15), 0 2px 6px rgba(45, 30, 20, 0.08)',
+            'sticky': '2px 4px 12px rgba(60, 40, 20, 0.12), -1px 2px 4px rgba(60, 40, 20, 0.06)',
+            'dock': '0 12px 30px -6px rgba(40, 25, 15, 0.2)'
+          },
+          animation: {
+            'paper-shake': 'shake 0.35s ease-in-out',
+            'float-up': 'floatUp 1.2s ease-out forwards',
+            'steam': 'steam 3s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            shake: {
+              '0%, 100%': { transform: 'translateX(0) rotate(0deg)' },
+              '20%, 60%': { transform: 'translateX(-4px) rotate(-0.5deg)' },
+              '40%, 80%': { transform: 'translateX(4px) rotate(0.5deg)' },
+            },
+            floatUp: {
+              '0%': { opacity: '0', transform: 'translateY(12px) scale(0.85)' },
+              '25%': { opacity: '1', transform: 'translateY(-4px) scale(1.08)' },
+              '75%': { opacity: '1', transform: 'translateY(-22px) scale(1)' },
+              '100%': { opacity: '0', transform: 'translateY(-34px) scale(0.92)' },
+            },
+            steam: {
+              '0%': { transform: 'translateY(0) scaleX(1)', opacity: '0.4' },
+              '100%': { transform: 'translateY(-6px) scaleX(1.15)', opacity: '0.9' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Warm Desk Background & Linen Texture Effects */
+    body {
+      background-color: #34241B;
+      background-image: 
+        radial-gradient(circle at 50% 15%, rgba(97, 72, 56, 0.45) 0%, transparent 70%),
+        linear-gradient(180deg, #38271E 0%, #281B14 100%);
+    }
+    
+    .paper-texture {
+      background-color: #F8F4EC;
+      background-image: radial-gradient(#d3c7b3 0.65px, transparent 0.65px);
+      background-size: 14px 14px;
+    }
+
+    .spiral-binding {
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 16px,
+        #442F24 16px,
+        #442F24 22px
+      );
+    }
+
+    .touch-none {
+      touch-action: none;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(232, 222, 200, 0.4);
+      border-radius: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #C4B69E;
+      border-radius: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #A8987E;
+    }
+
+    /* Washi tape visual detail */
+    .washi-tape {
+      background: rgba(232, 222, 200, 0.7);
+      border-left: 2px dashed rgba(180, 160, 140, 0.5);
+      border-right: 2px dashed rgba(180, 160, 140, 0.5);
+    }
+  </style>
+</head>
+<body class="text-studio-ink font-sans antialiased h-full overflow-hidden select-none flex flex-col justify-between">
+<!-- ================= TOP APP BAR & HUD (Warm Studio Desk Header) ================= -->
+<header class="bg-[#2E1E16]/90 backdrop-blur-md border-b border-[#523A2B] px-4 py-2.5 flex items-center justify-between z-30 shrink-0 shadow-md">
+<!-- Left: Cozy Room Badge & Session Info -->
+<div class="flex items-center gap-3">
+<!-- Wax seal / Studio Tag -->
+<div class="flex items-center gap-2 bg-[#442F24] border border-[#6B4D3B] px-3 py-1 rounded-full shadow-inner">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-amber-400/40"></span>
+<span class="text-xs font-hand text-amber-200 text-sm tracking-wide">Studio Den #892</span>
+</div>
+<div class="hidden sm:flex items-center gap-1.5 text-xs text-[#DEC8BA]">
+<i class="w-3.5 h-3.5 text-amber-400/80" data-lucide="book-open"></i>
+<span class="font-serif italic">Round 2 of 3 • Afternoon Sketch Session</span>
+</div>
+</div>
+<!-- Center: Handwritten Masked Word & Category Hint -->
+<div class="flex flex-col items-center">
+<div class="font-hand text-2xl tracking-[0.35em] font-bold text-[#FFF6E9] flex items-center gap-1.5 drop-shadow-sm" id="masked-word-display">
+<span>_</span><span>_</span><span>_</span><span>_</span><span>_</span><span>_</span><span>_</span>
+</div>
+<div class="text-[11px] font-medium text-amber-200/90 flex items-center gap-1">
+<i class="w-3 h-3 text-studio-siennaLight" data-lucide="feather"></i>
+<span id="word-category">Word Hint: Woodland Creature (7 letters)</span>
+</div>
+</div>
+<!-- Right: Steaming Tea Mug & Timer HUD -->
+<div class="flex items-center gap-3">
+<!-- Hand-drawn style timer with tea mug -->
+<div class="flex items-center gap-2 bg-[#442F24] border border-[#6B4D3B] px-3 py-1 rounded-xl text-amber-100 shadow-inner" id="timer-badge">
+<div class="relative flex items-center justify-center">
+<i class="w-4 h-4 text-amber-300" data-lucide="coffee"></i>
+<span class="absolute -top-1.5 left-1 text-[8px] text-amber-200/70 font-hand animate-steam">~</span>
+</div>
+<div class="flex flex-col text-left leading-none">
+<span class="text-[9px] uppercase tracking-wider text-amber-300/80 font-bold">Tea Timer</span>
+<span class="font-mono font-extrabold text-sm text-amber-100" id="timer-text">42s</span>
+</div>
+</div>
+<!-- Players Drawer Trigger -->
+<button class="relative p-2 rounded-xl bg-[#442F24] hover:bg-[#573D2F] border border-[#6B4D3B] text-amber-200 transition-colors shadow-sm flex items-center gap-1.5" id="toggle-players-btn" title="Artists in Den">
+<i class="w-4 h-4" data-lucide="users"></i>
+<span class="text-xs font-hand font-bold hidden sm:inline">Artists</span>
+<span class="absolute -top-1 -right-1 bg-studio-sienna text-[9px] font-bold px-1.5 py-0.2 rounded-full text-white ring-2 ring-[#2E1E16]">4</span>
+</button>
+</div>
+</header>
+<!-- Progress Bar Timer (Water & Ink Wash style) -->
+<div class="w-full bg-[#241710] h-1.5 relative overflow-hidden shrink-0 border-b border-[#4A3222]">
+<div class="h-full bg-gradient-to-r from-studio-moss via-amber-500 to-studio-sienna w-[55%] transition-all duration-1000 shadow-sm" id="timer-progress"></div>
+</div>
+<!-- ================= MAIN VIEWPORT (Studio Desk Composition) ================= -->
+<main class="relative flex-1 flex flex-col lg:flex-row justify-center items-stretch p-2.5 sm:p-4 gap-3.5 max-w-7xl w-full mx-auto overflow-hidden">
+<!-- ================= LEFT DOCK: PENCIL CASE & ARTIST MEDIUMS ================= -->
+<aside class="w-full lg:w-60 bg-studio-aged/95 backdrop-blur-md border border-[#D5C7B0] rounded-2xl p-3 shadow-paper-lift flex flex-col justify-between shrink-0 order-2 lg:order-1">
+<div>
+<!-- Pencil Case Header -->
+<div class="flex items-center justify-between pb-2 mb-2.5 border-b border-[#D5C7B0]">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-lg bg-studio-sienna/15 border border-studio-sienna/30 flex items-center justify-center text-studio-sienna">
+<i class="w-3.5 h-3.5" data-lucide="pen-tool"></i>
+</span>
+<div>
+<h3 class="font-serif font-bold text-xs text-studio-ink">Pencil Case Tools</h3>
+<p class="text-[10px] text-studio-charcoal/75 font-sans">Craft &amp; Mediums</p>
+</div>
+</div>
+<span class="washi-tape px-2 py-0.5 text-[9px] font-hand font-bold text-studio-wood rotate-1">Artisan</span>
+</div>
+<!-- Medium / Tool Picker (2B Graphite, Fountain Ink, Watercolor wash, Kneaded Eraser) -->
+<div class="grid grid-cols-3 lg:grid-cols-1 gap-1.5 mb-3" id="tool-group">
+<!-- 2B Graphite / Pencil -->
+<button class="tool-btn active w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white text-studio-sienna font-semibold text-xs border border-studio-sienna/40 shadow-sm transition active:scale-95" data-title="2B Graphite" data-tool="brush" id="tool-brush">
+<i class="w-4 h-4 shrink-0" data-lucide="pencil"></i>
+<span class="text-[11px] truncate text-left">2B Graphite</span>
+</button>
+<!-- Watercolor / Ink Wash Bucket -->
+<button class="tool-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-studio-paper hover:bg-white text-studio-charcoal font-semibold text-xs border border-transparent hover:border-[#D5C7B0] transition active:scale-95" data-title="Watercolor Wash" data-tool="fill" id="tool-fill">
+<i class="w-4 h-4 shrink-0" data-lucide="paint-bucket"></i>
+<span class="text-[11px] truncate text-left">Gouache Fill</span>
+</button>
+<!-- Kneaded Eraser -->
+<button class="tool-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-studio-paper hover:bg-white text-studio-charcoal font-semibold text-xs border border-transparent hover:border-[#D5C7B0] transition active:scale-95" data-title="Kneaded Eraser" data-tool="eraser" id="tool-eraser">
+<i class="w-4 h-4 shrink-0" data-lucide="eraser"></i>
+<span class="text-[11px] truncate text-left">Kneaded Eraser</span>
+</button>
+</div>
+<!-- Stroke Width / Pressure Slider -->
+<div class="bg-white/80 border border-[#D5C7B0] rounded-xl p-2.5 mb-3 shadow-inner">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-bold uppercase tracking-wider text-studio-charcoal/80">Tip Pressure / Size</span>
+<span class="font-hand text-sm font-bold text-studio-sienna" id="brush-size-label">6 pt</span>
+</div>
+<div class="flex items-center gap-2.5">
+<input class="w-full h-1.5 bg-studio-oat rounded-lg appearance-none cursor-pointer accent-studio-sienna" id="brush-size-slider" max="32" min="2" type="range" value="6"/>
+<div class="w-5 h-5 rounded-full bg-studio-paper border border-[#C5B59E] flex items-center justify-center shrink-0 shadow-sm" id="brush-size-preview">
+<div class="w-1.5 h-1.5 rounded-full bg-studio-ink transition-all" id="brush-dot"></div>
+</div>
+</div>
+</div>
+<!-- Natural Earth-Tone & Gouache Pigment Swatches -->
+<div>
+<span class="text-[10px] font-bold uppercase tracking-wider text-studio-charcoal/80 block mb-1.5">Pigment Palette</span>
+<div class="grid grid-cols-5 gap-1.5 bg-white/70 p-2 rounded-xl border border-[#D5C7B0]">
+<!-- Deep Ink Navy -->
+<button class="color-swatch ring-2 ring-studio-sienna ring-offset-2 ring-offset-white w-7 h-7 rounded-full shadow-inner transition-transform active:scale-90" data-color="#1E2638" style="background-color: #1E2638;" title="Deep Ink Navy"></button>
+<!-- Charcoal Graphite -->
+<button class="color-swatch w-7 h-7 rounded-full shadow-inner transition-transform active:scale-90" data-color="#4A4E58" style="background-color: #4A4E58;" title="Graphite Charcoal"></button>
+<!-- Terracotta / Burnt Sienna -->
+<button class="color-swatch w-7 h-7 rounded-full shadow-inner transition-transform active:scale-90" data-color="#C85A32" style="background-color: #C85A32;" title="Burnt Sienna"></button>
+<!-- Warm Ochre / Honey -->
+<button class="color-swatch w-7 h-7 rounded-full shadow-inner transition-transform active:scale-90" data-color="#D9822B" style="background-color: #D9822B;" title="Yellow Ochre"></button>
+<!-- Raw Umber / Chestnut -->
+<button class="color-swatch w-7 h-7 rounded-full shadow-inner transition-transform active:scale-90" data-color="#6E442B" style="background-color: #6E442B;" title="Raw Umber"></button>
+<!-- Forest Moss Green -->
+<button class="color-swatch w-7 h-7 rounded-full shadow-inner transition-transform active:scale-90" data-color="#3B5E41" style="background-color: #3B5E41;" title="Forest Moss"></button>
+<!-- Olive Sage -->
+<button class="color-swatch w-7 h-7 rounded-full shadow-inner transition-transform active:scale-90" data-color="#7B9368" style="background-color: #7B9368;" title="Sage"></button>
+<!-- French Ultramarine / Indigo -->
+<button class="color-swatch w-7 h-7 rounded-full shadow-inner transition-transform active:scale-90" data-color="#36558F" style="background-color: #36558F;" title="Indigo Gouache"></button>
+<!-- Dusty Rose / Coral Clay -->
+<button class="color-swatch w-7 h-7 rounded-full shadow-inner transition-transform active:scale-90" data-color="#C26D68" style="background-color: #C26D68;" title="Clay Rose"></button>
+<!-- Chalk Cream White -->
+<button class="color-swatch w-7 h-7 rounded-full border border-stone-300 shadow-inner transition-transform active:scale-90" data-color="#FDFBF7" style="background-color: #FDFBF7;" title="Chalk White"></button>
+</div>
+</div>
+</div>
+<!-- Mini Studio Notes / Tip -->
+<div class="mt-3 pt-2.5 border-t border-[#D5C7B0]/80 flex items-center justify-between text-[11px] text-studio-charcoal">
+<span class="italic font-serif flex items-center gap-1">
+<i class="w-3 h-3 text-studio-moss" data-lucide="sparkles"></i>
+<span>Paper grain active</span>
+</span>
+<span class="font-hand text-studio-sienna font-bold">100% Cotton Rag</span>
+</div>
+</aside>
+<!-- ================= CENTER: SPIRAL SKETCHBOOK DRAWING CANVAS ================= -->
+<section class="flex-1 flex flex-col items-center justify-center min-w-0 order-1 lg:order-2">
+<!-- Spiral Sketchbook Cover / Binder Edge + Paper Page -->
+<div class="relative w-full max-w-2xl bg-[#E2D6C0] rounded-2xl p-2 sm:p-3.5 shadow-sketchbook border border-[#BFAFA0] flex">
+<!-- Spiral Wire Binding Ring Spine (Left edge of pad) -->
+<div class="w-4 sm:w-5 flex flex-col justify-around py-3 shrink-0 items-center mr-1">
+<!-- Repeating Spiral Loops -->
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm mb-1.5"></div>
+<div class="w-3.5 h-2.5 rounded-full border-2 border-stone-600 bg-stone-300 shadow-sm"></div>
+</div>
+<!-- The Sketch Page Itself -->
+<div class="relative flex-1 aspect-[4/3] paper-texture rounded-xl shadow-inner border border-[#E0D5C3] overflow-hidden flex items-center justify-center touch-none" id="canvas-card">
+<!-- Perforation dotted guide line near spiral -->
+<div class="absolute left-2 top-0 bottom-0 border-r border-dashed border-[#DDD0BC] pointer-events-none z-10"></div>
+<!-- LAYER 1: Background & Committed Artwork Canvas -->
+<canvas class="absolute inset-0 w-full h-full block cursor-crosshair" id="layer1-canvas"></canvas>
+<!-- LAYER 2: Dynamic Live Drawing Preview Canvas -->
+<canvas class="absolute inset-0 w-full h-full block pointer-events-none" id="layer2-canvas"></canvas>
+<!-- Custom Studio Cursor -->
+<div class="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none rounded-full border border-studio-sienna bg-studio-sienna/20 hidden transition-opacity duration-75" id="brush-cursor"></div>
+<!-- Artist Ribbon / Handwritten Label -->
+<div class="absolute top-2.5 left-4 z-20 flex items-center gap-1.5 bg-studio-paper/90 backdrop-blur-sm border border-[#D5C7B0] px-2.5 py-1 rounded-full text-xs font-serif font-bold text-studio-ink shadow-sm">
+<span class="w-2 h-2 rounded-full bg-studio-moss animate-ping"></span>
+<i class="w-3 h-3 text-studio-sienna" data-lucide="feather"></i>
+<span>Alex <span class="text-studio-charcoal font-normal">(Sketching now...)</span></span>
+</div>
+<!-- Paper Actions: Undo & Tear / Clear Page -->
+<div class="absolute top-2.5 right-2.5 z-20 flex items-center gap-1 bg-studio-paper/90 backdrop-blur-sm border border-[#D5C7B0] p-1 rounded-xl shadow-sm">
+<button class="p-1.5 rounded-lg text-studio-charcoal hover:text-studio-ink hover:bg-white active:scale-95 transition" id="btn-undo" title="Erase Last Stroke">
+<i class="w-3.5 h-3.5" data-lucide="undo-2"></i>
+</button>
+<button class="p-1.5 rounded-lg text-studio-charcoal hover:text-studio-sienna hover:bg-studio-sienna/10 active:scale-95 transition" id="btn-clear" title="Fresh Blank Page">
+<i class="w-3.5 h-3.5" data-lucide="file-x-2"></i>
+</button>
+</div>
+<!-- Floating Points Burst Notification (Stamp Style) -->
+<div class="absolute inset-0 pointer-events-none z-30 flex items-center justify-center" id="float-burst-container"></div>
+</div>
+</div>
+<!-- Handcrafted Footer Subtitle -->
+<div class="w-full max-w-2xl mt-1.5 px-2 flex items-center justify-between text-[11px] text-[#CBB9A7] font-serif italic">
+<span>Studio Desk No. 4 • Pressed Cotton Surface</span>
+<span class="font-hand text-amber-200/90 text-sm font-bold">Use smooth strokes for quick guesses!</span>
+</div>
+</section>
+<!-- ================= RIGHT DOCK: MEMO PAD SCORES & LINEN CHAT ================= -->
+<aside class="w-full lg:w-72 flex flex-col gap-3 shrink-0 order-3">
+<!-- Sticky Note / Memo Pad: Artists in the Den -->
+<div class="bg-studio-sticky border border-studio-stickyBorder rounded-2xl p-3 shadow-sticky relative overflow-hidden transform -rotate-0.5 transition-transform hover:rotate-0">
+<!-- Tape piece on top of sticky note -->
+<div class="washi-tape absolute -top-1 left-1/2 -translate-x-1/2 w-20 h-4 rotate-1 pointer-events-none shadow-sm opacity-80"></div>
+<div class="flex items-center justify-between pb-1.5 mb-2 border-b border-[#E7D688] pt-1">
+<div class="flex items-center gap-1.5">
+<i class="w-4 h-4 text-studio-sienna" data-lucide="pin"></i>
+<h3 class="font-serif font-bold text-xs text-[#524419]">Artists in the Den</h3>
+</div>
+<span class="font-hand text-sm font-bold text-[#836C18]">4 scribes</span>
+</div>
+<!-- Scoreboard List items styled as handwritten ledger notes -->
+<div class="space-y-1 text-xs font-serif">
+<!-- Alex (Drawing) -->
+<div class="flex items-center justify-between py-1 px-2 rounded-lg bg-amber-100/60 border border-[#E9D99A]">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-studio-sienna"></span>
+<span class="font-bold text-studio-ink">Alex <span class="font-hand text-studio-sienna font-bold text-xs">(Drawing now...)</span></span>
+</div>
+<span class="font-mono font-bold text-studio-wood">850 pts</span>
+</div>
+<!-- Chloe (Guessed!) -->
+<div class="flex items-center justify-between py-1 px-2 rounded-lg bg-emerald-100/50 border border-emerald-300/40">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-studio-moss"></span>
+<span class="font-bold text-emerald-950">Chloe <span class="font-hand text-studio-moss font-bold text-xs">Guessed it! ☕</span></span>
+</div>
+<span class="font-mono font-bold text-emerald-900">720 pts</span>
+</div>
+<!-- Liam -->
+<div class="flex items-center justify-between py-1 px-2 text-[#63552C]">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-stone-400"></span>
+<span>Liam <span class="text-[10px] italic font-sans">(Thinking...)</span></span>
+</div>
+<span class="font-mono text-xs">410 pts</span>
+</div>
+<!-- Maya -->
+<div class="flex items-center justify-between py-1 px-2 text-[#63552C]">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+<span>Maya <span class="text-[10px] text-amber-700 italic font-sans">(Warm guess!)</span></span>
+</div>
+<span class="font-mono text-xs">350 pts</span>
+</div>
+</div>
+</div>
+<!-- Soft Linen-Card Styled Guest Chat Feed -->
+<div class="flex-1 flex flex-col min-h-0 bg-studio-aged/95 backdrop-blur-md border border-[#D5C7B0] rounded-2xl p-2.5 shadow-paper-lift overflow-hidden">
+<!-- Chat Header -->
+<div class="px-2 py-1.5 border-b border-[#D5C7B0] flex items-center justify-between text-xs">
+<div class="flex items-center gap-1.5 font-serif font-bold text-studio-ink">
+<i class="w-3.5 h-3.5 text-studio-sienna" data-lucide="message-square"></i>
+<span>Den Parchment Chat</span>
+</div>
+<span class="text-[10px] text-studio-moss font-medium font-sans flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-studio-moss"></span> Live ink
+        </span>
+</div>
+<!-- Messages Stream -->
+<div class="flex-1 p-2 overflow-y-auto space-y-1.5 custom-scrollbar text-xs" id="chat-messages">
+<!-- System Alert Paper Slip -->
+<div class="text-center py-0.5">
+<span class="inline-block bg-white/80 text-studio-charcoal text-[10px] px-2.5 py-0.5 rounded-full border border-[#D5C7B0] font-serif italic shadow-2xs">
+            Round 2 sketch in progress • Alex is at the easel
+          </span>
+</div>
+<!-- Sample Chat message -->
+<div class="flex items-baseline gap-1.5 font-serif">
+<span class="font-bold text-studio-ink">Liam:</span>
+<span class="text-studio-charcoal font-sans">is it a tiny red fox?</span>
+</div>
+<!-- Close guess badge -->
+<div class="flex items-center gap-1.5 bg-amber-100/70 border border-amber-300/60 px-2 py-1 rounded-lg">
+<i class="w-3.5 h-3.5 text-amber-700 shrink-0" data-lucide="help-circle"></i>
+<span class="font-serif font-bold text-amber-900">Maya:</span>
+<span class="text-amber-950 font-sans">fox</span>
+<span class="ml-auto text-[9px] font-bold font-hand text-amber-800 bg-amber-200/80 px-1.5 py-0.5 rounded">Super close!</span>
+</div>
+<!-- Correct answer announcement -->
+<div class="flex items-center gap-1.5 bg-emerald-100/70 border border-emerald-300/60 px-2 py-1 rounded-lg shadow-2xs">
+<i class="w-3.5 h-3.5 text-studio-moss shrink-0" data-lucide="check-check"></i>
+<span class="font-serif font-bold text-studio-moss">Chloe:</span>
+<span class="text-emerald-950 font-medium text-[11px]">SOLVED THE RIDDLE!</span>
+<span class="ml-auto font-mono text-[9px] font-bold bg-studio-moss text-white px-1.5 py-0.5 rounded">+250</span>
+</div>
+</div>
+<!-- Guess Input Box -->
+<form class="mt-2 pt-2 border-t border-[#D5C7B0] flex items-center gap-1.5" id="guess-form">
+<input autocomplete="off" class="flex-1 bg-white border border-[#D5C7B0] rounded-xl px-3 py-1.5 text-xs text-studio-ink placeholder-studio-charcoal/60 focus:outline-none focus:ring-1 focus:ring-studio-sienna focus:border-studio-sienna font-sans transition shadow-inner" id="guess-input" placeholder="Whisper your guess..." type="text"/>
+<button class="bg-studio-sienna hover:bg-studio-siennaLight active:scale-95 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center shrink-0 shadow-sm" title="Send Guess" type="submit">
+<i class="w-3.5 h-3.5" data-lucide="send"></i>
+</button>
+</form>
+</div>
+</aside>
+</main>
+<!-- ================= PLAYERS SLIDE-OVER DRAWER (FULL SCORECARD & STUDIO ATTENDEES) ================= -->
+<aside class="fixed inset-y-0 right-0 w-80 bg-studio-cream/98 backdrop-blur-xl border-l border-[#C8B8A0] z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-2xl" id="players-drawer">
+<div class="p-4 border-b border-[#C8B8A0] bg-studio-aged flex items-center justify-between">
+<div class="flex items-center gap-2">
+<i class="w-4 h-4 text-studio-sienna" data-lucide="sparkles"></i>
+<h3 class="font-serif font-bold text-sm text-studio-ink">Artists in the Den (4)</h3>
+</div>
+<button class="p-1 rounded-lg text-studio-charcoal hover:text-studio-ink hover:bg-studio-paper transition" id="close-drawer-btn">
+<i class="w-4 h-4" data-lucide="x"></i>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-3.5 space-y-2.5 custom-scrollbar">
+<!-- Player 1 (Alex - Drawing) -->
+<div class="p-3 rounded-xl bg-white border-2 border-studio-sienna/40 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-studio-paper border-2 border-studio-sienna flex items-center justify-center text-studio-sienna font-serif font-bold">
+            AL
+          </div>
+<span class="absolute -bottom-1 -right-1 bg-studio-sienna text-white rounded-full p-0.5 shadow-sm">
+<i class="w-2.5 h-2.5" data-lucide="pencil"></i>
+</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="text-xs font-serif font-bold text-studio-ink">Alex</span>
+<span class="text-[9px] bg-studio-sienna/15 text-studio-sienna font-extrabold px-1.5 py-0.2 rounded">YOU</span>
+</div>
+<span class="text-[11px] text-studio-charcoal font-sans">Sketching now...</span>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono text-sm font-bold text-studio-sienna">850</div>
+<span class="text-[10px] font-hand text-studio-charcoal">#1 Leader</span>
+</div>
+</div>
+<!-- Player 2 (Chloe - Guessed) -->
+<div class="p-3 rounded-xl bg-emerald-50/80 border border-studio-moss/40 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-emerald-100 border-2 border-studio-moss flex items-center justify-center text-studio-moss font-serif font-bold">
+            CH
+          </div>
+<span class="absolute -bottom-1 -right-1 bg-studio-moss text-white rounded-full p-0.5 shadow-sm">
+<i class="w-2.5 h-2.5" data-lucide="check"></i>
+</span>
+</div>
+<div>
+<span class="text-xs font-serif font-bold text-studio-ink">Chloe</span>
+<div class="text-[11px] text-studio-moss font-medium flex items-center gap-1 font-sans">
+            Guessed it! ☕
+          </div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono text-sm font-bold text-studio-moss">720</div>
+<span class="text-[10px] font-hand text-studio-charcoal">#2 Companion</span>
+</div>
+</div>
+<!-- Player 3 (Liam) -->
+<div class="p-3 rounded-xl bg-white border border-[#D5C7B0] shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-10 h-10 rounded-full bg-studio-paper border border-[#C5B59E] flex items-center justify-center text-studio-charcoal font-serif font-bold">
+          LM
+        </div>
+<div>
+<span class="text-xs font-serif font-bold text-studio-ink">Liam</span>
+<div class="text-[11px] text-studio-charcoal font-sans">Thinking...</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono text-sm font-bold text-studio-ink">410</div>
+<span class="text-[10px] font-hand text-studio-charcoal">#3 Scribe</span>
+</div>
+</div>
+<!-- Player 4 (Maya) -->
+<div class="p-3 rounded-xl bg-white border border-[#D5C7B0] shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-10 h-10 rounded-full bg-studio-paper border border-[#C5B59E] flex items-center justify-center text-studio-charcoal font-serif font-bold">
+          MY
+        </div>
+<div>
+<span class="text-xs font-serif font-bold text-studio-ink">Maya</span>
+<div class="text-[11px] text-amber-700 font-sans">Close guess!</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono text-sm font-bold text-studio-ink">350</div>
+<span class="text-[10px] font-hand text-studio-charcoal">#4 Scribe</span>
+</div>
+</div>
+</div>
+<!-- Drawer Footer -->
+<div class="p-3.5 border-t border-[#C8B8A0] bg-studio-aged">
+<button class="w-full py-2 bg-studio-paper hover:bg-white border border-[#C5B59E] rounded-xl text-xs font-serif font-bold text-studio-ink transition flex items-center justify-center gap-2 shadow-sm">
+<i class="w-3.5 h-3.5 text-studio-sienna" data-lucide="share-2"></i>
+<span>Invite Guest Artists to Table</span>
+</button>
+</div>
+</aside>
+<!-- ================= WORD SELECTION MODAL (Handcrafted Studio Prompts) ================= -->
+<div class="fixed inset-0 z-50 bg-[#281B14]/80 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-200 hidden" id="word-selection-modal">
+<div class="bg-studio-paper border-2 border-[#C5B59E] rounded-3xl w-full max-w-sm p-6 shadow-2xl relative text-center">
+<div class="w-12 h-12 rounded-2xl bg-studio-sienna/15 text-studio-sienna border border-studio-sienna/30 mx-auto flex items-center justify-center mb-3">
+<i class="w-6 h-6" data-lucide="feather"></i>
+</div>
+<h2 class="text-lg font-serif font-bold text-studio-ink">Your Turn at the Easel!</h2>
+<p class="text-xs font-sans text-studio-charcoal mt-1 mb-4">Choose a sketch prompt for the den. Auto-selecting in <span class="font-bold text-studio-sienna" id="modal-timer">8s</span></p>
+<!-- Word Prompt Options -->
+<div class="space-y-2.5">
+<button class="select-word-btn w-full p-3 rounded-2xl bg-white hover:bg-studio-cream border border-[#D5C7B0] hover:border-studio-sienna flex items-center justify-between transition-all group shadow-sm" data-cat="Woodland Creature" data-word="SPARROW">
+<div class="text-left">
+<span class="text-[10px] font-bold uppercase text-studio-moss bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300/60 font-sans">Gentle Sketch</span>
+<div class="text-base font-serif font-bold text-studio-ink group-hover:text-studio-sienna mt-1">SPARROW</div>
+</div>
+<span class="font-mono text-xs font-bold text-studio-charcoal group-hover:text-studio-sienna">+100 pts</span>
+</button>
+<button class="select-word-btn w-full p-3 rounded-2xl bg-white hover:bg-studio-cream border border-[#D5C7B0] hover:border-studio-sienna flex items-center justify-between transition-all group shadow-sm" data-cat="Woodland Creature" data-word="GIRAFFE">
+<div class="text-left">
+<span class="text-[10px] font-bold uppercase text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-300/60 font-sans">Detailed</span>
+<div class="text-base font-serif font-bold text-studio-ink group-hover:text-studio-sienna mt-1">GIRAFFE</div>
+</div>
+<span class="font-mono text-xs font-bold text-amber-700">+250 pts</span>
+</button>
+<button class="select-word-btn w-full p-3 rounded-2xl bg-white hover:bg-studio-cream border border-[#D5C7B0] hover:border-studio-sienna flex items-center justify-between transition-all group shadow-sm" data-cat="Woodland Habitat" data-word="WINDMILL">
+<div class="text-left">
+<span class="text-[10px] font-bold uppercase text-studio-sienna bg-studio-sienna/10 px-2 py-0.5 rounded-full border border-studio-sienna/30 font-sans">Masterpiece</span>
+<div class="text-base font-serif font-bold text-studio-ink group-hover:text-studio-sienna mt-1">WINDMILL</div>
+</div>
+<span class="font-mono text-xs font-bold text-studio-sienna">+500 pts</span>
+</button>
+</div>
+</div>
+</div>
+<!-- ================= CLIENT-SIDE REAL-TIME DRAWING & GAME LOGIC ================= -->
+<script>
+  // Initialize Lucide Icons
+  lucide.createIcons();
+
+  // DOM Elements
+  const layer1 = document.getElementById('layer1-canvas');
+  const layer2 = document.getElementById('layer2-canvas');
+  const ctx1 = layer1.getContext('2d', { willReadFrequently: true });
+  const ctx2 = layer2.getContext('2d');
+  const canvasCard = document.getElementById('canvas-card');
+  const brushCursor = document.getElementById('brush-cursor');
+
+  // UI Tools
+  const toolButtons = document.querySelectorAll('.tool-btn');
+  const colorSwatches = document.querySelectorAll('.color-swatch');
+  const brushSlider = document.getElementById('brush-size-slider');
+  const brushSizeLabel = document.getElementById('brush-size-label');
+  const brushDot = document.getElementById('brush-dot');
+  const btnClear = document.getElementById('btn-clear');
+  const btnUndo = document.getElementById('btn-undo');
+  const guessForm = document.getElementById('guess-form');
+  const guessInput = document.getElementById('guess-input');
+  const chatMessages = document.getElementById('chat-messages');
+
+  // Drawer & Modals
+  const playersDrawer = document.getElementById('players-drawer');
+  const togglePlayersBtn = document.getElementById('toggle-players-btn');
+  const closeDrawerBtn = document.getElementById('close-drawer-btn');
+  const wordModal = document.getElementById('word-selection-modal');
+  const wordSelectBtns = document.querySelectorAll('.select-word-btn');
+  const maskedWordDisplay = document.getElementById('masked-word-display');
+  const wordCategory = document.getElementById('word-category');
+
+  // Game Engine State (FSM)
+  const GameState = {
+    phase: 'DRAWING',
+    activeWord: 'GIRAFFE',
+    activeCategory: 'Word Hint: Woodland Creature (7 letters)',
+    isArtist: true,
+    currentTool: 'brush', // 'brush' | 'eraser' | 'fill'
+    currentColor: '#1E2638',
+    brushSize: 6,
+    isDrawing: false,
+    currentStrokePoints: [],
+    history: [], // Stored paths for undo
+    timeLeft: 42
+  };
+
+  const PAPER_COLOR = '#F8F4EC';
+
+  // Responsive Canvas High-DPI Resizing
+  function resizeCanvases() {
+    const rect = canvasCard.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    
+    // Layer 1
+    layer1.width = rect.width * dpr;
+    layer1.height = rect.height * dpr;
+    ctx1.scale(dpr, dpr);
+
+    // Layer 2
+    layer2.width = rect.width * dpr;
+    layer2.height = rect.height * dpr;
+    ctx2.scale(dpr, dpr);
+
+    // Fill canvas background with warm paper tone
+    ctx1.fillStyle = PAPER_COLOR;
+    ctx1.fillRect(0, 0, rect.width, rect.height);
+
+    // Replay existing strokes on resize
+    redrawCommittedStrokes();
+  }
+
+  // Smooth Bezier Natural Curves (Pencil & Ink Feel)
+  function drawSmoothedCurve(ctx, points, color, width, isEraser = false) {
+    if (points.length < 2) return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle = isEraser ? PAPER_COLOR : color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.moveTo(points[0].x, points[0].y);
+
+    for (let i = 1; i < points.length - 1; i++) {
+      const xc = (points[i].x + points[i + 1].x) / 2;
+      const yc = (points[i].y + points[i + 1].y) / 2;
+      ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+    }
+
+    if (points.length > 1) {
+      const last = points[points.length - 1];
+      ctx.lineTo(last.x, last.y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Watercolor / Gouache Flood Fill
+  function floodFill(startX, startY, fillColorHex) {
+    const rect = canvasCard.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const x = Math.round(startX * dpr);
+    const y = Math.round(startY * dpr);
+    const w = Math.round(rect.width * dpr);
+    const h = Math.round(rect.height * dpr);
+
+    const imgData = ctx1.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    // Convert hex to RGBA
+    const r_target = parseInt(fillColorHex.slice(1, 3), 16);
+    const g_target = parseInt(fillColorHex.slice(3, 5), 16);
+    const b_target = parseInt(fillColorHex.slice(5, 7), 16);
+    const a_target = 255;
+
+    const startIndex = (y * w + x) * 4;
+    const r_base = data[startIndex];
+    const g_base = data[startIndex + 1];
+    const b_base = data[startIndex + 2];
+
+    if (r_base === r_target && g_base === g_target && b_base === b_target) return;
+
+    const matchBase = (idx) => {
+      return (
+        Math.abs(data[idx] - r_base) < 32 &&
+        Math.abs(data[idx + 1] - g_base) < 32 &&
+        Math.abs(data[idx + 2] - b_base) < 32
+      );
+    };
+
+    const pixelStack = [[x, y]];
+
+    while (pixelStack.length > 0) {
+      const [currX, currY] = pixelStack.pop();
+      let currentIdx = (currY * w + currX) * 4;
+
+      let y1 = currY;
+      while (y1 >= 0 && matchBase((y1 * w + currX) * 4)) {
+        y1--;
+      }
+      y1++;
+
+      let spanLeft = false;
+      let spanRight = false;
+
+      while (y1 < h && matchBase((y1 * w + currX) * 4)) {
+        const idx = (y1 * w + currX) * 4;
+        data[idx] = r_target;
+        data[idx + 1] = g_target;
+        data[idx + 2] = b_target;
+        data[idx + 3] = a_target;
+
+        if (currX > 0) {
+          if (matchBase((y1 * w + (currX - 1)) * 4)) {
+            if (!spanLeft) {
+              pixelStack.push([currX - 1, y1]);
+              spanLeft = true;
+            }
+          } else if (spanLeft) {
+            spanLeft = false;
+          }
+        }
+
+        if (currX < w - 1) {
+          if (matchBase((y1 * w + (currX + 1)) * 4)) {
+            if (!spanRight) {
+              pixelStack.push([currX + 1, y1]);
+              spanRight = true;
+            }
+          } else if (spanRight) {
+            spanRight = false;
+          }
+        }
+
+        y1++;
+      }
+    }
+
+    ctx1.putImageData(imgData, 0, 0);
+
+    GameState.history.push({
+      type: 'fill',
+      x: startX,
+      y: startY,
+      color: fillColorHex
+    });
+  }
+
+  function redrawCommittedStrokes() {
+    const rect = canvasCard.getBoundingClientRect();
+    ctx1.fillStyle = PAPER_COLOR;
+    ctx1.fillRect(0, 0, rect.width, rect.height);
+
+    GameState.history.forEach(item => {
+      if (item.type === 'stroke') {
+        drawSmoothedCurve(ctx1, item.points, item.color, item.width, item.isEraser);
+      } else if (item.type === 'fill') {
+        floodFill(item.x, item.y, item.color);
+      }
+    });
+  }
+
+  function getPointerPos(e) {
+    const rect = layer1.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  }
+
+  layer1.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    layer1.setPointerCapture(e.pointerId);
+    const pos = getPointerPos(e);
+
+    if (GameState.currentTool === 'fill') {
+      floodFill(pos.x, pos.y, GameState.currentColor);
+      return;
+    }
+
+    GameState.isDrawing = true;
+    GameState.currentStrokePoints = [pos];
+
+    ctx2.clearRect(0, 0, layer2.width, layer2.height);
+    ctx2.beginPath();
+    ctx2.arc(pos.x, pos.y, GameState.brushSize / 2, 0, Math.PI * 2);
+    ctx2.fillStyle = GameState.currentTool === 'eraser' ? PAPER_COLOR : GameState.currentColor;
+    ctx2.fill();
+  });
+
+  layer1.addEventListener('pointermove', (e) => {
+    const pos = getPointerPos(e);
+
+    // Update soft studio cursor ring
+    brushCursor.style.left = `${pos.x}px`;
+    brushCursor.style.top = `${pos.y}px`;
+    brushCursor.style.width = `${Math.max(GameState.brushSize, 8)}px`;
+    brushCursor.style.height = `${Math.max(GameState.brushSize, 8)}px`;
+    brushCursor.classList.remove('hidden');
+
+    if (!GameState.isDrawing) return;
+
+    GameState.currentStrokePoints.push(pos);
+
+    // Layer 2: active dynamic preview
+    const rect = canvasCard.getBoundingClientRect();
+    ctx2.clearRect(0, 0, rect.width, rect.height);
+    drawSmoothedCurve(
+      ctx2, 
+      GameState.currentStrokePoints, 
+      GameState.currentColor, 
+      GameState.brushSize, 
+      GameState.currentTool === 'eraser'
+    );
+  });
+
+  function commitActiveStroke() {
+    if (!GameState.isDrawing) return;
+    GameState.isDrawing = false;
+
+    if (GameState.currentStrokePoints.length > 0) {
+      drawSmoothedCurve(
+        ctx1, 
+        GameState.currentStrokePoints, 
+        GameState.currentColor, 
+        GameState.brushSize, 
+        GameState.currentTool === 'eraser'
+      );
+
+      GameState.history.push({
+        type: 'stroke',
+        points: [...GameState.currentStrokePoints],
+        color: GameState.currentColor,
+        width: GameState.brushSize,
+        isEraser: GameState.currentTool === 'eraser'
+      });
+    }
+
+    const rect = canvasCard.getBoundingClientRect();
+    ctx2.clearRect(0, 0, rect.width, rect.height);
+    GameState.currentStrokePoints = [];
+  }
+
+  layer1.addEventListener('pointerup', commitActiveStroke);
+  layer1.addEventListener('pointercancel', commitActiveStroke);
+  layer1.addEventListener('pointerleave', () => {
+    brushCursor.classList.add('hidden');
+  });
+
+  // Tool Switching
+  toolButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toolButtons.forEach(b => {
+        b.classList.remove('active', 'bg-white', 'text-studio-sienna', 'border-studio-sienna/40', 'shadow-sm');
+        b.classList.add('text-studio-charcoal', 'border-transparent', 'bg-studio-paper');
+      });
+      btn.classList.add('active', 'bg-white', 'text-studio-sienna', 'border-studio-sienna/40', 'shadow-sm');
+      btn.classList.remove('text-studio-charcoal', 'border-transparent', 'bg-studio-paper');
+      GameState.currentTool = btn.dataset.tool;
+    });
+  });
+
+  // Palette Swatches Switching
+  colorSwatches.forEach(swatch => {
+    swatch.addEventListener('click', () => {
+      colorSwatches.forEach(s => s.classList.remove('ring-2', 'ring-studio-sienna', 'ring-offset-2', 'ring-offset-white'));
+      swatch.classList.add('ring-2', 'ring-studio-sienna', 'ring-offset-2', 'ring-offset-white');
+      GameState.currentColor = swatch.dataset.color;
+      brushDot.style.backgroundColor = GameState.currentColor;
+    });
+  });
+
+  brushSlider.addEventListener('input', (e) => {
+    GameState.brushSize = parseInt(e.target.value, 10);
+    brushSizeLabel.textContent = `${GameState.brushSize} pt`;
+    brushDot.style.width = `${Math.min(GameState.brushSize, 14)}px`;
+    brushDot.style.height = `${Math.min(GameState.brushSize, 14)}px`;
+  });
+
+  btnClear.addEventListener('click', () => {
+    canvasCard.classList.add('animate-paper-shake');
+    setTimeout(() => canvasCard.classList.remove('animate-paper-shake'), 400);
+
+    const rect = canvasCard.getBoundingClientRect();
+    ctx1.fillStyle = PAPER_COLOR;
+    ctx1.fillRect(0, 0, rect.width, rect.height);
+    ctx2.clearRect(0, 0, rect.width, rect.height);
+    GameState.history = [];
+  });
+
+  btnUndo.addEventListener('click', () => {
+    if (GameState.history.length > 0) {
+      GameState.history.pop();
+      redrawCommittedStrokes();
+    }
+  });
+
+  // Players Drawer Interactions
+  togglePlayersBtn.addEventListener('click', () => {
+    playersDrawer.classList.remove('translate-x-full');
+  });
+
+  closeDrawerBtn.addEventListener('click', () => {
+    playersDrawer.classList.add('translate-x-full');
+  });
+
+  // Guess Chat Handling
+  guessForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = guessInput.value.trim();
+    if (!text) return;
+
+    appendChatMessage('You', text);
+    guessInput.value = '';
+
+    if (text.toUpperCase() === GameState.activeWord) {
+      triggerSuccessCelebration();
+    } else if (text.toUpperCase().includes('GIRAF') || text.toUpperCase() === 'HORSE') {
+      appendSystemAlert(`Maya is getting very warm! ("${text}")`, 'amber');
+    }
+  });
+
+  function appendChatMessage(author, message) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'flex items-baseline gap-1.5 font-serif';
+    msgDiv.innerHTML = `
+      <span class="font-bold text-studio-ink">${author}:</span>
+      <span class="text-studio-charcoal font-sans">${escapeHtml(message)}</span>
+    `;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function appendSystemAlert(text, type = 'emerald') {
+    const msgDiv = document.createElement('div');
+    const isEmerald = type === 'emerald';
+    msgDiv.className = `flex items-center gap-1.5 ${isEmerald ? 'bg-emerald-100/70 border-emerald-300/60' : 'bg-amber-100/70 border-amber-300/60'} border px-2 py-1 rounded-lg`;
+    msgDiv.innerHTML = `
+      <i data-lucide="${isEmerald ? 'check-check' : 'help-circle'}" class="w-3.5 h-3.5 ${isEmerald ? 'text-studio-moss' : 'text-amber-700'} shrink-0"></i>
+      <span class="font-serif font-bold ${isEmerald ? 'text-emerald-950' : 'text-amber-950'}">${escapeHtml(text)}</span>
+    `;
+    chatMessages.appendChild(msgDiv);
+    lucide.createIcons();
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function triggerSuccessCelebration() {
+    appendSystemAlert('SOLVED THE RIDDLE! (+250 pts)', 'emerald');
+
+    // Stamp / Seal celebratory burst
+    const burst = document.createElement('div');
+    burst.className = 'animate-float-up px-4 py-2 rounded-full bg-studio-moss font-serif font-bold text-white text-sm shadow-xl flex items-center gap-2 border border-emerald-200 pointer-events-none';
+    burst.innerHTML = `<i data-lucide="award" class="w-4 h-4 text-amber-300"></i> +250 PTS WAXY SEAL!`;
+    document.getElementById('float-burst-container').appendChild(burst);
+    lucide.createIcons();
+
+    setTimeout(() => burst.remove(), 1300);
+  }
+
+  function escapeHtml(string) {
+    return String(string).replace(/[&<>"']/g, function (s) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[s];
+    });
+  }
+
+  // Word Selection Modal Handlers
+  wordSelectBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      GameState.activeWord = btn.dataset.word;
+      GameState.activeCategory = `Word Hint: ${btn.dataset.cat} (${GameState.activeWord.length} letters)`;
+      
+      maskedWordDisplay.innerHTML = GameState.activeWord
+        .split('')
+        .map(() => `<span>_</span>`)
+        .join('');
+      wordCategory.textContent = GameState.activeCategory;
+
+      wordModal.classList.add('hidden');
+    });
+  });
+
+  // Setup & Initial Sample Sketch (Hand-drawn organic Giraffe on paper)
+  window.addEventListener('resize', resizeCanvases);
+  resizeCanvases();
+
+  setTimeout(() => {
+    const rect = canvasCard.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+
+    // Deep ink sketch lines
+    ctx1.strokeStyle = '#1E2638';
+    ctx1.lineWidth = 3.5;
+    ctx1.lineCap = 'round';
+    ctx1.lineJoin = 'round';
+
+    // Long Neck
+    ctx1.beginPath();
+    ctx1.moveTo(cx - 24, cy + 65);
+    ctx1.lineTo(cx - 18, cy - 20);
+    ctx1.quadraticCurveTo(cx - 32, cy - 42, cx - 12, cy - 54);
+    // Horns (Ossicones)
+    ctx1.lineTo(cx - 18, cy - 68);
+    ctx1.arc(cx - 18, cy - 70, 3, 0, Math.PI * 2);
+    ctx1.moveTo(cx + 4, cy - 54);
+    ctx1.lineTo(cx + 8, cy - 68);
+    ctx1.arc(cx + 8, cy - 70, 3, 0, Math.PI * 2);
+    // Snout
+    ctx1.moveTo(cx + 8, cy - 54);
+    ctx1.quadraticCurveTo(cx + 36, cy - 48, cx + 32, cy - 26);
+    ctx1.quadraticCurveTo(cx + 10, cy - 20, cx + 6, cy + 65);
+    ctx1.stroke();
+
+    // Eye with a little sketch eyelash
+    ctx1.fillStyle = '#1E2638';
+    ctx1.beginPath();
+    ctx1.arc(cx - 1, cy - 38, 2.5, 0, Math.PI * 2);
+    ctx1.fill();
+
+    // Warm Terracotta & Ochre watercolor patches
+    ctx1.fillStyle = '#C85A32';
+    ctx1.beginPath();
+    ctx1.ellipse(cx - 6, cy + 12, 9, 13, Math.PI / 6, 0, Math.PI * 2);
+    ctx1.fill();
+
+    ctx1.fillStyle = '#D9822B';
+    ctx1.beginPath();
+    ctx1.ellipse(cx - 9, cy + 42, 7, 10, -Math.PI / 8, 0, Math.PI * 2);
+    ctx1.fill();
+
+    // Soft little doodle botanical leaf nearby
+    ctx1.strokeStyle = '#3B5E41';
+    ctx1.lineWidth = 2.5;
+    ctx1.beginPath();
+    ctx1.moveTo(cx + 28, cy - 26);
+    ctx1.quadraticCurveTo(cx + 45, cy - 24, cx + 52, cy - 36);
+    ctx1.stroke();
+    ctx1.fillStyle = '#527C59';
+    ctx1.beginPath();
+    ctx1.ellipse(cx + 46, cy - 28, 5, 8, Math.PI / 3, 0, Math.PI * 2);
+    ctx1.fill();
+  }, 120);
+</script>
+</body></html>
