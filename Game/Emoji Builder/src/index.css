@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    overscroll-behavior: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* Clay tactile puffiness */
+.clay-puffy {
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.clay-puffy:hover {
+  transform: translateY(-1.5px) scale(1.02);
+}
+.clay-puffy:active {
+  transform: translateY(2px) scale(0.97);
+}
+
+/* Comic brutalist buttons (for Atelier theme) */
+.brutal-btn {
+  transition: all 0.12s ease;
+  box-shadow: 2px 2px 0px #000000;
+}
+.brutal-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #000000;
+}
+.brutal-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0px #000000;
+}
+
+/* Wobbly comic speech bubbles */
+.wobbly-bubble {
+  border-radius: 28px 28px 30px 10px;
+}
+.wobbly-bubble-alt {
+  border-radius: 28px 28px 10px 30px;
+}
+.wobbly-thought {
+  border-radius: 36px 36px 36px 36px;
+  border-style: dashed;
+}
+.wobbly-shout {
+  border-radius: 12px;
+  clip-path: polygon(
+    0% 10%, 8% 0%, 20% 8%, 35% 0%, 50% 6%, 65% 0%, 80% 8%, 92% 0%, 100% 10%,
+    95% 30%, 100% 50%, 94% 70%, 100% 90%, 88% 98%, 75% 92%, 60% 100%, 45% 92%, 30% 98%, 15% 92%, 0% 100%,
+    5% 75%, 0% 50%, 6% 25%
+  );
+}
+
+/* Sticker Animations */
+@keyframes stickerBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.animate-sticker-bounce {
+  animation: stickerBounce 1.8s infinite ease-in-out;
+}
+
+@keyframes stickerFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(3deg); }
+}
+.animate-sticker-float {
+  animation: stickerFloat 3s infinite ease-in-out;
+}
+
+@keyframes stickerWobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+.animate-sticker-wobble {
+  animation: stickerWobble 2s infinite ease-in-out;
+}
+
+@keyframes stickerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.animate-sticker-pulse {
+  animation: stickerPulse 1.6s infinite ease-in-out;
+}
+
+@keyframes stickerShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+.animate-sticker-shake {
+  animation: stickerShake 0.8s infinite ease-in-out;
+}

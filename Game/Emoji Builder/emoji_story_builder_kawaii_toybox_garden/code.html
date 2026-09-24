@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EmojiStory Kawaii Toybox - 3D Clay Story Garden</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<!-- Chubby rounded & playful fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Patrick+Hand&amp;family=Quicksand:wght@500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "toybox-bg": "#F5F3FF",
+            "toybox-canvas": "#EEF2FF",
+            "bubble-pink": "#FB7185",
+            "bubble-pink-soft": "#FFE4E6",
+            "sunbeam-amber": "#FBBF24",
+            "sunbeam-soft": "#FEF3C7",
+            "matcha-mint": "#4ADE80",
+            "matcha-soft": "#DCFCE7",
+            "periwinkle-clay": "#818CF8",
+            "periwinkle-soft": "#E0E7FF",
+            "cotton-lavender": "#C084FC",
+            "sky-pastel": "#38BDF8",
+            "clay-shadow": "rgba(99, 102, 241, 0.12)",
+            "wood-border": "#E5D0B1",
+            "wood-dark": "#C8AB83"
+          },
+          fontFamily: {
+            fredoka: ['"Fredoka"', 'sans-serif'],
+            quicksand: ['"Quicksand"', 'sans-serif'],
+            hand: ['"Patrick Hand"', 'cursive'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          boxShadow: {
+            'clay-sm': 'inset 2px 2px 4px rgba(255,255,255,0.8), inset -2px -2px 4px rgba(0,0,0,0.06), 0 4px 10px rgba(129,140,248,0.15)',
+            'clay-card': 'inset 3px 3px 6px rgba(255,255,255,0.9), inset -3px -3px 6px rgba(99,102,241,0.08), 0 10px 25px -4px rgba(99,102,241,0.18)',
+            'clay-btn': 'inset 0 2px 4px rgba(255,255,255,0.6), 0 5px 0px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.08)',
+            'clay-btn-active': 'inset 0 3px 6px rgba(0,0,0,0.2), 0 1px 0px rgba(0,0,0,0.1)',
+            'marshmallow': '0 12px 30px -8px rgba(139, 92, 246, 0.22), inset 0 2px 4px rgba(255, 255, 255, 0.95)',
+            'wood-frame': 'inset 0 0 0 8px #F5E6D3, inset 0 0 0 12px #DFC29C, 0 20px 40px -10px rgba(120, 85, 50, 0.22)'
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @layer base {
+      html, body { margin:0; padding:0; overscroll-behavior:none; }
+      ::-webkit-scrollbar { display: none; }
+    }
+    .clay-puffy {
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clay-puffy:active {
+      transform: translateY(3px) scale(0.98);
+    }
+    .wobbly-bubble {
+      border-radius: 28px 28px 32px 10px;
+    }
+    .wobbly-bubble-alt {
+      border-radius: 28px 28px 12px 32px;
+    }
+  </style>
+</head>
+<body class="bg-toybox-bg font-quicksand text-slate-700 antialiased min-h-screen flex flex-col overflow-hidden select-none">
+<!-- TOP ORGANIC MARSHMALLOW ISLAND BAR -->
+<header class="fixed top-2.5 left-4 right-4 z-50 h-16 bg-white/90 backdrop-blur-md rounded-3xl border border-white/80 shadow-marshmallow px-5 flex items-center justify-between gap-4">
+<!-- Brand & Episode Title -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-bubble-pink to-sunbeam-amber flex items-center justify-center text-2xl shadow-clay-sm animate-bounce" style="animation-duration: 2.5s;">
+          ✨
+        </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-fredoka text-xl font-bold tracking-tight text-slate-800">EmojiStory</span>
+<span class="px-2 py-0.5 rounded-full bg-bubble-pink text-white font-fredoka text-[11px] font-bold shadow-sm tracking-wide">
+              TOYBOX v4
+            </span>
+</div>
+</div>
+</div>
+<div class="h-6 w-0.5 bg-indigo-100 mx-1"></div>
+<!-- Episode Editable Ribbon Pill -->
+<div class="flex items-center gap-2 bg-periwinkle-soft/60 px-3 py-1.5 rounded-2xl border border-periwinkle-clay/20 shadow-inner">
+<span class="text-lg">🧋</span>
+<input class="bg-transparent text-slate-800 font-fredoka text-sm font-semibold outline-none w-[270px] truncate" type="text" value="Adventure 03: The Magic Boba &amp; The Cloud Dragon 🧋☁️🐉"/>
+<span class="material-symbols-outlined text-[16px] text-periwinkle-clay cursor-pointer">edit</span>
+<span class="w-2 h-2 rounded-full bg-matcha-mint animate-pulse" title="Auto-saved with love"></span>
+</div>
+</div>
+<!-- Center Play/Aspect Segment -->
+<div class="hidden lg:flex items-center gap-2 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/50 shadow-inner">
+<button class="px-3 py-1 rounded-xl font-fredoka text-xs text-slate-500 hover:text-slate-800 hover:bg-white/80 transition-all">
+        1:1 Squishy
+      </button>
+<button class="px-3 py-1 rounded-xl bg-bubble-pink text-white font-fredoka text-xs font-bold shadow-clay-sm">
+        16:9 Toybox Cinema
+      </button>
+<button class="px-3 py-1 rounded-xl font-fredoka text-xs text-slate-500 hover:text-slate-800 hover:bg-white/80 transition-all">
+        9:16 Shorts
+      </button>
+</div>
+<!-- Top Right Clay Controls -->
+<div class="flex items-center gap-2.5">
+<!-- Undo / Redo Clay Pellets -->
+<div class="flex items-center bg-slate-100/70 p-1 rounded-2xl">
+<button class="w-8 h-8 rounded-xl bg-white hover:bg-periwinkle-soft text-slate-600 flex items-center justify-center shadow-sm clay-puffy">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+</button>
+<button class="w-8 h-8 rounded-xl bg-white hover:bg-periwinkle-soft text-slate-600 flex items-center justify-center shadow-sm clay-puffy ml-1">
+<span class="material-symbols-outlined text-[18px]">redo</span>
+</button>
+</div>
+<!-- Playtime timer pill -->
+<div class="flex items-center gap-1.5 bg-sunbeam-soft px-3 py-1.5 rounded-2xl border border-sunbeam-amber/30 text-amber-700 font-fredoka text-xs font-bold">
+<span class="material-symbols-outlined text-[16px] text-sunbeam-amber">alarm</span>
+<span>02:15</span>
+</div>
+<!-- Share Button (Lilac Clay) -->
+<button class="px-3 py-1.5 rounded-2xl bg-periwinkle-soft hover:bg-periwinkle-clay/30 text-indigo-700 font-fredoka text-xs font-bold border border-indigo-200 shadow-sm flex items-center gap-1.5 clay-puffy">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+<span>Share</span>
+</button>
+<!-- Export Button (Puffy Sunbeam Amber 3D Bevel) -->
+<button class="px-4 py-2 rounded-2xl bg-gradient-to-b from-sunbeam-amber to-amber-500 hover:from-amber-400 hover:to-amber-500 text-amber-950 font-fredoka text-xs font-bold shadow-clay-btn clay-puffy flex items-center gap-1.5 border-t border-yellow-200">
+<span class="material-symbols-outlined text-[18px]">auto_stories</span>
+<span>Bake Comic Book Reel</span>
+</button>
+<!-- Avatar Sticker -->
+<div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-pink-300 to-purple-300 p-0.5 shadow-clay-sm cursor-pointer hover:rotate-6 transition-transform">
+<div class="w-full h-full rounded-[14px] bg-white flex items-center justify-center text-lg">
+          🐰
+        </div>
+</div>
+</div>
+</header>
+<!-- MAIN PLAYGROUND WORKSPACE -->
+<main class="pt-20 pb-2 px-4 flex flex-1 h-[calc(100vh)] gap-4 overflow-hidden">
+<!-- 1. LEFT CURVED DOCK: ORGANIC STICKER BOOK (310px) -->
+<aside class="w-[310px] shrink-0 bg-white/85 backdrop-blur-md rounded-3xl border border-white shadow-marshmallow flex flex-col justify-between overflow-hidden p-3.5 my-1">
+<!-- Top: Sticker Search & Floating Bubbly Tabs -->
+<div class="flex flex-col gap-3">
+<!-- Marshmallow Search -->
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-[18px] text-pink-400">palette</span>
+<input class="w-full bg-toybox-bg/80 text-slate-800 placeholder:text-slate-400 font-quicksand text-xs pl-9 pr-10 py-2.5 rounded-2xl border border-indigo-100 outline-none focus:ring-2 focus:ring-bubble-pink/30 shadow-inner" placeholder="Search 1,200+ cute clay stickers..." type="text"/>
+<span class="absolute right-2.5 px-1.5 py-0.5 rounded-lg bg-pink-100 text-bubble-pink font-fredoka text-[10px] font-bold">
+            STICKY
+          </span>
+</div>
+<!-- Floating Bubbly Category Tabs -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+<button class="px-3 py-1.5 rounded-2xl bg-bubble-pink text-white font-fredoka text-xs font-bold shadow-clay-sm clay-puffy shrink-0 flex items-center gap-1">
+<span>✨</span> Kawaii Star
+          </button>
+<button class="px-2.5 py-1.5 rounded-2xl bg-matcha-soft hover:bg-matcha-mint/40 text-emerald-800 font-fredoka text-xs font-semibold shrink-0 clay-puffy flex items-center gap-1">
+<span>🧋</span> Sweets
+          </button>
+<button class="px-2.5 py-1.5 rounded-2xl bg-sunbeam-soft hover:bg-sunbeam-amber/40 text-amber-800 font-fredoka text-xs font-semibold shrink-0 clay-puffy flex items-center gap-1">
+<span>🐉</span> Mythics
+          </button>
+<button class="px-2.5 py-1.5 rounded-2xl bg-periwinkle-soft hover:bg-periwinkle-clay/30 text-indigo-800 font-fredoka text-xs font-semibold shrink-0 clay-puffy flex items-center gap-1">
+<span>🍄</span> Forest
+          </button>
+</div>
+<!-- Story Palette Mood Badge -->
+<div class="p-2.5 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-indigo-50 border border-pink-200/60 shadow-clay-sm flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-fredoka text-xs font-bold text-slate-700 flex items-center gap-1">
+<span class="text-sm">🧁</span> Sweet Cotton Cloud Mix
+            </span>
+<span class="text-[10px] font-fredoka font-bold text-bubble-pink bg-white px-2 py-0.5 rounded-full shadow-sm">
+              BOBA GARDEN
+            </span>
+</div>
+<!-- 4 Pastel Clay Gel Swatches -->
+<div class="flex items-center gap-2 pt-0.5">
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-rose-300 to-pink-400 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Strawberry Milk"></div>
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-sky-200 to-blue-300 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Dream Cloud Sky"></div>
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-emerald-200 to-green-300 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Matcha Cream"></div>
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-amber-200 to-yellow-300 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Star Sprinkles"></div>
+</div>
+</div>
+</div>
+<!-- Sticker Vault Grid (Playful Emojis & Props) -->
+<div class="flex-1 overflow-y-auto px-1 py-2">
+<div class="flex items-center justify-between mb-2 px-1">
+<span class="font-fredoka text-[11px] uppercase tracking-wider text-slate-400 font-bold">Toybox Props &amp; Friends</span>
+<span class="font-fredoka text-[10px] text-pink-400 bg-pink-50 px-2 py-0.5 rounded-full font-bold">16 Ready</span>
+</div>
+<div class="grid grid-cols-4 gap-2">
+<!-- Item 1: Boba -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-pink-50 border border-slate-100 hover:border-pink-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🧋</span>
+<span class="font-fredoka text-[9px] text-slate-500 font-semibold mt-0.5">Boba</span>
+</div>
+<!-- Item 2: Cloud Dragon -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🐉</span>
+<span class="font-fredoka text-[9px] text-indigo-500 font-semibold mt-0.5">Dragon</span>
+</div>
+<!-- Item 3: Mushroom -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-rose-50 border border-slate-100 hover:border-rose-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍄</span>
+<span class="font-fredoka text-[9px] text-rose-500 font-semibold mt-0.5">Shroomy</span>
+</div>
+<!-- Item 4: Star Wand -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-slate-100 hover:border-amber-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🪄</span>
+<span class="font-fredoka text-[9px] text-amber-500 font-semibold mt-0.5">Wand</span>
+</div>
+<!-- Item 5: Fluffy Cloud -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-sky-50 border border-slate-100 hover:border-sky-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">☁️</span>
+<span class="font-fredoka text-[9px] text-sky-500 font-semibold mt-0.5">Cloud</span>
+</div>
+<!-- Item 6: Strawberry -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-pink-50 border border-slate-100 hover:border-pink-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍓</span>
+<span class="font-fredoka text-[9px] text-pink-500 font-semibold mt-0.5">Berry</span>
+</div>
+<!-- Item 7: Sparkles -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-yellow-50 border border-slate-100 hover:border-yellow-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">✨</span>
+<span class="font-fredoka text-[9px] text-amber-500 font-semibold mt-0.5">Sparkle</span>
+</div>
+<!-- Item 8: Bunny -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-purple-50 border border-slate-100 hover:border-purple-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🐰</span>
+<span class="font-fredoka text-[9px] text-purple-500 font-semibold mt-0.5">Bunny</span>
+</div>
+<!-- Item 9: Cupcake -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-pink-50 border border-slate-100 hover:border-pink-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🧁</span>
+<span class="font-fredoka text-[9px] text-pink-500 font-semibold mt-0.5">Cupcake</span>
+</div>
+<!-- Item 10: Rainbow -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-slate-100 hover:border-amber-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🌈</span>
+<span class="font-fredoka text-[9px] text-amber-600 font-semibold mt-0.5">Rainbow</span>
+</div>
+<!-- Item 11: Lollipop -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-red-50 border border-slate-100 hover:border-red-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍭</span>
+<span class="font-fredoka text-[9px] text-red-500 font-semibold mt-0.5">Candy</span>
+</div>
+<!-- Item 12: Star -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-yellow-50 border border-slate-100 hover:border-yellow-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">⭐</span>
+<span class="font-fredoka text-[9px] text-yellow-600 font-semibold mt-0.5">Twinkle</span>
+</div>
+<!-- Item 13: Flower -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-rose-50 border border-slate-100 hover:border-rose-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🌸</span>
+<span class="font-fredoka text-[9px] text-rose-500 font-semibold mt-0.5">Sakura</span>
+</div>
+<!-- Item 14: Donut -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-slate-100 hover:border-amber-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍩</span>
+<span class="font-fredoka text-[9px] text-amber-600 font-semibold mt-0.5">Donut</span>
+</div>
+<!-- Item 15: Magic Potion -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🧪</span>
+<span class="font-fredoka text-[9px] text-indigo-500 font-semibold mt-0.5">Syrup</span>
+</div>
+<!-- Item 16: Heart Balloon -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-pink-50 border border-slate-100 hover:border-pink-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🎈</span>
+<span class="font-fredoka text-[9px] text-pink-500 font-semibold mt-0.5">Floaty</span>
+</div>
+</div>
+</div>
+<!-- Bottom: AI Clay Alchemist -->
+<div class="pt-2 flex flex-col gap-2">
+<div class="flex items-center justify-between px-1">
+<span class="font-fredoka text-[10px] text-slate-400 font-bold uppercase">Recent Cuties</span>
+<div class="flex items-center gap-1.5 text-base">
+<span class="hover:scale-125 transition-transform cursor-pointer">🧋</span>
+<span class="hover:scale-125 transition-transform cursor-pointer">🍓</span>
+<span class="hover:scale-125 transition-transform cursor-pointer">🐉</span>
+<span class="hover:scale-125 transition-transform cursor-pointer">☁️</span>
+</div>
+</div>
+<button class="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-cotton-lavender to-bubble-pink text-white font-fredoka text-xs font-bold shadow-clay-btn clay-puffy flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-lg animate-spin" style="animation-duration: 6s;">🎨</span>
+<span>Clay Emoji Alchemist</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-white text-purple-700 text-[10px] font-extrabold uppercase">
+            POOF!
+          </span>
+</button>
+</div>
+</aside>
+<!-- 2. CENTER GIANT MAGNETIC CANVAS WITH WOODEN-STYLE FRAME -->
+<section class="flex-1 flex flex-col items-center justify-between relative overflow-hidden bg-toybox-canvas/70 rounded-3xl p-3 border border-indigo-100/80 shadow-inner">
+<!-- Top Floating Marshmallow Pill Toolbar -->
+<div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/95 backdrop-blur-md shadow-marshmallow border border-white z-20">
+<!-- Zoom -->
+<div class="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-full">
+<button class="w-6 h-6 rounded-full hover:bg-white text-slate-600 flex items-center justify-center clay-puffy text-xs">
+<span class="material-symbols-outlined text-[15px]">remove</span>
+</button>
+<span class="font-fredoka text-xs text-slate-700 font-bold px-1.5">100%</span>
+<button class="w-6 h-6 rounded-full hover:bg-white text-slate-600 flex items-center justify-center clay-puffy text-xs">
+<span class="material-symbols-outlined text-[15px]">add</span>
+</button>
+</div>
+<button class="px-3 py-1 rounded-full text-slate-600 hover:text-slate-900 font-fredoka text-xs hover:bg-slate-100 transition-colors">
+          Reset View
+        </button>
+<div class="h-4 w-px bg-slate-200"></div>
+<!-- Magnet & Sparkle Guides -->
+<button class="flex items-center gap-1 px-3 py-1 rounded-full bg-matcha-mint text-emerald-950 font-fredoka text-xs font-bold shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-[15px]">scatter_plot</span>
+<span>Magnet Grid</span>
+</button>
+<button class="flex items-center gap-1 px-3 py-1 rounded-full bg-sunbeam-soft text-amber-900 font-fredoka text-xs font-bold clay-puffy hover:bg-sunbeam-amber/40">
+<span class="material-symbols-outlined text-[15px]">magic_button</span>
+<span>Snap Clays</span>
+</button>
+<div class="h-4 w-px bg-slate-200"></div>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded-full hover:bg-pink-100 text-bubble-pink clay-puffy" title="Bring to Front">
+<span class="material-symbols-outlined text-[17px]">flip_to_front</span>
+</button>
+<button class="p-1 rounded-full hover:bg-pink-100 text-bubble-pink clay-puffy" title="Send to Back">
+<span class="material-symbols-outlined text-[17px]">flip_to_back</span>
+</button>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-periwinkle-soft text-indigo-700 font-fredoka text-[10px] font-bold">
+          🧸 TOYBOX STAGE
+        </span>
+</div>
+<!-- MAIN PLAYFUL WOODEN FRAME CANVASES -->
+<div class="relative w-full max-w-[820px] h-[410px] my-auto rounded-[36px] bg-gradient-to-b from-[#FDFBF7] to-[#F5EFEB] shadow-wood-frame border-[6px] border-[#DFC29C] p-6 flex flex-col justify-between overflow-hidden select-none" style="background-image: radial-gradient(#F0E5D8 1.5px, transparent 1.5px); background-size: 24px 24px;">
+<!-- Floating Cloud Backdrops (Kawaii Dreamy Shapes) -->
+<div class="absolute -top-10 left-10 w-44 h-24 rounded-full bg-white/70 blur-[1px] pointer-events-none"></div>
+<div class="absolute top-12 right-12 w-64 h-32 rounded-full bg-pink-100/50 blur-[2px] pointer-events-none"></div>
+<div class="absolute bottom-6 left-1/3 w-72 h-28 rounded-full bg-sky-100/60 blur-[1px] pointer-events-none"></div>
+<!-- Frame Top Stamp -->
+<div class="flex items-center justify-between z-10">
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 rounded-2xl bg-bubble-pink text-white font-fredoka text-xs font-bold shadow-clay-sm">
+              PAGE #03
+            </span>
+<span class="font-fredoka text-sm font-bold text-slate-700 tracking-wide">
+              The Fluffy Sky Cafe Encounter
+            </span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-xl bg-white/80 text-purple-700 font-fredoka text-xs font-bold shadow-sm">
+              ACT I • 03.5s
+            </span>
+<span class="w-3 h-3 rounded-full bg-matcha-mint shadow-[0_0_8px_#4ADE80]"></span>
+</div>
+</div>
+<!-- STAGED EMOJIS & HANDWRITTEN BUBBLES PLAYGROUND -->
+<div class="relative flex-1 w-full my-2">
+<!-- ACTOR 1: Secret Bunny Barista / Drinker with Boba Cup (Active Clay Bounding Box) -->
+<div class="absolute left-10 top-10 z-20 group cursor-move">
+<!-- Puffy Clay Active Frame -->
+<div class="relative p-3 rounded-3xl border-3 border-dashed border-bubble-pink bg-pink-200/20 shadow-clay-card">
+<!-- Corner Clay Marshmallow Handles -->
+<div class="absolute -top-2 -left-2 w-4 h-4 rounded-full bg-bubble-pink border-2 border-white shadow-md"></div>
+<div class="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-bubble-pink border-2 border-white shadow-md"></div>
+<div class="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-bubble-pink border-2 border-white shadow-md"></div>
+<div class="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-bubble-pink border-2 border-white shadow-md"></div>
+<!-- Main Emojis Pair: Bunny + Boba -->
+<div class="flex items-center gap-1">
+<div class="text-7xl filter drop-shadow-[0_10px_10px_rgba(251,113,133,0.3)] hover:scale-105 transition-transform">
+                  🐰
+                </div>
+<div class="text-6xl -ml-4 -mt-2 filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.15)] animate-pulse" style="animation-duration: 3s;">
+                  🧋
+                </div>
+</div>
+<!-- Quick Puffy Action Bar above selection -->
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white shadow-clay-card text-nowrap pointer-events-auto border border-pink-100">
+<button class="px-2 py-0.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-bubble-pink font-fredoka text-[11px] font-bold clay-puffy">
+                  Copy ✨
+                </button>
+<div class="h-3 w-px bg-slate-200"></div>
+<button class="px-2 py-0.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-cotton-lavender font-fredoka text-[11px] font-bold clay-puffy">
+                  Flip ↔
+                </button>
+<div class="h-3 w-px bg-slate-200"></div>
+<button class="px-2 py-0.5 rounded-lg bg-matcha-mint text-emerald-950 font-fredoka text-[11px] font-bold shadow-sm clay-puffy">
+                  Squish Bounce 🎈
+                </button>
+</div>
+</div>
+<!-- HANDWRITTEN SPEECH BUBBLE 1: Bunny ordering strawberry boba -->
+<div class="absolute -top-16 left-32 w-64 p-3.5 bg-white text-slate-800 shadow-clay-card border-2 border-pink-200 wobbly-bubble relative z-30">
+<p class="font-hand text-base leading-tight font-bold text-slate-800 tracking-wide">
+                "One strawberry boba with extra star sprinkles, please! 🍓⭐✨"
+              </p>
+<!-- Tail pointing to Bunny -->
+<div class="absolute -bottom-2.5 left-5 w-0 h-0 border-t-[10px] border-t-white border-r-[10px] border-r-transparent filter drop-shadow-[0_2px_1px_rgba(251,113,133,0.3)]"></div>
+<!-- Mini cute pin -->
+<div class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-sunbeam-amber border border-white shadow-sm flex items-center justify-center text-[7px]">
+                ★
+              </div>
+</div>
+</div>
+<!-- ACTOR 2: Smiling Shroom in Center Field -->
+<div class="absolute left-1/2 bottom-8 -translate-x-1/2 flex flex-col items-center z-10 cursor-pointer group">
+<div class="relative">
+<span class="text-6xl filter drop-shadow-[0_8px_16px_rgba(244,63,94,0.35)] group-hover:scale-125 transition-transform inline-block">
+                🍄
+              </span>
+<span class="absolute -top-2 -right-2 text-xl animate-bounce text-sunbeam-amber">✨</span>
+<span class="absolute bottom-1 -left-3 text-lg animate-spin text-cotton-lavender" style="animation-duration: 4s;">⭐</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-white/90 font-fredoka text-[10px] text-pink-600 font-bold tracking-wide shadow-clay-sm mt-1">
+              "Master Shroomy"
+            </span>
+</div>
+<!-- ACTOR 3: Baby Cloud Dragon Soaring on Clouds (Top Right) -->
+<div class="absolute right-8 top-8 flex flex-col items-end z-20 group cursor-pointer">
+<!-- HANDWRITTEN SPEECH BUBBLE 2: Dragon excited by cotton candy clouds -->
+<div class="mb-2 p-3 px-4 bg-sky-50 text-slate-800 shadow-clay-card border-2 border-sky-200 wobbly-bubble-alt relative">
+<p class="font-hand text-base leading-tight font-bold text-sky-900 tracking-wide">
+                "Wheee! The clouds taste like cotton candy! 🍭☁️"
+              </p>
+<!-- Tail pointing to dragon -->
+<div class="absolute -bottom-2.5 right-6 w-0 h-0 border-t-[10px] border-t-sky-50 border-l-[10px] border-l-transparent"></div>
+</div>
+<!-- Dragon & Clouds Composite -->
+<div class="flex items-center gap-1">
+<span class="text-7xl filter drop-shadow-[0_12px_16px_rgba(56,189,248,0.4)] group-hover:-translate-y-2 transition-transform inline-block transform -scale-x-100">
+                🐉
+              </span>
+<span class="text-5xl -ml-5 mt-4 filter drop-shadow-md">
+                ☁️
+              </span>
+</div>
+<span class="font-fredoka text-[10px] text-sky-700 font-bold bg-white px-2 py-0.5 rounded-full shadow-clay-sm mt-0.5">
+              Pip the Cloud Drake
+            </span>
+</div>
+</div>
+<!-- Frame Bottom Coordinates -->
+<div class="flex items-center justify-between z-10 pt-2 border-t border-amber-200/50">
+<div class="flex items-center gap-2 font-fredoka text-xs text-amber-800/80">
+<span>Boba Stage X: 110 • Y: 180</span>
+<span>•</span>
+<span>Sweetness: 100% ⭐</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-full bg-sunbeam-soft text-amber-900 font-fredoka text-[10px] font-bold">
+              PAGE 03 / 08
+            </span>
+</div>
+</div>
+</div>
+<!-- Real-Time Dialogue Caption Bar with Chubby Pills -->
+<div class="w-full max-w-[820px] mt-2 p-2.5 rounded-2xl bg-white/95 shadow-marshmallow border border-white flex items-center justify-between gap-3">
+<div class="flex items-center gap-2 flex-1 min-w-0">
+<span class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-bubble-pink to-cotton-lavender text-white font-fredoka text-xs font-bold shrink-0 shadow-sm">
+            Story Subtitle:
+          </span>
+<input class="flex-1 bg-transparent text-slate-800 font-quicksand font-semibold text-sm outline-none border-b border-transparent focus:border-bubble-pink px-1 truncate" type="text" value="Bunny ordered three star jellies while Pip spun rainbow loops through the cotton clouds..."/>
+</div>
+<!-- Font Choice & Pastel Jelly Drops -->
+<div class="flex items-center gap-2 shrink-0">
+<div class="flex items-center bg-slate-100 p-0.5 rounded-xl">
+<button class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-bubble-pink text-white shadow-sm font-fredoka">
+              Fredoka
+            </button>
+<button class="px-2.5 py-0.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 font-hand transition-colors">
+              Patrick
+            </button>
+<button class="px-2.5 py-0.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 font-quicksand transition-colors">
+              Quicksand
+            </button>
+</div>
+<div class="flex items-center gap-1.5 pl-1">
+<div class="w-5 h-5 rounded-full bg-bubble-pink cursor-pointer shadow-clay-sm ring-2 ring-white"></div>
+<div class="w-5 h-5 rounded-full bg-sunbeam-amber cursor-pointer shadow-clay-sm ring-2 ring-white"></div>
+<div class="w-5 h-5 rounded-full bg-matcha-mint cursor-pointer shadow-clay-sm ring-2 ring-white"></div>
+<div class="w-5 h-5 rounded-full bg-periwinkle-clay cursor-pointer shadow-clay-sm ring-2 ring-white"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. RIGHT-HAND DRAWER: "CHARACTER WARDROBE & MOOD MIXER" (260px) -->
+<aside class="w-[260px] shrink-0 bg-white/85 backdrop-blur-md rounded-3xl border border-white shadow-marshmallow flex flex-col justify-between p-3.5 my-1 overflow-hidden">
+<div class="flex flex-col gap-3">
+<!-- Header -->
+<div class="flex items-center justify-between pb-1 border-b border-slate-100">
+<div class="flex items-center gap-1.5">
+<span class="text-xl">👒</span>
+<span class="font-fredoka text-sm font-bold text-slate-800">Wardrobe Mixer</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 hover:text-slate-700 cursor-pointer text-[18px]">tune</span>
+</div>
+<!-- Active Character Pill Card -->
+<div class="p-3 rounded-2xl bg-gradient-to-tr from-pink-50 via-purple-50 to-indigo-50 border border-pink-200/80 shadow-clay-sm flex items-center gap-3">
+<div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-3xl shadow-clay-sm">
+            🐰
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-fredoka text-xs font-bold text-slate-800 truncate">Bunny Barista</span>
+<span class="font-fredoka text-[10px] text-bubble-pink font-semibold">Mood: Happy • 💖 100</span>
+<div class="w-20 bg-white h-2 rounded-full overflow-hidden mt-1 shadow-inner">
+<div class="bg-bubble-pink h-full w-[85%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Outfits & Hats Section -->
+<div class="flex flex-col gap-1.5">
+<span class="font-fredoka text-[11px] uppercase tracking-wider text-slate-400 font-bold">Hats &amp; Costumes</span>
+<div class="grid grid-cols-4 gap-1.5">
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-pink-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Chef Hat">👩‍🍳</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-pink-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Crown">👑</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-pink-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Sunglasses">🕶️</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-pink-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Bow">🎀</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-pink-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Flower">🌸</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-pink-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Star Hat">⭐</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-pink-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Strawberry Hat">🍓</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-pink-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Boba Cap">🧋</button>
+</div>
+</div>
+<!-- Mood & Emotion Slider -->
+<div class="flex flex-col gap-2 p-2.5 rounded-2xl bg-slate-50 border border-slate-100">
+<div class="flex items-center justify-between">
+<span class="font-fredoka text-[11px] font-bold text-slate-700">Mood Bounce</span>
+<span class="font-fredoka text-[10px] text-matcha-mint bg-emerald-50 px-2 py-0.5 rounded-full font-bold">Joyful</span>
+</div>
+<div class="flex items-center justify-between text-xl px-1">
+<span class="cursor-pointer hover:scale-125 transition-transform">😴</span>
+<span class="cursor-pointer hover:scale-125 transition-transform">🤔</span>
+<span class="cursor-pointer hover:scale-125 transition-transform scale-125">🥰</span>
+<span class="cursor-pointer hover:scale-125 transition-transform">🥳</span>
+<span class="cursor-pointer hover:scale-125 transition-transform">🤩</span>
+</div>
+</div>
+<!-- Clay Physics Shaker -->
+<div class="p-2.5 rounded-2xl bg-amber-50/70 border border-amber-200/50 flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-fredoka text-[11px] font-bold text-amber-900">3D Jelly Spring</span>
+<span class="font-fredoka text-[10px] text-amber-600 font-bold">Active</span>
+</div>
+<p class="font-quicksand text-[11px] text-slate-500 leading-snug">
+            Stickers squish and jiggle softly upon drag-and-drop!
+          </p>
+</div>
+</div>
+<!-- Quick Audio Voiceover Sound Effect -->
+<div class="flex flex-col gap-2 pt-2">
+<button class="w-full py-2 px-3 rounded-2xl bg-gradient-to-r from-matcha-mint to-teal-400 hover:from-green-400 hover:to-teal-500 text-emerald-950 font-fredoka text-xs font-bold shadow-clay-btn clay-puffy flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">volume_up</span>
+<span>Add Sparkle Sound 🎵</span>
+</button>
+</div>
+</aside>
+</main>
+<!-- 4. BOTTOM TIMELINE DOCK: COLORFUL BOUNCY BUBBLE CARDS -->
+<footer class="fixed bottom-2 left-4 right-4 h-[120px] bg-white/90 backdrop-blur-md rounded-3xl border border-white/90 shadow-marshmallow p-3 flex flex-col justify-between z-40">
+<!-- Top Transport Strip -->
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<!-- Rewind -->
+<button class="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center clay-puffy">
+<span class="material-symbols-outlined text-[16px]">first_page</span>
+</button>
+<button class="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center clay-puffy">
+<span class="material-symbols-outlined text-[16px]">fast_rewind</span>
+</button>
+<!-- HERO PLAY BUTTON (Puffy Bubblegum Pink Clay Button) -->
+<button class="px-4 h-7 rounded-xl bg-gradient-to-r from-bubble-pink to-rose-500 hover:from-pink-500 hover:to-rose-600 text-white flex items-center gap-1.5 font-fredoka text-xs font-bold shadow-clay-btn clay-puffy">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span>Play Story Animatic</span>
+</button>
+<!-- Fast Forward -->
+<button class="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center clay-puffy">
+<span class="material-symbols-outlined text-[16px]">fast_forward</span>
+</button>
+<!-- Loop -->
+<button class="w-7 h-7 rounded-xl bg-matcha-soft text-emerald-800 flex items-center justify-center clay-puffy font-bold" title="Infinite Loop">
+<span class="material-symbols-outlined text-[16px]">repeat</span>
+</button>
+<!-- Timecode Pellet -->
+<div class="ml-2 flex items-center gap-1.5 bg-periwinkle-soft/70 px-3 py-1 rounded-xl border border-indigo-100 text-indigo-900 font-fredoka text-xs font-bold">
+<span class="w-2 h-2 rounded-full bg-bubble-pink animate-ping"></span>
+<span>00:03.5</span>
+<span class="text-indigo-400">/</span>
+<span class="text-indigo-600">00:18.0</span>
+</div>
+<button class="px-2 py-0.5 rounded-lg bg-sunbeam-soft text-amber-900 font-fredoka text-[11px] font-bold shadow-sm">
+          1.0x Bounce
+        </button>
+</div>
+<!-- Right Timeline Stats -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1 text-slate-500 font-fredoka text-xs">
+<span class="material-symbols-outlined text-matcha-mint text-[16px]">check_circle</span>
+<span>4 Pages Baked</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 font-fredoka text-[11px] font-bold">
+          🌈 Ready for Reel
+        </span>
+</div>
+</div>
+<!-- Bottom Bouncy Bubble Panels Strip -->
+<div class="flex items-center gap-2.5 overflow-x-auto py-0.5 scrollbar-none">
+<!-- Panel 1: The Secret Teahouse -->
+<div class="group relative flex-shrink-0 w-44 h-[56px] rounded-2xl bg-white hover:bg-slate-50 p-2 border border-slate-200/80 flex items-center justify-between cursor-pointer shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-slate-300 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-pink-100 flex items-center justify-center text-lg shadow-inner">
+            🏮
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-fredoka text-xs font-bold text-slate-800 truncate">#1 Teahouse</span>
+<span class="font-fredoka text-[10px] text-slate-400 font-medium">02.0s • 16:9</span>
+</div>
+</div>
+<span class="font-fredoka text-[10px] text-slate-400 font-bold">00:00</span>
+</div>
+<!-- Panel 2: The Magic Cauldron -->
+<div class="group relative flex-shrink-0 w-44 h-[56px] rounded-2xl bg-white hover:bg-slate-50 p-2 border border-slate-200/80 flex items-center justify-between cursor-pointer shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-slate-300 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-lg shadow-inner">
+            🧋
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-fredoka text-xs font-bold text-slate-800 truncate">#2 Star Syrup</span>
+<span class="font-fredoka text-[10px] text-slate-400 font-medium">02.5s • 16:9</span>
+</div>
+</div>
+<span class="font-fredoka text-[10px] text-slate-400 font-bold">00:02</span>
+</div>
+<!-- Panel 3: ACTIVE LIVE PANEL (Dragon Cloud Cafe) -->
+<div class="group relative flex-shrink-0 w-52 h-[56px] rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-indigo-50 p-2 border-2 border-bubble-pink flex items-center justify-between cursor-pointer shadow-clay-card scale-[1.03]">
+<span class="material-symbols-outlined text-bubble-pink text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-lg shadow-sm relative">
+            🐉
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-matcha-mint shadow-[0_0_6px_#4ADE80]"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1">
+<span class="font-fredoka text-xs font-extrabold text-bubble-pink truncate">#3 Cloud Boba</span>
+<span class="px-1 py-0.2 rounded-full bg-bubble-pink text-white font-fredoka text-[8px] font-bold">LIVE</span>
+</div>
+<span class="font-fredoka text-[10px] text-purple-600 font-bold">03.5s • Staged</span>
+</div>
+</div>
+<span class="font-fredoka text-[10px] text-bubble-pink font-bold">00:04</span>
+</div>
+<!-- Panel 4: Rainbow Flight -->
+<div class="group relative flex-shrink-0 w-44 h-[56px] rounded-2xl bg-white hover:bg-slate-50 p-2 border border-slate-200/80 flex items-center justify-between cursor-pointer shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-slate-300 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-lg shadow-inner">
+            🌈
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-fredoka text-xs font-bold text-slate-800 truncate">#4 Rainbow Flight</span>
+<span class="font-fredoka text-[10px] text-slate-400 font-medium">02.5s • 16:9</span>
+</div>
+</div>
+<span class="font-fredoka text-[10px] text-slate-400 font-bold">00:07</span>
+</div>
+<!-- Add New Page Tactile Puffy Button -->
+<button class="flex-shrink-0 h-[56px] px-4 rounded-2xl border-2 border-dashed border-pink-300 hover:border-bubble-pink bg-pink-50/50 hover:bg-pink-50 flex items-center gap-1.5 text-bubble-pink font-fredoka text-xs font-bold clay-puffy">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>New Story Page</span>
+</button>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><title>Aether Spatial Aperture</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {"darkMode":"class","theme":{"extend":{"colors":{"on-secondary":"#303033","secondary-fixed":"#e4e1e6","tertiary":"#cdcbd6","surface-tint":"#7bd0ff","background":"#131315","error-container":"#93000a","error":"#ffb4ab","primary-container":"#38bdf8","outline":"#87929a","secondary-fixed-dim":"#c8c5ca","on-surface":"#e5e1e4","primary":"#8ed5ff","on-primary-fixed":"#001e2c","inverse-on-surface":"#313032","surface-bright":"#39393b","on-primary":"#00354a","surface":"#131315","on-primary-fixed-variant":"#004c69","primary-fixed-dim":"#7bd0ff","on-tertiary-fixed-variant":"#46464e","outline-variant":"#3e484f","primary-fixed":"#c4e7ff","on-tertiary-container":"#43434b","on-secondary-fixed":"#1b1b1e","on-primary-container":"#004965","on-surface-variant":"#bdc8d1","surface-variant":"#353437","on-secondary-container":"#b6b4b8","surface-container-highest":"#353437","on-tertiary":"#2f3038","surface-container-high":"#2a2a2c","inverse-primary":"#00668a","tertiary-fixed-dim":"#c6c5cf","secondary-container":"#47464a","surface-container":"#201f22","tertiary-container":"#b1b0ba","inverse-surface":"#e5e1e4","secondary":"#c8c5ca","on-tertiary-fixed":"#1a1b22","surface-container-low":"#1c1b1d","surface-dim":"#131315","surface-container-lowest":"#0e0e10","tertiary-fixed":"#e3e1ec","on-secondary-fixed-variant":"#47464a","on-error-container":"#ffdad6","on-background":"#e5e1e4","on-error":"#690005"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-sm":"0.5rem","space-md":"1rem","gutter":"1rem","margin":"1rem","space-xl":"2.5rem","gutter-desktop":"1.5rem","margin-desktop":"2.5rem","space-xs":"0.25rem","space-lg":"1.5rem","margin-tablet":"1.5rem"},"fontFamily":{"body-md":["Inter"],"headline-lg-mobile":["Inter"],"headline-md":["Inter"],"display-lg-mobile":["Inter"],"display-lg":["Inter"],"label-mono-xs":["JetBrains Mono"],"headline-lg":["Inter"],"label-mono-md":["JetBrains Mono"],"body-lg":["Inter"],"headline-sm":["Inter"],"caption":["Inter"]},"fontSize":{"body-md":["13px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"400"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.02em","fontWeight":"500"}],"display-lg-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"display-lg":["48px",{"lineHeight":"56px","letterSpacing":"-0.03em","fontWeight":"600"}],"label-mono-xs":["10px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"400"}],"headline-lg":["30px",{"lineHeight":"38px","letterSpacing":"-0.025em","fontWeight":"600"}],"label-mono-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"500"}],"body-lg":["15px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"400"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.015em","fontWeight":"500"}],"caption":["11px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"400"}]}}}};</script></head><body class="bg-surface-container-lowest font-body-md text-body-md text-on-surface antialiased select-none"><header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest/90 backdrop-blur-xl flex items-center justify-between px-space-md border-b border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex items-center gap-space-md min-w-max"><img alt="Aether Spatial Aperture Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Ux4j8zKeRA91tGDOPgu2ijq73EXcorctRgMVoNRw44k-9MpVwJhIF918K-vavtuJb2U5-tbCclcnb9RcWlRynjKTYMe5oFZmvzfeYCeTNZnOsZwOAvOYHmUfl4WypAwkj4FJbWVXa80_osIkBYDFqtumcwZ2q1udyOde-dALl_2vcIAGyjcWAXXhrjYu3-ARPGZSx1lXtsMT6UqnBdNqFSMBO_2-gYVyV_L5w9a2bBo7POAl424oy9faQ"/><div class="flex items-center gap-space-sm"><span class="font-headline-sm text-headline-sm uppercase tracking-wider text-on-surface font-semibold">AETHER</span><span class="h-4 w-[1px] bg-outline-variant"></span><nav class="hidden xl:flex items-center gap-space-xs text-caption font-caption" data-active-classes="text-on-surface font-medium"><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="workspaces" href="#">Workspaces</a><span class="text-outline">/</span><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="obsidian-archive" href="#">Obsidian Archive</a><span class="text-outline">/</span><a aria-current="page" class="transition-colors text-on-surface font-medium" data-path="spatial-masonry" href="#">Spatial Masonry</a></nav></div><div class="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-container-low border border-outline-variant/40"><span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-mono-xs text-label-mono-xs text-primary-fixed-dim uppercase tracking-wider">ONLINE • GPU ACCEL</span></div></div><div class="flex items-center gap-space-md flex-1 max-w-xl mx-space-md"><div class="relative flex-1 hidden md:block"><div class="w-full flex items-center gap-space-sm px-space-md py-1.5 rounded-lg bg-surface-container-low border border-outline-variant/40 text-on-surface-variant hover:border-outline-variant transition-colors"><span class="material-symbols-outlined text-[18px] text-outline">search</span><span class="font-body-md text-body-md text-outline truncate">Filter by EXIF, lens, tag, color...</span><div class="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container-highest border border-outline-variant/20 font-label-mono-xs text-label-mono-xs text-on-surface-variant">⌘K</div></div></div><nav class="hidden lg:flex items-center p-1 rounded-lg bg-surface-container-low border border-outline-variant/40" data-active-classes="bg-surface-container-highest text-primary font-medium shadow-sm"><a aria-current="page" class="px-2.5 py-1 rounded transition-colors bg-surface-container-highest text-primary font-medium shadow-sm" data-path="spatial-masonry" href="#">Spatial</a><a class="px-2.5 py-1 rounded text-caption font-caption text-on-surface-variant hover:text-on-surface transition-colors" data-path="masonry-grid" href="#">Masonry</a><a class="px-2.5 py-1 rounded text-caption font-caption text-on-surface-variant hover:text-on-surface transition-colors" data-path="archive-list" href="#">List</a><a class="px-2.5 py-1 rounded text-caption font-caption text-on-surface-variant hover:text-on-surface transition-colors" data-path="lightbox-inspector" href="#">Lightbox</a></nav></div><div class="flex items-center gap-space-md min-w-max"><div class="hidden 2xl:flex items-center gap-space-md px-space-md py-1 rounded-lg bg-surface-container-low/60 border border-outline-variant/20"><div class="flex items-center gap-1.5"><span class="text-outline font-label-mono-xs text-label-mono-xs">FPS</span><span class="font-label-mono-xs text-label-mono-xs text-primary font-medium">120</span></div><span class="h-3 w-[1px] bg-outline-variant/30"></span><div class="flex items-center gap-1.5"><span class="text-outline font-label-mono-xs text-label-mono-xs">VRAM</span><span class="font-label-mono-xs text-label-mono-xs text-on-surface">2.4 / 16 GB</span></div><span class="h-3 w-[1px] bg-outline-variant/30"></span><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">sync</span><span class="font-label-mono-xs text-label-mono-xs text-on-surface-variant">Synced</span></div></div><div class="hidden xl:flex items-center gap-2 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/30"><span class="material-symbols-outlined text-[16px] text-outline">zoom_in</span><span class="font-label-mono-xs text-label-mono-xs text-on-surface">100%</span></div><div class="flex items-center gap-1"><button aria-label="Toggle Left Sidebar" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">view_sidebar</span></button><button aria-label="Toggle Inspector Panel" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">right_panel_open</span></button></div><div class="flex items-center gap-space-sm pl-space-sm border-l border-outline-variant/30"><div class="relative"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="absolute -bottom-1 -right-1 px-1 rounded-full bg-primary-container text-on-primary-container font-label-mono-xs text-[9px] font-semibold leading-none py-0.5 border border-surface-container-lowest">PRO</span></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/30 z-40 flex flex-col justify-between p-space-md"><div class="space-y-space-lg"><div class="space-y-1"><div class="px-space-sm py-1 font-label-mono-xs text-label-mono-xs uppercase text-outline tracking-wider">Lenses &amp; Archives</div><nav class="space-y-1" data-active-classes="bg-surface-container-high text-primary font-medium rounded-lg shadow-sm"><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 transition-colors bg-surface-container-high text-primary font-medium rounded-lg shadow-sm" data-path="spatial-masonry" href="#"><span class="material-symbols-outlined text-[18px]">view_quilt</span><span>Spatial Canvas</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-body-md font-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="obsidian-archive" href="#"><span class="material-symbols-outlined text-[18px]">inventory_2</span><span>Obsidian Archive</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-body-md font-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="exif-telemetry" href="#"><span class="material-symbols-outlined text-[18px]">analytics</span><span>EXIF Telemetry</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-body-md font-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="color-grading-lab" href="#"><span class="material-symbols-outlined text-[18px]">tune</span><span>Grade Studio</span></a></nav></div><div class="space-y-1"><div class="px-space-sm py-1 font-label-mono-xs text-label-mono-xs uppercase text-outline tracking-wider">Pipelines</div><nav class="space-y-1" data-active-classes="bg-surface-container-high text-primary font-medium rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-body-md font-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="export-pipelines" href="#"><span class="material-symbols-outlined text-[18px]">output</span><span>Export Render</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-body-md font-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cloud-sync" href="#"><span class="material-symbols-outlined text-[18px]">cloud_sync</span><span>Storage Nodes</span></a></nav></div></div><div class="p-space-sm rounded-lg bg-surface-container-low border border-outline-variant/30 space-y-2"><div class="flex items-center justify-between font-label-mono-xs text-label-mono-xs"><span class="text-outline">GPU Engine</span><span class="text-primary-fixed-dim">RTX Core 01</span></div><div class="w-full bg-surface-container-highest rounded-full h-1"><div class="bg-primary-container h-1 rounded-full w-2/3"></div></div></div></aside><div class="pl-64"><main class="w-full pt-16 min-h-screen bg-surface-container-lowest text-on-surface px-space-lg"><div class="flex flex-col w-full text-on-surface">
+<!-- Top Filter & Spatial Layout Control Strip -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-md mb-space-lg shadow-sm flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md flex-wrap">
+<!-- Layout Mode Selectors -->
+<div class="flex items-center bg-surface-container-lowest p-1 rounded-lg">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-container-highest text-primary font-caption text-caption shadow-sm transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">grid_view</span>
+<span>4-Col Masonry</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-caption text-caption transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">bubble_chart</span>
+<span>Spatial Scatter</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-caption text-caption transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>Timeline</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-caption text-caption transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">camera</span>
+<span>Lens Cluster</span>
+</button>
+</div>
+<!-- Sorting Pill -->
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-lowest rounded-lg font-caption text-caption text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-outline">swap_vert</span>
+<span>Sort:</span>
+<span class="text-on-surface font-medium">Capture Timestamp (DESC)</span>
+</div>
+<!-- Live Selection Pill -->
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-label-mono-xs text-label-mono-xs">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span>3 OF 341 TILES SELECTED</span>
+</div>
+</div>
+<!-- Right Controls: Zoom & Quick Filter Tags -->
+<div class="flex items-center gap-space-lg ml-auto">
+<div class="hidden sm:flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[16px] text-outline">photo_size_select_small</span>
+<input aria-label="Grid density slider" class="w-24 accent-primary h-1 bg-surface-container-highest rounded-full cursor-pointer appearance-none" max="4" min="1" type="range" value="3"/>
+<span class="material-symbols-outlined text-[18px] text-outline">photo_size_select_actual</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="px-2.5 py-1 rounded bg-surface-container font-label-mono-xs text-label-mono-xs text-on-surface-variant hover:text-primary cursor-pointer transition-colors">RAW (ARW)</span>
+<span class="px-2.5 py-1 rounded bg-surface-container font-label-mono-xs text-label-mono-xs text-on-surface-variant hover:text-primary cursor-pointer transition-colors">HDR 10+</span>
+<span class="px-2.5 py-1 rounded bg-surface-container font-label-mono-xs text-label-mono-xs text-primary bg-primary/10 font-semibold cursor-pointer">★ 5 Stars</span>
+</div>
+</div>
+</div>
+<!-- Primary Workspace Layout Split: Left Album Tree + Central Masonry Canvas -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg w-full items-start">
+<!-- Sub-Sidebar: Catalog Album Tree (Left Column - 3 Cols on XL) -->
+<div class="xl:col-span-3 flex flex-col gap-space-md w-full">
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-sm space-y-space-md">
+<!-- Section Header & Add Album -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">photo_library</span>
+<span class="font-label-mono-xs text-label-mono-xs uppercase tracking-wider text-outline font-semibold">Studio Catalog</span>
+</div>
+<button class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-high text-primary hover:bg-primary hover:text-on-primary font-caption text-caption transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">add</span>
+<span>New Album</span>
+</button>
+</div>
+<!-- Album Search Filter -->
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-outline">search</span>
+<input class="bg-transparent text-caption font-caption text-on-surface placeholder:text-outline focus:outline-none w-full" placeholder="Filter collections..." type="text"/>
+</div>
+<!-- Nested Tree Accordion -->
+<div class="space-y-1.5 pt-1">
+<!-- Active Expanded: Nature & Vistas -->
+<div class="rounded-lg bg-surface-container p-2 space-y-1">
+<div class="flex items-center justify-between text-body-md font-body-md text-primary font-medium cursor-pointer">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">folder_open</span>
+<span>Nature &amp; Vistas</span>
+</div>
+<span class="font-label-mono-xs text-label-mono-xs px-1.5 py-0.5 rounded bg-surface-container-highest text-primary font-semibold">142</span>
+</div>
+<div class="pl-6 space-y-1 pt-1 font-caption text-caption">
+<div class="flex items-center justify-between text-on-surface py-1 px-2 rounded bg-surface-container-highest/60 font-medium">
+<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Alpine Twilight</span>
+<span class="font-label-mono-xs text-label-mono-xs text-outline">88</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant hover:text-on-surface py-1 px-2 rounded cursor-pointer transition-colors">
+<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-outline"></span>Glacier Rifts</span>
+<span class="font-label-mono-xs text-label-mono-xs text-outline">54</span>
+</div>
+</div>
+</div>
+<!-- Droppable Drop Target Target: Urban Cyber Architecture -->
+<div class="rounded-lg p-2.5 bg-primary/5 shadow-sm space-y-1.5 transition-all">
+<div class="flex items-center justify-between text-body-md font-body-md text-on-surface font-medium cursor-pointer">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">folder</span>
+<span>Urban Cyber Arch</span>
+</div>
+<span class="font-label-mono-xs text-label-mono-xs px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant">86</span>
+</div>
+<div class="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-surface-container-high/70 text-primary font-label-mono-xs text-label-mono-xs font-medium">
+<span class="material-symbols-outlined text-[16px] animate-bounce">file_download</span>
+<span>Drop 3 selected items here</span>
+</div>
+</div>
+<!-- Macro Studies -->
+<div class="flex items-center justify-between text-body-md font-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container p-2 rounded-lg cursor-pointer transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-outline">folder</span>
+<span>Macro Studies</span>
+</div>
+<span class="font-label-mono-xs text-label-mono-xs px-1.5 py-0.5 rounded bg-surface-container-lowest text-outline">45</span>
+</div>
+<!-- Street Noir -->
+<div class="flex items-center justify-between text-body-md font-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container p-2 rounded-lg cursor-pointer transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-outline">folder</span>
+<span>Street Noir</span>
+</div>
+<span class="font-label-mono-xs text-label-mono-xs px-1.5 py-0.5 rounded bg-surface-container-lowest text-outline">68</span>
+</div>
+</div>
+<!-- Smart Smart Collections -->
+<div class="pt-space-sm space-y-1.5">
+<div class="font-label-mono-xs text-label-mono-xs uppercase tracking-wider text-outline px-1">Smart Sets</div>
+<div class="space-y-1 font-caption text-caption text-on-surface-variant">
+<div class="flex items-center justify-between py-1 px-2 rounded hover:bg-surface-container hover:text-on-surface cursor-pointer">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-primary">auto_awesome</span>Recent Captures</span>
+<span class="font-label-mono-xs text-label-mono-xs text-outline">34</span>
+</div>
+<div class="flex items-center justify-between py-1 px-2 rounded hover:bg-surface-container hover:text-on-surface cursor-pointer">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-primary">hdr_on</span>High Dynamic Range</span>
+<span class="font-label-mono-xs text-label-mono-xs text-outline">19</span>
+</div>
+<div class="flex items-center justify-between py-1 px-2 rounded hover:bg-surface-container hover:text-on-surface cursor-pointer">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-outline">star_rate</span>Unrated Bin</span>
+<span class="font-label-mono-xs text-label-mono-xs text-outline">12</span>
+</div>
+</div>
+</div>
+<!-- System Storage & Metal Accelerator Status -->
+<div class="pt-space-sm space-y-2.5">
+<div class="p-2.5 rounded-lg bg-surface-container-lowest space-y-2">
+<div class="flex items-center justify-between font-label-mono-xs text-label-mono-xs">
+<span class="text-outline">NVMe Primary Cache</span>
+<span class="text-on-surface font-semibold">148.4 GB / 1.0 TB</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary-container h-full rounded-full w-[15%]"></div>
+</div>
+<div class="flex items-center justify-between font-label-mono-xs text-label-mono-xs text-outline">
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Vulkan Engine</span>
+<span class="text-primary-fixed-dim">0.8ms Render Latency</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Central Spatial Masonry Grid Canvas (Right 9 Cols on XL) -->
+<div class="xl:col-span-9 flex flex-col gap-space-md w-full">
+<div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-space-md w-full">
+<!-- Column 1: Mountain Peak (Selected) -->
+<div class="flex flex-col gap-space-md">
+<div class="group relative rounded-xl overflow-hidden bg-surface-container-high shadow-md transition-all duration-300 hover:scale-[1.01]">
+<div class="relative w-full aspect-[3/4] overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Dramatic high contrast aerial view of a rugged jagged mountain peak rising above swirling fog and dark pine forests at twilight, illuminated by golden crest light with atmospheric blue tones and volumetric mist" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfHSpc3h_jVhOoClvJKE_ZIJbo0D6YU9iO0APMNH3BM1PQMNH2xYbX-tdyIZR3Qq1TLUDyn0qSNqT_230s8WvkGnlxMaDlUKRSZ7TB9rlwPo192rgd1CzlFb47jh7dVqL3-2QH9z9QDOdtQvhCBVseGBOM0OY97A6N5_HUkCh1JSq3PsMCkBHNQUtKNkj61A4xHfIA7ph-eu_rAvEkDsIoTOv_pKBpurRg0cbrYAPnfeEak4kRfq25"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-black/40 pointer-events-none"></div>
+<!-- Top Checked Badge & Lightbox Trigger -->
+<div class="absolute top-2.5 left-2.5 z-10 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-lg cursor-pointer">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<span class="font-label-mono-xs text-label-mono-xs px-2 py-0.5 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-primary font-semibold">ARW • 16-BIT</span>
+</div>
+<button aria-label="Open Lightbox" class="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">fullscreen</span>
+</button>
+<!-- Bottom Floating Telemetry Strip -->
+<div class="absolute bottom-2.5 inset-x-2.5 p-2 rounded-lg bg-surface-container-lowest/85 backdrop-blur-md space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Alpine Twilight Crest</span>
+<div class="flex items-center text-primary-fixed-dim text-[13px]">
+<span class="material-symbols-outlined text-[14px]">star</span>
+<span class="font-label-mono-xs text-label-mono-xs ml-0.5 font-bold">5.0</span>
+</div>
+</div>
+<div class="font-label-mono-xs text-label-mono-xs text-outline truncate">
+                  Sony A7R V • 24-70mm GM II • ƒ/2.8 • 1/500s • ISO 100 • 61MP
+                </div>
+</div>
+</div>
+</div>
+<!-- Secondary Smaller Tile: Telemetry Mini Card -->
+<div class="rounded-xl bg-surface-container-low p-space-md shadow-sm space-y-2">
+<div class="flex items-center justify-between font-label-mono-xs text-label-mono-xs">
+<span class="text-outline uppercase">Dynamic Range Scope</span>
+<span class="text-primary font-medium">14.8 EV</span>
+</div>
+<!-- Dynamic Vector Sparkline Scope -->
+<svg class="w-full h-10 text-primary-container" fill="none" viewbox="0 0 200 40">
+<path d="M0 32 Q 25 35, 50 20 T 100 15 T 150 28 T 200 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+<path d="M0 32 Q 25 35, 50 20 T 100 15 T 150 28 T 200 8 L 200 40 L 0 40 Z" fill="currentColor" fill-opacity="0.1"></path>
+</svg>
+<div class="flex items-center justify-between text-caption font-caption text-on-surface-variant">
+<span>Shadow: -1.2 EV</span>
+<span>Highlight: +3.4 EV</span>
+</div>
+</div>
+</div>
+<!-- Column 2: Cyber Skyscraper Architecture (Selected with Glowing Ambient) -->
+<div class="flex flex-col gap-space-md">
+<div class="group relative rounded-xl overflow-hidden bg-surface-container-high shadow-lg transition-all duration-300 hover:scale-[1.01]">
+<div class="relative w-full aspect-[2/3] overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Futuristic neon Tokyo skyscraper at dusk viewed from elevated perspective, illuminated geometric cyan laser lines on dark glass facade with wet city streets below and light trails" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI8hlklHPLzgHTgJBJ7qsRA41MHU-072MKGGyJ4wmqC2bMz1nQX7uC0u_ci-uhh_iZbQgOZZUaO0QAg3kiggBq4Gn_b-BYlimU6K4CtPpxAaFxU0Du6I47FW8bUerxCSb2zPBgDjxowoHlVit2YcY1uXfqARO-gBaexwU8QvfHiTsrI6kPvAfrNb0uah7kGZZoWNipmka09ssU8CTPnKrbhN9G-5Y1lWAgBGa4KCl46uh8gYYO4twu"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-black/40 pointer-events-none"></div>
+<!-- Top Selection & Quick Tag -->
+<div class="absolute top-2.5 left-2.5 z-10 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-lg cursor-pointer">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<span class="font-label-mono-xs text-label-mono-xs px-2 py-0.5 rounded-full bg-primary/20 backdrop-blur-md text-primary font-semibold">GRADED: LUT_CYAN</span>
+</div>
+<button aria-label="Quick inspect" class="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<!-- Bottom Floating Metadata Pill -->
+<div class="absolute bottom-2.5 inset-x-2.5 p-2 rounded-lg bg-surface-container-lowest/85 backdrop-blur-md space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Tokyo Shinjuku Vertigo</span>
+<span class="font-label-mono-xs text-label-mono-xs px-1.5 py-0.5 rounded bg-surface-container-highest text-primary font-medium">100MP</span>
+</div>
+<div class="font-label-mono-xs text-label-mono-xs text-outline truncate">
+                  Hasselblad X2D 100C • 38mm ƒ/2.5 • ƒ/4.0 • 1/60s • ISO 400
+                </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 3: Liquid Mercury Droplet Macro (Selected) -->
+<div class="flex flex-col gap-space-md">
+<div class="group relative rounded-xl overflow-hidden bg-surface-container-high shadow-md transition-all duration-300 hover:scale-[1.01]">
+<div class="relative w-full aspect-square overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="High speed ultra sharp macro photography of a shimmering liquid mercury metallic sphere impact splash creating symmetrical circular ripples on dark black reflective liquid surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvKPRmKw0_JShr1w9c-edk2wVJ_MeTvPh_LsWlaulKmNiTXUL9qa89GGfCru93nYQlMBrmtP1nc55cjDULQxeVvcPQ_gAKQc7p3UxFvpfQ8Zc_iS88wZR3JIXzMGOr5zHeuu3pzxh7c2dMf8eS9Er2B2DcVwqVWDlbDwOjPW407-KQ4NW3hqNIvBTEui2vDQkGOELZz9xhlSvQvILBZcyO9eUFfql9O42hgOlUnLigpyFcOoN98Q8t"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-black/40 pointer-events-none"></div>
+<!-- Top Selection -->
+<div class="absolute top-2.5 left-2.5 z-10 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-lg cursor-pointer">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<span class="font-label-mono-xs text-label-mono-xs px-2 py-0.5 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-on-surface font-semibold">STUDIO MACRO</span>
+</div>
+<button aria-label="Add to export" class="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">more_vert</span>
+</button>
+<!-- Bottom Floating Metadata Pill -->
+<div class="absolute bottom-2.5 inset-x-2.5 p-2 rounded-lg bg-surface-container-lowest/85 backdrop-blur-md space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Surface Tension Alpha</span>
+<span class="font-label-mono-xs text-label-mono-xs text-primary font-medium">1/8000s</span>
+</div>
+<div class="font-label-mono-xs text-label-mono-xs text-outline truncate">
+                  Canon R5 • 100mm Macro • ƒ/8.0 • 1/8000s • ISO 64
+                </div>
+</div>
+</div>
+</div>
+<!-- Color Channel Distribution Mini Visualizer -->
+<div class="rounded-xl bg-surface-container-low p-space-md shadow-sm space-y-2">
+<div class="flex items-center justify-between font-label-mono-xs text-label-mono-xs text-outline">
+<span>SPECTRAL DISTRIBUTION</span>
+<span class="text-on-surface">RGB 16-bit</span>
+</div>
+<div class="h-2 w-full flex rounded-full overflow-hidden">
+<div class="bg-red-500/80 w-[28%] h-full"></div>
+<div class="bg-emerald-500/80 w-[42%] h-full"></div>
+<div class="bg-sky-400/90 w-[30%] h-full"></div>
+</div>
+<div class="flex justify-between font-label-mono-xs text-label-mono-xs text-outline">
+<span class="text-red-400">R: 28%</span>
+<span class="text-emerald-400">G: 42%</span>
+<span class="text-sky-400">B: 30%</span>
+</div>
+</div>
+</div>
+<!-- Column 4: Rainy Street Noir (Hover Preview State) -->
+<div class="flex flex-col gap-space-md">
+<div class="group relative rounded-xl overflow-hidden bg-surface-container-high shadow-md transition-all duration-300 hover:scale-[1.01]">
+<div class="relative w-full aspect-[3/4] overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Moody cinematic street photography of a solitary man with black fedora hat and umbrella walking along a wet cobblestone Parisian alley at night with warm cafe light reflections" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMGy5LjEOBDon7s3BtY3Y1m6L83IzjNzi-glMKQ6-xrly8_rW-13GJuqJ0geuSev_itvlCD9vGE2glVxRg0Pa6efXVHSAGSrHGDv-yGIC7a6n_v2B8_eBkKCnqiyT8SNUrAULHWjIqZ3jCeCgXvLqP0Lz9PjD2p4wVVH2m6Q_lAuryD4cr_WW8DUsVQp9iF7Uw25zhrrzWDt3u2A3Ra8WG4YMRNLaiFtGQ9RS4dpMDFLT5mkpPZVNC"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-black/40 pointer-events-none"></div>
+<!-- Top Checkbox (Unchecked Hover Affordance) -->
+<div class="absolute top-2.5 left-2.5 z-10 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-lowest/70 hover:bg-primary hover:text-on-primary text-on-surface-variant flex items-center justify-center backdrop-blur-md cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[14px]">add</span>
+</div>
+<span class="font-label-mono-xs text-label-mono-xs px-2 py-0.5 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant">LEICA M</span>
+</div>
+<!-- Quick Action Row on Hover -->
+<div class="absolute top-2.5 right-2.5 z-10 flex items-center gap-1 opacity-90 group-hover:opacity-100 transition-opacity">
+<button class="w-7 h-7 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors" title="Apply Monochrome LUT" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+<button class="w-7 h-7 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors" title="Inspect RAW" type="button">
+<span class="material-symbols-outlined text-[16px]">center_focus_strong</span>
+</button>
+</div>
+<!-- Bottom Floating Metadata Pill -->
+<div class="absolute bottom-2.5 inset-x-2.5 p-2 rounded-lg bg-surface-container-lowest/85 backdrop-blur-md space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Rue de Paris Noir</span>
+<div class="flex items-center gap-0.5 text-primary-fixed-dim">
+<span class="material-symbols-outlined text-[13px]">star</span>
+<span class="material-symbols-outlined text-[13px]">star</span>
+<span class="material-symbols-outlined text-[13px]">star</span>
+<span class="material-symbols-outlined text-[13px]">star</span>
+<span class="material-symbols-outlined text-[13px]">star</span>
+</div>
+</div>
+<div class="font-label-mono-xs text-label-mono-xs text-outline truncate">
+                  Leica M11 • Summilux 35mm ƒ/1.4 • ƒ/1.4 • 1/125s • ISO 800
+                </div>
+</div>
+</div>
+</div>
+<!-- Quick Tag Batch Container -->
+<div class="rounded-xl bg-surface-container-low p-space-md shadow-sm flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container font-label-mono-xs text-label-mono-xs text-on-surface-variant">#cinematic</span>
+<span class="px-2 py-0.5 rounded bg-surface-container font-label-mono-xs text-label-mono-xs text-on-surface-variant">#noir</span>
+<span class="px-2 py-0.5 rounded bg-surface-container font-label-mono-xs text-label-mono-xs text-on-surface-variant">#reflection</span>
+<span class="px-2 py-0.5 rounded bg-primary/10 font-label-mono-xs text-label-mono-xs text-primary font-medium">+ Add Tag</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Deep Workspace Inspection Lightbox Stage (Modal Split View) -->
+<div class="w-full bg-surface-container-lowest rounded-2xl shadow-xl overflow-hidden mt-space-xl mb-space-xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 w-full">
+<!-- Center-Left Stage Canvas: Interactive Viewport (70% on large viewports) -->
+<div class="lg:col-span-8 relative bg-black flex flex-col justify-between p-space-md min-h-[560px]">
+<!-- Top Stage Floating Controls -->
+<div class="flex items-center justify-between z-10">
+<div class="flex items-center gap-2 bg-surface-container-lowest/80 backdrop-blur-md px-3 py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-[16px] text-primary">view_in_ar</span>
+<span class="font-label-mono-xs text-label-mono-xs text-on-surface font-semibold tracking-wide">CANVAS 01: ALPINE_TWILIGHT_MASTER.RAW</span>
+</div>
+<!-- Mini RGB Histogram Overlay -->
+<div class="flex flex-col gap-1 p-2 rounded-lg bg-surface-container-lowest/85 backdrop-blur-md">
+<div class="flex items-center justify-between font-label-mono-xs text-[9px] text-outline">
+<span>HISTOGRAM</span>
+<span class="text-primary">16-BIT FLOAT</span>
+</div>
+<svg class="w-36 h-12" fill="none" viewbox="0 0 100 40">
+<path d="M0 38 Q 15 35, 25 18 T 50 12 T 75 22 T 100 35 L 100 40 L 0 40 Z" fill="#38bdf8" fill-opacity="0.3"></path>
+<path d="M0 39 Q 20 37, 35 24 T 60 8 T 85 18 T 100 38" fill="none" stroke="#38bdf8" stroke-width="1.2"></path>
+<path d="M0 40 Q 30 38, 45 16 T 70 20 T 90 28 T 100 39" fill="none" stroke="#7899a8" stroke-width="0.8"></path>
+</svg>
+</div>
+</div>
+<!-- Center Image Focal with Subtle Rule of Thirds Matrix -->
+<div class="relative w-full my-auto flex items-center justify-center overflow-hidden py-4">
+<div class="relative max-w-2xl w-full rounded-lg overflow-hidden shadow-2xl">
+<img class="w-full h-auto object-contain rounded-lg" data-alt="Ultra high definition master photograph of an alpine mountain crest at dusk with cool deep cyan shadows and delicate warm orange highlights on the snowy peaks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf6RYZ1OnWzZkOxvB-ALlotGUxcYX_HzmyElwJMZ0ivBci31VUh-U_-hdeOKf9XbKIc68yu5I4qeSoWkHd6ncvFSn6B7MhOHhTwyAgwfEJ7XR0kHXorY-L1zQob59sTKeFzRbPP5hIl4_auRM6Wo_vwfEHyJzKa669_5jOzUHuvroXDVsV-MJ6JPsoxriHUhc5-9tarFrIRPSdTQna7c29F8LJOzA3T8B56BGLZ4zfNetYGTjvJtum"/>
+<!-- Overlay Rule-of-Thirds Grid Toggle -->
+<div class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none opacity-20">
+<div class="border-r border-b border-primary/40"></div>
+<div class="border-r border-b border-primary/40"></div>
+<div class="border-b border-primary/40"></div>
+<div class="border-r border-b border-primary/40"></div>
+<div class="border-r border-b border-primary/40"></div>
+<div class="border-b border-primary/40"></div>
+<div class="border-r border-primary/40"></div>
+<div class="border-r border-primary/40"></div>
+<div></div>
+</div>
+</div>
+</div>
+<!-- Bottom Canvas Pan / Zoom / Stage Controls -->
+<div class="flex items-center justify-between z-10 pt-2">
+<div class="flex items-center gap-2 bg-surface-container-lowest/80 backdrop-blur-md px-3 py-1.5 rounded-lg">
+<button class="text-caption font-caption px-2 py-1 rounded bg-surface-container-highest text-primary font-medium" type="button">FIT</button>
+<button class="text-caption font-caption px-2 py-1 rounded text-on-surface-variant hover:text-on-surface transition-colors" type="button">FILL</button>
+<button class="text-caption font-caption px-2 py-1 rounded text-on-surface-variant hover:text-on-surface transition-colors" type="button">1:1</button>
+<span class="h-3 w-[1px] bg-outline-variant/50 mx-1"></span>
+<span class="material-symbols-outlined text-[16px] text-outline">zoom_in</span>
+<input aria-label="Zoom percentage" class="w-28 accent-primary h-1 bg-surface-container-highest rounded-full cursor-pointer appearance-none" max="400" min="100" type="range" value="175"/>
+<span class="font-label-mono-xs text-label-mono-xs text-primary font-semibold">175%</span>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-lowest/80 backdrop-blur-md px-2 py-1 rounded-lg">
+<button aria-label="Toggle grid" class="w-8 h-8 rounded flex items-center justify-center text-primary bg-surface-container-highest" type="button">
+<span class="material-symbols-outlined text-[18px]">grid_on</span>
+</button>
+<button aria-label="Rotate canvas" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[18px]">rotate_right</span>
+</button>
+<button aria-label="Compare before after" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[18px]">splitscreen</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Inspector Panel (30% on large viewports) -->
+<div class="lg:col-span-4 bg-surface-container-low p-space-md flex flex-col justify-between gap-space-md">
+<div class="space-y-space-md">
+<!-- Inspector Tabs -->
+<div class="flex items-center p-1 rounded-lg bg-surface-container-lowest w-full font-caption text-caption">
+<button class="flex-1 py-1.5 rounded-md bg-surface-container-highest text-primary font-medium text-center shadow-sm" type="button">Metadata</button>
+<button class="flex-1 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface text-center transition-colors" type="button">Color Palette</button>
+<button class="flex-1 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface text-center transition-colors" type="button">Notes (2)</button>
+</div>
+<!-- File Telemetry Header -->
+<div class="p-3 rounded-lg bg-surface-container space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-mono-md text-label-mono-md text-on-surface font-semibold">DSC09241_RAW_MASTER.ARW</span>
+<span class="px-2 py-0.5 rounded bg-primary/15 text-primary font-label-mono-xs text-label-mono-xs font-semibold">78.4 MB</span>
+</div>
+<div class="font-label-mono-xs text-label-mono-xs text-outline">
+              9504 × 6336 px • 16-Bit ProPhoto RGB • Lossless Compressed
+            </div>
+</div>
+<!-- Detailed EXIF Parameter Grid -->
+<div class="space-y-1.5">
+<div class="font-label-mono-xs text-label-mono-xs uppercase text-outline tracking-wider px-1">Optics &amp; Telemetry</div>
+<div class="grid grid-cols-2 gap-2 font-label-mono-xs text-label-mono-xs">
+<div class="p-2 rounded bg-surface-container space-y-0.5">
+<span class="text-outline">ISO SENSITIVITY</span>
+<div class="text-on-surface font-semibold text-body-md font-body-md">100</div>
+</div>
+<div class="p-2 rounded bg-surface-container space-y-0.5">
+<span class="text-outline">APERTURE</span>
+<div class="text-on-surface font-semibold text-body-md font-body-md">ƒ / 2.8</div>
+</div>
+<div class="p-2 rounded bg-surface-container space-y-0.5">
+<span class="text-outline">EXPOSURE TIME</span>
+<div class="text-on-surface font-semibold text-body-md font-body-md">1/500 sec</div>
+</div>
+<div class="p-2 rounded bg-surface-container space-y-0.5">
+<span class="text-outline">FOCAL LENGTH</span>
+<div class="text-on-surface font-semibold text-body-md font-body-md">42.0 mm</div>
+</div>
+<div class="p-2 rounded bg-surface-container col-span-2 space-y-0.5">
+<span class="text-outline">CAMERA BODY</span>
+<div class="text-on-surface font-semibold truncate">Sony ILCE-7RM5 (Alpha 7R V)</div>
+</div>
+<div class="p-2 rounded bg-surface-container col-span-2 space-y-0.5">
+<span class="text-outline">PRIMARY OPTIC</span>
+<div class="text-on-surface font-semibold truncate">FE 24-70mm F2.8 GM II (SEL2470GM2)</div>
+</div>
+</div>
+</div>
+<!-- GPS Topographic Coordinate Vector Badge -->
+<div class="space-y-1.5">
+<div class="font-label-mono-xs text-label-mono-xs uppercase text-outline tracking-wider px-1">Geospatial Tag</div>
+<div class="p-2.5 rounded-lg bg-surface-container flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded bg-surface-container-highest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[16px]">pin_drop</span>
+</div>
+<div class="space-y-0.5">
+<div class="font-caption text-caption text-on-surface font-medium">Mount Rainier Alpine Ridge</div>
+<div class="font-label-mono-xs text-label-mono-xs text-outline">46.8523° N, 121.7603° W • 2,410m</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-[18px] text-outline hover:text-primary cursor-pointer">explore</span>
+</div>
+</div>
+<!-- Dominant Color Swatches Extract -->
+<div class="space-y-2">
+<div class="flex items-center justify-between font-label-mono-xs text-label-mono-xs px-1">
+<span class="uppercase text-outline tracking-wider">Extracted Swatches</span>
+<span class="text-primary font-semibold cursor-pointer">Copy All HEX</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="group relative flex-1 h-9 rounded-md bg-[#0c141f] shadow-sm flex items-end justify-center pb-0.5 cursor-pointer">
+<span class="font-label-mono-xs text-[9px] text-white opacity-0 group-hover:opacity-100 transition-opacity">40%</span>
+</div>
+<div class="group relative flex-1 h-9 rounded-md bg-[#1e3a4c] shadow-sm flex items-end justify-center pb-0.5 cursor-pointer">
+<span class="font-label-mono-xs text-[9px] text-white opacity-0 group-hover:opacity-100 transition-opacity">26%</span>
+</div>
+<div class="group relative flex-1 h-9 rounded-md bg-[#38bdf8] shadow-sm flex items-end justify-center pb-0.5 cursor-pointer">
+<span class="font-label-mono-xs text-[9px] text-black font-semibold opacity-0 group-hover:opacity-100 transition-opacity">18%</span>
+</div>
+<div class="group relative flex-1 h-9 rounded-md bg-[#7899a8] shadow-sm flex items-end justify-center pb-0.5 cursor-pointer">
+<span class="font-label-mono-xs text-[9px] text-black opacity-0 group-hover:opacity-100 transition-opacity">10%</span>
+</div>
+<div class="group relative flex-1 h-9 rounded-md bg-[#e2b474] shadow-sm flex items-end justify-center pb-0.5 cursor-pointer">
+<span class="font-label-mono-xs text-[9px] text-black opacity-0 group-hover:opacity-100 transition-opacity">6%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Grade Studio Action Button -->
+<div class="pt-2">
+<button class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-primary text-on-primary font-headline-sm text-headline-sm font-medium transition-transform hover:scale-[1.01] shadow-lg" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span>Open in Color Grade Studio</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Persistent Floating Batch Command Island (Docked at Bottom Center) -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-surface-container-high/90 backdrop-blur-xl rounded-full px-5 py-2.5 shadow-2xl flex items-center gap-space-md max-w-2xl w-[92vw] sm:w-auto overflow-x-auto">
+<!-- Active Selection Pill -->
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary font-label-mono-xs text-label-mono-xs font-semibold whitespace-nowrap">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-ping"></span>
+<span>3 SELECTED</span>
+</div>
+<!-- Actions Row -->
+<div class="flex items-center gap-2 shrink-0">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface hover:text-primary font-caption text-caption transition-colors whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">drive_file_move</span>
+<span>Move to Album</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface hover:text-primary font-caption text-caption transition-colors whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">label</span>
+<span>Batch Tag</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface hover:text-primary font-caption text-caption transition-colors whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">auto_fix_high</span>
+<span>Apply LUT</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary font-caption text-caption font-medium transition-all hover:scale-105 whitespace-nowrap shadow-md" type="button">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+<span>Export RAW + DNG</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant hover:text-error hover:bg-error-container/20 flex items-center justify-center transition-colors" title="Archive / Delete" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+<!-- Dismiss Selection -->
+<button class="w-7 h-7 rounded-full text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors ml-1" title="Deselect All" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+</div></main></div></body></html>

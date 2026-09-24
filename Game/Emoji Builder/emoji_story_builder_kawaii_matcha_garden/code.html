@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EmojiStory Kawaii Toybox - Matcha Garden &amp; Boba Bakery</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<!-- Chubby rounded & playful fonts: Nunito, Quicksand, Patrick Hand, JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&amp;family=Patrick+Hand&amp;family=Quicksand:wght@500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "toybox-bg": "#EBF7EE",
+            "toybox-canvas": "#E2F2E7",
+            "honeydew-cream": "#F4FBF6",
+            "matcha-mint": "#34D399",
+            "matcha-dark": "#059669",
+            "matcha-soft": "#D1FAE5",
+            "matcha-cream": "#ECFDF5",
+            "matcha-deep": "#065F46",
+            "sunbeam-amber": "#FBBF24",
+            "sunbeam-soft": "#FEF3C7",
+            "bubble-pink": "#F472B6",
+            "bubble-pink-soft": "#FCE7F3",
+            "boba-caramel": "#D97706",
+            "boba-caramel-soft": "#FEF3C7",
+            "clay-shadow": "rgba(16, 185, 129, 0.12)",
+            "wood-border": "#C8D9BF",
+            "wood-dark": "#8FA385"
+          },
+          fontFamily: {
+            nunito: ['"Nunito"', 'sans-serif'],
+            quicksand: ['"Quicksand"', 'sans-serif'],
+            hand: ['"Patrick Hand"', 'cursive'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          boxShadow: {
+            'clay-sm': 'inset 2px 2px 4px rgba(255,255,255,0.85), inset -2px -2px 4px rgba(5,150,105,0.08), 0 4px 10px rgba(16,185,129,0.12)',
+            'clay-card': 'inset 3px 3px 6px rgba(255,255,255,0.95), inset -3px -3px 6px rgba(5,150,105,0.1), 0 10px 25px -4px rgba(16,185,129,0.16)',
+            'clay-btn': 'inset 0 2px 4px rgba(255,255,255,0.65), 0 5px 0px rgba(5,150,105,0.3), 0 8px 16px rgba(16,185,129,0.18)',
+            'clay-btn-active': 'inset 0 3px 6px rgba(0,0,0,0.18), 0 1px 0px rgba(0,0,0,0.1)',
+            'marshmallow': '0 12px 30px -8px rgba(16, 185, 129, 0.18), inset 0 2px 4px rgba(255, 255, 255, 0.95)',
+            'picnic-frame': 'inset 0 0 0 8px #F0FDF4, inset 0 0 0 12px #B8D8C3, 0 20px 40px -10px rgba(34, 94, 60, 0.18)'
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @layer base {
+      html, body { margin:0; padding:0; overscroll-behavior:none; }
+      ::-webkit-scrollbar { display: none; }
+    }
+    .clay-puffy {
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clay-puffy:active {
+      transform: translateY(3px) scale(0.98);
+    }
+    .wobbly-bubble {
+      border-radius: 28px 28px 32px 10px;
+    }
+    .wobbly-bubble-alt {
+      border-radius: 28px 28px 12px 32px;
+    }
+  </style>
+</head>
+<body class="bg-toybox-bg font-quicksand text-slate-700 antialiased min-h-screen flex flex-col overflow-hidden select-none">
+<!-- TOP ORGANIC MARSHMALLOW ISLAND BAR -->
+<header class="fixed top-2.5 left-4 right-4 z-50 h-16 bg-white/92 backdrop-blur-md rounded-3xl border border-white/80 shadow-marshmallow px-5 flex items-center justify-between gap-4">
+<!-- Brand & Episode Title -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-matcha-mint via-emerald-400 to-sunbeam-amber flex items-center justify-center text-2xl shadow-clay-sm animate-bounce" style="animation-duration: 2.5s;">
+          🍵
+        </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-nunito text-xl font-extrabold tracking-tight text-slate-800">EmojiStory</span>
+<span class="px-2 py-0.5 rounded-full bg-emerald-500 text-white font-nunito text-[11px] font-bold shadow-sm tracking-wide">
+              MATCHA GARDEN v4
+            </span>
+</div>
+</div>
+</div>
+<div class="h-6 w-0.5 bg-emerald-100 mx-1"></div>
+<!-- Episode Editable Ribbon Pill -->
+<div class="flex items-center gap-2 bg-matcha-soft/60 px-3 py-1.5 rounded-2xl border border-matcha-mint/30 shadow-inner">
+<span class="text-lg">🐸</span>
+<input class="bg-transparent text-slate-800 font-nunito text-sm font-bold outline-none w-[275px] truncate" type="text" value="Adventure 04: The Matcha Forest Picnic 🍵🐸🍡"/>
+<span class="material-symbols-outlined text-[16px] text-emerald-600 cursor-pointer">edit</span>
+<span class="w-2 h-2 rounded-full bg-matcha-mint animate-pulse" title="Auto-saved with tea love"></span>
+</div>
+</div>
+<!-- Center Play/Aspect Segment -->
+<div class="hidden lg:flex items-center gap-2 bg-emerald-50/80 p-1.5 rounded-2xl border border-emerald-100/60 shadow-inner">
+<button class="px-3 py-1 rounded-xl font-nunito text-xs text-slate-500 hover:text-slate-800 hover:bg-white/80 transition-all font-bold">
+        1:1 Squishy
+      </button>
+<button class="px-3 py-1 rounded-xl bg-matcha-mint text-emerald-950 font-nunito text-xs font-black shadow-clay-sm">
+        16:9 Toybox Cinema
+      </button>
+<button class="px-3 py-1 rounded-xl font-nunito text-xs text-slate-500 hover:text-slate-800 hover:bg-white/80 transition-all font-bold">
+        9:16 Shorts
+      </button>
+</div>
+<!-- Top Right Clay Controls -->
+<div class="flex items-center gap-2.5">
+<!-- Undo / Redo Clay Pellets -->
+<div class="flex items-center bg-slate-100/70 p-1 rounded-2xl">
+<button class="w-8 h-8 rounded-xl bg-white hover:bg-matcha-soft text-slate-600 flex items-center justify-center shadow-sm clay-puffy">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+</button>
+<button class="w-8 h-8 rounded-xl bg-white hover:bg-matcha-soft text-slate-600 flex items-center justify-center shadow-sm clay-puffy ml-1">
+<span class="material-symbols-outlined text-[18px]">redo</span>
+</button>
+</div>
+<!-- Playtime timer pill -->
+<div class="flex items-center gap-1.5 bg-sunbeam-soft px-3 py-1.5 rounded-2xl border border-sunbeam-amber/30 text-amber-800 font-nunito text-xs font-black">
+<span class="material-symbols-outlined text-[16px] text-amber-600">alarm</span>
+<span>03:45</span>
+</div>
+<!-- Share Button (Matcha Dew Clay) -->
+<button class="px-3 py-1.5 rounded-2xl bg-matcha-soft hover:bg-emerald-200 text-emerald-900 font-nunito text-xs font-extrabold border border-emerald-200 shadow-sm flex items-center gap-1.5 clay-puffy">
+<span class="material-symbols-outlined text-[16px] text-emerald-600">favorite</span>
+<span>Share</span>
+</button>
+<!-- Export Button (Puffy Soft Jade Bake Comic Reel) -->
+<button class="px-4 py-2 rounded-2xl bg-gradient-to-b from-matcha-mint to-emerald-600 hover:from-emerald-400 hover:to-emerald-600 text-white font-nunito text-xs font-black shadow-clay-btn clay-puffy flex items-center gap-1.5 border-t border-emerald-200">
+<span class="material-symbols-outlined text-[18px]">auto_stories</span>
+<span>Bake Bakery Reel</span>
+</button>
+<!-- Avatar Sticker -->
+<div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-300 via-teal-200 to-amber-200 p-0.5 shadow-clay-sm cursor-pointer hover:rotate-6 transition-transform">
+<div class="w-full h-full rounded-[14px] bg-white flex items-center justify-center text-lg">
+          🐸
+        </div>
+</div>
+</div>
+</header>
+<!-- MAIN PLAYGROUND WORKSPACE -->
+<main class="pt-20 pb-2 px-4 flex flex-1 h-[calc(100vh)] gap-4 overflow-hidden">
+<!-- 1. LEFT CURVED DOCK: ORGANIC STICKER BOOK (310px) -->
+<aside class="w-[310px] shrink-0 bg-white/90 backdrop-blur-md rounded-3xl border border-white shadow-marshmallow flex flex-col justify-between overflow-hidden p-3.5 my-1">
+<!-- Top: Sticker Search & Floating Bubbly Tabs -->
+<div class="flex flex-col gap-3">
+<!-- Marshmallow Search -->
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-[18px] text-emerald-500">eco</span>
+<input class="w-full bg-toybox-bg/70 text-slate-800 placeholder:text-slate-400 font-quicksand text-xs pl-9 pr-10 py-2.5 rounded-2xl border border-emerald-100 outline-none focus:ring-2 focus:ring-matcha-mint/40 shadow-inner" placeholder="Search bakery &amp; garden stickers..." type="text"/>
+<span class="absolute right-2.5 px-1.5 py-0.5 rounded-lg bg-emerald-100 text-emerald-700 font-nunito text-[10px] font-extrabold">
+            MATCHA
+          </span>
+</div>
+<!-- Floating Bubbly Category Tabs -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+<button class="px-3 py-1.5 rounded-2xl bg-matcha-mint text-emerald-950 font-nunito text-xs font-black shadow-clay-sm clay-puffy shrink-0 flex items-center gap-1">
+<span>🍵</span> Cafe &amp; Tea
+          </button>
+<button class="px-2.5 py-1.5 rounded-2xl bg-honeydew-cream hover:bg-emerald-100 text-emerald-800 font-nunito text-xs font-bold shrink-0 clay-puffy flex items-center gap-1 border border-emerald-100">
+<span>🍡</span> Sweets
+          </button>
+<button class="px-2.5 py-1.5 rounded-2xl bg-sunbeam-soft hover:bg-sunbeam-amber/40 text-amber-800 font-nunito text-xs font-bold shrink-0 clay-puffy flex items-center gap-1">
+<span>🐸</span> Friends
+          </button>
+<button class="px-2.5 py-1.5 rounded-2xl bg-bubble-pink-soft hover:bg-pink-200 text-pink-700 font-nunito text-xs font-bold shrink-0 clay-puffy flex items-center gap-1">
+<span>🌸</span> Flora
+          </button>
+</div>
+<!-- Story Palette Mood Badge -->
+<div class="p-2.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 border border-emerald-200/60 shadow-clay-sm flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-nunito text-xs font-extrabold text-slate-800 flex items-center gap-1">
+<span class="text-sm">🍃</span> Honeydew Matcha Dew
+            </span>
+<span class="text-[10px] font-nunito font-black text-emerald-700 bg-white px-2 py-0.5 rounded-full shadow-sm">
+              BOBA BAKERY
+            </span>
+</div>
+<!-- 4 Pastel Clay Gel Swatches -->
+<div class="flex items-center gap-2 pt-0.5">
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-emerald-300 to-matcha-mint cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Matcha Foam"></div>
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-green-100 to-emerald-200 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Honeydew Milk"></div>
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-amber-200 to-yellow-300 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Star Sugar"></div>
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-rose-200 to-pink-300 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Sakura Cream"></div>
+</div>
+</div>
+</div>
+<!-- Sticker Vault Grid (Matcha Cafe & Garden Cute Emoji Props) -->
+<div class="flex-1 overflow-y-auto px-1 py-2">
+<div class="flex items-center justify-between mb-2 px-1">
+<span class="font-nunito text-[11px] uppercase tracking-wider text-slate-400 font-extrabold">Bakery &amp; Garden Friends</span>
+<span class="font-nunito text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-black">16 Fresh</span>
+</div>
+<div class="grid grid-cols-4 gap-2">
+<!-- Item 1: Matcha Boba -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍵</span>
+<span class="font-nunito text-[9px] text-emerald-700 font-extrabold mt-0.5">Matcha</span>
+</div>
+<!-- Item 2: Bao Bun -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-slate-100 hover:border-amber-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🥟</span>
+<span class="font-nunito text-[9px] text-amber-700 font-extrabold mt-0.5">Bao Bun</span>
+</div>
+<!-- Item 3: Frog Barista -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🐸</span>
+<span class="font-nunito text-[9px] text-emerald-600 font-extrabold mt-0.5">Hiro</span>
+</div>
+<!-- Item 4: Dango Skewer -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-pink-50 border border-slate-100 hover:border-pink-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍡</span>
+<span class="font-nunito text-[9px] text-pink-600 font-extrabold mt-0.5">Dango</span>
+</div>
+<!-- Item 5: Sakura Blossom -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-rose-50 border border-slate-100 hover:border-rose-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🌸</span>
+<span class="font-nunito text-[9px] text-rose-500 font-extrabold mt-0.5">Sakura</span>
+</div>
+<!-- Item 6: Strawberry Sweet -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-pink-50 border border-slate-100 hover:border-pink-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍓</span>
+<span class="font-nunito text-[9px] text-pink-500 font-extrabold mt-0.5">Berry</span>
+</div>
+<!-- Item 7: Lotus Leaf -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-teal-50 border border-slate-100 hover:border-teal-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🪷</span>
+<span class="font-nunito text-[9px] text-teal-600 font-extrabold mt-0.5">Lotus</span>
+</div>
+<!-- Item 8: Star Sugar Sprinkle -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-yellow-50 border border-slate-100 hover:border-yellow-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">✨</span>
+<span class="font-nunito text-[9px] text-amber-500 font-extrabold mt-0.5">Sparkle</span>
+</div>
+<!-- Item 9: Green Tea Pot -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🫖</span>
+<span class="font-nunito text-[9px] text-emerald-700 font-extrabold mt-0.5">Teapot</span>
+</div>
+<!-- Item 10: Honey Jar -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-slate-100 hover:border-amber-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍯</span>
+<span class="font-nunito text-[9px] text-amber-600 font-extrabold mt-0.5">Honey</span>
+</div>
+<!-- Item 11: Croissant Pastry -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-slate-100 hover:border-amber-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🥐</span>
+<span class="font-nunito text-[9px] text-amber-700 font-extrabold mt-0.5">Pastry</span>
+</div>
+<!-- Item 12: Mushroom Friend -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍄</span>
+<span class="font-nunito text-[9px] text-emerald-600 font-extrabold mt-0.5">Shroomy</span>
+</div>
+<!-- Item 13: Clover Luck -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍀</span>
+<span class="font-nunito text-[9px] text-emerald-600 font-extrabold mt-0.5">Clover</span>
+</div>
+<!-- Item 14: Boba Straw Cup -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-slate-100 hover:border-amber-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🧋</span>
+<span class="font-nunito text-[9px] text-amber-700 font-extrabold mt-0.5">Milk Tea</span>
+</div>
+<!-- Item 15: Rice Cake / Onigiri -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-slate-50 border border-slate-100 hover:border-slate-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍙</span>
+<span class="font-nunito text-[9px] text-slate-600 font-extrabold mt-0.5">Onigiri</span>
+</div>
+<!-- Item 16: Star Wand -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-yellow-50 border border-slate-100 hover:border-yellow-200 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🪄</span>
+<span class="font-nunito text-[9px] text-amber-500 font-extrabold mt-0.5">Magic</span>
+</div>
+</div>
+</div>
+<!-- Bottom: AI Clay Alchemist -->
+<div class="pt-2 flex flex-col gap-2">
+<div class="flex items-center justify-between px-1">
+<span class="font-nunito text-[10px] text-slate-400 font-extrabold uppercase">Garden Favorites</span>
+<div class="flex items-center gap-1.5 text-base">
+<span class="hover:scale-125 transition-transform cursor-pointer">🍵</span>
+<span class="hover:scale-125 transition-transform cursor-pointer">🐸</span>
+<span class="hover:scale-125 transition-transform cursor-pointer">🍡</span>
+<span class="hover:scale-125 transition-transform cursor-pointer">🌸</span>
+</div>
+</div>
+<button class="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-matcha-mint text-emerald-950 font-nunito text-xs font-black shadow-clay-btn clay-puffy flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-lg animate-spin" style="animation-duration: 6s;">🍵</span>
+<span>Matcha Tea Alchemist</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-white text-emerald-800 text-[10px] font-black uppercase">
+            WHISK!
+          </span>
+</button>
+</div>
+</aside>
+<!-- 2. CENTER GIANT MAGNETIC CANVAS WITH PICNIC PLAY-MAT THEME -->
+<section class="flex-1 flex flex-col items-center justify-between relative overflow-hidden bg-toybox-canvas/60 rounded-3xl p-3 border border-emerald-100 shadow-inner">
+<!-- Top Floating Marshmallow Pill Toolbar -->
+<div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/95 backdrop-blur-md shadow-marshmallow border border-white z-20">
+<!-- Zoom -->
+<div class="flex items-center gap-1 bg-slate-100/80 px-2 py-1 rounded-full">
+<button class="w-6 h-6 rounded-full hover:bg-white text-slate-600 flex items-center justify-center clay-puffy text-xs">
+<span class="material-symbols-outlined text-[15px]">remove</span>
+</button>
+<span class="font-nunito text-xs text-slate-800 font-extrabold px-1.5">100%</span>
+<button class="w-6 h-6 rounded-full hover:bg-white text-slate-600 flex items-center justify-center clay-puffy text-xs">
+<span class="material-symbols-outlined text-[15px]">add</span>
+</button>
+</div>
+<button class="px-3 py-1 rounded-full text-slate-600 hover:text-slate-900 font-nunito text-xs font-bold hover:bg-slate-100 transition-colors">
+          Reset View
+        </button>
+<div class="h-4 w-px bg-slate-200"></div>
+<!-- Magnet & Sparkle Guides -->
+<button class="flex items-center gap-1 px-3 py-1 rounded-full bg-matcha-mint text-emerald-950 font-nunito text-xs font-black shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-[15px]">scatter_plot</span>
+<span>Magnet Grid</span>
+</button>
+<button class="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 font-nunito text-xs font-bold clay-puffy hover:bg-emerald-200">
+<span class="material-symbols-outlined text-[15px]">magic_button</span>
+<span>Snap Clays</span>
+</button>
+<div class="h-4 w-px bg-slate-200"></div>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded-full hover:bg-emerald-100 text-emerald-600 clay-puffy" title="Bring to Front">
+<span class="material-symbols-outlined text-[17px]">flip_to_front</span>
+</button>
+<button class="p-1 rounded-full hover:bg-emerald-100 text-emerald-600 clay-puffy" title="Send to Back">
+<span class="material-symbols-outlined text-[17px]">flip_to_back</span>
+</button>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-matcha-soft text-emerald-800 font-nunito text-[10px] font-black">
+          🧺 PICNIC STAGE
+        </span>
+</div>
+<!-- MAIN PLAYFUL PICNIC FRAME CANVASES -->
+<div class="relative w-full max-w-[820px] h-[410px] my-auto rounded-[36px] bg-gradient-to-b from-[#FAFDF8] to-[#EEF8F1] shadow-picnic-frame border-[6px] border-[#B8D8C3] p-6 flex flex-col justify-between overflow-hidden select-none" style="background-image: radial-gradient(#C6E4CF 1.5px, transparent 1.5px); background-size: 24px 24px;">
+<!-- Floating Dreamy Cloud & Leaf Backdrops -->
+<div class="absolute -top-10 left-10 w-48 h-24 rounded-full bg-white/75 blur-[1px] pointer-events-none"></div>
+<div class="absolute top-8 right-12 w-64 h-32 rounded-full bg-emerald-100/40 blur-[2px] pointer-events-none"></div>
+<div class="absolute bottom-6 left-1/3 w-80 h-28 rounded-full bg-teal-100/50 blur-[1px] pointer-events-none"></div>
+<!-- Gingham picnic mat in center base -->
+<div class="absolute bottom-3 left-1/2 -translate-x-1/2 w-[520px] h-[140px] rounded-3xl opacity-30 pointer-events-none" style="background: repeating-linear-gradient(0deg, #A7F3D0, #A7F3D0 16px, transparent 16px, transparent 32px), repeating-linear-gradient(90deg, #A7F3D0, #A7F3D0 16px, transparent 16px, transparent 32px); background-color: #ECFDF5;"></div>
+<!-- Frame Top Stamp -->
+<div class="flex items-center justify-between z-10">
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 rounded-2xl bg-emerald-500 text-white font-nunito text-xs font-black shadow-clay-sm">
+              PAGE #04
+            </span>
+<span class="font-nunito text-sm font-extrabold text-slate-700 tracking-wide">
+              The Matcha Forest Picnic
+            </span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-xl bg-white/90 text-emerald-800 font-nunito text-xs font-black shadow-sm border border-emerald-100">
+              ACT II • 04.2s
+            </span>
+<span class="w-3 h-3 rounded-full bg-matcha-mint shadow-[0_0_8px_#34D399]"></span>
+</div>
+</div>
+<!-- STAGED EMOJIS & HANDWRITTEN BUBBLES PLAYGROUND -->
+<div class="relative flex-1 w-full my-2">
+<!-- ACTOR 1: Cute Frog Barista with Matcha Boba Cup (Active Clay Bounding Box) -->
+<div class="absolute left-10 top-8 z-20 group cursor-move">
+<!-- Puffy Clay Active Frame in Jade Mint -->
+<div class="relative p-3 rounded-3xl border-3 border-dashed border-emerald-500 bg-emerald-200/25 shadow-clay-card">
+<!-- Corner Clay Marshmallow Handles in Emerald -->
+<div class="absolute -top-2 -left-2 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-md"></div>
+<div class="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-md"></div>
+<div class="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-md"></div>
+<div class="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-md"></div>
+<!-- Main Emojis Pair: Froggy Barista + Matcha Bowl / Boba -->
+<div class="flex items-center gap-1">
+<div class="text-7xl filter drop-shadow-[0_10px_10px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform">
+                  🐸
+                </div>
+<div class="text-6xl -ml-3 -mt-2 filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.15)] animate-pulse" style="animation-duration: 3s;">
+                  🍵
+                </div>
+</div>
+<!-- Quick Puffy Action Bar above selection -->
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white shadow-clay-card text-nowrap pointer-events-auto border border-emerald-100">
+<button class="px-2 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-nunito text-[11px] font-extrabold clay-puffy">
+                  Copy ✨
+                </button>
+<div class="h-3 w-px bg-slate-200"></div>
+<button class="px-2 py-0.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-700 font-nunito text-[11px] font-extrabold clay-puffy">
+                  Flip ↔
+                </button>
+<div class="h-3 w-px bg-slate-200"></div>
+<button class="px-2 py-0.5 rounded-lg bg-matcha-mint text-emerald-950 font-nunito text-[11px] font-black shadow-sm clay-puffy">
+                  Squish Foam 🍵
+                </button>
+</div>
+</div>
+<!-- HANDWRITTEN SPEECH BUBBLE 1: Frog barista serving matcha -->
+<div class="absolute -top-16 left-32 w-68 p-3.5 bg-white text-slate-800 shadow-clay-card border-2 border-emerald-300 wobbly-bubble relative z-30">
+<p class="font-hand text-base leading-tight font-bold text-slate-800 tracking-wide">
+                "Mmm! Fresh matcha foam sprinkled with star sugar! 🍵✨"
+              </p>
+<!-- Tail pointing to Frog -->
+<div class="absolute -bottom-2.5 left-5 w-0 h-0 border-t-[10px] border-t-white border-r-[10px] border-r-transparent filter drop-shadow-[0_2px_1px_rgba(16,185,129,0.3)]"></div>
+<!-- Mini cute leaf pin -->
+<div class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-matcha-mint border border-white shadow-sm flex items-center justify-center text-[8px] text-emerald-950 font-bold">
+                🍃
+              </div>
+</div>
+</div>
+<!-- ACTOR 2: Sweet Mochi Skewer & Bao in Center Field -->
+<div class="absolute left-1/2 bottom-8 -translate-x-1/2 flex flex-col items-center z-10 cursor-pointer group">
+<div class="relative flex items-center">
+<span class="text-6xl filter drop-shadow-[0_8px_16px_rgba(236,72,153,0.35)] group-hover:scale-125 transition-transform inline-block">
+                🍡
+              </span>
+<span class="text-5xl -ml-2 -mt-2 filter drop-shadow-[0_8px_16px_rgba(245,158,11,0.25)] group-hover:scale-110 transition-transform inline-block">
+                🥟
+              </span>
+<span class="absolute -top-2 -right-3 text-xl animate-bounce text-sunbeam-amber">✨</span>
+<span class="absolute bottom-1 -left-3 text-lg animate-spin text-emerald-500" style="animation-duration: 4s;">🍀</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-white/95 font-nunito text-[10px] text-emerald-800 font-extrabold tracking-wide shadow-clay-sm mt-1 border border-emerald-100">
+              "Sweet Trio Mochi &amp; Bao"
+            </span>
+</div>
+<!-- ACTOR 3: Smiling Sakura Blossom (Top Right) -->
+<div class="absolute right-8 top-8 flex flex-col items-end z-20 group cursor-pointer">
+<!-- HANDWRITTEN SPEECH BUBBLE 2: Blossom cheering for afternoon tea -->
+<div class="mb-2 p-3 px-4 bg-emerald-50/90 text-slate-800 shadow-clay-card border-2 border-emerald-200 wobbly-bubble-alt relative">
+<p class="font-hand text-base leading-tight font-bold text-emerald-900 tracking-wide">
+                "Don't forget the warm honey drizzle! 🍯🌸"
+              </p>
+<!-- Tail pointing to blossom -->
+<div class="absolute -bottom-2.5 right-6 w-0 h-0 border-t-[10px] border-t-emerald-50 border-l-[10px] border-l-transparent"></div>
+</div>
+<!-- Blossom & Lotus Composite -->
+<div class="flex items-center gap-1">
+<span class="text-7xl filter drop-shadow-[0_12px_16px_rgba(244,114,182,0.35)] group-hover:-translate-y-2 transition-transform inline-block">
+                🌸
+              </span>
+<span class="text-5xl -ml-4 mt-3 filter drop-shadow-md">
+                🪷
+              </span>
+</div>
+<span class="font-nunito text-[10px] text-pink-700 font-extrabold bg-white px-2 py-0.5 rounded-full shadow-clay-sm mt-0.5 border border-pink-100">
+              Sakura Hana &amp; Lily
+            </span>
+</div>
+</div>
+<!-- Frame Bottom Coordinates -->
+<div class="flex items-center justify-between z-10 pt-2 border-t border-emerald-200/60">
+<div class="flex items-center gap-2 font-nunito text-xs text-emerald-900/80 font-bold">
+<span>Matcha Field X: 142 • Y: 210</span>
+<span>•</span>
+<span>Tea Infusion: 100% 🍃</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-nunito text-[10px] font-extrabold">
+              PAGE 04 / 08
+            </span>
+</div>
+</div>
+</div>
+<!-- Real-Time Dialogue Caption Bar with Chubby Pills -->
+<div class="w-full max-w-[820px] mt-2 p-2.5 rounded-2xl bg-white/95 shadow-marshmallow border border-white flex items-center justify-between gap-3">
+<div class="flex items-center gap-2 flex-1 min-w-0">
+<span class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-500 to-matcha-mint text-white font-nunito text-xs font-black shrink-0 shadow-sm">
+            Story Caption:
+          </span>
+<input class="flex-1 bg-transparent text-slate-800 font-quicksand font-bold text-sm outline-none border-b border-transparent focus:border-matcha-mint px-1 truncate" type="text" value="Froggy Hiro serves the afternoon picnic treats! 🍵🧺"/>
+</div>
+<!-- Font Choice & Pastel Jelly Drops -->
+<div class="flex items-center gap-2 shrink-0">
+<div class="flex items-center bg-slate-100 p-0.5 rounded-xl">
+<button class="px-2.5 py-0.5 rounded-lg text-xs font-extrabold bg-matcha-mint text-emerald-950 shadow-sm font-nunito">
+              Nunito
+            </button>
+<button class="px-2.5 py-0.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 font-hand transition-colors">
+              Patrick
+            </button>
+<button class="px-2.5 py-0.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 font-quicksand transition-colors">
+              Quicksand
+            </button>
+</div>
+<div class="flex items-center gap-1.5 pl-1">
+<div class="w-5 h-5 rounded-full bg-matcha-mint cursor-pointer shadow-clay-sm ring-2 ring-white" title="Matcha Cream"></div>
+<div class="w-5 h-5 rounded-full bg-sunbeam-amber cursor-pointer shadow-clay-sm ring-2 ring-white" title="Star Amber"></div>
+<div class="w-5 h-5 rounded-full bg-bubble-pink cursor-pointer shadow-clay-sm ring-2 ring-white" title="Sakura Blossom"></div>
+<div class="w-5 h-5 rounded-full bg-teal-400 cursor-pointer shadow-clay-sm ring-2 ring-white" title="Lotus Jade"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. RIGHT-HAND DRAWER: "BAKING STUDIO & RECIPE BOOK" (260px) -->
+<aside class="w-[260px] shrink-0 bg-white/90 backdrop-blur-md rounded-3xl border border-white shadow-marshmallow flex flex-col justify-between p-3.5 my-1 overflow-hidden">
+<div class="flex flex-col gap-3">
+<!-- Header: Baking Studio & Recipe Book -->
+<div class="flex items-center justify-between pb-1 border-b border-emerald-100">
+<div class="flex items-center gap-1.5">
+<span class="text-xl">👩‍🍳</span>
+<span class="font-nunito text-sm font-black text-slate-800">Baking Studio &amp; Recipe</span>
+</div>
+<span class="material-symbols-outlined text-emerald-600 hover:text-emerald-800 cursor-pointer text-[18px]">menu_book</span>
+</div>
+<!-- Active Chef / Recipe Pill Card -->
+<div class="p-3 rounded-2xl bg-gradient-to-tr from-emerald-50 via-teal-50 to-green-50 border border-emerald-200 shadow-clay-sm flex items-center gap-3">
+<div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-3xl shadow-clay-sm border border-emerald-100">
+            🐸
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-nunito text-xs font-black text-slate-800 truncate">Froggy Hiro</span>
+<span class="font-nunito text-[10px] text-emerald-700 font-extrabold">Master Chef • 🍵 98%</span>
+<div class="w-20 bg-emerald-100 h-2 rounded-full overflow-hidden mt-1 shadow-inner">
+<div class="bg-matcha-mint h-full w-[90%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Baking Toppings & Pastry Props -->
+<div class="flex flex-col gap-1.5">
+<span class="font-nunito text-[11px] uppercase tracking-wider text-slate-400 font-extrabold">Toppings &amp; Pastry Props</span>
+<div class="grid grid-cols-4 gap-1.5">
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-emerald-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Star Sprinkles">✨</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-emerald-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Honey Pot">🍯</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-emerald-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Mochi Skewer">🍡</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-emerald-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Steamed Bao">🥟</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-emerald-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Fluffy Croissant">🥐</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-emerald-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Strawberry Dip">🍓</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-emerald-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Lotus Leaf">🪷</button>
+<button class="h-10 rounded-xl bg-toybox-bg hover:bg-emerald-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Boba Pearls">🧋</button>
+</div>
+</div>
+<!-- Glaze Temperature & Whisk Speed Gauge -->
+<div class="flex flex-col gap-2 p-2.5 rounded-2xl bg-emerald-50/70 border border-emerald-100">
+<div class="flex items-center justify-between">
+<span class="font-nunito text-[11px] font-extrabold text-slate-700">Glaze Temperature</span>
+<span class="font-nunito text-[10px] text-emerald-700 bg-white px-2 py-0.5 rounded-full font-black shadow-sm">68°C Silky</span>
+</div>
+<div class="flex items-center justify-between text-xl px-1">
+<span class="cursor-pointer hover:scale-125 transition-transform" title="Chilled">🧊</span>
+<span class="cursor-pointer hover:scale-125 transition-transform" title="Room Temp">🍶</span>
+<span class="cursor-pointer hover:scale-125 transition-transform scale-125" title="Silky Glaze">🍵</span>
+<span class="cursor-pointer hover:scale-125 transition-transform" title="Warm Froth">♨️</span>
+<span class="cursor-pointer hover:scale-125 transition-transform" title="Fresh Baked">🔥</span>
+</div>
+</div>
+<!-- Recipe Physics Shaker -->
+<div class="p-2.5 rounded-2xl bg-amber-50/70 border border-amber-200/50 flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-nunito text-[11px] font-black text-amber-900">Tea Foam Jiggle</span>
+<span class="font-nunito text-[10px] text-amber-700 font-black">Active</span>
+</div>
+<p class="font-quicksand text-[11px] text-slate-600 leading-snug">
+            Toppings wobble softly with marshmallow physics when dropped!
+          </p>
+</div>
+</div>
+<!-- Quick Audio Recipe FX -->
+<div class="flex flex-col gap-2 pt-2">
+<button class="w-full py-2 px-3 rounded-2xl bg-gradient-to-r from-matcha-mint to-teal-400 hover:from-emerald-400 hover:to-teal-500 text-emerald-950 font-nunito text-xs font-black shadow-clay-btn clay-puffy flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">soup_kitchen</span>
+<span>Whisk Matcha Sound 🎵</span>
+</button>
+</div>
+</aside>
+</main>
+<!-- 4. BOTTOM TIMELINE DOCK: COLORFUL BOUNCY BUBBLE CARDS -->
+<footer class="fixed bottom-2 left-4 right-4 h-[120px] bg-white/92 backdrop-blur-md rounded-3xl border border-white/90 shadow-marshmallow p-3 flex flex-col justify-between z-40">
+<!-- Top Transport Strip -->
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<!-- Rewind -->
+<button class="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center clay-puffy">
+<span class="material-symbols-outlined text-[16px]">first_page</span>
+</button>
+<button class="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center clay-puffy">
+<span class="material-symbols-outlined text-[16px]">fast_rewind</span>
+</button>
+<!-- HERO PLAY BUTTON (Matcha Mint Clay Button) -->
+<button class="px-4 h-7 rounded-xl bg-gradient-to-r from-matcha-mint to-emerald-600 hover:from-emerald-400 hover:to-emerald-600 text-white flex items-center gap-1.5 font-nunito text-xs font-black shadow-clay-btn clay-puffy">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span>Play Story Animatic</span>
+</button>
+<!-- Fast Forward -->
+<button class="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center clay-puffy">
+<span class="material-symbols-outlined text-[16px]">fast_forward</span>
+</button>
+<!-- Loop -->
+<button class="w-7 h-7 rounded-xl bg-matcha-soft text-emerald-800 flex items-center justify-center clay-puffy font-bold" title="Infinite Loop">
+<span class="material-symbols-outlined text-[16px]">repeat</span>
+</button>
+<!-- Timecode Pellet -->
+<div class="ml-2 flex items-center gap-1.5 bg-matcha-soft/80 px-3 py-1 rounded-xl border border-emerald-200 text-emerald-900 font-nunito text-xs font-black">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+<span>00:04.2</span>
+<span class="text-emerald-400">/</span>
+<span class="text-emerald-700">00:22.0</span>
+</div>
+<button class="px-2 py-0.5 rounded-lg bg-sunbeam-soft text-amber-900 font-nunito text-[11px] font-black shadow-sm">
+          1.0x Bounce
+        </button>
+</div>
+<!-- Right Timeline Stats -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1 text-slate-500 font-nunito text-xs font-bold">
+<span class="material-symbols-outlined text-matcha-mint text-[16px]">check_circle</span>
+<span>4 Pages Baked</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-nunito text-[11px] font-black">
+          🍃 Bakery Ready
+        </span>
+</div>
+</div>
+<!-- Bottom Bouncy Bubble Panels Strip: Tea Grove, Mochi Mill, Matcha Picnic (Active), Sunset Pond -->
+<div class="flex items-center gap-2.5 overflow-x-auto py-0.5 scrollbar-none">
+<!-- Panel 1: Tea Grove -->
+<div class="group relative flex-shrink-0 w-44 h-[56px] rounded-2xl bg-white hover:bg-emerald-50/50 p-2 border border-slate-200/80 flex items-center justify-between cursor-pointer shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-slate-300 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-lg shadow-inner">
+            🫖
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-nunito text-xs font-bold text-slate-800 truncate">#1 Tea Grove</span>
+<span class="font-nunito text-[10px] text-slate-400 font-medium">02.5s • 16:9</span>
+</div>
+</div>
+<span class="font-nunito text-[10px] text-slate-400 font-bold">00:00</span>
+</div>
+<!-- Panel 2: Mochi Mill -->
+<div class="group relative flex-shrink-0 w-44 h-[56px] rounded-2xl bg-white hover:bg-emerald-50/50 p-2 border border-slate-200/80 flex items-center justify-between cursor-pointer shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-slate-300 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-lg shadow-inner">
+            🥟
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-nunito text-xs font-bold text-slate-800 truncate">#2 Mochi Mill</span>
+<span class="font-nunito text-[10px] text-slate-400 font-medium">02.5s • 16:9</span>
+</div>
+</div>
+<span class="font-nunito text-[10px] text-slate-400 font-bold">00:02</span>
+</div>
+<!-- Panel 3: ACTIVE LIVE PANEL (Matcha Picnic) -->
+<div class="group relative flex-shrink-0 w-52 h-[56px] rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 p-2 border-2 border-emerald-500 flex items-center justify-between cursor-pointer shadow-clay-card scale-[1.03]">
+<span class="material-symbols-outlined text-emerald-600 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-lg shadow-sm relative">
+            🍵
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-matcha-mint shadow-[0_0_6px_#34D399]"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1">
+<span class="font-nunito text-xs font-black text-emerald-800 truncate">#3 Matcha Picnic</span>
+<span class="px-1 py-0.2 rounded-full bg-emerald-500 text-white font-nunito text-[8px] font-black">LIVE</span>
+</div>
+<span class="font-nunito text-[10px] text-emerald-700 font-bold">04.2s • Staged</span>
+</div>
+</div>
+<span class="font-nunito text-[10px] text-emerald-700 font-black">00:05</span>
+</div>
+<!-- Panel 4: Sunset Pond -->
+<div class="group relative flex-shrink-0 w-44 h-[56px] rounded-2xl bg-white hover:bg-emerald-50/50 p-2 border border-slate-200/80 flex items-center justify-between cursor-pointer shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-slate-300 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-pink-100 flex items-center justify-center text-lg shadow-inner">
+            🪷
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-nunito text-xs font-bold text-slate-800 truncate">#4 Sunset Pond</span>
+<span class="font-nunito text-[10px] text-slate-400 font-medium">03.0s • 16:9</span>
+</div>
+</div>
+<span class="font-nunito text-[10px] text-slate-400 font-bold">00:09</span>
+</div>
+<!-- Add New Page Tactile Puffy Button -->
+<button class="flex-shrink-0 h-[56px] px-4 rounded-2xl border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/60 hover:bg-emerald-100/60 flex items-center gap-1.5 text-emerald-700 font-nunito text-xs font-black clay-puffy">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>New Story Page</span>
+</button>
+</div>
+</footer>
+</body></html>

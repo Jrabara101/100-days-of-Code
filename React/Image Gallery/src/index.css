@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --surface: #131315;
+    --surface-container-lowest: #0e0e10;
+    --surface-container-low: #1c1b1d;
+    --surface-container: #201f22;
+    --surface-container-high: #2a2a2c;
+    --surface-container-highest: #353437;
+    --primary: #8ed5ff;
+    --primary-container: #38bdf8;
+    --on-surface: #e5e1e4;
+    --on-surface-variant: #bdc8d1;
+    --outline: #87929a;
+    --outline-variant: #3e484f;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #0e0e10;
+    color: #e5e1e4;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Sleek cyber darkroom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(14, 14, 16, 0.8);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #38bdf8;
+  }
+}
+
+@layer utilities {
+  .photonic-glow {
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+  }
+
+  .photonic-border {
+    border-color: #38bdf8;
+    box-shadow: 0 0 20px -2px rgba(56, 189, 248, 0.35), 0 0 0 1px #38bdf8;
+  }
+
+  .glass-dock {
+    background: rgba(24, 24, 27, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-panel {
+    background: rgba(28, 27, 29, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(62, 72, 79, 0.3);
+  }
+
+  .font-mono-data {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}

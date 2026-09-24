@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EmojiStory Kawaii Toybox - Sunny Honey Meadow &amp; Beehive Workshop</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<!-- Chubby rounded & playful fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Outfit:wght@400;500;600;700;800&amp;family=Nunito:wght@500;600;700;800;900&amp;family=Patrick+Hand&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "toybox-bg": "#FEFCE8", // Sunny meadow cream
+            "toybox-canvas": "#FFFDF0",
+            "honey-amber": "#F59E0B", // Warm amber honey
+            "honey-deep": "#D97706",
+            "honey-soft": "#FEF3C7",
+            "pollen-yellow": "#FBBF24", // Pollen yellow
+            "pollen-light": "#FFFBEB",
+            "clover-green": "#84CC16", // Soft grassy clover green
+            "clover-soft": "#ECFCCB",
+            "clover-dark": "#4D7C0F",
+            "sunflower-gold": "#EAB308",
+            "nectar-orange": "#FB923C",
+            "buttercup": "#FDE047",
+            "clay-shadow": "rgba(217, 119, 6, 0.14)",
+            "wood-border": "#E5C89C",
+            "wood-dark": "#C8A16C"
+          },
+          fontFamily: {
+            fredoka: ['"Fredoka"', 'sans-serif'],
+            outfit: ['"Outfit"', 'sans-serif'],
+            nunito: ['"Nunito"', 'sans-serif'],
+            hand: ['"Patrick Hand"', 'cursive'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          boxShadow: {
+            'clay-sm': 'inset 2px 2px 4px rgba(255,255,255,0.9), inset -2px -2px 4px rgba(180,83,9,0.08), 0 4px 10px rgba(245,158,11,0.18)',
+            'clay-card': 'inset 3px 3px 6px rgba(255,255,255,0.95), inset -3px -3px 6px rgba(217,119,6,0.12), 0 10px 25px -4px rgba(217,119,6,0.2)',
+            'clay-btn': 'inset 0 2px 4px rgba(255,255,255,0.7), 0 5px 0px rgba(180,83,9,0.22), 0 8px 16px rgba(180,83,9,0.12)',
+            'clay-btn-active': 'inset 0 3px 6px rgba(0,0,0,0.2), 0 1px 0px rgba(0,0,0,0.1)',
+            'marshmallow': '0 12px 30px -8px rgba(217, 119, 6, 0.18), inset 0 2px 4px rgba(255, 255, 255, 0.98)',
+            'wood-frame': 'inset 0 0 0 8px #FDF6EC, inset 0 0 0 12px #E8CCA6, 0 20px 42px -10px rgba(160, 100, 30, 0.25)'
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @layer base {
+      html, body { margin:0; padding:0; overscroll-behavior:none; }
+      ::-webkit-scrollbar { display: none; }
+    }
+    .clay-puffy {
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clay-puffy:active {
+      transform: translateY(3px) scale(0.98);
+    }
+    .wobbly-bubble {
+      border-radius: 28px 28px 32px 10px;
+    }
+    .wobbly-bubble-alt {
+      border-radius: 28px 28px 12px 32px;
+    }
+    .honeycomb-pattern {
+      background-image: radial-gradient(#F3E5AB 1.8px, transparent 1.8px);
+      background-size: 24px 24px;
+    }
+  </style>
+</head>
+<body class="bg-toybox-bg font-nunito text-amber-950 antialiased min-h-screen flex flex-col overflow-hidden select-none">
+<!-- TOP ORGANIC MARSHMALLOW ISLAND BAR -->
+<header class="fixed top-2.5 left-4 right-4 z-50 h-16 bg-white/95 backdrop-blur-md rounded-3xl border border-amber-100 shadow-marshmallow px-5 flex items-center justify-between gap-4">
+<!-- Brand & Episode Title -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pollen-yellow to-honey-amber flex items-center justify-center text-2xl shadow-clay-sm animate-bounce" style="animation-duration: 2.5s;">
+          🍯
+        </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-fredoka text-xl font-bold tracking-tight text-amber-950">EmojiStory</span>
+<span class="px-2 py-0.5 rounded-full bg-honey-amber text-white font-fredoka text-[11px] font-bold shadow-sm tracking-wide">
+              HONEY MEADOW v5
+            </span>
+</div>
+</div>
+</div>
+<div class="h-6 w-0.5 bg-amber-100 mx-1"></div>
+<!-- Episode Editable Ribbon Pill -->
+<div class="flex items-center gap-2 bg-honey-soft/70 px-3 py-1.5 rounded-2xl border border-honey-amber/25 shadow-inner">
+<span class="text-lg">🐝</span>
+<input class="bg-transparent text-amber-950 font-fredoka text-sm font-semibold outline-none w-[290px] truncate" type="text" value="Adventure 08: Queen Bee's Honey Jamboree 🍯🌻🐝"/>
+<span class="material-symbols-outlined text-[16px] text-amber-600 cursor-pointer hover:text-amber-800">edit</span>
+<span class="w-2 h-2 rounded-full bg-clover-green animate-pulse" title="Auto-saved to Hive"></span>
+</div>
+</div>
+<!-- Center Play/Aspect Segment -->
+<div class="hidden lg:flex items-center gap-2 bg-amber-50/80 p-1.5 rounded-2xl border border-amber-200/50 shadow-inner">
+<button class="px-3 py-1 rounded-xl font-fredoka text-xs text-amber-700/80 hover:text-amber-950 hover:bg-white/90 transition-all">
+        1:1 Squishy
+      </button>
+<button class="px-3 py-1 rounded-xl bg-gradient-to-r from-honey-amber to-sunflower-gold text-white font-fredoka text-xs font-bold shadow-clay-sm">
+        16:9 Toybox Cinema
+      </button>
+<button class="px-3 py-1 rounded-xl font-fredoka text-xs text-amber-700/80 hover:text-amber-950 hover:bg-white/90 transition-all">
+        9:16 Shorts
+      </button>
+</div>
+<!-- Top Right Clay Controls -->
+<div class="flex items-center gap-2.5">
+<!-- Undo / Redo Clay Pellets -->
+<div class="flex items-center bg-amber-50/80 p-1 rounded-2xl border border-amber-200/40">
+<button class="w-8 h-8 rounded-xl bg-white hover:bg-honey-soft text-amber-800 flex items-center justify-center shadow-sm clay-puffy">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+</button>
+<button class="w-8 h-8 rounded-xl bg-white hover:bg-honey-soft text-amber-800 flex items-center justify-center shadow-sm clay-puffy ml-1">
+<span class="material-symbols-outlined text-[18px]">redo</span>
+</button>
+</div>
+<!-- Playtime timer pill -->
+<div class="flex items-center gap-1.5 bg-honey-soft px-3 py-1.5 rounded-2xl border border-pollen-yellow/50 text-amber-900 font-fredoka text-xs font-bold">
+<span class="material-symbols-outlined text-[16px] text-honey-amber">alarm</span>
+<span>02:15</span>
+</div>
+<!-- Share Button (Clover Meadow Clay) -->
+<button class="px-3 py-1.5 rounded-2xl bg-clover-soft hover:bg-clover-green/20 text-clover-dark font-fredoka text-xs font-bold border border-clover-green/30 shadow-sm flex items-center gap-1.5 clay-puffy">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+<span>Share Hive</span>
+</button>
+<!-- Export Button (Puffy Sunbeam Amber 3D Bevel) -->
+<button class="px-4 py-2 rounded-2xl bg-gradient-to-b from-pollen-yellow to-honey-amber hover:from-amber-400 hover:to-amber-500 text-amber-950 font-fredoka text-xs font-bold shadow-clay-btn clay-puffy flex items-center gap-1.5 border-t border-yellow-200">
+<span class="material-symbols-outlined text-[18px]">auto_stories</span>
+<span>Bake Honey Story Reel</span>
+</button>
+<!-- Avatar Sticker (Queen Bee) -->
+<div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-yellow-300 via-amber-300 to-lime-300 p-0.5 shadow-clay-sm cursor-pointer hover:rotate-6 transition-transform">
+<div class="w-full h-full rounded-[14px] bg-white flex items-center justify-center text-lg">
+          🐝
+        </div>
+</div>
+</div>
+</header>
+<!-- MAIN PLAYGROUND WORKSPACE -->
+<main class="pt-20 pb-2 px-4 flex flex-1 h-[calc(100vh)] gap-4 overflow-hidden">
+<!-- 1. LEFT CURVED DOCK: ORGANIC MEADOW STICKER BOOK (310px) -->
+<aside class="w-[310px] shrink-0 bg-white/90 backdrop-blur-md rounded-3xl border border-amber-100 shadow-marshmallow flex flex-col justify-between overflow-hidden p-3.5 my-1">
+<!-- Top: Sticker Search & Floating Bubbly Tabs -->
+<div class="flex flex-col gap-3">
+<!-- Marshmallow Search -->
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-[18px] text-amber-500">yard</span>
+<input class="w-full bg-honey-soft/40 text-amber-950 placeholder:text-amber-700/50 font-nunito text-xs pl-9 pr-10 py-2.5 rounded-2xl border border-amber-200 outline-none focus:ring-2 focus:ring-honey-amber/30 shadow-inner" placeholder="Search 1,200+ meadow clay stickers..." type="text"/>
+<span class="absolute right-2.5 px-1.5 py-0.5 rounded-lg bg-amber-100 text-honey-deep font-fredoka text-[10px] font-bold">
+            STICKY
+          </span>
+</div>
+<!-- Floating Bubbly Category Tabs -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+<button class="px-3 py-1.5 rounded-2xl bg-honey-amber text-white font-fredoka text-xs font-bold shadow-clay-sm clay-puffy shrink-0 flex items-center gap-1">
+<span>🍯</span> Beehive
+          </button>
+<button class="px-2.5 py-1.5 rounded-2xl bg-clover-soft hover:bg-clover-green/30 text-clover-dark font-fredoka text-xs font-semibold shrink-0 clay-puffy flex items-center gap-1">
+<span>🍀</span> Meadow
+          </button>
+<button class="px-2.5 py-1.5 rounded-2xl bg-honey-soft hover:bg-pollen-yellow/40 text-amber-900 font-fredoka text-xs font-semibold shrink-0 clay-puffy flex items-center gap-1">
+<span>🌻</span> Blooms
+          </button>
+<button class="px-2.5 py-1.5 rounded-2xl bg-orange-100/70 hover:bg-orange-200/60 text-orange-900 font-fredoka text-xs font-semibold shrink-0 clay-puffy flex items-center gap-1">
+<span>🐞</span> Bugs
+          </button>
+</div>
+<!-- Story Palette Mood Badge -->
+<div class="p-2.5 rounded-2xl bg-gradient-to-r from-yellow-50 via-amber-50 to-lime-50 border border-amber-200/70 shadow-clay-sm flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-fredoka text-xs font-bold text-amber-950 flex items-center gap-1">
+<span class="text-sm">🌼</span> Sunny Meadow &amp; Honey Dip
+            </span>
+<span class="text-[10px] font-fredoka font-bold text-amber-800 bg-white px-2 py-0.5 rounded-full shadow-sm">
+              CLOVER FIELD
+            </span>
+</div>
+<!-- 4 Pastel Clay Gel Swatches -->
+<div class="flex items-center gap-2 pt-0.5">
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-amber-300 to-amber-500 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Honey Gold"></div>
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-yellow-200 to-yellow-400 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Pollen Yellow"></div>
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-lime-300 to-emerald-400 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Clover Sprout"></div>
+<div class="flex-1 h-5 rounded-xl bg-gradient-to-r from-orange-300 to-amber-400 cursor-pointer shadow-sm hover:scale-105 transition-transform" title="Sweet Apricot Nectar"></div>
+</div>
+</div>
+</div>
+<!-- Sticker Vault Grid (Meadow Friends & Nature Props) -->
+<div class="flex-1 overflow-y-auto px-1 py-2">
+<div class="flex items-center justify-between mb-2 px-1">
+<span class="font-fredoka text-[11px] uppercase tracking-wider text-amber-700/70 font-bold">Meadow Friends &amp; Botanical Props</span>
+<span class="font-fredoka text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full font-bold">16 Ready</span>
+</div>
+<div class="grid grid-cols-4 gap-2">
+<!-- Item 1: Bumblebee -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-amber-100 hover:border-amber-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🐝</span>
+<span class="font-fredoka text-[9px] text-amber-800 font-semibold mt-0.5">Bumble</span>
+</div>
+<!-- Item 2: Honey Pot -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-amber-100 hover:border-amber-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍯</span>
+<span class="font-fredoka text-[9px] text-amber-800 font-semibold mt-0.5">Honey</span>
+</div>
+<!-- Item 3: Sunflower -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-yellow-50 border border-amber-100 hover:border-yellow-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🌻</span>
+<span class="font-fredoka text-[9px] text-yellow-700 font-semibold mt-0.5">Sunflower</span>
+</div>
+<!-- Item 4: Ladybug -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-rose-50 border border-amber-100 hover:border-rose-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🐞</span>
+<span class="font-fredoka text-[9px] text-rose-600 font-semibold mt-0.5">Ladybug</span>
+</div>
+<!-- Item 5: Caterpillar -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-lime-50 border border-amber-100 hover:border-lime-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🐛</span>
+<span class="font-fredoka text-[9px] text-lime-700 font-semibold mt-0.5">Caterpillar</span>
+</div>
+<!-- Item 6: Daisy Bloom -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-yellow-50 border border-amber-100 hover:border-yellow-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🌼</span>
+<span class="font-fredoka text-[9px] text-yellow-700 font-semibold mt-0.5">Daisy</span>
+</div>
+<!-- Item 7: Sweet Apple -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-red-50 border border-amber-100 hover:border-red-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍎</span>
+<span class="font-fredoka text-[9px] text-red-600 font-semibold mt-0.5">Apple</span>
+</div>
+<!-- Item 8: Butterfly -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-purple-50 border border-amber-100 hover:border-purple-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🦋</span>
+<span class="font-fredoka text-[9px] text-purple-700 font-semibold mt-0.5">Butterfly</span>
+</div>
+<!-- Item 9: Acorn -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-amber-100 hover:border-amber-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🌰</span>
+<span class="font-fredoka text-[9px] text-amber-900 font-semibold mt-0.5">Acorn</span>
+</div>
+<!-- Item 10: Lucky Clover -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-lime-50 border border-amber-100 hover:border-lime-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍀</span>
+<span class="font-fredoka text-[9px] text-lime-700 font-semibold mt-0.5">Clover</span>
+</div>
+<!-- Item 11: Dandelion Fluff -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-yellow-50 border border-amber-100 hover:border-yellow-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🌾</span>
+<span class="font-fredoka text-[9px] text-amber-700 font-semibold mt-0.5">Fluff</span>
+</div>
+<!-- Item 12: Warm Sun -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-amber-100 hover:border-amber-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">☀️</span>
+<span class="font-fredoka text-[9px] text-amber-600 font-semibold mt-0.5">Sunny</span>
+</div>
+<!-- Item 13: Tulip -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-rose-50 border border-amber-100 hover:border-rose-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🌷</span>
+<span class="font-fredoka text-[9px] text-rose-500 font-semibold mt-0.5">Tulip</span>
+</div>
+<!-- Item 14: Sweet Strawberry -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-red-50 border border-amber-100 hover:border-red-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🍓</span>
+<span class="font-fredoka text-[9px] text-red-500 font-semibold mt-0.5">Berry</span>
+</div>
+<!-- Item 15: Snail Friend -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-lime-50 border border-amber-100 hover:border-lime-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">🐌</span>
+<span class="font-fredoka text-[9px] text-lime-800 font-semibold mt-0.5">Snail</span>
+</div>
+<!-- Item 16: Golden Star Pollen -->
+<div class="group relative flex flex-col items-center justify-center h-[64px] rounded-2xl bg-white hover:bg-amber-50 border border-amber-100 hover:border-amber-300 cursor-grab active:cursor-grabbing shadow-clay-sm clay-puffy">
+<span class="text-3xl group-hover:scale-125 transition-transform">✨</span>
+<span class="font-fredoka text-[9px] text-amber-600 font-semibold mt-0.5">Pollen</span>
+</div>
+</div>
+</div>
+<!-- Bottom: AI Clay Alchemist -->
+<div class="pt-2 flex flex-col gap-2">
+<div class="flex items-center justify-between px-1">
+<span class="font-fredoka text-[10px] text-amber-700/70 font-bold uppercase">Recent Cuties</span>
+<div class="flex items-center gap-1.5 text-base">
+<span class="hover:scale-125 transition-transform cursor-pointer">🐝</span>
+<span class="hover:scale-125 transition-transform cursor-pointer">🍯</span>
+<span class="hover:scale-125 transition-transform cursor-pointer">🌻</span>
+<span class="hover:scale-125 transition-transform cursor-pointer">🐞</span>
+</div>
+</div>
+<button class="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-honey-amber via-pollen-yellow to-clover-green text-amber-950 font-fredoka text-xs font-bold shadow-clay-btn clay-puffy flex items-center justify-between">
+<div class="flex items-center gap-2 text-amber-950">
+<span class="text-lg animate-spin" style="animation-duration: 6s;">🍯</span>
+<span>Beehive Clay Alchemist</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-white text-amber-900 text-[10px] font-extrabold uppercase shadow-sm">
+            BUZZ!
+          </span>
+</button>
+</div>
+</aside>
+<!-- 2. CENTER GIANT MAGNETIC CANVAS WITH WOODEN-STYLE PLAY-MAT -->
+<section class="flex-1 flex flex-col items-center justify-between relative overflow-hidden bg-toybox-canvas rounded-3xl p-3 border border-amber-200/80 shadow-inner">
+<!-- Top Floating Marshmallow Pill Toolbar -->
+<div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/95 backdrop-blur-md shadow-marshmallow border border-amber-100 z-20">
+<!-- Zoom -->
+<div class="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-full border border-amber-200/50">
+<button class="w-6 h-6 rounded-full hover:bg-white text-amber-800 flex items-center justify-center clay-puffy text-xs">
+<span class="material-symbols-outlined text-[15px]">remove</span>
+</button>
+<span class="font-fredoka text-xs text-amber-950 font-bold px-1.5">100%</span>
+<button class="w-6 h-6 rounded-full hover:bg-white text-amber-800 flex items-center justify-center clay-puffy text-xs">
+<span class="material-symbols-outlined text-[15px]">add</span>
+</button>
+</div>
+<button class="px-3 py-1 rounded-full text-amber-800 hover:text-amber-950 font-fredoka text-xs hover:bg-amber-50 transition-colors">
+          Reset View
+        </button>
+<div class="h-4 w-px bg-amber-200"></div>
+<!-- Magnet & Honeycomb Guides -->
+<button class="flex items-center gap-1 px-3 py-1 rounded-full bg-clover-green text-white font-fredoka text-xs font-bold shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-[15px]">grid_4x4</span>
+<span>Hex Magnet</span>
+</button>
+<button class="flex items-center gap-1 px-3 py-1 rounded-full bg-honey-soft text-amber-900 font-fredoka text-xs font-bold clay-puffy hover:bg-honey-amber/30">
+<span class="material-symbols-outlined text-[15px]">auto_fix_high</span>
+<span>Snap Clays</span>
+</button>
+<div class="h-4 w-px bg-amber-200"></div>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded-full hover:bg-amber-100 text-amber-700 clay-puffy" title="Bring to Front">
+<span class="material-symbols-outlined text-[17px]">flip_to_front</span>
+</button>
+<button class="p-1 rounded-full hover:bg-amber-100 text-amber-700 clay-puffy" title="Send to Back">
+<span class="material-symbols-outlined text-[17px]">flip_to_back</span>
+</button>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-honey-soft text-honey-deep font-fredoka text-[10px] font-bold">
+          🌻 SUNNY MEADOW STAGE
+        </span>
+</div>
+<!-- MAIN PLAYFUL WOODEN FRAME CANVASES -->
+<div class="relative w-full max-w-[820px] h-[410px] my-auto rounded-[36px] bg-gradient-to-b from-[#FFFDF2] to-[#FDF7E7] shadow-wood-frame border-[6px] border-[#DFC29C] p-6 flex flex-col justify-between overflow-hidden select-none honeycomb-pattern">
+<!-- Floating Warm Meadow Clouds & Pollen Drifts -->
+<div class="absolute -top-10 left-10 w-44 h-24 rounded-full bg-white/70 blur-[1px] pointer-events-none"></div>
+<div class="absolute top-10 right-12 w-64 h-32 rounded-full bg-yellow-100/40 blur-[2px] pointer-events-none"></div>
+<div class="absolute bottom-6 left-1/4 w-72 h-24 rounded-full bg-lime-100/50 blur-[1px] pointer-events-none"></div>
+<!-- Floating decorative pollen sparkles -->
+<div class="absolute top-1/4 left-1/3 text-amber-400/60 text-xl pointer-events-none animate-pulse">✨</div>
+<div class="absolute bottom-1/3 right-1/4 text-yellow-500/50 text-base pointer-events-none animate-bounce" style="animation-duration: 4s;">✨</div>
+<!-- Frame Top Stamp -->
+<div class="flex items-center justify-between z-10">
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 rounded-2xl bg-honey-amber text-white font-fredoka text-xs font-bold shadow-clay-sm">
+              PAGE #03
+            </span>
+<span class="font-fredoka text-sm font-bold text-amber-950 tracking-wide">
+              Queen Bee's Honey Jamboree 🍯
+            </span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-xl bg-white/90 text-amber-900 font-fredoka text-xs font-bold shadow-sm border border-amber-200">
+              ACT III • 03.5s
+            </span>
+<span class="w-3 h-3 rounded-full bg-clover-green shadow-[0_0_8px_#84CC16]"></span>
+</div>
+</div>
+<!-- STAGED EMOJIS & HANDWRITTEN BUBBLES PLAYGROUND -->
+<div class="relative flex-1 w-full my-2">
+<!-- ACTOR 1: Fuzzy Bumblebee & Giant Honey Pot (Active Clay Bounding Box) -->
+<div class="absolute left-8 top-8 z-20 group cursor-move">
+<!-- Puffy Clay Active Frame -->
+<div class="relative p-3 rounded-3xl border-3 border-dashed border-honey-amber bg-amber-200/25 shadow-clay-card">
+<!-- Corner Clay Marshmallow Handles -->
+<div class="absolute -top-2 -left-2 w-4 h-4 rounded-full bg-honey-amber border-2 border-white shadow-md"></div>
+<div class="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-honey-amber border-2 border-white shadow-md"></div>
+<div class="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-honey-amber border-2 border-white shadow-md"></div>
+<div class="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-honey-amber border-2 border-white shadow-md"></div>
+<!-- Main Emojis Pair: Bumblebee + Honey Pot -->
+<div class="flex items-center gap-1">
+<div class="text-7xl filter drop-shadow-[0_10px_10px_rgba(245,158,11,0.35)] hover:scale-105 transition-transform animate-bounce" style="animation-duration: 3s;">
+                  🐝
+                </div>
+<div class="text-6xl -ml-3 -mt-2 filter drop-shadow-[0_8px_12px_rgba(180,83,9,0.2)]">
+                  🍯
+                </div>
+</div>
+<!-- Quick Puffy Action Bar above selection -->
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white shadow-clay-card text-nowrap pointer-events-auto border border-amber-200">
+<button class="px-2 py-0.5 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-amber-800 font-fredoka text-[11px] font-bold clay-puffy">
+                  Copy ✨
+                </button>
+<div class="h-3 w-px bg-amber-200"></div>
+<button class="px-2 py-0.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-honey-deep font-fredoka text-[11px] font-bold clay-puffy">
+                  Flip ↔
+                </button>
+<div class="h-3 w-px bg-amber-200"></div>
+<button class="px-2 py-0.5 rounded-lg bg-clover-green text-white font-fredoka text-[11px] font-bold shadow-sm clay-puffy">
+                  Honey Drip 🍯
+                </button>
+</div>
+</div>
+<!-- HANDWRITTEN SPEECH BUBBLE 1 (ACTIVE WITH REFINED STYLING TOOLBAR) -->
+<div class="absolute -top-16 left-36 w-72 p-3.5 bg-white text-amber-950 shadow-clay-card border-2 border-amber-300 wobbly-bubble relative z-30">
+<!-- DIRECTLY ATTACHED EXPANDED SPEECH BUBBLE STYLING TOOLBAR -->
+<div class="absolute -top-10 left-2 flex items-center gap-1 px-2.5 py-1 rounded-2xl bg-white/95 backdrop-blur-sm border border-amber-200 shadow-md">
+<span class="font-fredoka text-[10px] font-bold text-amber-700 mr-1">Style:</span>
+<!-- Bubble shapes -->
+<button class="px-2 py-0.5 rounded-lg bg-honey-amber text-white font-fredoka text-[10px] font-bold shadow-xs flex items-center gap-0.5 clay-puffy" title="Puffed Cloud Bubble">
+<span class="material-symbols-outlined text-[12px]">cloud</span>
+<span>Puffed</span>
+</button>
+<button class="px-2 py-0.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-fredoka text-[10px] font-semibold flex items-center gap-0.5 clay-puffy" title="Heart Tail Bubble">
+<span>💖</span>
+<span>Heart Tail</span>
+</button>
+<button class="px-2 py-0.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-fredoka text-[10px] font-semibold flex items-center gap-0.5 clay-puffy" title="Whisper Dots Bubble">
+<span>💬</span>
+<span>Whisper</span>
+</button>
+<div class="h-3 w-px bg-amber-200 mx-0.5"></div>
+<button class="w-5 h-5 rounded-full bg-amber-400 ring-1 ring-amber-500" title="Honey Gold"></button>
+<button class="w-5 h-5 rounded-full bg-lime-400 ring-1 ring-lime-500" title="Clover Tint"></button>
+</div>
+<p class="font-hand text-base leading-tight font-bold text-amber-950 tracking-wide">
+                "Buzz-buzz! One spoonful of clover nectar coming right up! 🍯🌻"
+              </p>
+<!-- Tail pointing to Queen Bumblebee -->
+<div class="absolute -bottom-2.5 left-5 w-0 h-0 border-t-[10px] border-t-white border-r-[10px] border-r-transparent filter drop-shadow-[0_2px_1px_rgba(245,158,11,0.3)]"></div>
+<!-- Mini cute honey bee pin -->
+<div class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-pollen-yellow border border-white shadow-sm flex items-center justify-center text-[9px]">
+                🌻
+              </div>
+</div>
+</div>
+<!-- ACTOR 2: Sunflower & Dandelion Fluff in Center Meadow -->
+<div class="absolute left-1/2 bottom-6 -translate-x-1/2 flex flex-col items-center z-10 cursor-pointer group">
+<div class="relative flex items-end justify-center">
+<span class="text-6xl filter drop-shadow-[0_8px_16px_rgba(245,158,11,0.35)] group-hover:scale-125 transition-transform inline-block">
+                🌻
+              </span>
+<span class="text-4xl -ml-3 -mb-1 filter drop-shadow-md text-amber-600 group-hover:rotate-12 transition-transform">
+                🌾
+              </span>
+<span class="absolute -top-2 -right-2 text-xl animate-bounce text-pollen-yellow">✨</span>
+<span class="absolute bottom-2 -left-3 text-lg animate-spin text-honey-amber" style="animation-duration: 5s;">⭐</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-white/95 font-fredoka text-[10px] text-amber-900 font-bold tracking-wide shadow-clay-sm mt-1 border border-amber-200">
+              "Grand Sunflower"
+            </span>
+</div>
+<!-- ACTOR 3: Smiling Ladybug & Floating Pollen (Top Right) -->
+<div class="absolute right-8 top-8 flex flex-col items-end z-20 group cursor-pointer">
+<!-- HANDWRITTEN SPEECH BUBBLE 2: Ladybug praising meadow honey -->
+<div class="mb-2 p-3 px-4 bg-yellow-50/95 text-amber-950 shadow-clay-card border-2 border-yellow-300 wobbly-bubble-alt relative">
+<p class="font-hand text-base leading-tight font-bold text-amber-900 tracking-wide">
+                "Sweetest honey in the meadow! 🐝💛"
+              </p>
+<!-- Tail pointing to ladybug -->
+<div class="absolute -bottom-2.5 right-6 w-0 h-0 border-t-[10px] border-t-yellow-50 border-l-[10px] border-l-transparent"></div>
+</div>
+<!-- Ladybug & Meadow Flora Composite -->
+<div class="flex items-center gap-1">
+<span class="text-6xl filter drop-shadow-[0_10px_16px_rgba(239,68,68,0.35)] group-hover:-translate-y-2 transition-transform inline-block">
+                🐞
+              </span>
+<span class="text-4xl -ml-3 mt-4 filter drop-shadow-md">
+                🍀
+              </span>
+</div>
+<span class="font-fredoka text-[10px] text-red-700 font-bold bg-white px-2.5 py-0.5 rounded-full shadow-clay-sm mt-0.5 border border-red-100">
+              Dot the Ladybug
+            </span>
+</div>
+</div>
+<!-- Frame Bottom Coordinates -->
+<div class="flex items-center justify-between z-10 pt-2 border-t border-amber-300/50">
+<div class="flex items-center gap-2 font-fredoka text-xs text-amber-900/80">
+<span>Meadow Hive X: 140 • Y: 210</span>
+<span>•</span>
+<span>Nectar Purity: 100% 🍯</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-full bg-honey-soft text-amber-900 font-fredoka text-[10px] font-bold border border-amber-200">
+              PAGE 03 / 08
+            </span>
+</div>
+</div>
+</div>
+<!-- Real-Time Dialogue Caption Bar with Chubby Pills -->
+<div class="w-full max-w-[820px] mt-2 p-2.5 rounded-2xl bg-white/95 shadow-marshmallow border border-amber-100 flex items-center justify-between gap-3">
+<div class="flex items-center gap-2 flex-1 min-w-0">
+<span class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-honey-amber to-pollen-yellow text-amber-950 font-fredoka text-xs font-bold shrink-0 shadow-sm">
+            Story Subtitle:
+          </span>
+<input class="flex-1 bg-transparent text-amber-950 font-nunito font-semibold text-sm outline-none border-b border-transparent focus:border-honey-amber px-1 truncate" type="text" value="Queen Bumblebee poured golden clover syrup as meadow friends danced under the summer sunflowers..."/>
+</div>
+<!-- Font Choice & Pastel Jelly Drops -->
+<div class="flex items-center gap-2 shrink-0">
+<div class="flex items-center bg-amber-50 p-0.5 rounded-xl border border-amber-200/50">
+<button class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-honey-amber text-white shadow-sm font-fredoka">
+              Nunito
+            </button>
+<button class="px-2.5 py-0.5 rounded-lg text-xs font-bold text-amber-800 hover:text-amber-950 font-hand transition-colors">
+              Patrick
+            </button>
+<button class="px-2.5 py-0.5 rounded-lg text-xs font-bold text-amber-800 hover:text-amber-950 font-outfit transition-colors">
+              Outfit
+            </button>
+</div>
+<div class="flex items-center gap-1.5 pl-1">
+<div class="w-5 h-5 rounded-full bg-pollen-yellow cursor-pointer shadow-clay-sm ring-2 ring-white"></div>
+<div class="w-5 h-5 rounded-full bg-honey-amber cursor-pointer shadow-clay-sm ring-2 ring-white"></div>
+<div class="w-5 h-5 rounded-full bg-clover-green cursor-pointer shadow-clay-sm ring-2 ring-white"></div>
+<div class="w-5 h-5 rounded-full bg-buttercup cursor-pointer shadow-clay-sm ring-2 ring-white"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. RIGHT-HAND DRAWER: "HONEY CRAFTING BENCH & WARDROBE" (260px) -->
+<aside class="w-[260px] shrink-0 bg-white/90 backdrop-blur-md rounded-3xl border border-amber-100 shadow-marshmallow flex flex-col justify-between p-3.5 my-1 overflow-hidden">
+<div class="flex flex-col gap-3">
+<!-- Header -->
+<div class="flex items-center justify-between pb-1 border-b border-amber-100">
+<div class="flex items-center gap-1.5">
+<span class="text-xl">🍯</span>
+<span class="font-fredoka text-sm font-bold text-amber-950">Honey Crafting Bench</span>
+</div>
+<span class="material-symbols-outlined text-amber-600 hover:text-amber-900 cursor-pointer text-[18px]">tune</span>
+</div>
+<!-- Active Character Pill Card (Queen Bee) -->
+<div class="p-3 rounded-2xl bg-gradient-to-tr from-yellow-50 via-amber-50 to-lime-50 border border-amber-200 shadow-clay-sm flex items-center gap-3">
+<div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-3xl shadow-clay-sm border border-amber-100">
+            🐝
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-fredoka text-xs font-bold text-amber-950 truncate">Queen Bumblebee</span>
+<span class="font-fredoka text-[10px] text-honey-deep font-semibold">Mood: Buzzing • 💛 100</span>
+<!-- Flower Nectar Meter -->
+<div class="flex items-center gap-1 mt-1">
+<span class="text-[9px] font-fredoka font-bold text-amber-700">Nectar:</span>
+<div class="w-16 bg-white h-2 rounded-full overflow-hidden shadow-inner border border-amber-100">
+<div class="bg-gradient-to-r from-yellow-400 to-honey-amber h-full w-[92%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bee Crowns & Meadow Accessories -->
+<div class="flex flex-col gap-1.5">
+<span class="font-fredoka text-[11px] uppercase tracking-wider text-amber-700/70 font-bold">Bee Crowns &amp; Props</span>
+<div class="grid grid-cols-4 gap-1.5">
+<button class="h-10 rounded-xl bg-honey-soft/50 hover:bg-yellow-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Honey Crown">👑</button>
+<button class="h-10 rounded-xl bg-honey-soft/50 hover:bg-yellow-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Daisy Diadem">🌼</button>
+<button class="h-10 rounded-xl bg-honey-soft/50 hover:bg-yellow-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Chef Spoon">🥄</button>
+<button class="h-10 rounded-xl bg-honey-soft/50 hover:bg-yellow-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Straw Hat">👒</button>
+<button class="h-10 rounded-xl bg-honey-soft/50 hover:bg-yellow-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Sunflower Pin">🌻</button>
+<button class="h-10 rounded-xl bg-honey-soft/50 hover:bg-yellow-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Golden Dipper">🍯</button>
+<button class="h-10 rounded-xl bg-honey-soft/50 hover:bg-yellow-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Lucky Clover">🍀</button>
+<button class="h-10 rounded-xl bg-honey-soft/50 hover:bg-yellow-100 flex items-center justify-center text-xl shadow-sm clay-puffy" title="Shades">🕶️</button>
+</div>
+</div>
+<!-- Mood & Emotion Slider -->
+<div class="flex flex-col gap-2 p-2.5 rounded-2xl bg-amber-50/70 border border-amber-200/60">
+<div class="flex items-center justify-between">
+<span class="font-fredoka text-[11px] font-bold text-amber-950">Meadow Bounce</span>
+<span class="font-fredoka text-[10px] text-clover-dark bg-lime-100 px-2 py-0.5 rounded-full font-bold">Buzzing</span>
+</div>
+<div class="flex items-center justify-between text-xl px-1">
+<span class="cursor-pointer hover:scale-125 transition-transform">😴</span>
+<span class="cursor-pointer hover:scale-125 transition-transform">🤔</span>
+<span class="cursor-pointer hover:scale-125 transition-transform scale-125">🥰</span>
+<span class="cursor-pointer hover:scale-125 transition-transform">🥳</span>
+<span class="cursor-pointer hover:scale-125 transition-transform">🐝</span>
+</div>
+</div>
+<!-- Pollen Sparkle Toggle & Clay Physics -->
+<div class="p-2.5 rounded-2xl bg-yellow-50/80 border border-amber-200/60 flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-fredoka text-[11px] font-bold text-amber-950">Pollen Sparkle Trail</span>
+<span class="font-fredoka text-[10px] text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full font-bold">Active ✨</span>
+</div>
+<p class="font-nunito text-[11px] text-amber-800/80 leading-snug">
+            Leaves golden honey drops &amp; pollen dust while dragging stickers!
+          </p>
+</div>
+</div>
+<!-- Quick Audio Voiceover Sound Effect -->
+<div class="flex flex-col gap-2 pt-2">
+<button class="w-full py-2 px-3 rounded-2xl bg-gradient-to-r from-clover-green to-lime-500 hover:from-lime-500 hover:to-green-500 text-white font-fredoka text-xs font-bold shadow-clay-btn clay-puffy flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">volume_up</span>
+<span>Play Meadow Buzz SFX 🎵</span>
+</button>
+</div>
+</aside>
+</main>
+<!-- 4. BOTTOM TIMELINE DOCK: COLORFUL BOUNCY BUBBLE CARDS -->
+<footer class="fixed bottom-2 left-4 right-4 h-[120px] bg-white/95 backdrop-blur-md rounded-3xl border border-amber-100 shadow-marshmallow p-3 flex flex-col justify-between z-40">
+<!-- Top Transport Strip -->
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<!-- Rewind -->
+<button class="w-7 h-7 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 flex items-center justify-center clay-puffy border border-amber-200/50">
+<span class="material-symbols-outlined text-[16px]">first_page</span>
+</button>
+<button class="w-7 h-7 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 flex items-center justify-center clay-puffy border border-amber-200/50">
+<span class="material-symbols-outlined text-[16px]">fast_rewind</span>
+</button>
+<!-- HERO PLAY BUTTON (Puffy Golden Honey Clay Button) -->
+<button class="px-4 h-7 rounded-xl bg-gradient-to-r from-pollen-yellow via-honey-amber to-nectar-orange hover:from-amber-400 hover:to-amber-600 text-amber-950 flex items-center gap-1.5 font-fredoka text-xs font-bold shadow-clay-btn clay-puffy">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span>Play Honey Animatic</span>
+</button>
+<!-- Fast Forward -->
+<button class="w-7 h-7 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 flex items-center justify-center clay-puffy border border-amber-200/50">
+<span class="material-symbols-outlined text-[16px]">fast_forward</span>
+</button>
+<!-- Loop -->
+<button class="w-7 h-7 rounded-xl bg-clover-soft text-clover-dark flex items-center justify-center clay-puffy font-bold border border-clover-green/20" title="Infinite Loop">
+<span class="material-symbols-outlined text-[16px]">repeat</span>
+</button>
+<!-- Timecode Pellet -->
+<div class="ml-2 flex items-center gap-1.5 bg-honey-soft px-3 py-1 rounded-xl border border-amber-200 text-amber-950 font-fredoka text-xs font-bold">
+<span class="w-2 h-2 rounded-full bg-honey-amber animate-ping"></span>
+<span>00:03.5</span>
+<span class="text-amber-400">/</span>
+<span class="text-amber-700">00:18.0</span>
+</div>
+<button class="px-2 py-0.5 rounded-lg bg-yellow-100 text-amber-900 font-fredoka text-[11px] font-bold shadow-sm">
+          1.0x Bounce
+        </button>
+</div>
+<!-- Right Timeline Stats -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1 text-amber-800 font-fredoka text-xs">
+<span class="material-symbols-outlined text-clover-green text-[16px]">check_circle</span>
+<span>4 Pages Baked</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-yellow-100 text-amber-900 font-fredoka text-[11px] font-bold">
+          🍯 Ready for Reel
+        </span>
+</div>
+</div>
+<!-- Bottom Bouncy Bubble Panels Strip -->
+<div class="flex items-center gap-2.5 overflow-x-auto py-0.5 scrollbar-none">
+<!-- Panel 1: Flower Field -->
+<div class="group relative flex-shrink-0 w-44 h-[56px] rounded-2xl bg-white hover:bg-amber-50/50 p-2 border border-amber-200/80 flex items-center justify-between cursor-pointer shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-amber-300 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-yellow-100 flex items-center justify-center text-lg shadow-inner">
+            🌼
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-fredoka text-xs font-bold text-amber-950 truncate">#1 Flower Field</span>
+<span class="font-fredoka text-[10px] text-amber-600/80 font-medium">02.0s • 16:9</span>
+</div>
+</div>
+<span class="font-fredoka text-[10px] text-amber-500 font-bold">00:00</span>
+</div>
+<!-- Panel 2: Hive Buzz -->
+<div class="group relative flex-shrink-0 w-44 h-[56px] rounded-2xl bg-white hover:bg-amber-50/50 p-2 border border-amber-200/80 flex items-center justify-between cursor-pointer shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-amber-300 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-lg shadow-inner">
+            🐝
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-fredoka text-xs font-bold text-amber-950 truncate">#2 Hive Buzz</span>
+<span class="font-fredoka text-[10px] text-amber-600/80 font-medium">02.5s • 16:9</span>
+</div>
+</div>
+<span class="font-fredoka text-[10px] text-amber-500 font-bold">00:02</span>
+</div>
+<!-- Panel 3: ACTIVE LIVE PANEL (Honey Jamboree) -->
+<div class="group relative flex-shrink-0 w-52 h-[56px] rounded-2xl bg-gradient-to-r from-yellow-50 via-amber-50 to-lime-50 p-2 border-2 border-honey-amber flex items-center justify-between cursor-pointer shadow-clay-card scale-[1.03]">
+<span class="material-symbols-outlined text-honey-amber text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-lg shadow-sm relative border border-amber-200">
+            🍯
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-clover-green shadow-[0_0_6px_#84CC16]"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1">
+<span class="font-fredoka text-xs font-extrabold text-honey-deep truncate">#3 Honey Jamboree</span>
+<span class="px-1 py-0.2 rounded-full bg-honey-amber text-white font-fredoka text-[8px] font-bold">LIVE</span>
+</div>
+<span class="font-fredoka text-[10px] text-amber-700 font-bold">03.5s • Staged</span>
+</div>
+</div>
+<span class="font-fredoka text-[10px] text-honey-deep font-bold">00:04</span>
+</div>
+<!-- Panel 4: Sunset Nap -->
+<div class="group relative flex-shrink-0 w-44 h-[56px] rounded-2xl bg-white hover:bg-amber-50/50 p-2 border border-amber-200/80 flex items-center justify-between cursor-pointer shadow-clay-sm clay-puffy">
+<span class="material-symbols-outlined text-amber-300 text-[15px] -ml-0.5 cursor-grab">drag_indicator</span>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center text-lg shadow-inner">
+            🌅
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-fredoka text-xs font-bold text-amber-950 truncate">#4 Sunset Nap</span>
+<span class="font-fredoka text-[10px] text-amber-600/80 font-medium">02.5s • 16:9</span>
+</div>
+</div>
+<span class="font-fredoka text-[10px] text-amber-500 font-bold">00:07</span>
+</div>
+<!-- Add New Page Tactile Puffy Button -->
+<button class="flex-shrink-0 h-[56px] px-4 rounded-2xl border-2 border-dashed border-amber-300 hover:border-honey-amber bg-amber-50/50 hover:bg-amber-100/50 flex items-center gap-1.5 text-amber-900 font-fredoka text-xs font-bold clay-puffy">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>New Story Page</span>
+</button>
+</div>
+</footer>
+</body></html>
