@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        name="viewport" />
+    <meta content="mobile_stack" name="shell-type" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                width: 100%;
+                min-height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior-y: none;
+            }
+
+            .pb-safe {
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+
+            .pt-safe {
+                padding-top: env(safe-area-inset-top, 0px);
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "background": "#f8f9ff", "surface-neutral": "#F8FAFC", "on-surface": "#0b1c30", "status-unavailable": "#94A3B8", "surface-variant": "#d3e4fe", "primary-hover": "#1D4ED8", "error": "#ba1a1a", "surface-container-lowest": "#ffffff", "status-available": "#10B981", "text-secondary": "#64748B", "text-primary": "#0F172A", "secondary": "#006c49", "on-primary-fixed-variant": "#003ea8", "outline-variant": "#c3c6d7", "surface-tint": "#0053db", "tertiary": "#943700", "on-secondary-container": "#00714d", "inverse-on-surface": "#eaf1ff", "inverse-primary": "#b4c5ff", "on-secondary-fixed-variant": "#005236", "surface-container-highest": "#d3e4fe", "on-secondary": "#ffffff", "on-primary-fixed": "#00174b", "on-primary": "#ffffff", "primary-fixed-dim": "#b4c5ff", "on-background": "#0b1c30", "on-tertiary-container": "#ffede6", "surface-container-high": "#dce9ff", "on-tertiary-fixed-variant": "#7d2d00", "on-tertiary": "#ffffff", "surface-container-low": "#eff4ff", "on-primary-container": "#eeefff", "error-container": "#ffdad6", "secondary-fixed-dim": "#4edea3", "secondary-container": "#6cf8bb", "tertiary-fixed": "#ffdbcd", "outline": "#737686", "inverse-surface": "#213145", "canvas-primary": "#FFFFFF", "on-error-container": "#93000a", "tertiary-fixed-dim": "#ffb596", "border-divider": "#E2E8F0", "secondary-fixed": "#6ffbbe", "surface-dim": "#cbdbf5", "primary": "#004ac6", "on-error": "#ffffff", "tertiary-container": "#bc4800", "surface": "#f8f9ff", "on-surface-variant": "#434655", "primary-fixed": "#dbe1ff", "surface-container": "#e5eeff", "on-secondary-fixed": "#002113", "surface-bright": "#f8f9ff", "on-tertiary-fixed": "#360f00", "primary-container": "#2563eb" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "space-md": "0.75rem", "gutter-lg": "1.5rem", "gutter": "1rem", "margin-md": "1.5rem", "space-lg": "1rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-2xl": "2rem", "space-xl": "1.5rem", "margin": "1rem", "margin-lg": "2.5rem" }, fontFamily: { "headline-md": ["Inter"], "label-sm": ["Inter"], "body-lg": ["Inter"], "headline-lg": ["Inter"], "body-sm": ["Inter"], "body-md": ["Inter"], "label-md": ["Inter"], "headline-xl": ["Inter"], "numeric-slot": ["Inter"], "headline-sm": ["Inter"] }, fontSize: { "headline-md": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "500" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "numeric-slot": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "headline-sm": ["15px", { "lineHeight": "22px", "letterSpacing": "-0.005em", "fontWeight": "600" }] } } } };</script>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-surface font-body-md text-body-md text-text-primary min-h-screen flex flex-col antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+    <header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div class="h-14 px-gutter flex items-center justify-between gap-space-sm">
+            <div class="flex items-center gap-space-sm min-w-0"><button aria-label="Go back"
+                    class="min-w-[44px] min-h-[44px] -ml-2 flex items-center justify-center text-text-secondary hover:text-text-primary rounded-xl transition-colors"
+                    onclick="history.back()"><span
+                        class="material-symbols-outlined text-[22px]">arrow_back</span></button><img
+                    alt="Scheduler Logo" class="h-8 w-auto object-contain shrink-0"
+                    src="https://lh3.googleusercontent.com/aida/AEtjO1Xte0q06keDUShgKhHtPl456GW2h3Il_BA2lXiRBLYCcaT69lw7MhLmtrdPltly1rvnpt-i3UiXiFC4pq9GrNU6ZUWHtNNZRXOkZE6Tn1cae6kbaguc8cXzPORHnqJe9hLotu5Eadaf6b4guVFSEshRHh-mB065mUYAsrNyFuP5vI-euqONwGuiWeguhdxoLRvtNdK5Aw_ab9mQDj-m3wUN3POjxMIg8HNa4rSRQUoh-eWKP-EClWf-9YA2" />
+                <div class="flex flex-col min-w-0"><span
+                        class="font-headline-sm text-headline-sm text-text-primary truncate">Book Slot</span><span
+                        class="font-label-sm text-label-sm text-text-secondary truncate">CalSync Host</span></div>
+            </div>
+            <div class="flex items-center shrink-0"><img alt="Profile" class="w-8 h-8 rounded-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm05Sw0Y7flfNqkzcMtf55dtOUfZu0xkaw2ru5vcvkZ9EgYqElQv-tGYEsX19KsYpDi3zdsQUm2TWshVRqfotyOzNDv1Tx4DT0bURoRHCaPQpawKQxb3VwJAg4A_l4OEJmtxS8-JkWgAfs4TeLH0s6YvcFjFYETpB723qv1rAOp0uC5fqSJO3Sk_Oj9eQj4-Ca1G3J5sQWoRXr0GmND-nP0d-cXnXISQJNvIyCBR5IhThqrCMhSmunfw" />
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 flex flex-col relative w-full pt-14 pb-safe bg-surface px-gutter">
+        <div class="flex flex-col w-full relative">
+            <!-- Top Collapsed Host Summary Pill -->
+            <section class="w-full mb-space-md">
+                <div
+                    class="bg-surface-container-lowest shadow-sm rounded-full p-space-xs flex items-center justify-between gap-space-sm">
+                    <div class="flex items-center gap-space-sm min-w-0 pl-1">
+                        <div class="relative w-10 h-10 shrink-0">
+                            <img class="w-10 h-10 rounded-full object-cover shadow-sm"
+                                data-alt="Editorial close-up portrait of Alex Rivera, a professional product strategist with short styled hair, warm studio rim-lighting, charcoal knit sweater against a minimal neutral gray backdrop, crisp and clean."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuASaCETqcWWVfkkvJiCjs9gKGIi774m1AU8z_Ng0_CFgAM2iP4fURcGIH9p9lv61f13vyz9R01t5gqsKnRCi_rIfXg98apYFtTq-MDVUzXVPU6pT6NEE0rD9Vgree6tsJNbjCqLlZHXhfcr-5vwGFbFvwQ9G86oE0H79zqmpzhk5GOKGvCHAcCKSYxfaW5psaPw18Raof6S3oMQ3a1jbXP_MZ9zrkEuKoUmvn_LnzVArwUVic4cvLPWqQ" />
+                            <div
+                                class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center text-on-primary">
+                                <span class="material-symbols-outlined text-[10px] leading-none">check</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-headline-sm text-headline-sm text-text-primary truncate">Alex
+                                    Rivera</span>
+                                <span
+                                    class="bg-surface-variant text-on-primary-fixed-variant font-label-sm text-label-sm px-1.5 py-0.5 rounded-full uppercase">Host</span>
+                            </div>
+                            <p class="font-body-sm text-body-sm text-text-secondary truncate">30 Min Discovery Call •
+                                <span class="text-text-primary font-medium">Thu, Oct 24</span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 pr-1">
+                        <span
+                            class="bg-surface-neutral text-text-secondary font-label-sm text-label-sm px-2.5 py-1.5 rounded-full flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">videocam</span>
+                            Google Meet
+                        </span>
+                    </div>
+                </div>
+            </section>
+            <!-- Ambient Under-layer: Calendar View (Behind the Sheet) -->
+            <section
+                class="w-full bg-surface-container-lowest shadow-sm rounded-full p-space-md mb-space-xl opacity-90 transition-opacity">
+                <div class="flex items-center justify-between mb-space-md">
+                    <div>
+                        <h2 class="font-headline-md text-headline-md text-text-primary">October 2024</h2>
+                        <p class="font-label-sm text-label-sm text-text-secondary">Select an alternative date</p>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button aria-label="Previous month"
+                            class="w-8 h-8 rounded-full bg-surface-neutral text-text-secondary hover:text-text-primary flex items-center justify-center transition-colors"
+                            type="button">
+                            <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                        </button>
+                        <button aria-label="Next month"
+                            class="w-8 h-8 rounded-full bg-surface-neutral text-text-secondary hover:text-text-primary flex items-center justify-center transition-colors"
+                            type="button">
+                            <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Calendar Grid Headers -->
+                <div class="grid grid-cols-7 text-center font-label-sm text-label-sm text-text-secondary mb-space-xs">
+                    <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                </div>
+                <!-- Calendar Day Cells -->
+                <div class="grid grid-cols-7 gap-y-1.5 text-center font-numeric-slot text-numeric-slot">
+                    <span class="text-status-unavailable py-2">30</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">1</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">2</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">3</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">4</span>
+                    <span class="text-status-unavailable py-2">5</span>
+                    <span class="text-status-unavailable py-2">6</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">7</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">8</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">9</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">10</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">11</span>
+                    <span class="text-status-unavailable py-2">12</span>
+                    <span class="text-status-unavailable py-2">13</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">14</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">15</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">16</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">17</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">18</span>
+                    <span class="text-status-unavailable py-2">19</span>
+                    <span class="text-status-unavailable py-2">20</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">21</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">22</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">23</span>
+                    <!-- Active Selected Date (Oct 24) -->
+                    <div class="relative flex items-center justify-center py-1">
+                        <span
+                            class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-headline-sm text-headline-sm shadow-md">24</span>
+                    </div>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">25</span>
+                    <span class="text-status-unavailable py-2">26</span>
+                    <span class="text-status-unavailable py-2">27</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">28</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">29</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">30</span>
+                    <span
+                        class="text-text-primary py-2 hover:bg-surface-neutral rounded-full transition-colors cursor-pointer">31</span>
+                    <span class="text-status-unavailable py-2">1</span>
+                    <span class="text-status-unavailable py-2">2</span>
+                    <span class="text-status-unavailable py-2">3</span>
+                </div>
+            </section>
+            <!-- Backdrop Scrim for Bottom Sheet Drawer -->
+            <div class="fixed inset-0 bg-text-primary/30 backdrop-blur-[2px] z-40 transition-opacity"></div>
+            <!-- Bottom Sheet Drawer Container -->
+            <section aria-labelledby="sheetTitle" aria-modal="true"
+                class="fixed bottom-0 left-0 right-0 z-50 bg-surface-container-lowest rounded-t-full shadow-xl max-h-[724px] flex flex-col transition-transform transform translate-y-0"
+                id="bottomSheetDrawer" role="dialog">
+                <!-- Drawer Handle & Header -->
+                <div class="pt-3 px-gutter pb-space-sm shrink-0 bg-surface-container-lowest rounded-t-full">
+                    <div class="w-12 h-1.5 bg-outline-variant rounded-full mx-auto mb-3 cursor-grab"></div>
+                    <div class="flex items-start justify-between gap-space-sm">
+                        <div>
+                            <h3 class="font-headline-md text-headline-md text-text-primary" id="sheetTitle">Available
+                                Times</h3>
+                            <p class="font-body-sm text-body-sm text-text-secondary flex items-center gap-1 mt-0.5">
+                                <span
+                                    class="material-symbols-outlined text-[15px] text-status-available">calendar_today</span>
+                                Thursday, Oct 24, 2024
+                            </p>
+                        </div>
+                        <!-- Timezone Pill Badge -->
+                        <button
+                            class="bg-surface-container text-on-surface-variant px-2.5 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 hover:bg-surface-variant transition-colors"
+                            title="Change Timezone" type="button">
+                            <span class="material-symbols-outlined text-[13px] text-primary">globe_asia</span>
+                            <span class="truncate max-w-[120px]">New York (EDT)</span>
+                            <span class="material-symbols-outlined text-[12px]">expand_more</span>
+                        </button>
+                    </div>
+                    <!-- Quick Session Stats -->
+                    <div
+                        class="flex items-center gap-space-md mt-space-sm pt-2 bg-surface-neutral rounded-xl px-space-sm py-1.5">
+                        <div class="flex items-center gap-1.5 text-text-secondary font-label-sm text-label-sm">
+                            <span class="material-symbols-outlined text-[14px]">schedule</span>
+                            <span>30 Minutes</span>
+                        </div>
+                        <div class="w-1 h-1 bg-outline-variant rounded-full"></div>
+                        <div class="flex items-center gap-1 text-status-available font-label-sm text-label-sm">
+                            <span class="w-2 h-2 rounded-full bg-status-available animate-pulse"></span>
+                            <span>8 slots left today</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Scrollable Time Slots List -->
+                <div class="flex-1 overflow-y-auto px-gutter py-space-sm space-y-2.5 overscroll-contain">
+                    <!-- Unselected Slot 1 -->
+                    <button
+                        class="slot-btn w-full min-h-[48px] px-space-md py-space-sm rounded-xl bg-surface-neutral hover:bg-surface-container-high transition-all flex items-center justify-between text-left group"
+                        onclick="selectSlot(this, '09:00 AM')" type="button">
+                        <span
+                            class="font-numeric-slot text-numeric-slot text-text-primary font-medium group-hover:text-primary">09:00
+                            AM</span>
+                        <div class="flex items-center gap-1.5 text-text-secondary group-hover:text-primary">
+                            <span class="font-label-sm text-label-sm opacity-60">Morning</span>
+                            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                        </div>
+                    </button>
+                    <!-- Unselected Slot 2 -->
+                    <button
+                        class="slot-btn w-full min-h-[48px] px-space-md py-space-sm rounded-xl bg-surface-neutral hover:bg-surface-container-high transition-all flex items-center justify-between text-left group"
+                        onclick="selectSlot(this, '09:30 AM')" type="button">
+                        <span
+                            class="font-numeric-slot text-numeric-slot text-text-primary font-medium group-hover:text-primary">09:30
+                            AM</span>
+                        <div class="flex items-center gap-1.5 text-text-secondary group-hover:text-primary">
+                            <span class="font-label-sm text-label-sm opacity-60">Morning</span>
+                            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                        </div>
+                    </button>
+                    <!-- Selected Active Slot Pill (Split Confirmation State: 10:00 AM) -->
+                    <div class="w-full min-h-[48px] flex items-stretch gap-2 transition-all duration-200"
+                        id="activeSplitPill">
+                        <!-- Left Part: Selected Time -->
+                        <div
+                            class="flex-1 bg-surface-variant text-primary-container px-space-md py- space-sm rounded-xl flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+                                <span class="font-headline-sm text-headline-sm font-semibold">10:00 AM</span>
+                            </div>
+                            <span
+                                class="font-label-sm text-label-sm bg-surface-container-lowest/80 text-primary px-2 py-0.5 rounded-full">EDT</span>
+                        </div>
+                        <!-- Right Part: Confirm Button -->
+                        <button
+                            class="flex-1 bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-on-primary px-space-md py-space-sm rounded-xl font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-md transition-all group"
+                            onclick="proceedToBooking('10:00 AM')" type="button">
+                            <span>Confirm</span>
+                            <span
+                                class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-0.5">arrow_forward</span>
+                        </button>
+                    </div>
+                    <!-- Unselected Slot 3 -->
+                    <button
+                        class="slot-btn w-full min-h-[48px] px-space-md py-space-sm rounded-xl bg-surface-neutral hover:bg-surface-container-high transition-all flex items-center justify-between text-left group"
+                        onclick="selectSlot(this, '10:30 AM')" type="button">
+                        <span
+                            class="font-numeric-slot text-numeric-slot text-text-primary font-medium group-hover:text-primary">10:30
+                            AM</span>
+                        <div class="flex items-center gap-1.5 text-text-secondary group-hover:text-primary">
+                            <span class="font-label-sm text-label-sm opacity-60">Morning</span>
+                            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                        </div>
+                    </button>
+                    <!-- Unselected Slot 4 -->
+                    <button
+                        class="slot-btn w-full min-h-[48px] px-space-md py-space-sm rounded-xl bg-surface-neutral hover:bg-surface-container-high transition-all flex items-center justify-between text-left group"
+                        onclick="selectSlot(this, '11:00 AM')" type="button">
+                        <span
+                            class="font-numeric-slot text-numeric-slot text-text-primary font-medium group-hover:text-primary">11:00
+                            AM</span>
+                        <div class="flex items-center gap-1.5 text-text-secondary group-hover:text-primary">
+                            <span class="font-label-sm text-label-sm opacity-60">Morning</span>
+                            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                        </div>
+                    </button>
+                    <!-- Afternoon Divider Visual Accent -->
+                    <div class="flex items-center gap-2 py-1">
+                        <div class="h-px bg-surface-container-highest flex-1"></div>
+                        <span
+                            class="font-label-sm text-label-sm text-text-secondary uppercase tracking-wider">Afternoon</span>
+                        <div class="h-px bg-surface-container-highest flex-1"></div>
+                    </div>
+                    <!-- Unselected Slot 5 -->
+                    <button
+                        class="slot-btn w-full min-h-[48px] px-space-md py-space-sm rounded-xl bg-surface-neutral hover:bg-surface-container-high transition-all flex items-center justify-between text-left group"
+                        onclick="selectSlot(this, '01:30 PM')" type="button">
+                        <span
+                            class="font-numeric-slot text-numeric-slot text-text-primary font-medium group-hover:text-primary">01:30
+                            PM</span>
+                        <div class="flex items-center gap-1.5 text-text-secondary group-hover:text-primary">
+                            <span class="font-label-sm text-label-sm opacity-60">Afternoon</span>
+                            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                        </div>
+                    </button>
+                    <!-- Unselected Slot 6 -->
+                    <button
+                        class="slot-btn w-full min-h-[48px] px-space-md py-space-sm rounded-xl bg-surface-neutral hover:bg-surface-container-high transition-all flex items-center justify-between text-left group"
+                        onclick="selectSlot(this, '02:00 PM')" type="button">
+                        <span
+                            class="font-numeric-slot text-numeric-slot text-text-primary font-medium group-hover:text-primary">02:00
+                            PM</span>
+                        <div class="flex items-center gap-1.5 text-text-secondary group-hover:text-primary">
+                            <span class="font-label-sm text-label-sm opacity-60">Afternoon</span>
+                            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                        </div>
+                    </button>
+                    <!-- Unselected Slot 7 -->
+                    <button
+                        class="slot-btn w-full min-h-[48px] px-space-md py-space-sm rounded-xl bg-surface-neutral hover:bg-surface-container-high transition-all flex items-center justify-between text-left group"
+                        onclick="selectSlot(this, '03:00 PM')" type="button">
+                        <span
+                            class="font-numeric-slot text-numeric-slot text-text-primary font-medium group-hover:text-primary">03:00
+                            PM</span>
+                        <div class="flex items-center gap-1.5 text-text-secondary group-hover:text-primary">
+                            <span class="font-label-sm text-label-sm opacity-60">Afternoon</span>
+                            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                        </div>
+                    </button>
+                    <!-- Unselected Slot 8 -->
+                    <button
+                        class="slot-btn w-full min-h-[48px] px-space-md py-space-sm rounded-xl bg-surface-neutral hover:bg-surface-container-high transition-all flex items-center justify-between text-left group"
+                        onclick="selectSlot(this, '04:30 PM')" type="button">
+                        <span
+                            class="font-numeric-slot text-numeric-slot text-text-primary font-medium group-hover:text-primary">04:30
+                            PM</span>
+                        <div class="flex items-center gap-1.5 text-text-secondary group-hover:text-primary">
+                            <span class="font-label-sm text-label-sm opacity-60">Afternoon</span>
+                            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                        </div>
+                    </button>
+                </div>
+                <!-- Sticky Bottom Bar -->
+                <div
+                    class="p-gutter pt-space-xs pb-safe bg-surface-container-lowest shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <span class="font-label-sm text-label-sm text-text-secondary">Selected Time</span>
+                        <span class="font-headline-sm text-headline-sm text-primary font-semibold"
+                            id="selectedLabel">10:00 AM EDT</span>
+                    </div>
+                    <button
+                        class="w-full min-h-[48px] bg-primary-container hover:bg-primary-hover active:scale-[0.99] text-on-primary font-headline-sm text-headline-sm rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all"
+                        onclick="proceedToBooking('10:00 AM')" type="button">
+                        <span>Next: Enter Details</span>
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </button>
+                </div>
+            </section>
+            <!-- Interactive Client-side Script -->
+            <script>
+                function selectSlot(buttonElement, timeStr) {
+                    // Find current split pill
+                    const currentSplit = document.getElementById('activeSplitPill');
+                    if (currentSplit) {
+                        // Revert to normal button
+                        const oldTime = document.getElementById('selectedLabel').innerText.replace(' EDT', '');
+                        const replacementBtn = document.createElement('button');
+                        replacementBtn.type = 'button';
+                        replacementBtn.className = 'slot-btn w-full min-h-[48px] px-space-md py-space-sm rounded-xl bg-surface-neutral hover:bg-surface-container-high transition-all flex items-center justify-between text-left group';
+                        replacementBtn.setAttribute('onclick', `selectSlot(this, '${oldTime}')`);
+                        replacementBtn.innerHTML = `
+          <span class="font-numeric-slot text-numeric-slot text-text-primary font-medium group-hover:text-primary">${oldTime}</span>
+          <div class="flex items-center gap-1.5 text-text-secondary group-hover:text-primary">
+            <span class="font-label-sm text-label-sm opacity-60">Available</span>
+            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+          </div>
+        `;
+                        currentSplit.parentNode.replaceChild(replacementBtn, currentSplit);
+                    }
+
+                    // Convert clicked button to split confirmation
+                    const newSplit = document.createElement('div');
+                    newSplit.id = 'activeSplitPill';
+                    newSplit.className = 'w-full min-h-[48px] flex items-stretch gap-2 transition-all duration-200';
+                    newSplit.innerHTML = `
+        <div class="flex-1 bg-surface-variant text-primary-container px-space-md py-space-sm rounded-xl flex items-center justify-between shadow-sm">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+            <span class="font-headline-sm text-headline-sm font-semibold">${timeStr}</span>
+          </div>
+          <span class="font-label-sm text-label-sm bg-surface-container-lowest/80 text-primary px-2 py-0.5 rounded-full">EDT</span>
+        </div>
+        <button 
+          type="button" 
+          onclick="proceedToBooking('${timeStr}')"
+          class="flex-1 bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-on-primary px-space-md py-space-sm rounded-xl font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-md transition-all group"
+        >
+          <span>Confirm</span>
+          <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-0.5">arrow_forward</span>
+        </button>
+      `;
+
+                    buttonElement.parentNode.replaceChild(newSplit, buttonElement);
+                    document.getElementById('selectedLabel').innerText = `${timeStr} EDT`;
+                }
+
+                function proceedToBooking(time) {
+                    const banner = document.createElement('div');
+                    banner.className = 'fixed top-16 left-4 right-4 z-50 bg-on-surface text-inverse-on-surface py-3 px-4 rounded-xl shadow-xl flex items-center justify-between text-body-md font-body-md transition-all';
+                    banner.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary-fixed text-[20px]">verified</span>
+          <span>Slot locked: <strong>Thu Oct 24, ${time}</strong></span>
+        </div>
+        <span class="font-label-sm text-label-sm text-secondary-fixed">Proceeding...</span>
+      `;
+                    document.body.appendChild(banner);
+                    setTimeout(() => banner.remove(), 2500);
+                }
+            </script>
+        </div>
+    </main>
+</body>
+
+</html>

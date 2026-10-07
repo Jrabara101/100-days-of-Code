@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="web_standard" name="shell-type" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&amp;family=Outfit:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { "darkMode": "class", "theme": { "extend": { "colors": { "on-primary-fixed-variant": "#004e5c", "on-tertiary-fixed-variant": "#5a4300", "primary-container": "#06b6d4", "surface": "#031427", "surface-dim": "#031427", "secondary-container": "#ae05c6", "tertiary-fixed-dim": "#f7be1d", "secondary-fixed": "#ffd6fd", "on-secondary": "#580065", "tertiary-fixed": "#ffdf9a", "on-surface-variant": "#bcc9cd", "surface-container-highest": "#26364a", "on-secondary-fixed-variant": "#7c008e", "primary": "#4cd7f6", "outline-variant": "#3d494c", "tertiary-container": "#d19f00", "tertiary": "#f7be1d", "on-surface": "#d3e4fe", "on-primary": "#003640", "surface-container-low": "#0b1c30", "outline": "#869397", "background": "#031427", "surface-container-lowest": "#000f21", "secondary": "#fbabff", "surface-tint": "#4cd7f6", "on-background": "#d3e4fe", "on-secondary-fixed": "#36003e", "inverse-on-surface": "#213145", "on-secondary-container": "#ffd8fd", "on-tertiary-container": "#4d3900", "on-error-container": "#ffdad6", "inverse-primary": "#00687a", "inverse-surface": "#d3e4fe", "surface-container": "#102034", "primary-fixed-dim": "#4cd7f6", "on-primary-container": "#00424f", "on-primary-fixed": "#001f26", "error": "#ffb4ab", "surface-bright": "#2a3a4f", "secondary-fixed-dim": "#fbabff", "on-tertiary": "#3f2e00", "error-container": "#93000a", "surface-container-high": "#1b2b3f", "on-error": "#690005", "surface-variant": "#26364a", "on-tertiary-fixed": "#251a00", "primary-fixed": "#acedff" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-lg": "1.25rem", "margin-mobile": "0.75rem", "space-md": "0.75rem", "margin": "1.25rem", "space-xl": "2rem", "gutter": "1rem", "margin-desktop": "2.5rem", "gutter-lg": "1.5rem", "space-sm": "0.5rem", "space-xs": "0.25rem" }, "fontFamily": { "headline-xl": ["Outfit"], "telemetry-display-mobile": ["JetBrains Mono"], "telemetry-counter": ["JetBrains Mono"], "label-mono": ["JetBrains Mono"], "body-md": ["Plus Jakarta Sans"], "headline-lg": ["Outfit"], "telemetry-badge": ["Outfit"], "telemetry-display": ["JetBrains Mono"], "headline-lg-mobile": ["Outfit"], "body-sm": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Outfit"], "body-lg": ["Plus Jakarta Sans"], "headline-md": ["Outfit"] }, "fontSize": { "headline-xl": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "telemetry-display-mobile": ["24px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "telemetry-counter": ["18px", { "lineHeight": "22px", "letterSpacing": "0.01em", "fontWeight": "600" }], "label-mono": ["11px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-lg": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "telemetry-badge": ["11px", { "lineHeight": "14px", "letterSpacing": "0.12em", "fontWeight": "700" }], "telemetry-display": ["36px", { "lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "headline-lg-mobile": ["24px", { "lineHeight": "28px", "letterSpacing": "0em", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "headline-xl-mobile": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "800" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "0.02em", "fontWeight": "600" }] } } } };</script>
+</head>
+
+<body
+    class="bg-surface-container-lowest text-on-surface font-body-md text-body-md antialiased min-h-screen selection:bg-primary selection:text-on-primary">
+    <header
+        class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+        <div class="h-16 w-full px-space-lg flex items-center justify-between">
+            <div class="flex items-center gap-space-md"><img alt="Kinetic Velocity Emblem"
+                    class="h-8 w-auto object-contain"
+                    src="https://lh3.googleusercontent.com/aida/AEtjO1WZypSogBTCWvfJZfykjnDpbAnaWcleF1Q8-XgZtp8p6GgAnTm_kImmYRO7LvoQDbyGAWxmBFhTfQCWvTXB_p4Ehjcxl9ICdhaORwhJ_E9-FDSC0nbqTYamwprJLCDm7OrHvRPtZj8CQLueW5OzGatWCVFA8AgWKG8s3odAnF4iEr7AsxyxljFTy6MbR4jfUZ6IEwPbL16uBgXHJn5eJKISe8uc9Ed7sWvEnKwUQXjuTBcwCaGD8VpX5yw" />
+                <div class="flex flex-col"><span
+                        class="font-headline-md text-headline-md tracking-wider uppercase text-on-surface font-bold">NEON
+                        CHASM // VELOCITY DECK</span>
+                    <div class="flex items-center gap-space-sm"><span
+                            class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-widest">AVIONICS
+                            CORE</span><span
+                            class="font-label-mono text-label-mono text-primary font-semibold tracking-wider">SEED
+                            #9042-ALPHA</span></div>
+                </div>
+            </div>
+            <nav class="hidden lg:flex items-center gap-space-sm"
+                data-active-classes="bg-surface-container-high text-primary font-bold rounded-lg"><a aria-current="page"
+                    class="px-space-md py-space-xs uppercase tracking-widest transition-colors bg-surface-container-high text-primary font-bold rounded-lg"
+                    data-path="flight-deck" href="#">Flight Deck</a><a
+                    class="px-space-md py-space-xs font-label-mono text-label-mono uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors rounded"
+                    data-path="flight-hangar" href="#">Flight Hangar</a><a
+                    class="px-space-md py-space-xs font-label-mono text-label-mono uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors rounded"
+                    data-path="telemetry-archive" href="#">Telemetry Archive</a><a
+                    class="px-space-md py-space-xs font-label-mono text-label-mono uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors rounded"
+                    data-path="pilot-loadout" href="#">Pilot Loadout</a></nav>
+            <div class="flex items-center gap-space-md">
+                <div
+                    class="hidden sm:flex items-center gap-space-xs px-space-sm py-space-xs bg-surface-container-low rounded">
+                    <span class="material-symbols-outlined text-primary text-[16px]">speed</span><span
+                        class="font-label-mono text-label-mono text-primary">144 FPS / 8ms</span></div>
+                <div class="flex items-center gap-space-xs"><button aria-label="Audio Toggle"
+                        class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+                        type="button"><span
+                            class="material-symbols-outlined text-[18px]">volume_up</span></button><button
+                        aria-label="Avionics Settings"
+                        class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+                        type="button"><span class="material-symbols-outlined text-[18px]">tune</span></button><button
+                        aria-label="Fullscreen Display"
+                        class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+                        type="button"><span class="material-symbols-outlined text-[18px]">fullscreen</span></button>
+                </div>
+                <div
+                    class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(76,215,246,0.3)]">
+                    <span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div>
+            </div>
+        </div>
+    </header>
+    <main class="w-full pt-16 bg-surface-container-lowest min-h-screen">
+        <div class="flex flex-col w-full">
+            <div class="relative w-full aspect-[16/9] min-h-[620px] max-h-[880px] bg-[#04060B] overflow-hidden select-none"
+                id="viewport-canvas">
+                <!-- Horizon Backdrop Layer -->
+                <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                    <!-- Distant Digital Monoliths & Skyline Silhouette -->
+                    <div class="absolute top-[28%] left-0 right-0 h-[22%] flex justify-between px-space-xl opacity-40">
+                        <div class="w-12 h-44 bg-gradient-to-t from-primary/30 to-transparent"></div>
+                        <div
+                            class="w-20 h-56 bg-gradient-to-t from-secondary-container/40 to-transparent -translate-x-8">
+                        </div>
+                        <div class="w-8 h-32 bg-gradient-to-t from-primary/20 to-transparent translate-x-12"></div>
+                        <div class="w-16 h-64 bg-gradient-to-t from-tertiary-container/30 to-transparent"></div>
+                        <div class="w-24 h-48 bg-gradient-to-t from-primary/35 to-transparent"></div>
+                        <div class="w-14 h-52 bg-gradient-to-t from-secondary/30 to-transparent"></div>
+                    </div>
+                    <!-- Glowing Synthwave Horizon Sun & Vanishing Core -->
+                    <div
+                        class="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-48 rounded-t-full bg-gradient-to-t from-secondary/40 via-primary/20 to-transparent blur-xl">
+                    </div>
+                    <div
+                        class="absolute top-[42%] left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_24px_#4cd7f6]">
+                    </div>
+                    <!-- Converging 3-Lane Neon Chasm Highway -->
+                    <div
+                        class="absolute top-[42%] bottom-0 left-0 right-0 flex items-center justify-center [perspective:550px] [perspective-origin:50%_0%]">
+                        <div class="relative w-[840px] h-[130%] [transform:rotateX(76deg)] origin-top">
+                            <!-- Void Highway Floor Grid -->
+                            <div
+                                class="absolute inset-0 bg-gradient-to-b from-[#031427] via-surface-container-lowest to-[#04060B]">
+                            </div>
+                            <!-- Perspective Grid Rung Scanlines -->
+                            <div
+                                class="absolute inset-0 opacity-40 bg-[linear-gradient(to_bottom,transparent_0%,rgba(76,215,246,0.25)_4%,transparent_8%)] [background-size:100%_48px]">
+                            </div>
+                            <!-- 3-Lane Boundary Neon Rails -->
+                            <!-- Outer Left Rail -->
+                            <div
+                                class="absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-b from-primary/30 via-primary to-primary shadow-[0_0_16px_#4cd7f6]">
+                            </div>
+                            <!-- Lane 1 / 2 Divider -->
+                            <div
+                                class="absolute top-0 bottom-0 left-[33.3%] w-[2px] bg-gradient-to-b from-primary/20 via-primary/60 to-primary [border-style:dashed] opacity-80">
+                            </div>
+                            <!-- Lane 2 / 3 Divider -->
+                            <div
+                                class="absolute top-0 bottom-0 left-[66.6%] w-[2px] bg-gradient-to-b from-primary/20 via-primary/60 to-primary [border-style:dashed] opacity-80">
+                            </div>
+                            <!-- Outer Right Rail -->
+                            <div
+                                class="absolute top-0 bottom-0 right-0 w-1 bg-gradient-to-b from-primary/30 via-primary to-primary shadow-[0_0_16px_#4cd7f6]">
+                            </div>
+                            <!-- Converging Highway Underglow Sweep -->
+                            <div
+                                class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-primary/10 to-transparent">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Edge Optical Traversal Streaks -->
+                    <div
+                        class="absolute top-0 bottom-0 left-0 w-32 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent pointer-events-none">
+                    </div>
+                    <div
+                        class="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-primary/15 via-primary/5 to-transparent pointer-events-none">
+                    </div>
+                    <div
+                        class="absolute top-1/4 left-6 w-1 h-36 bg-gradient-to-b from-transparent via-primary to-transparent opacity-60">
+                    </div>
+                    <div
+                        class="absolute top-2/4 right-8 w-1 h-44 bg-gradient-to-b from-transparent via-secondary to-transparent opacity-70">
+                    </div>
+                </div>
+                <!-- Real-time Hazards and In-World Collectibles Projection Canvas -->
+                <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                    <!-- Lane 1 (Left): Red Laser Barrier (Low Hurdle) -->
+                    <div class="absolute top-[64%] left-[24%] -translate-x-1/2 flex flex-col items-center">
+                        <div
+                            class="px-space-xs py-0.5 bg-error-container text-on-error-container font-label-mono text-[9px] uppercase tracking-wider rounded-sm shadow-[0_0_10px_#ffb4ab]">
+                            JUMP OVER // L-01
+                        </div>
+                        <div
+                            class="w-36 h-7 bg-error/25 rounded flex items-center justify-between px-2 shadow-[0_0_24px_rgba(239,68,68,0.7)]">
+                            <div class="w-2 h-full bg-error rounded-sm"></div>
+                            <div class="h-1 flex-1 mx-1 bg-error animate-pulse"></div>
+                            <div class="w-2 h-full bg-error rounded-sm"></div>
+                        </div>
+                        <div
+                            class="w-40 h-2 bg-gradient-to-r from-transparent via-error to-transparent opacity-80 blur-xs">
+                        </div>
+                    </div>
+                    <!-- Lane 3 (Right): Hazard Amber Overhead Barrier (Requires Slide) -->
+                    <div class="absolute top-[52%] left-[76%] -translate-x-1/2 flex flex-col items-center">
+                        <div
+                            class="px-space-xs py-0.5 bg-tertiary-container text-on-tertiary-container font-label-mono text-[9px] uppercase tracking-wider rounded-sm shadow-[0_0_12px_#f7be1d]">
+                            SLIDE DUCK // L-03
+                        </div>
+                        <div
+                            class="w-40 h-9 bg-tertiary/30 rounded flex items-center justify-center shadow-[0_0_24px_rgba(245,158,11,0.8)]">
+                            <div
+                                class="flex items-center gap-space-xs text-tertiary-fixed font-label-mono text-[10px] font-bold tracking-widest uppercase">
+                                <span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+                                SURFACE CLEARED
+                                <span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+                            </div>
+                        </div>
+                        <div class="w-32 h-1 bg-tertiary opacity-70"></div>
+                    </div>
+                    <!-- Lane 2 (Center): Receding Gold Collectible Rings Tethered to Magnet Beam -->
+                    <div class="absolute top-[56%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-space-sm">
+                        <div
+                            class="w-9 h-9 rounded-full bg-gradient-to-tr from-tertiary via-tertiary-fixed to-tertiary-container p-0.5 shadow-[0_0_18px_#f7be1d] flex items-center justify-center animate-bounce">
+                            <div
+                                class="w-5 h-5 rounded-full bg-surface-container-lowest flex items-center justify-center font-label-mono text-[10px] text-tertiary font-bold">
+                                ⚡
+                            </div>
+                        </div>
+                        <div
+                            class="w-7 h-7 rounded-full bg-tertiary/80 p-0.5 shadow-[0_0_12px_#f7be1d] flex items-center justify-center">
+                            <div class="w-3.5 h-3.5 rounded-full bg-surface-container-lowest"></div>
+                        </div>
+                    </div>
+                    <!-- Cyan Magnet Pull Tether Beams Converging to Player -->
+                    <svg class="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <line opacity="0.6" stroke="#4cd7f6" stroke-dasharray="4 4" stroke-width="1.5" x1="50%" x2="50%"
+                            y1="59%" y2="82%"></line>
+                        <line opacity="0.4" stroke="#fbabff" stroke-dasharray="3 3" stroke-width="1" x1="49%" x2="50%"
+                            y1="63%" y2="82%"></line>
+                    </svg>
+                </div>
+                <!-- AVIONICS HOVERCRAFT RUNNER (Player Avatar) -->
+                <div class="absolute bottom-[13%] left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none transition-all duration-150 ease-out z-20"
+                    id="player-skiff">
+                    <!-- Slipstream Wind Vector Trails -->
+                    <div class="relative w-48 h-8 flex justify-between px-6 opacity-75">
+                        <div
+                            class="w-[2px] h-10 bg-gradient-to-t from-primary via-transparent to-transparent -rotate-12">
+                        </div>
+                        <div
+                            class="w-[2px] h-14 bg-gradient-to-t from-secondary via-transparent to-transparent -rotate-6">
+                        </div>
+                        <div
+                            class="w-[2px] h-14 bg-gradient-to-t from-secondary via-transparent to-transparent rotate-6">
+                        </div>
+                        <div
+                            class="w-[2px] h-10 bg-gradient-to-t from-primary via-transparent to-transparent rotate-12">
+                        </div>
+                    </div>
+                    <!-- Futuristic Hovercraft Hull Graphic -->
+                    <div
+                        class="relative w-44 h-20 bg-surface-container-high rounded-t-xl rounded-b-lg shadow-[0_0_32px_rgba(76,215,246,0.35)] flex items-center justify-center">
+                        <!-- Cockpit Glass Bubble -->
+                        <div
+                            class="w-20 h-10 bg-gradient-to-b from-primary via-primary-container to-surface-container-low rounded-t-full shadow-[inset_0_0_8px_rgba(255,255,255,0.7)] flex items-center justify-center">
+                            <div class="w-12 h-3 bg-on-primary-fixed-variant rounded-full opacity-60"></div>
+                        </div>
+                        <!-- Port/Starboard Aerodynamic Vanes -->
+                        <div
+                            class="absolute -left-5 top-4 w-7 h-11 bg-surface-container-highest rounded-l-md shadow-md flex flex-col justify-around py-1 pl-1">
+                            <div class="w-3 h-0.5 bg-primary"></div>
+                            <div class="w-4 h-0.5 bg-secondary"></div>
+                        </div>
+                        <div
+                            class="absolute -right-5 top-4 w-7 h-11 bg-surface-container-highest rounded-r-md shadow-md flex flex-col justify-around py-1 items-end pr-1">
+                            <div class="w-3 h-0.5 bg-primary"></div>
+                            <div class="w-4 h-0.5 bg-secondary"></div>
+                        </div>
+                        <!-- Dual Neon Cyan Thrusters -->
+                        <div
+                            class="absolute -bottom-3 left-7 w-8 h-4 bg-primary-container rounded-b flex items-center justify-center shadow-[0_0_20px_#4cd7f6]">
+                            <div class="w-4 h-6 bg-gradient-to-b from-white via-primary to-transparent rounded-b-full">
+                            </div>
+                        </div>
+                        <div
+                            class="absolute -bottom-3 right-7 w-8 h-4 bg-primary-container rounded-b flex items-center justify-center shadow-[0_0_20px_#4cd7f6]">
+                            <div class="w-4 h-6 bg-gradient-to-b from-white via-primary to-transparent rounded-b-full">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Ground Plasma Cushion Projection -->
+                    <div class="w-56 h-4 -mt-1 bg-gradient-to-r from-transparent via-primary/70 to-transparent blur-sm">
+                    </div>
+                    <!-- Dynamic Near-Miss Transient Notification (Pill) -->
+                    <div class="absolute -top-12 -right-32 bg-surface-container-lowest/90 px-space-md py-space-xs rounded-full shadow-[0_0_20px_rgba(76,215,246,0.6)] flex items-center gap-space-xs transition-opacity duration-300"
+                        id="near-miss-pill">
+                        <span class="font-headline-md text-tertiary font-bold tracking-tight">+250</span>
+                        <div class="flex flex-col">
+                            <span
+                                class="font-label-mono text-[9px] text-primary font-bold tracking-widest uppercase">NEAR
+                                MISS</span>
+                            <span class="font-label-mono text-[8px] text-secondary tracking-tight">COMBO BUFFERED</span>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-secondary animate-ping"></div>
+                    </div>
+                </div>
+                <!-- ========================================================================= -->
+                <!-- TOP FLOATING TELEMETRY CAPSULE (HUD Level 2)                              -->
+                <!-- ========================================================================= -->
+                <div class="absolute top-4 left-6 right-6 z-30 pointer-events-auto flex items-center justify-between">
+                    <!-- Telemetry Dock Pill -->
+                    <div
+                        class="w-full bg-surface-container-low/85 backdrop-blur-md rounded-full px-space-lg py-space-sm flex items-center justify-between shadow-[0_4px_24px_rgba(0,15,33,0.85)]">
+                        <!-- Left: Distance & Velocity Cluster -->
+                        <div class="flex items-center gap-space-lg">
+                            <div class="flex flex-col">
+                                <span
+                                    class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider">TRAVERSAL
+                                    DISTANCE</span>
+                                <div class="flex items-baseline gap-space-xs">
+                                    <span
+                                        class="font-telemetry-display text-telemetry-display text-primary tracking-tight font-bold"
+                                        id="traversal-counter">2,840</span>
+                                    <span
+                                        class="font-label-mono text-body-sm text-on-surface-variant font-semibold">METERS</span>
+                                </div>
+                            </div>
+                            <!-- Speed Arc Gauge Readout -->
+                            <div
+                                class="hidden md:flex items-center gap-space-sm pl-space-md bg-surface-container/60 py-1.5 px-space-md rounded-full">
+                                <div class="relative w-8 h-8 flex items-center justify-center">
+                                    <svg class="w-8 h-8 -rotate-90" viewbox="0 0 36 36">
+                                        <path class="text-surface-container-highest"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                            fill="none" stroke="currentColor" stroke-width="3"></path>
+                                        <path class="text-primary"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                            fill="none" id="speed-meter-arc" stroke="currentColor"
+                                            stroke-dasharray="84, 100" stroke-linecap="round" stroke-width="3"></path>
+                                    </svg>
+                                    <span
+                                        class="material-symbols-outlined text-[13px] text-primary absolute">bolt</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span
+                                        class="font-label-mono text-[10px] text-on-surface-variant uppercase">VELOCITY</span>
+                                    <span
+                                        class="font-telemetry-counter text-telemetry-counter text-on-surface font-bold">84.5
+                                        <span class="font-label-mono text-[10px] text-primary">KM/H</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Center: Biome Indicator & Progression Segment -->
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center gap-space-xs mb-1">
+                                <span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span>
+                                <span
+                                    class="font-headline-md text-body-sm text-on-surface font-bold tracking-widest uppercase">NEON
+                                    CHASM // SECTOR 04</span>
+                            </div>
+                            <div class="flex items-center gap-space-xs">
+                                <div class="w-44 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                                    <div
+                                        class="w-[84%] h-full bg-gradient-to-r from-primary to-secondary rounded-full shadow-[0_0_8px_#4cd7f6]">
+                                    </div>
+                                </div>
+                                <span class="font-label-mono text-[10px] text-on-surface-variant">840m / 1,000m</span>
+                            </div>
+                        </div>
+                        <!-- Right: Collectibles & Multiplier Rack -->
+                        <div class="flex items-center gap-space-md">
+                            <!-- Currency Counter -->
+                            <div
+                                class="flex items-center gap-space-xs bg-surface-container/70 px-space-md py-1 rounded-full">
+                                <div
+                                    class="w-6 h-6 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary shadow-[0_0_10px_#f7be1d]">
+                                    <span class="material-symbols-outlined text-[14px]">toll</span>
+                                </div>
+                                <span
+                                    class="font-telemetry-counter text-telemetry-counter text-tertiary-fixed font-bold tracking-tight">482</span>
+                            </div>
+                            <!-- Multiplier Badge -->
+                            <div
+                                class="flex items-center gap-space-xs bg-secondary-container/40 px-space-md py-1 rounded-full shadow-[0_0_14px_rgba(217,70,239,0.35)]">
+                                <span class="material-symbols-outlined text-secondary text-[16px]">stars</span>
+                                <span
+                                    class="font-telemetry-badge text-telemetry-badge text-secondary-fixed tracking-wider font-extrabold uppercase">x2.5
+                                    MULTIPLIER</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ========================================================================= -->
+                <!-- BOTTOM COCKPIT HUD DOCK                                                   -->
+                <!-- ========================================================================= -->
+                <div class="absolute bottom-4 left-6 right-6 z-30 pointer-events-auto flex items-end justify-between">
+                    <!-- Left: Active Power-up Rack with Radial Countdown Meters -->
+                    <div
+                        class="bg-surface-container-low/90 backdrop-blur-md px-space-md py-space-sm rounded-xl flex items-center gap-space-md shadow-[0_4px_24px_rgba(0,15,33,0.8)]">
+                        <!-- Powerup 1: Magnet -->
+                        <div class="flex items-center gap-space-xs">
+                            <div
+                                class="relative w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center">
+                                <svg class="absolute inset-0 w-full h-full -rotate-90 p-0.5">
+                                    <circle class="text-surface-container" cx="18" cy="18" fill="none" r="14"
+                                        stroke="currentColor" stroke-width="2.5"></circle>
+                                    <circle class="text-tertiary" cx="18" cy="18" fill="none" r="14"
+                                        stroke="currentColor" stroke-dasharray="65, 100" stroke-linecap="round"
+                                        stroke-width="2.5"></circle>
+                                </svg>
+                                <span class="material-symbols-outlined text-[18px] text-tertiary">all_inclusive</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-label-mono text-[9px] text-on-surface-variant uppercase">MAGNET</span>
+                                <span class="font-label-mono text-label-mono text-tertiary font-bold">4.2s</span>
+                            </div>
+                        </div>
+                        <!-- Powerup 2: Kinetic Shield -->
+                        <div class="flex items-center gap-space-xs">
+                            <div
+                                class="relative w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center">
+                                <svg class="absolute inset-0 w-full h-full -rotate-90 p-0.5">
+                                    <circle class="text-surface-container" cx="18" cy="18" fill="none" r="14"
+                                        stroke="currentColor" stroke-width="2.5"></circle>
+                                    <circle class="text-primary" cx="18" cy="18" fill="none" r="14"
+                                        stroke="currentColor" stroke-dasharray="100, 100" stroke-linecap="round"
+                                        stroke-width="2.5"></circle>
+                                </svg>
+                                <span class="material-symbols-outlined text-[18px] text-primary">shield</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-label-mono text-[9px] text-on-surface-variant uppercase">SHIELD</span>
+                                <span class="font-label-mono text-label-mono text-primary font-bold">1 HIT</span>
+                            </div>
+                        </div>
+                        <!-- Powerup 3: Slipstream Vector Boost -->
+                        <div class="flex items-center gap-space-xs">
+                            <div
+                                class="relative w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center">
+                                <svg class="absolute inset-0 w-full h-full -rotate-90 p-0.5">
+                                    <circle class="text-surface-container" cx="18" cy="18" fill="none" r="14"
+                                        stroke="currentColor" stroke-width="2.5"></circle>
+                                    <circle class="text-secondary" cx="18" cy="18" fill="none" r="14"
+                                        stroke="currentColor" stroke-dasharray="40, 100" stroke-linecap="round"
+                                        stroke-width="2.5"></circle>
+                                </svg>
+                                <span class="material-symbols-outlined text-[18px] text-secondary">rocket_launch</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span
+                                    class="font-label-mono text-[9px] text-on-surface-variant uppercase">SLIPSTREAM</span>
+                                <span class="font-label-mono text-label-mono text-secondary font-bold">2.8s</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Center: Overdrive Adrenaline Conduit Bar -->
+                    <div class="flex flex-col items-center gap-1.5 w-80">
+                        <div class="flex items-center justify-between w-full px-1">
+                            <span
+                                class="font-label-mono text-label-mono text-secondary-fixed font-bold tracking-widest flex items-center gap-1">
+                                <span
+                                    class="material-symbols-outlined text-[14px] text-secondary animate-pulse">flash_on</span>
+                                OVERDRIVE CONDENSER
+                            </span>
+                            <span class="font-label-mono text-label-mono text-primary font-bold">88% CHARGED</span>
+                        </div>
+                        <!-- 16-Segment Neon Energy Conduit -->
+                        <div class="w-full bg-surface-container-low/90 backdrop-blur-md p-1.5 rounded-lg flex items-center gap-1 shadow-[0_0_20px_rgba(217,70,239,0.3)]"
+                            id="overdrive-segments-bar">
+                            <div class="h-3 flex-1 bg-primary rounded-xs shadow-[0_0_6px_#4cd7f6]"></div>
+                            <div class="h-3 flex-1 bg-primary rounded-xs shadow-[0_0_6px_#4cd7f6]"></div>
+                            <div class="h-3 flex-1 bg-primary rounded-xs shadow-[0_0_6px_#4cd7f6]"></div>
+                            <div class="h-3 flex-1 bg-primary rounded-xs shadow-[0_0_6px_#4cd7f6]"></div>
+                            <div class="h-3 flex-1 bg-primary rounded-xs shadow-[0_0_6px_#4cd7f6]"></div>
+                            <div class="h-3 flex-1 bg-primary rounded-xs shadow-[0_0_6px_#4cd7f6]"></div>
+                            <div class="h-3 flex-1 bg-primary rounded-xs shadow-[0_0_6px_#4cd7f6]"></div>
+                            <div class="h-3 flex-1 bg-primary rounded-xs shadow-[0_0_6px_#4cd7f6]"></div>
+                            <div class="h-3 flex-1 bg-secondary rounded-xs shadow-[0_0_8px_#fbabff]"></div>
+                            <div class="h-3 flex-1 bg-secondary rounded-xs shadow-[0_0_8px_#fbabff]"></div>
+                            <div class="h-3 flex-1 bg-secondary rounded-xs shadow-[0_0_8px_#fbabff]"></div>
+                            <div class="h-3 flex-1 bg-secondary rounded-xs shadow-[0_0_8px_#fbabff]"></div>
+                            <div class="h-3 flex-1 bg-secondary rounded-xs shadow-[0_0_8px_#fbabff]"></div>
+                            <div class="h-3 flex-1 bg-secondary rounded-xs shadow-[0_0_8px_#fbabff]"></div>
+                            <!-- Unfilled Segments -->
+                            <div class="h-3 flex-1 bg-surface-container-highest rounded-xs"></div>
+                            <div class="h-3 flex-1 bg-surface-container-highest rounded-xs"></div>
+                        </div>
+                        <button
+                            class="px-space-md py-0.5 bg-gradient-to-r from-secondary-container to-primary rounded-full text-surface-container-lowest font-headline-md text-[11px] font-extrabold uppercase tracking-widest shadow-[0_0_16px_rgba(76,215,246,0.6)] hover:brightness-110 active:scale-95 transition-transform"
+                            id="btn-overdrive-trigger">
+                            OVERDRIVE READY [SPACE]
+                        </button>
+                    </div>
+                    <!-- Right: Hotkey HUD Instructions Module -->
+                    <div
+                        class="bg-surface-container-low/90 backdrop-blur-md px-space-md py-space-sm rounded-xl flex flex-col gap-1 shadow-[0_4px_24px_rgba(0,15,33,0.8)]">
+                        <span
+                            class="font-label-mono text-[9px] text-on-surface-variant uppercase tracking-wider mb-0.5">AVIONIC
+                            CONTROLS</span>
+                        <div class="grid grid-cols-2 gap-x-space-md gap-y-1 font-label-mono text-label-mono">
+                            <div class="flex items-center gap-1.5">
+                                <span
+                                    class="px-1.5 py-0.5 bg-surface-container-highest text-primary rounded text-[10px] font-bold">W
+                                    / ↑</span>
+                                <span class="text-on-surface text-[11px]">JUMP</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span
+                                    class="px-1.5 py-0.5 bg-surface-container-highest text-primary rounded text-[10px] font-bold">S
+                                    / ↓</span>
+                                <span class="text-on-surface text-[11px]">SLIDE</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span
+                                    class="px-1.5 py-0.5 bg-surface-container-highest text-primary rounded text-[10px] font-bold">A
+                                    / D</span>
+                                <span class="text-on-surface text-[11px]">SHIFT LANE</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span
+                                    class="px-1.5 py-0.5 bg-surface-container-highest text-secondary rounded text-[10px] font-bold">SPACE</span>
+                                <span class="text-secondary-fixed text-[11px]">HYPER BURST</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Live Simulation Control Bar (Bottom Overlay preview for state verification) -->
+                <div
+                    class="absolute bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-space-sm bg-surface-container-lowest/80 backdrop-blur-md px-space-md py-space-xs rounded-full">
+                    <button
+                        class="px-space-sm py-1 bg-surface-container hover:bg-surface-container-high rounded text-on-surface font-label-mono text-[10px] transition-colors"
+                        id="sim-nearmiss">
+                        TEST NEAR-MISS
+                    </button>
+                    <button
+                        class="px-space-sm py-1 bg-surface-container hover:bg-secondary-container/60 text-secondary rounded font-label-mono text-[10px] transition-colors"
+                        id="sim-overdrive">
+                        TRIGGER OVERDRIVE
+                    </button>
+                    <button
+                        class="px-space-sm py-1 bg-surface-container hover:bg-error-container/60 text-error rounded font-label-mono text-[10px] transition-colors"
+                        id="sim-impact">
+                        SIMULATE IMPACT
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script>
+            (function () {
+                const player = document.getElementById('player-skiff');
+                const nearMissPill = document.getElementById('near-miss-pill');
+                const canvas = document.getElementById('viewport-canvas');
+                const traversalCounter = document.getElementById('traversal-counter');
+                const btnNearMiss = document.getElementById('sim-nearmiss');
+                const btnOverdrive = document.getElementById('sim-overdrive');
+                const btnImpact = document.getElementById('sim-impact');
+                const btnMainOverdrive = document.getElementById('btn-overdrive-trigger');
+
+                let currentLane = 1; // 0: left, 1: center, 2: right
+                const lanePositions = ['28%', '50%', '72%'];
+
+                function updateLane(laneIndex) {
+                    currentLane = Math.max(0, Math.min(2, laneIndex));
+                    if (player) {
+                        player.style.left = lanePositions[currentLane];
+                    }
+                }
+
+                // Keyboard Flight Deck Binding
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+                        updateLane(currentLane - 1);
+                    } else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+                        updateLane(currentLane + 1);
+                    } else if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') {
+                        if (player) {
+                            player.style.transform = 'translate(-50%, -40px) scale(0.95)';
+                            setTimeout(() => {
+                                player.style.transform = 'translate(-50%, 0px) scale(1)';
+                            }, 320);
+                        }
+                    } else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') {
+                        if (player) {
+                            player.style.transform = 'translate(-50%, 15px) scaleY(0.7)';
+                            setTimeout(() => {
+                                player.style.transform = 'translate(-50%, 0px) scaleY(1)';
+                            }, 320);
+                        }
+                    } else if (e.code === 'Space') {
+                        triggerBurst();
+                    }
+                });
+
+                function triggerNearMiss() {
+                    if (!nearMissPill) return;
+                    nearMissPill.style.opacity = '1';
+                    nearMissPill.style.transform = 'scale(1.15)';
+                    setTimeout(() => {
+                        nearMissPill.style.transform = 'scale(1)';
+                    }, 150);
+                    setTimeout(() => {
+                        nearMissPill.style.opacity = '0';
+                    }, 1600);
+                }
+
+                function triggerBurst() {
+                    if (!canvas) return;
+                    canvas.classList.add('brightness-125');
+                    canvas.style.filter = 'drop-shadow(0 0 40px rgba(76, 215, 246, 0.4))';
+                    if (player) {
+                        player.style.filter = 'drop-shadow(0 0 25px #fbabff)';
+                    }
+                    setTimeout(() => {
+                        canvas.classList.remove('brightness-125');
+                        canvas.style.filter = 'none';
+                        if (player) player.style.filter = 'none';
+                    }, 700);
+                }
+
+                function triggerImpact() {
+                    if (!canvas) return;
+                    canvas.style.transform = 'translateX(-8px)';
+                    setTimeout(() => { canvas.style.transform = 'translateX(8px)'; }, 50);
+                    setTimeout(() => { canvas.style.transform = 'translateX(-4px)'; }, 100);
+                    setTimeout(() => { canvas.style.transform = 'none'; }, 150);
+                }
+
+                if (btnNearMiss) btnNearMiss.addEventListener('click', triggerNearMiss);
+                if (btnOverdrive) btnOverdrive.addEventListener('click', triggerBurst);
+                if (btnMainOverdrive) btnMainOverdrive.addEventListener('click', triggerBurst);
+                if (btnImpact) btnImpact.addEventListener('click', triggerImpact);
+
+                // Traversal distance auto-increment
+                let distance = 2840;
+                setInterval(() => {
+                    distance += 3;
+                    if (traversalCounter) {
+                        traversalCounter.textContent = distance.toLocaleString();
+                    }
+                }, 120);
+            })();
+        </script>
+    </main>
+    <footer class="w-full bg-surface-container-lowest/90 backdrop-blur-md py-space-md">
+        <div class="w-full px-space-lg flex flex-col md:flex-row items-center justify-between gap-space-sm">
+            <div class="flex items-center gap-space-md"><span
+                    class="font-label-mono text-label-mono text-on-surface-variant uppercase">TERMINAL:
+                    KINETIC-ORBITAL-7</span><span
+                    class="font-label-mono text-label-mono text-primary uppercase">SYS_ONLINE // LATENCY: NOMINAL</span>
+            </div>
+            <div class="font-label-mono text-label-mono text-on-surface-variant">© 2025 KINETIC VELOCITY DECK. ENDLESS
+                PERSPECTIVE RUNNER SUITE.</div>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartographic Pathfinding Laboratory & Algorithmic Proving Ground</title>
+  <meta name="description" content="A browser-native, tactile cartographic laboratory and algorithmic proving ground transforming abstract graph theory into an intuitive visual simulation. Multi-cost biomes, real-world OpenStreetMap ingestion, side-by-side algorithm duels, D* Lite dynamic replanning, and daily seeded labyrinth combines.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+</head>
+<body>
+  <div id="app-root">
+    
+    <!-- TOP COMMAND BAR -->
+    <header class="top-command-bar">
+      <div class="brand-section">
+        <div class="brand-icon-wrapper">
+          <span class="brand-icon">🧭</span>
+        </div>
+        <div class="brand-titles">
+          <h1 class="brand-title">
+            CARTOGRAPHIC PROVING GROUND
+            <span class="brand-tag">LAB v1.0</span>
+          </h1>
+          <span class="brand-subtitle">Topological Biome Graph Engine & Heuristic Laboratory</span>
+        </div>
+      </div>
+
+      <!-- MODE SELECTION TABS -->
+      <nav class="mode-tabs" aria-label="Simulation Modes">
+        <button class="mode-tab-btn active" data-mode="solo" id="tab-mode-solo">
+          <span>🎨</span> Tactile Sandbox
+        </button>
+        <button class="mode-tab-btn" data-mode="duel" id="tab-mode-duel">
+          <span>⚔️</span> Algorithm Duel
+        </button>
+        <button class="mode-tab-btn" data-mode="combine" id="tab-mode-combine">
+          <span>🏆</span> Daily Combine
+        </button>
+        <button class="mode-tab-btn" data-mode="chaos" id="tab-mode-chaos">
+          <span>🚨</span> Chaos Incident
+        </button>
+      </nav>
+
+      <!-- TOP ACTION CONTROLS -->
+      <div class="top-actions">
+        <button class="btn-primary" id="btn-solve-now" title="Execute algorithm search instantaneously">
+          <span>⚡</span> Solve Now
+        </button>
+        <button class="btn-secondary" id="btn-clear-grid" title="Reset terrain to open ground">
+          <span>🧹</span> Clear Grid
+        </button>
+        <button class="btn-icon" id="btn-audio-toggle" title="Toggle audio synthesizer sound effects">
+          🔊
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="main-workspace">
+
+      <!-- LEFT SIDEBAR: TOOLBOX & INGESTION -->
+      <aside class="sidebar left-sidebar" id="left-sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-title"><span>🛠️</span> Cartographic Toolbox</span>
+        </div>
+
+        <!-- 1. Multi-Cost Biome Palette -->
+        <div class="panel-section">
+          <div class="section-label">
+            <span>Terrain Biomes</span>
+            <span style="font-size: 10px; color: var(--accent-cyan);">Multi-Cost Friction</span>
+          </div>
+          <div class="biome-grid">
+            <div class="biome-card active" data-biome="highway" title="0.5x transit energy cost">
+              <div class="biome-swatch" style="background: #1e293b; border-color: #f59e0b;"></div>
+              <div class="biome-info">
+                <span class="biome-name">Highway</span>
+                <span class="biome-cost">0.5x Cost</span>
+              </div>
+            </div>
+            <div class="biome-card" data-biome="forest" title="3.0x foliage resistance">
+              <div class="biome-swatch" style="background: #064e3b; border-color: #10b981;"></div>
+              <div class="biome-info">
+                <span class="biome-name">Forest</span>
+                <span class="biome-cost">3.0x Cost</span>
+              </div>
+            </div>
+            <div class="biome-card" data-biome="swamp" title="6.0x mud friction">
+              <div class="biome-swatch" style="background: #365314; border-color: #84cc16;"></div>
+              <div class="biome-info">
+                <span class="biome-name">Swamp</span>
+                <span class="biome-cost">6.0x Cost</span>
+              </div>
+            </div>
+            <div class="biome-card" data-biome="water" title="Directional current vectors">
+              <div class="biome-swatch" style="background: #0c4a6e; border-color: #38bdf8;"></div>
+              <div class="biome-info">
+                <span class="biome-name">Waterway</span>
+                <span class="biome-cost">Flow Vector</span>
+              </div>
+            </div>
+            <div class="biome-card" data-biome="bridge" title="0.8x span crossing">
+              <div class="biome-swatch" style="background: #475569; border-color: #94a3b8;"></div>
+              <div class="biome-info">
+                <span class="biome-name">Bridge</span>
+                <span class="biome-cost">0.8x Cost</span>
+              </div>
+            </div>
+            <div class="biome-card" data-biome="sand" title="2.0x wheel slip">
+              <div class="biome-swatch" style="background: #78350f; border-color: #f59e0b;"></div>
+              <div class="biome-info">
+                <span class="biome-name">Dunes</span>
+                <span class="biome-cost">2.0x Cost</span>
+              </div>
+            </div>
+            <div class="biome-card" data-biome="wall" title="Impassable barrier">
+              <div class="biome-swatch" style="background: #18181b; border-color: #ef4444;"></div>
+              <div class="biome-info">
+                <span class="biome-name">Mountain Wall</span>
+                <span class="biome-cost">∞ Blocked</span>
+              </div>
+            </div>
+            <div class="biome-card" data-biome="plain" title="1.0x baseline open ground">
+              <div class="biome-swatch" style="background: #0f172a; border-color: #334155;"></div>
+              <div class="biome-info">
+                <span class="biome-name">Open Ground</span>
+                <span class="biome-cost">1.0x Baseline</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Sculpting Tools & Elevation -->
+        <div class="panel-section">
+          <div class="section-label">
+            <span>Sculpting Tools</span>
+            <span style="font-size: 10px; color: var(--accent-amber);">Fluid Gestures</span>
+          </div>
+          <div class="tool-btn-grid" style="margin-bottom: 12px;">
+            <button class="tool-action-btn active" data-tool="brush">
+              <span>🖌️</span> Biome Brush
+            </button>
+            <button class="tool-action-btn" data-tool="water_flow">
+              <span>🌊</span> Flow Vector
+            </button>
+            <button class="tool-action-btn" data-tool="elev_up">
+              <span>🔺</span> Raise (+8m)
+            </button>
+            <button class="tool-action-btn" data-tool="elev_down">
+              <span>🔻</span> Lower (-8m)
+            </button>
+            <button class="tool-action-btn" data-tool="start">
+              <span>🟢</span> Move Start
+            </button>
+            <button class="tool-action-btn" data-tool="target">
+              <span>🎯</span> Move Target
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Procedural Map Generators -->
+        <div class="panel-section">
+          <div class="section-label">
+            <span>Terrain Generators</span>
+          </div>
+          <div class="tool-btn-grid">
+            <button class="tool-action-btn" id="btn-gen-perlin">
+              <span>⛰️</span> Topographic fBm
+            </button>
+            <button class="tool-action-btn" id="btn-gen-maze">
+              <span>🌀</span> Recursive Maze
+            </button>
+            <button class="tool-action-btn" id="btn-gen-voronoi">
+              <span>🌐</span> Voronoi Biomes
+            </button>
+            <button class="tool-action-btn" data-city-preset="shibuya">
+              <span>🗼</span> Shibuya Crossing
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. OpenStreetMap Real-World Ingestion -->
+        <div class="panel-section">
+          <div class="section-label">
+            <span>Real-World City Ingestion</span>
+            <span style="font-size: 10px; color: var(--accent-cyan);">OSM Vectors</span>
+          </div>
+          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+            <input type="text" id="input-city-search" placeholder="City or coordinates (e.g. Venice)..." style="flex: 1; background: rgba(30, 41, 59, 0.8); border: 1px solid var(--border-dim); border-radius: 6px; padding: 7px 10px; color: #fff; font-size: 11px; font-family: var(--font-ui); outline: none;">
+            <button class="btn-primary" id="btn-city-search" style="padding: 7px 12px; font-size: 11px;">
+              Ingest
+            </button>
+          </div>
+          <div class="tool-btn-grid">
+            <button class="tool-action-btn" data-city-preset="manhattan">
+              <span>🗽</span> Manhattan, NY
+            </button>
+            <button class="tool-action-btn" data-city-preset="venice">
+              <span>🛶</span> Venice Canals
+            </button>
+            <button class="tool-action-btn" data-city-preset="paris">
+              <span>🏛️</span> Paris Étoile
+            </button>
+            <button class="tool-action-btn" data-city-preset="london">
+              <span>🌉</span> London Thames
+            </button>
+          </div>
+        </div>
+
+        <!-- 5. Chaos Incident Controls (Visible in Chaos Mode) -->
+        <div class="panel-section" data-mode-section="chaos" style="display: none;">
+          <div class="section-label" style="color: var(--accent-rose);">
+            <span>Chaos Sandbox Controls</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn-primary" id="btn-deploy-rover" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff;">
+              <span>🚨</span> Deploy Rover (D* Lite)
+            </button>
+            <button class="tool-action-btn" id="btn-spawn-drone">
+              <span>🛸</span> Spawn Patrol Drone
+            </button>
+            <button class="tool-action-btn" id="btn-spawn-collapse">
+              <span>💥</span> Collapse Bridge Hazard
+            </button>
+          </div>
+        </div>
+
+        <!-- 6. Daily Combine Controls (Visible in Combine Mode) -->
+        <div class="panel-section" data-mode-section="combine" style="display: none;">
+          <div class="section-label" style="color: var(--accent-amber);">
+            <span>Daily Combine Challenge</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn-primary" id="btn-load-today-combine">
+              <span>📅</span> Sync Today's Labyrinth
+            </button>
+            <button class="btn-secondary" id="btn-run-combine-solve">
+              <span>⚡</span> Solve & Rate Efficiency
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- CENTER VIEWPORT STAGE -->
+      <section class="viewport-stage" id="viewport-stage">
+        
+        <!-- Minimap Frustum Panel -->
+        <div class="minimap-panel" id="minimap-panel" title="Overview Minimap">
+          <canvas class="minimap-canvas" id="minimap-canvas" width="140" height="140"></canvas>
+        </div>
+
+        <!-- Arenas Container -->
+        <div class="arenas-container solo" id="arenas-container">
+          
+          <!-- Primary Arena Viewport -->
+          <div class="arena-cell" id="arena-cell-primary">
+            <!-- HUD Header Overlay -->
+            <div class="arena-hud-overlay">
+              <div class="algo-badge">
+                <span class="algo-status-dot"></span>
+                <select class="algo-select" id="select-algo-a" aria-label="Primary Algorithm">
+                  <option value="astar">A* (Optimal Heuristic)</option>
+                  <option value="dijkstra">Dijkstra (Uniform Cost)</option>
+                  <option value="bidirectional">Bidirectional A*</option>
+                  <option value="greedy">Greedy Best-First</option>
+                  <option value="bfs">Breadth-First Search (BFS)</option>
+                  <option value="dfs">Depth-First Search (DFS)</option>
+                </select>
+              </div>
+
+              <!-- Live Telemetry Meter Strip -->
+              <div class="telemetry-strip">
+                <div class="meter-card">
+                  <span class="meter-title">Explored</span>
+                  <span class="meter-val highlight-cyan" id="meter-nodes-a">0</span>
+                </div>
+                <div class="meter-card">
+                  <span class="meter-title">Energy Cost</span>
+                  <span class="meter-val highlight-amber" id="meter-cost-a">0.0</span>
+                </div>
+                <div class="meter-card">
+                  <span class="meter-title">Path Hops</span>
+                  <span class="meter-val" id="meter-length-a">0</span>
+                </div>
+                <div class="meter-card">
+                  <span class="meter-title">Compute</span>
+                  <span class="meter-val highlight-emerald" id="meter-time-a">0.0 ms</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Primary HTML5 Canvas -->
+            <canvas id="canvas-primary"></canvas>
+          </div>
+
+          <!-- Secondary Arena Viewport (Duel Mode) -->
+          <div class="arena-cell" id="arena-cell-secondary" style="display: none;">
+            <!-- HUD Header Overlay -->
+            <div class="arena-hud-overlay">
+              <div class="algo-badge">
+                <span class="algo-status-dot"></span>
+                <select class="algo-select" id="select-algo-b" aria-label="Secondary Algorithm">
+                  <option value="dijkstra">Dijkstra (Uniform Cost)</option>
+                  <option value="astar">A* (Optimal Heuristic)</option>
+                  <option value="bidirectional">Bidirectional A*</option>
+                  <option value="greedy">Greedy Best-First</option>
+                  <option value="bfs">Breadth-First Search (BFS)</option>
+                  <option value="dfs">Depth-First Search (DFS)</option>
+                </select>
+              </div>
+
+              <div class="telemetry-strip">
+                <div class="meter-card">
+                  <span class="meter-title">Explored</span>
+                  <span class="meter-val highlight-cyan" id="meter-nodes-b">0</span>
+                </div>
+                <div class="meter-card">
+                  <span class="meter-title">Energy Cost</span>
+                  <span class="meter-val highlight-amber" id="meter-cost-b">0.0</span>
+                </div>
+                <div class="meter-card">
+                  <span class="meter-title">Path Hops</span>
+                  <span class="meter-val" id="meter-length-b">0</span>
+                </div>
+                <div class="meter-card">
+                  <span class="meter-title">Compute</span>
+                  <span class="meter-val highlight-emerald" id="meter-time-b">0.0 ms</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Secondary HTML5 Canvas -->
+            <canvas id="canvas-secondary"></canvas>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RIGHT SIDEBAR: HEURISTIC SWEET-SPOT & ANALYTICS -->
+      <aside class="sidebar right-sidebar" id="right-sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-title"><span>📡</span> Analytical Radar</span>
+        </div>
+
+        <!-- Heuristic Configurator -->
+        <div class="panel-section">
+          <div class="section-label">
+            <span>Distance Metric</span>
+          </div>
+          <select id="select-heuristic" style="width: 100%; background: rgba(30, 41, 59, 0.8); border: 1px solid var(--border-dim); color: #fff; padding: 7px 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 11px; margin-bottom: 14px; outline: none;">
+            <option value="octile">Octile (Diagonal Admissible)</option>
+            <option value="euclidean">Euclidean (Straight-Line)</option>
+            <option value="manhattan">Manhattan (Taxicab L1)</option>
+            <option value="chebyshev">Chebyshev (Chess King L∞)</option>
+          </select>
+
+          <!-- Heuristic Weight Dial -->
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span>Heuristic Weight ($w \times h$)</span>
+              <span id="label-heuristic-weight" style="color: var(--accent-cyan); font-weight: 700;">w = 1.2</span>
+            </div>
+            <input type="range" id="slider-heuristic-weight" min="0.0" max="4.0" step="0.1" value="1.2">
+            <div style="display: flex; justify-content: space-between; font-size: 9px; font-family: var(--font-mono); color: var(--text-dim); margin-top: 2px;">
+              <span>0.0 (Dijkstra)</span>
+              <span>1.0 (Admissible)</span>
+              <span>4.0 (Greedy)</span>
+            </div>
+          </div>
+
+          <!-- Heatmap Potential Field Toggle -->
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 11px;">
+            <span style="font-family: var(--font-mono); color: var(--text-muted);">Potential Field Heatmap</span>
+            <input type="checkbox" id="toggle-potential-field" style="cursor: pointer;">
+          </div>
+        </div>
+
+        <!-- Analytical Sweet-Spot Radar Chart -->
+        <div class="panel-section" style="flex: 1; display: flex; flex-direction: column;">
+          <div class="section-label">
+            <span>Pareto Trade-off Radar</span>
+          </div>
+          <div id="radar-container" style="flex: 1; min-height: 280px; display: flex; flex-direction: column; justify-content: center;"></div>
+        </div>
+      </aside>
+
+    </main>
+
+    <!-- BOTTOM REPLAY & TIME-SCRUBBER BAR -->
+    <footer class="bottom-replay-bar">
+      <div class="replay-controls">
+        <button class="btn-icon" id="btn-reset-solve" title="Reset Timeline to Step 0">⏮️</button>
+        <button class="btn-icon" id="btn-step-prev" title="Step Back (-1)">⏪</button>
+        <button class="btn-icon" id="btn-play-pause" title="Play / Pause Replay" style="background: rgba(0, 240, 255, 0.15); border-color: var(--accent-cyan); color: #fff;">▶️</button>
+        <button class="btn-icon" id="btn-step-next" title="Step Forward (+1)">⏩</button>
+      </div>
+
+      <!-- Scrubber Track Slider -->
+      <div class="replay-scrubber-track">
+        <div class="scrubber-info-row">
+          <span id="scrubber-step-label">STEP: 0 / 0</span>
+          <span>INTERACTIVE TIME SCRUBBER</span>
+        </div>
+        <input type="range" id="replay-scrubber" min="0" max="100" value="0">
+      </div>
+
+      <!-- Playback Speed Multiplier -->
+      <div class="replay-speed-selector">
+        <span>Speed:</span>
+        <select class="speed-select" id="select-play-speed">
+          <option value="0.5">0.5x</option>
+          <option value="1.0">1.0x</option>
+          <option value="2.0" selected>2.0x</option>
+          <option value="5.0">5.0x</option>
+          <option value="10.0">10.0x</option>
+        </select>
+      </div>
+    </footer>
+
+    <!-- SCORECARD & SOCIAL SHARE MODAL -->
+    <div class="modal-backdrop" id="modal-scorecard">
+      <div class="modal-window">
+        <div class="modal-header">
+          <h2 class="modal-title">
+            <span>🏆</span> Daily Labyrinth Combine Scorecard
+          </h2>
+          <button class="btn-icon" id="btn-close-scorecard" style="width: 28px; height: 28px;">✕</button>
+        </div>
+        <div class="modal-body">
+          <!-- 1200x630 Exportable Graphic Card Canvas -->
+          <canvas id="scorecard-canvas" width="1200" height="630"></canvas>
+
+          <!-- Discord / Markdown Share Box -->
+          <div>
+            <span class="section-label" style="margin-bottom: 6px;">Discord / Social Share Text</span>
+            <pre class="scorecard-share-box" id="scorecard-share-text"></pre>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="btn-copy-scorecard-text">
+            <span>📋</span> Copy Text
+          </button>
+          <button class="btn-primary" id="btn-download-scorecard-png">
+            <span>💾</span> Download Scorecard PNG
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
+  </div>
+
+  <!-- Application Entry Script (ES Modules) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "cartographic-pathfinding-visualizer",
+  "version": "1.0.0",
+  "description": "Tactile Cartographic Laboratory & Algorithmic Proving Ground for Graph Theory & Pathfinding",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "pathfinding",
+    "a-star",
+    "dijkstra",
+    "d-star-lite",
+    "cartography",
+    "openstreetmap",
+    "graph-theory",
+    "simulation"
+  ],
+  "author": "",
+  "license": "MIT"
+}

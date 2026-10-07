@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="web_standard" name="shell-type" />
+    <title>Solar Ember // Volcanic Mecha Arena</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&amp;family=Rajdhani:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes heatwave {
+
+            0%,
+            100% {
+                filter: hue-rotate(0deg) brightness(1);
+            }
+
+            50% {
+                filter: hue-rotate(6deg) brightness(1.08);
+            }
+        }
+
+        .heat-shimmer {
+            animation: heatwave 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px rgba(255, 87, 34, 0.4), inset 0 0 10px rgba(251, 191, 36, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 28px rgba(249, 115, 22, 0.8), inset 0 0 20px rgba(255, 87, 34, 0.5);
+            }
+        }
+
+        .reactor-pulse {
+            animation: pulseGlow 2.4s infinite;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "magma-950": "#080402",
+                        "magma-900": "#120804",
+                        "magma-850": "#1b0d07",
+                        "magma-800": "#26130a",
+                        "magma-700": "#381a0e",
+                        "magma-600": "#4f2312",
+                        "ember-orange": "#FF5722",
+                        "ember-core": "#F97316",
+                        "solar-gold": "#FBBF24",
+                        "crimson-heat": "#DC2626",
+                        "cooling-cyan": "#38BDF8",
+                        "surface-dark": "#0e0907",
+                        "surface-container": "#170f0b",
+                        "surface-container-high": "#231610",
+                        "surface-container-highest": "#332017",
+                        "text-primary": "#fceee6",
+                        "text-muted": "#9c8175",
+                        "text-dim": "#695349"
+                    },
+                    fontFamily: {
+                        "chakra": ["Chakra Petch", "sans-serif"],
+                        "rajdhani": ["Rajdhani", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body
+    class="bg-magma-950 font-chakra text-text-primary antialiased selection:bg-ember-orange selection:text-white relative min-h-screen overflow-x-hidden">
+    <!-- Atmospheric Volcanic Heatwave & Radial Magma Glow -->
+    <div
+        class="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_90%_50%_at_50%_10%,rgba(255,87,34,0.18),transparent_75%),radial-gradient(ellipse_70%_55%_at_50%_100%,rgba(220,38,38,0.22),transparent_70%)]">
+    </div>
+    <div
+        class="fixed inset-0 pointer-events-none z-0 bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.15)_0px,rgba(0,0,0,0.15)_1px,transparent_1px,transparent_3px)] opacity-60">
+    </div>
+    <!-- MILITARY ORBITAL HUD / TOP STATUS HEADER -->
+    <header
+        class="fixed top-0 left-0 right-0 z-50 bg-magma-900/90 backdrop-blur-xl border-b border-ember-orange/30 shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
+        <div class="h-16 w-full px-4 lg:px-8 flex items-center justify-between gap-4">
+            <!-- Left: Sector ID, Tactical Node & Nav -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5 bg-magma-850 border border-ember-orange/40 px-2.5 py-1 rounded">
+                    <span
+                        class="font-mono text-[10px] text-solar-gold font-bold uppercase tracking-widest flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-ember-orange animate-ping"></span>
+                        SECTOR-IX // VOLCANIC CALDERA
+                    </span>
+                    <button class="text-text-muted hover:text-solar-gold transition-colors ml-1"
+                        title="Copy Sector Coordinates">
+                        <span class="material-symbols-outlined text-[13px]">share</span>
+                    </button>
+                </div>
+                <div class="hidden sm:flex items-center gap-2 border-l border-magma-700 pl-3">
+                    <span class="font-mono text-[11px] text-text-muted flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px] text-ember-core">thermostat</span>
+                        AMB: 1,420°C
+                    </span>
+                    <span class="font-mono text-[11px] text-solar-gold flex items-center gap-1 ml-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-solar-gold animate-pulse"></span>
+                        SOLAR INTERFERENCE: 32%
+                    </span>
+                </div>
+                <nav
+                    class="hidden xl:flex items-center gap-4 ml-3 font-rajdhani font-bold tracking-wider text-sm uppercase">
+                    <a class="text-solar-gold border-b-2 border-solar-gold pb-0.5" href="#">Magma Colosseum</a>
+                    <a class="text-text-muted hover:text-text-primary transition-colors" href="#">Orbital Uplink</a>
+                    <a class="text-text-muted hover:text-text-primary transition-colors" href="#">Thermal Codex</a>
+                    <a class="text-text-muted hover:text-text-primary transition-colors" href="#">Combat Telemetry</a>
+                </nav>
+            </div>
+            <!-- Center: Strategic Round & Overheat Countdown Timer -->
+            <div class="flex flex-col items-center justify-center min-w-[240px] md:min-w-[320px]">
+                <div
+                    class="flex items-center justify-between w-full px-1 mb-1 font-mono text-[10px] tracking-widest text-text-muted">
+                    <span class="text-ember-core uppercase font-bold flex items-center gap-1">
+                        <span
+                            class="material-symbols-outlined text-[13px] text-crimson-heat">local_fire_department</span>
+                        COMBAT CLOCK: ROUND 04
+                    </span>
+                    <span class="text-solar-gold font-bold font-mono text-xs">HEAT TICK 08.6s</span>
+                </div>
+                <div class="w-full h-2 bg-magma-950 rounded-sm overflow-hidden border border-magma-700 p-0.5 flex">
+                    <div
+                        class="h-full bg-gradient-to-r from-ember-core via-ember-orange to-solar-gold w-[68%] rounded-sm shadow-[0_0_12px_rgba(249,115,22,0.8)]">
+                    </div>
+                    <div class="h-full bg-crimson-heat/40 w-[32%] rounded-sm"></div>
+                </div>
+            </div>
+            <!-- Right: Cockpit Controls & Pilot Tag -->
+            <div class="flex items-center gap-2">
+                <div
+                    class="hidden md:flex items-center gap-1.5 bg-magma-850 px-2.5 py-1 rounded border border-magma-700">
+                    <span class="font-mono text-[10px] text-text-muted uppercase">SYS TICK:</span>
+                    <span class="font-mono text-[10px] text-solar-gold font-bold">120Hz ULTRA</span>
+                </div>
+                <button
+                    class="p-1.5 rounded bg-magma-850 border border-magma-700 text-text-muted hover:text-solar-gold hover:border-ember-orange transition-colors"
+                    title="Combat Thermal Sound FX">
+                    <span class="material-symbols-outlined text-[18px]">volume_up</span>
+                </button>
+                <button
+                    class="p-1.5 rounded bg-magma-850 border border-magma-700 text-text-muted hover:text-solar-gold hover:border-ember-orange transition-colors"
+                    title="Orbital Sensor Diagnostics">
+                    <span class="material-symbols-outlined text-[18px]">settings_input_composite</span>
+                </button>
+                <div class="flex items-center gap-2 pl-2 border-l border-magma-700">
+                    <div
+                        class="w-8 h-8 rounded bg-gradient-to-tr from-crimson-heat to-ember-orange border border-solar-gold flex items-center justify-center font-mono font-bold text-xs text-white shadow-[0_0_10px_rgba(255,87,34,0.6)]">
+                        SC
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="w-full pt-16 relative z-10">
+        <div class="flex flex-col w-full">
+            <!-- SUB-HUD: INITIATIVE & THERMAL PRESSURE RAIL -->
+            <div
+                class="w-full px-4 lg:px-8 py-2 bg-magma-900/80 backdrop-blur-md border-b border-ember-orange/20 flex flex-wrap items-center justify-between gap-3 z-20">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-ember-orange/15 border border-ember-orange/40 text-solar-gold">
+                        <span class="material-symbols-outlined text-[15px] animate-spin">cyclone</span>
+                        <span class="font-mono text-[11px] font-bold tracking-wider uppercase">THERMAL OVERDRIVE TURN
+                            RAIL</span>
+                    </div>
+                    <div class="flex items-center gap-2 overflow-x-auto py-0.5">
+                        <!-- Turn 1 Active: Player Mech (Pyro-Frame Scion) -->
+                        <div
+                            class="flex items-center gap-2 bg-gradient-to-r from-magma-800 to-magma-850 border border-solar-gold px-2.5 py-1 rounded shadow-[0_0_12px_rgba(251,191,36,0.3)]">
+                            <div
+                                class="w-6 h-6 rounded bg-ember-orange text-white flex items-center justify-center font-mono text-[10px] font-bold">
+                                SC
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-rajdhani font-bold text-xs text-solar-gold leading-none">PYRO-FRAME
+                                    SCION</span>
+                                <span class="font-mono text-[8px] text-ember-core uppercase tracking-widest">FIRING
+                                    PHASE</span>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-solar-gold animate-ping"></span>
+                        </div>
+                        <span class="text-ember-core font-mono text-xs">➔</span>
+                        <!-- Turn 2: Colossus Ignis-Typhon -->
+                        <div
+                            class="flex items-center gap-2 bg-magma-900 border border-crimson-heat/40 px-2 py-1 rounded opacity-90">
+                            <div
+                                class="w-6 h-6 rounded bg-crimson-heat text-white flex items-center justify-center font-mono text-[10px] font-bold">
+                                IT
+                            </div>
+                            <div class="flex flex-col">
+                                <span
+                                    class="font-rajdhani font-bold text-xs text-crimson-heat leading-none">IGNIS-TYPHON</span>
+                                <span class="font-mono text-[8px] text-text-muted">PRIMING ERUPTION</span>
+                            </div>
+                        </div>
+                        <span class="text-text-dim font-mono text-xs">➔</span>
+                        <!-- Turn 3: Magma Core Flare -->
+                        <div
+                            class="flex items-center gap-1.5 bg-magma-900/60 border border-magma-800 px-2 py-1 rounded opacity-60">
+                            <span class="material-symbols-outlined text-[14px] text-ember-orange">volcano</span>
+                            <span class="font-mono text-[10px] text-text-muted">CALDERA SURGE</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Quick Telemetry HUD -->
+                <div class="hidden lg:flex items-center gap-5 font-mono text-[11px] text-text-muted">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-ember-orange animate-pulse"></span>
+                        <span>CORE STABILITY: <strong class="text-solar-gold">NOMINAL</strong></span>
+                    </div>
+                    <div class="flex items-center gap-1.5 border-l border-magma-800 pl-4">
+                        <span class="material-symbols-outlined text-[14px] text-solar-gold">radar</span>
+                        <span>CALDERA DEPTH: <strong>-420m LIQUID CRUST</strong></span>
+                    </div>
+                </div>
+            </div>
+            <!-- MAIN VIEWPORT: THE VOLCANIC CRUST DYNAMIC ARENA -->
+            <div
+                class="relative w-full aspect-[16/9] min-h-[520px] max-h-[700px] overflow-hidden bg-magma-950 flex items-center justify-between px-4 sm:px-8 lg:px-14 shadow-2xl border-b border-ember-orange/30">
+                <!-- Volcanic Environmental Atmosphere & Ground Grid -->
+                <div class="absolute inset-0 pointer-events-none overflow-hidden heat-shimmer">
+                    <!-- Deep molten bottom glow -->
+                    <div
+                        class="absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_90%,rgba(249,115,22,0.28)_0%,rgba(18,8,4,0.95)_75%)]">
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,87,34,0.12)_0%,transparent_60%)]">
+                    </div>
+                    <!-- Molten Laser Perimeter Bounds -->
+                    <div
+                        class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-solar-gold/70 to-transparent shadow-[0_0_15px_rgba(251,191,36,0.9)]">
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-ember-orange to-transparent shadow-[0_0_20px_rgba(255,87,34,1)]">
+                    </div>
+                    <!-- 3D Perspective Molten Hex Floor -->
+                    <div class="absolute inset-0 [perspective:800px] flex items-end justify-center pointer-events-none">
+                        <div
+                            class="w-[220%] h-[78%] [transform:rotateX(65deg)] origin-bottom bg-[linear-gradient(to_right,rgba(255,87,34,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(251,191,36,0.08)_1px,transparent_1px)] bg-[size:44px_44px] shadow-[inset_0_0_120px_rgba(8,4,2,1)]">
+                            <!-- Magma Fissure Lines -->
+                            <div
+                                class="absolute top-1/2 left-1/4 w-96 h-1 bg-gradient-to-r from-transparent via-ember-orange/80 to-transparent blur-[1px]">
+                            </div>
+                            <div
+                                class="absolute top-1/3 right-1/4 w-80 h-1 bg-gradient-to-r from-transparent via-crimson-heat/70 to-transparent blur-[1px]">
+                            </div>
+                            <div
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-ember-core/10 blur-3xl">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Floating Lava Spark Particles SVG -->
+                    <svg class="absolute inset-0 w-full h-full opacity-65" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="animate-pulse" cx="18%" cy="75%" fill="#FF5722" r="2.5"></circle>
+                        <circle cx="28%" cy="50%" fill="#FBBF24" r="1.5"></circle>
+                        <circle class="animate-pulse" cx="45%" cy="30%" fill="#F97316" r="3"></circle>
+                        <circle cx="68%" cy="65%" fill="#DC2626" r="2"></circle>
+                        <circle class="animate-pulse" cx="82%" cy="40%" fill="#FBBF24" r="2"></circle>
+                        <circle cx="52%" cy="85%" fill="#FF5722" r="3.5"></circle>
+                        <line stroke="#FF5722" stroke-dasharray="4 16" stroke-width="1" x1="10%" x2="90%" y1="88%"
+                            y2="88%"></line>
+                    </svg>
+                </div>
+                <!-- LEFT COMBATANT: PYRO-FRAME SCION (PLAYER DEFENSIVE RAMPART) -->
+                <div class="relative z-10 flex flex-col items-center w-full max-w-sm select-none">
+                    <!-- Status Overhead Capsule -->
+                    <div
+                        class="w-full bg-magma-900/90 backdrop-blur-xl border border-ember-orange/50 p-3.5 rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.9)] relative group">
+                        <!-- Header Bar: Unit Tag, Name & HP -->
+                        <div class="flex items-center justify-between mb-1.5">
+                            <div class="flex items-center gap-1.5">
+                                <span
+                                    class="px-1.5 py-0.5 rounded bg-gradient-to-r from-ember-orange to-crimson-heat text-white font-mono text-[9px] font-bold">LV.54</span>
+                                <span class="font-rajdhani text-sm tracking-wide text-solar-gold font-bold">PYRO-FRAME
+                                    SCION</span>
+                                <span
+                                    class="px-1 py-0.5 rounded bg-magma-950 border border-ember-orange/30 text-ember-orange font-mono text-[8px] uppercase">RAMPART
+                                    DEF</span>
+                            </div>
+                            <span class="font-mono text-xs text-solar-gold font-bold">2,480 / 3,100 HP</span>
+                        </div>
+                        <!-- Heat / Armor Gauge -->
+                        <div
+                            class="w-full h-3 bg-magma-950 rounded-sm overflow-hidden flex border border-magma-700 p-0.5 mb-1.5">
+                            <div class="h-full bg-gradient-to-r from-amber-600 via-solar-gold to-ember-core rounded-sm shadow-[0_0_10px_rgba(251,191,36,0.6)]"
+                                style="width: 78%;"></div>
+                            <div class="h-full bg-cooling-cyan rounded-sm shadow-[0_0_8px_rgba(56,189,248,0.7)] ml-0.5"
+                                style="width: 14%;"></div>
+                        </div>
+                        <!-- Thermal Reactor Heat Bar (Interactive Gauge) -->
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-mono text-[10px] text-text-muted uppercase flex items-center gap-1">
+                                <span
+                                    class="material-symbols-outlined text-[13px] text-ember-core">local_fire_department</span>
+                                CORE HEAT ACCUMULATION
+                            </span>
+                            <span class="font-mono text-[10px] text-ember-orange font-bold" id="player-heat-percent">62%
+                                (HEAT LOCK AT 100%)</span>
+                        </div>
+                        <div class="w-full h-2 bg-magma-950 rounded-sm overflow-hidden border border-magma-700 mb-2">
+                            <div class="h-full bg-gradient-to-r from-solar-gold via-ember-orange to-crimson-heat transition-all duration-300 shadow-[0_0_8px_rgba(255,87,34,0.7)]"
+                                id="heat-progress-bar" style="width: 62%;"></div>
+                        </div>
+                        <!-- Status Effects -->
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <div
+                                class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-ember-orange/20 border border-ember-orange/40 text-solar-gold font-mono text-[9px]">
+                                <span class="material-symbols-outlined text-[10px]">whatshot</span>
+                                <span>MAGMA ENFUSED (+20% ATK)</span>
+                            </div>
+                            <div
+                                class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-cooling-cyan/15 border border-cooling-cyan/40 text-cooling-cyan font-mono text-[9px]">
+                                <span class="material-symbols-outlined text-[10px]">ac_unit</span>
+                                <span>VENT BAFFLES [READY]</span>
+                            </div>
+                            <div
+                                class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-solar-gold font-mono text-[9px]">
+                                <span class="material-symbols-outlined text-[10px]">shield</span>
+                                <span>ABLATIVE RESIST 45%</span>
+                            </div>
+                        </div>
+                        <!-- Selected Intent Box -->
+                        <div
+                            class="mt-2.5 pt-1.5 bg-magma-950/80 border-t border-magma-800 flex items-center justify-between px-2 py-1">
+                            <div class="flex items-center gap-1 text-solar-gold">
+                                <span
+                                    class="material-symbols-outlined text-[14px] text-ember-orange animate-pulse">crisis_alert</span>
+                                <span class="font-mono text-[10px] uppercase font-bold tracking-wider"
+                                    id="player-intent-label">READY: MAGMA LANCE (+15% HEAT)</span>
+                            </div>
+                            <span class="font-mono text-[9px] text-ember-core uppercase font-bold">ARMED</span>
+                        </div>
+                        <!-- L-Bracket Tech Accents -->
+                        <div class="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-solar-gold"></div>
+                        <div class="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-solar-gold"></div>
+                    </div>
+                    <!-- Raised Defensive Rampart Platform & Mech Hologram -->
+                    <div class="relative mt-4 flex flex-col items-center">
+                        <!-- Steam Discharge Floater -->
+                        <div
+                            class="absolute -top-3 -right-2 z-20 flex items-center gap-1 bg-magma-950 border border-cooling-cyan/70 px-2 py-0.5 rounded shadow-[0_0_12px_rgba(56,189,248,0.5)]">
+                            <span class="material-symbols-outlined text-cooling-cyan text-[13px]">air</span>
+                            <span class="font-mono text-[9px] text-cooling-cyan font-bold tracking-wider">PURGE CHAMBER
+                                READY</span>
+                        </div>
+                        <!-- Mech Frame Avatar -->
+                        <div class="relative w-48 h-64 flex items-center justify-center">
+                            <!-- Magma Core Back Glow -->
+                            <div class="absolute inset-0 bg-ember-orange/25 blur-3xl rounded-full scale-90"></div>
+                            <!-- Character Image: Solar/Flame Mecha -->
+                            <img alt="Futuristic flame-armored volcanic siege mech Pyro-Frame Scion with burning orange plasma exhaust fins, glowing molten internal conduits, hydraulic vulcan cannons, and obsidian armor plating"
+                                class="relative z-10 w-full h-full object-cover rounded-md border border-ember-orange/40 shadow-2xl filter contrast-125"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3d_TYYVOHi2n_0jITXw3y-8QnbSb6FkFpLNE0H4CVsA-30LxWS2gRX6aF_OKx4FtS6zemMs8ZeCFGdoEoJG2-Oeu1Oyyb9sG3KgzNE3957zCyrRz4EX8NuyhpvyMbNFiNT5bQc7iiN-udfQhrfJjYjbKY1NMszO83h4izOMVxk_mdeZZkiLPqXCioS3NE5_PTG6zJ3OdaYgQ18trOQfPkpMAEMwXvlx09xkKsuqlIdcT9js8TnHt7RA" />
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-magma-950 via-transparent to-transparent pointer-events-none rounded-md">
+                            </div>
+                        </div>
+                        <!-- Raised Defensive Rampart Pedestal -->
+                        <div
+                            class="w-52 h-11 -mt-5 rounded-[100%] bg-gradient-to-r from-ember-orange/30 via-solar-gold/40 to-ember-orange/30 flex items-center justify-center shadow-[0_0_35px_rgba(255,87,34,0.7)] relative border border-solar-gold/40">
+                            <div class="w-40 h-6 rounded-[100%] bg-magma-950 flex items-center justify-center">
+                                <div
+                                    class="w-28 h-2 rounded-[100%] bg-solar-gold shadow-[0_0_12px_#FBBF24] animate-pulse">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- CENTER COLLISION FX & WEAKPOINT MELT DAMAGE FLOATERS -->
+                <div class="hidden md:flex flex-col items-center justify-center relative pointer-events-none z-20">
+                    <!-- Floating Volcanic Critical Damage Text -->
+                    <div class="flex flex-col items-center -mt-14 animate-bounce">
+                        <div
+                            class="px-3.5 py-1.5 rounded bg-magma-950 border-2 border-solar-gold shadow-[0_0_30px_rgba(251,191,36,0.8)] flex items-center gap-2">
+                            <span class="material-symbols-outlined text-solar-gold text-[22px]">whatshot</span>
+                            <span
+                                class="font-rajdhani text-2xl lg:text-3xl font-bold text-solar-gold tracking-tight drop-shadow-[0_2px_10px_rgba(255,87,34,0.8)]">-1,840
+                                STEAM PROC!</span>
+                        </div>
+                        <span
+                            class="font-mono text-[10px] text-white font-bold tracking-widest bg-crimson-heat border border-solar-gold px-2.5 py-0.5 rounded shadow mt-1 uppercase">
+                            WEAKPOINT MELT +65% DAMAGE
+                        </span>
+                    </div>
+                    <!-- Versus Core Crucible Emblem -->
+                    <div
+                        class="mt-6 w-12 h-12 rounded-full bg-magma-900 border border-ember-orange/60 flex items-center justify-center shadow-[0_0_16px_rgba(249,115,22,0.6)]">
+                        <span class="font-rajdhani text-xs font-bold text-solar-gold">VS</span>
+                    </div>
+                </div>
+                <!-- RIGHT COMBATANT: COLOSSUS IGNIS-TYPHON LV.60 (RAID BOSS) -->
+                <div class="relative z-10 flex flex-col items-center w-full max-w-sm select-none">
+                    <!-- Status Overhead Capsule -->
+                    <div
+                        class="w-full bg-magma-900/90 backdrop-blur-xl border border-crimson-heat/60 p-3.5 rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.9)] relative group">
+                        <!-- Header Bar -->
+                        <div class="flex items-center justify-between mb-1.5">
+                            <div class="flex items-center gap-1.5">
+                                <span
+                                    class="px-1.5 py-0.5 rounded bg-crimson-heat text-white font-mono text-[9px] font-bold">LV.60</span>
+                                <span
+                                    class="font-rajdhani text-sm tracking-wide text-crimson-heat font-bold">IGNIS-TYPHON</span>
+                                <span
+                                    class="px-1 py-0.5 rounded bg-magma-950 border border-crimson-heat text-crimson-heat font-mono text-[8px] uppercase font-bold">RAID
+                                    TITAN</span>
+                            </div>
+                            <span class="font-mono text-xs text-crimson-heat font-bold">5,820 / 9,000 HP</span>
+                        </div>
+                        <!-- Boss Health Bar -->
+                        <div
+                            class="w-full h-3 bg-magma-950 rounded-sm overflow-hidden border border-magma-700 p-0.5 mb-1.5 flex">
+                            <div class="h-full bg-gradient-to-r from-crimson-heat via-ember-orange to-solar-gold rounded-sm shadow-[0_0_12px_rgba(220,38,38,0.7)]"
+                                style="width: 64%;"></div>
+                            <div class="h-full bg-solar-gold/40 rounded-sm animate-pulse ml-0.5" style="width: 12%;">
+                            </div>
+                        </div>
+                        <!-- Armor Melt & Core Stability -->
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-mono text-[10px] text-text-muted uppercase flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[13px] text-crimson-heat">warning</span>
+                                ARMOR INTEGRITY MELT
+                            </span>
+                            <span class="font-mono text-[10px] text-solar-gold font-bold">MELT RISK: 74% CRITICAL</span>
+                        </div>
+                        <div class="w-full h-2 bg-magma-950 rounded-sm overflow-hidden border border-magma-700 mb-2">
+                            <div class="h-full bg-gradient-to-r from-yellow-500 to-crimson-heat animate-pulse"
+                                style="width: 74%;"></div>
+                        </div>
+                        <!-- Titan Vulnerability Nodes -->
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <div
+                                class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-crimson-heat/20 border border-crimson-heat/50 text-crimson-heat font-mono text-[9px]">
+                                <span class="material-symbols-outlined text-[10px]">lens_blur</span>
+                                <span>VENT CORROSION [3T]</span>
+                            </div>
+                            <div
+                                class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-solar-gold/15 border border-solar-gold/40 text-solar-gold font-mono text-[9px]">
+                                <span class="material-symbols-outlined text-[10px]">fireplace</span>
+                                <span>MAGMA SURGE CHARGING</span>
+                            </div>
+                        </div>
+                        <!-- Boss Intent Warning -->
+                        <div
+                            class="mt-2.5 pt-1.5 bg-crimson-heat/20 border border-crimson-heat/40 flex items-center justify-between px-2 py-1 rounded">
+                            <div class="flex items-center gap-1 text-crimson-heat">
+                                <span class="material-symbols-outlined text-[15px] animate-pulse">skull</span>
+                                <span class="font-mono text-[10px] uppercase font-bold tracking-wider">INTENT: ERUPTION
+                                    CATACLYSM</span>
+                            </div>
+                            <span class="font-mono text-[10px] font-bold text-solar-gold">EST. 890 AOE</span>
+                        </div>
+                        <!-- L-Brackets -->
+                        <div class="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-crimson-heat"></div>
+                        <div class="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 border-crimson-heat"></div>
+                    </div>
+                    <!-- Boss Titan Render & Molten Caldera Pedestal -->
+                    <div class="relative mt-4 flex flex-col items-center">
+                        <div class="relative w-52 h-64 flex items-center justify-center">
+                            <div class="absolute inset-0 bg-crimson-heat/25 blur-3xl rounded-full scale-95"></div>
+                            <!-- Image: Colossus Ignis-Typhon -->
+                            <img alt="Colossal terrifying fiery magma titan raid boss mech Ignis-Typhon with molten volcanic rock armor plates, glowing crimson magma fissures, twin shoulder heat silos, and smoking obsidian horns"
+                                class="relative z-10 w-full h-full object-cover rounded-md border border-crimson-heat/50 shadow-2xl filter contrast-125"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPRf5XZoL7jo3T8qcolXwx-GX10-iSOFjt0NVA7r3Tga_xYnixkdugGk2n7UKz8-llI5mEUGPs5rjj6PkREuvZeVIjoIeG6f07LDwwXDSDkIb0kyBoi1vuHTiag4lnU3jiEYZlkqUoMSiABQP_wsP_7R0RJdcmy0R8ST_0GycLQGGNUalj_UAbh8UzoA5goEOaWocLTtOG9UPOphAIKJsTGvbnJnMS7Y_CdwvojzLDQ5tliqlw2DT_yQ" />
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-magma-950 via-transparent to-transparent pointer-events-none rounded-md">
+                            </div>
+                            <!-- Targeting Reticle -->
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div class="w-32 h-32 rounded-full border border-dashed border-crimson-heat/50 flex items-center justify-center animate-spin"
+                                    style="animation-duration: 25s;">
+                                    <div class="w-2.5 h-2.5 bg-solar-gold rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Molten Magma Pit Base Pedestal -->
+                        <div
+                            class="w-56 h-11 -mt-5 rounded-[100%] bg-gradient-to-r from-crimson-heat/40 via-ember-orange/50 to-crimson-heat/40 flex items-center justify-center shadow-[0_0_40px_rgba(220,38,38,0.8)] relative border border-crimson-heat/60">
+                            <div class="w-44 h-6 rounded-[100%] bg-magma-950 flex items-center justify-center">
+                                <div
+                                    class="w-32 h-2 rounded-[100%] bg-crimson-heat shadow-[0_0_15px_#DC2626] animate-pulse">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- RIGHT COMBAT TELEMETRY OVERLAY DRAWER -->
+                <div
+                    class="absolute top-3 right-4 z-30 hidden xl:flex flex-col w-72 bg-magma-900/90 backdrop-blur-xl border border-ember-orange/40 p-3 rounded-lg shadow-2xl">
+                    <div class="flex items-center justify-between pb-1.5 mb-2 border-b border-magma-800">
+                        <span
+                            class="font-mono text-[10px] uppercase tracking-wider text-solar-gold flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[13px] text-ember-orange">query_stats</span>
+                            THERMAL TELEMETRY STREAM
+                        </span>
+                        <span class="w-2 h-2 rounded-full bg-ember-core animate-pulse"></span>
+                    </div>
+                    <!-- Telemetry Stats Panel -->
+                    <div
+                        class="grid grid-cols-2 gap-2 mb-2 p-1.5 bg-magma-950 rounded border border-magma-800 font-mono text-[10px]">
+                        <div>
+                            <span class="text-text-muted block text-[9px]">OVERHEAT RISK</span>
+                            <span class="text-solar-gold font-bold">74% HIGH</span>
+                        </div>
+                        <div>
+                            <span class="text-text-muted block text-[9px]">ARMOR MELT</span>
+                            <span class="text-ember-orange font-bold">38.2%</span>
+                        </div>
+                        <div>
+                            <span class="text-text-muted block text-[9px]">VENT PRESSURE</span>
+                            <span class="text-cooling-cyan font-bold">4.2 MPa</span>
+                        </div>
+                        <div>
+                            <span class="text-text-muted block text-[9px]">CALDERA SYNC</span>
+                            <span class="text-solar-gold font-bold">99.1%</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1 font-mono text-[10px] text-text-muted max-h-28 overflow-y-auto">
+                        <div class="p-1 rounded bg-magma-850 flex items-start gap-1">
+                            <span class="text-solar-gold">[04:12]</span>
+                            <span class="text-text-primary">Thermal Lance triggered <strong class="text-solar-gold">+15%
+                                    Heat</strong></span>
+                        </div>
+                        <div class="p-1 rounded bg-magma-850 flex items-start gap-1">
+                            <span class="text-crimson-heat">[04:06]</span>
+                            <span class="text-text-primary">Ignis-Typhon sustained <strong class="text-solar-gold">1,840
+                                    STEAM CRIT</strong></span>
+                        </div>
+                        <div class="p-1 rounded bg-magma-850 flex items-start gap-1">
+                            <span class="text-cooling-cyan">[03:51]</span>
+                            <span class="text-text-primary">Cryo-Vent purged <strong>-35% Heat Baffling</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- TACTICAL SPLIT-COMMAND COCKPIT DECK -->
+            <div class="w-full bg-magma-900 border-t-2 border-ember-orange/40 p-4 lg:p-6 shadow-2xl relative z-30">
+                <!-- UPPER COCKPIT TELEMETRY & STANCE STRIP -->
+                <div
+                    class="flex flex-col md:flex-row items-center justify-between gap-4 pb-4 border-b border-magma-800">
+                    <!-- Mode Switcher -->
+                    <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-xs text-solar-gold uppercase tracking-wider">[SYS] THERMAL
+                                STANCE:</span>
+                            <div class="inline-flex p-0.5 rounded bg-magma-950 border border-magma-700"
+                                id="stance-toggle-group">
+                                <button
+                                    class="px-3 py-1 rounded font-mono text-xs font-bold transition-all bg-ember-orange text-white shadow-[0_0_12px_rgba(255,87,34,0.6)]"
+                                    id="stance-offense" type="button">
+                                    SOLAR CRUCIBLE (OFFENSE)
+                                </button>
+                                <button
+                                    class="px-3 py-1 rounded font-mono text-xs font-medium text-text-muted hover:text-solar-gold transition-all"
+                                    id="stance-cooling" type="button">
+                                    CRYO FLUX (COOLING)
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Heat / Resource Gauges -->
+                        <div class="flex items-center gap-3 bg-magma-950 border border-magma-800 px-3 py-1 rounded">
+                            <div class="flex items-center gap-1.5 font-mono text-xs">
+                                <span class="material-symbols-outlined text-solar-gold text-[16px]">bolt</span>
+                                <span class="text-text-muted">AP:</span>
+                                <span class="font-bold text-solar-gold" id="ap-display">4 / 5</span>
+                            </div>
+                            <div class="h-3 w-px bg-magma-800"></div>
+                            <div class="flex items-center gap-1.5 font-mono text-xs">
+                                <span class="material-symbols-outlined text-ember-orange text-[16px]">whatshot</span>
+                                <span class="text-text-muted">SUPERNOVA CHARGE:</span>
+                                <span class="font-bold text-solar-gold">100% READY</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tactical Directive Banner -->
+                    <div
+                        class="flex items-center gap-2 text-solar-gold font-mono text-xs bg-magma-950/70 border border-ember-orange/30 px-3 py-1 rounded">
+                        <span
+                            class="material-symbols-outlined text-ember-orange text-[16px] animate-pulse">local_fire_department</span>
+                        <span>OVERHEAT MECHANIC: High heat boosts weapon power (+40%), but reaching 100% causes 2-turn
+                            shutdown!</span>
+                    </div>
+                </div>
+                <!-- SPLIT DECK GRID: [LEFT WEAPONS (2)] - [CENTER REACTOR COMMITTAL (1)] - [RIGHT TACTICS & ULT (3)] -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 pt-4 items-stretch">
+                    <!-- LEFT CORE SYSTEMS: WEAPONS (COLS 1-5) -->
+                    <div class="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <!-- CARD 1: THERMAL LANCE -->
+                        <button
+                            class="ability-card text-left flex flex-col justify-between p-3 rounded-lg bg-magma-850 hover:bg-magma-800 border border-magma-700 hover:border-solar-gold transition-all duration-200 group relative shadow-md"
+                            data-heat="+15" data-name="THERMAL LANCE" type="button">
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-magma-950 font-mono text-[9px] text-solar-gold border border-magma-700">[1]
+                                        WEAPON</span>
+                                    <span
+                                        class="flex items-center gap-1 font-mono text-[10px] text-ember-orange font-bold">
+                                        HEAT +15%
+                                    </span>
+                                </div>
+                                <div
+                                    class="w-9 h-9 rounded bg-magma-950 border border-ember-orange/40 flex items-center justify-center text-solar-gold mb-2 group-hover:scale-105 transition-transform">
+                                    <span class="material-symbols-outlined text-[20px]">flash_on</span>
+                                </div>
+                                <div
+                                    class="font-rajdhani text-sm font-bold text-white group-hover:text-solar-gold transition-colors">
+                                    THERMAL LANCE</div>
+                                <div class="font-chakra text-[11px] text-text-muted line-clamp-2 mt-0.5">Searing plasma
+                                    beam that pierces armor plates and stacks heat flux.</div>
+                            </div>
+                            <div
+                                class="mt-2.5 pt-1.5 border-t border-magma-800 flex items-center justify-between font-mono text-[10px]">
+                                <span class="text-solar-gold font-bold">420 MELT DMG</span>
+                                <span class="text-ember-orange uppercase font-bold">2 AP</span>
+                            </div>
+                        </button>
+                        <!-- CARD 2: MAGMA BARRAGE (ACTIVE / ARMED) -->
+                        <button
+                            class="ability-card text-left flex flex-col justify-between p-3 rounded-lg bg-magma-800 border-2 border-solar-gold transition-all duration-200 group relative shadow-[0_0_16px_rgba(251,191,36,0.4)] scale-[1.01]"
+                            data-heat="+25" data-name="MAGMA BARRAGE" type="button">
+                            <span
+                                class="absolute -top-2 right-2 px-2 py-0.2 rounded bg-solar-gold text-magma-950 font-mono text-[9px] font-bold uppercase tracking-wider shadow">
+                                ARMED
+                            </span>
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-magma-950 font-mono text-[9px] text-solar-gold border border-solar-gold/40">[2]
+                                        WEAPON</span>
+                                    <span
+                                        class="flex items-center gap-1 font-mono text-[10px] text-crimson-heat font-bold">
+                                        HEAT +25%
+                                    </span>
+                                </div>
+                                <div
+                                    class="w-9 h-9 rounded bg-gradient-to-tr from-ember-orange to-solar-gold flex items-center justify-center text-magma-950 mb-2 shadow-[0_0_10px_rgba(249,115,22,0.8)]">
+                                    <span class="material-symbols-outlined text-[20px]">volcano</span>
+                                </div>
+                                <div class="font-rajdhani text-sm font-bold text-solar-gold">MAGMA BARRAGE</div>
+                                <div class="font-chakra text-[11px] text-text-primary line-clamp-2 mt-0.5">Launches
+                                    volcanic slug cluster inflicting massive staggered steam procs.</div>
+                            </div>
+                            <div
+                                class="mt-2.5 pt-1.5 border-t border-solar-gold/30 flex items-center justify-between font-mono text-[10px]">
+                                <span class="text-solar-gold font-bold">780 AOE DMG</span>
+                                <span class="text-solar-gold font-bold">3 AP</span>
+                            </div>
+                        </button>
+                    </div>
+                    <!-- CENTER: OVERSIZED THERMAL REACTOR LOCK-IN BUTTON (COLS 6-7) -->
+                    <div
+                        class="lg:col-span-2 flex flex-col justify-between p-2 rounded-lg bg-magma-950 border border-ember-orange/50 shadow-2xl">
+                        <div
+                            class="text-center font-mono text-[9px] text-text-muted uppercase tracking-widest py-1 border-b border-magma-800">
+                            FUSION CORE REACTOR
+                        </div>
+                        <button
+                            class="w-full my-2 py-5 rounded bg-gradient-to-b from-ember-orange via-ember-core to-crimson-heat text-white font-rajdhani text-base font-bold transition-all shadow-[0_0_24px_rgba(255,87,34,0.8)] reactor-pulse active:scale-95 group relative overflow-hidden flex flex-col items-center justify-center"
+                            id="btn-lock-action" type="button">
+                            <div class="flex items-center gap-1 relative z-10 text-white">
+                                <span
+                                    class="material-symbols-outlined text-[22px] group-hover:rotate-180 transition-transform duration-500">offline_bolt</span>
+                                <span class="tracking-wider">LOCK FIRING</span>
+                            </div>
+                            <span
+                                class="font-mono text-[9px] text-solar-gold font-bold relative z-10 tracking-widest mt-1">CONFIRM
+                                [SPACE]</span>
+                            <!-- Interior Flare Shimmer -->
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-transparent via-solar-gold/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+                            </div>
+                        </button>
+                        <!-- Core Secondary Vent & Tactical Shield Actions -->
+                        <div class="grid grid-cols-2 gap-1.5 pt-1 border-t border-magma-800">
+                            <button
+                                class="py-1 px-1 rounded bg-magma-850 hover:bg-magma-800 border border-magma-700 text-text-muted hover:text-solar-gold font-mono text-[9px] uppercase transition-colors text-center"
+                                id="btn-vent-quick" type="button">
+                                VENT DUMP
+                            </button>
+                            <button
+                                class="py-1 px-1 rounded bg-magma-850 hover:bg-magma-800 border border-magma-700 text-text-muted hover:text-crimson-heat font-mono text-[9px] uppercase transition-colors text-center"
+                                id="btn-surrender" type="button">
+                                EJECT POD
+                            </button>
+                        </div>
+                    </div>
+                    <!-- RIGHT: DEFENSE, CRYO-VENT & SUPERNOVA MELTDOWN (COLS 8-12) -->
+                    <div class="lg:col-span-5 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <!-- CARD 3: CRYO-VENT PURGE -->
+                        <button
+                            class="ability-card text-left flex flex-col justify-between p-3 rounded-lg bg-magma-850 hover:bg-magma-800 border border-cooling-cyan/40 hover:border-cooling-cyan transition-all duration-200 group relative shadow-md"
+                            data-heat="-35" data-name="CRYO-VENT PURGE" type="button">
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-magma-950 font-mono text-[9px] text-cooling-cyan border border-cooling-cyan/30">[3]
+                                        TACTIC</span>
+                                    <span class="font-mono text-[10px] text-cooling-cyan font-bold">COOL -35%</span>
+                                </div>
+                                <div
+                                    class="w-9 h-9 rounded bg-magma-950 border border-cooling-cyan/40 flex items-center justify-center text-cooling-cyan mb-2 group-hover:scale-105 transition-transform">
+                                    <span class="material-symbols-outlined text-[20px]">severe_cold</span>
+                                </div>
+                                <div
+                                    class="font-rajdhani text-sm font-bold text-white group-hover:text-cooling-cyan transition-colors">
+                                    CRYO-VENT</div>
+                                <div class="font-chakra text-[11px] text-text-muted line-clamp-2 mt-0.5">Emergency
+                                    liquid nitrogen flash. Drops heat by 35% and clears status debuffs.</div>
+                            </div>
+                            <div
+                                class="mt-2.5 pt-1.5 border-t border-magma-800 flex items-center justify-between font-mono text-[10px]">
+                                <span class="text-cooling-cyan font-bold">+500 ABLATIVE</span>
+                                <span class="text-text-muted">1 AP</span>
+                            </div>
+                        </button>
+                        <!-- CARD 4: SEISMIC HAMMER -->
+                        <button
+                            class="ability-card text-left flex flex-col justify-between p-3 rounded-lg bg-magma-850 hover:bg-magma-800 border border-magma-700 hover:border-solar-gold transition-all duration-200 group relative shadow-md"
+                            data-heat="+20" data-name="SEISMIC HAMMER" type="button">
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-magma-950 font-mono text-[9px] text-solar-gold border border-magma-700">[4]
+                                        WEAPON</span>
+                                    <span class="font-mono text-[10px] text-amber-500 font-bold">HEAT +20%</span>
+                                </div>
+                                <div
+                                    class="w-9 h-9 rounded bg-magma-950 border border-solar-gold/40 flex items-center justify-center text-solar-gold mb-2 group-hover:scale-105 transition-transform">
+                                    <span class="material-symbols-outlined text-[20px]">gavel</span>
+                                </div>
+                                <div
+                                    class="font-rajdhani text-sm font-bold text-white group-hover:text-solar-gold transition-colors">
+                                    SEISMIC HAMMER</div>
+                                <div class="font-chakra text-[11px] text-text-muted line-clamp-2 mt-0.5">Crushes
+                                    continental crust under Goliath mecha. Inflicts 85% stagger damage.</div>
+                            </div>
+                            <div
+                                class="mt-2.5 pt-1.5 border-t border-magma-800 flex items-center justify-between font-mono text-[10px]">
+                                <span class="text-solar-gold font-bold">+85 STAGGER</span>
+                                <span class="text-solar-gold font-bold">2 AP</span>
+                            </div>
+                        </button>
+                        <!-- CARD 5: SUPERNOVA MELTDOWN (ULTIMATE) -->
+                        <button
+                            class="ability-card text-left flex flex-col justify-between p-3 rounded-lg bg-gradient-to-b from-magma-800 to-crimson-heat/40 border-2 border-crimson-heat transition-all duration-200 group relative shadow-[0_0_20px_rgba(220,38,38,0.5)] cursor-pointer"
+                            data-heat="+50" data-name="SUPERNOVA MELTDOWN" type="button">
+                            <span
+                                class="absolute -top-2 right-2 px-1.5 py-0.2 rounded bg-crimson-heat text-white font-mono text-[8px] font-bold uppercase tracking-wider animate-pulse">
+                                100% PRIMED
+                            </span>
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-magma-950 font-mono text-[9px] text-solar-gold border border-crimson-heat/50">[R]
+                                        ULT</span>
+                                    <span class="font-mono text-[9px] text-solar-gold font-bold">CORE CRACK</span>
+                                </div>
+                                <div
+                                    class="w-9 h-9 rounded bg-gradient-to-tr from-crimson-heat to-solar-gold flex items-center justify-center text-magma-950 mb-2 shadow-[0_0_12px_rgba(251,191,36,0.8)] group-hover:rotate-12 transition-transform">
+                                    <span class="material-symbols-outlined text-[22px]">bomb</span>
+                                </div>
+                                <div class="font-rajdhani text-sm font-bold text-solar-gold">SUPERNOVA</div>
+                                <div class="font-chakra text-[11px] text-text-primary line-clamp-2 mt-0.5">Dumps total
+                                    reactor fuel into caldera vortex. Obliterates armor plates!</div>
+                            </div>
+                            <div
+                                class="mt-2.5 pt-1.5 border-t border-crimson-heat/50 flex items-center justify-between font-mono text-[10px]">
+                                <span class="text-solar-gold font-bold">2,450 CRIT</span>
+                                <span class="text-crimson-heat font-bold">EXECUTE</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Interactive Controls & Micro-Interactions Script -->
+        <script>
+            (function initSolarEmberArena() {
+                const cards = document.querySelectorAll('.ability-card');
+                const intentLabel = document.getElementById('player-intent-label');
+                const heatDisplay = document.getElementById('player-heat-percent');
+                const heatBar = document.getElementById('heat-progress-bar');
+                const lockBtn = document.getElementById('btn-lock-action');
+                const stanceOffense = document.getElementById('stance-offense');
+                const stanceCooling = document.getElementById('stance-cooling');
+                const quickVentBtn = document.getElementById('btn-vent-quick');
+
+                let currentHeat = 62;
+
+                cards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        cards.forEach(c => {
+                            c.classList.remove('border-2', 'border-solar-gold', 'scale-[1.01]', 'bg-magma-800');
+                            const badge = c.querySelector('.active-tag');
+                            if (badge) badge.remove();
+                        });
+
+                        card.classList.add('border-2', 'border-solar-gold', 'scale-[1.01]', 'bg-magma-800');
+                        const name = card.getAttribute('data-name');
+                        const heatMod = card.getAttribute('data-heat') || '+0';
+
+                        if (intentLabel) {
+                            intentLabel.textContent = `READY: ${name} (${heatMod}% HEAT)`;
+                            intentLabel.classList.add('animate-pulse');
+                            setTimeout(() => intentLabel.classList.remove('animate-pulse'), 500);
+                        }
+
+                        // Dynamic Heat Calculation Demo
+                        if (heatMod.includes('+')) {
+                            const val = parseInt(heatMod.replace('+', ''), 10);
+                            currentHeat = Math.min(95, currentHeat + (val > 25 ? 6 : 4));
+                        } else if (heatMod.includes('-')) {
+                            const val = parseInt(heatMod.replace('-', ''), 10);
+                            currentHeat = Math.max(15, currentHeat - 15);
+                        }
+                        if (heatDisplay && heatBar) {
+                            heatDisplay.textContent = `${currentHeat}% (${currentHeat >= 80 ? 'OVERHEAT DANGER!' : 'HEAT STABLE'})`;
+                            heatBar.style.width = `${currentHeat}%`;
+                        }
+                    });
+                });
+
+                // Stance Logic
+                if (stanceOffense && stanceCooling) {
+                    stanceOffense.addEventListener('click', () => {
+                        stanceOffense.className = "px-3 py-1 rounded font-mono text-xs font-bold transition-all bg-ember-orange text-white shadow-[0_0_12px_rgba(255,87,34,0.6)]";
+                        stanceCooling.className = "px-3 py-1 rounded font-mono text-xs font-medium text-text-muted hover:text-solar-gold transition-all";
+                    });
+
+                    stanceCooling.addEventListener('click', () => {
+                        stanceCooling.className = "px-3 py-1 rounded font-mono text-xs font-bold transition-all bg-cooling-cyan text-magma-950 shadow-[0_0_12px_rgba(56,189,248,0.7)]";
+                        stanceOffense.className = "px-3 py-1 rounded font-mono text-xs font-medium text-text-muted hover:text-solar-gold transition-all";
+                    });
+                }
+
+                // Quick Vent Button
+                if (quickVentBtn) {
+                    quickVentBtn.addEventListener('click', () => {
+                        currentHeat = Math.max(15, currentHeat - 25);
+                        if (heatDisplay && heatBar) {
+                            heatDisplay.textContent = `${currentHeat}% (FLUIDS PURGED)`;
+                            heatBar.style.width = `${currentHeat}%`;
+                        }
+                        quickVentBtn.classList.add('text-cooling-cyan');
+                        setTimeout(() => quickVentBtn.classList.remove('text-cooling-cyan'), 600);
+                    });
+                }
+
+                // Action Lock Tactile Feedback
+                if (lockBtn) {
+                    lockBtn.addEventListener('click', () => {
+                        lockBtn.classList.add('scale-95');
+                        const original = lockBtn.innerHTML;
+                        lockBtn.innerHTML = `
+            <div class="flex items-center gap-1.5 text-solar-gold">
+              <span class="material-symbols-outlined text-[20px] animate-spin">cyclone</span>
+              <span>IGNITING CORE...</span>
+            </div>
+          `;
+                        setTimeout(() => {
+                            lockBtn.classList.remove('scale-95');
+                            lockBtn.innerHTML = original;
+                        }, 700);
+                    });
+                }
+
+                // Spacebar Hotkey
+                window.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && lockBtn) {
+                        e.preventDefault();
+                        lockBtn.click();
+                    }
+                });
+            })();
+        </script>
+    </main>
+    <!-- VOLCANIC ARENA FOOTER TELEMETRY -->
+    <footer class="w-full bg-magma-950/95 border-t border-magma-800 py-2.5 px-4 lg:px-8">
+        <div class="w-full flex flex-col md:flex-row items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+                <span class="font-rajdhani text-sm font-bold text-solar-gold uppercase tracking-wider">SOLAR EMBER
+                    PROTOCOL</span>
+                <span class="font-mono text-[10px] text-text-muted">VOLCANO ARENA SECTOR // CALDERA BUILD v5.1.0</span>
+            </div>
+            <div class="flex items-center gap-4 font-mono text-[10px] text-text-muted">
+                <span class="flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-ember-core animate-pulse"></span>
+                    MAGMA FLOW: CRITICAL STABLE
+                </span>
+                <span>PRESSURE SENSORS: ONLINE</span>
+                <span>TACTICAL COCKPIT: SYNCED</span>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

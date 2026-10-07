@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        name="viewport" />
+    <meta content="mobile_blank" name="shell-type" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                width: 100%;
+                min-height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior-y: none;
+            }
+
+            .pb-safe {
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+
+            .pt-safe {
+                padding-top: env(safe-area-inset-top, 0px);
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "background": "#f8f9ff", "surface-neutral": "#F8FAFC", "on-surface": "#0b1c30", "status-unavailable": "#94A3B8", "surface-variant": "#d3e4fe", "primary-hover": "#1D4ED8", "error": "#ba1a1a", "surface-container-lowest": "#ffffff", "status-available": "#10B981", "text-secondary": "#64748B", "text-primary": "#0F172A", "secondary": "#006c49", "on-primary-fixed-variant": "#003ea8", "outline-variant": "#c3c6d7", "surface-tint": "#0053db", "tertiary": "#943700", "on-secondary-container": "#00714d", "inverse-on-surface": "#eaf1ff", "inverse-primary": "#b4c5ff", "on-secondary-fixed-variant": "#005236", "surface-container-highest": "#d3e4fe", "on-secondary": "#ffffff", "on-primary-fixed": "#00174b", "on-primary": "#ffffff", "primary-fixed-dim": "#b4c5ff", "on-background": "#0b1c30", "on-tertiary-container": "#ffede6", "surface-container-high": "#dce9ff", "on-tertiary-fixed-variant": "#7d2d00", "on-tertiary": "#ffffff", "surface-container-low": "#eff4ff", "on-primary-container": "#eeefff", "error-container": "#ffdad6", "secondary-fixed-dim": "#4edea3", "secondary-container": "#6cf8bb", "tertiary-fixed": "#ffdbcd", "outline": "#737686", "inverse-surface": "#213145", "canvas-primary": "#FFFFFF", "on-error-container": "#93000a", "tertiary-fixed-dim": "#ffb596", "border-divider": "#E2E8F0", "secondary-fixed": "#6ffbbe", "surface-dim": "#cbdbf5", "primary": "#004ac6", "on-error": "#ffffff", "tertiary-container": "#bc4800", "surface": "#f8f9ff", "on-surface-variant": "#434655", "primary-fixed": "#dbe1ff", "surface-container": "#e5eeff", "on-secondary-fixed": "#002113", "surface-bright": "#f8f9ff", "on-tertiary-fixed": "#360f00", "primary-container": "#2563eb" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "space-md": "0.75rem", "gutter-lg": "1.5rem", "gutter": "1rem", "margin-md": "1.5rem", "space-lg": "1rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-2xl": "2rem", "space-xl": "1.5rem", "margin": "1rem", "margin-lg": "2.5rem" }, fontFamily: { "headline-md": ["Inter"], "label-sm": ["Inter"], "body-lg": ["Inter"], "headline-lg": ["Inter"], "body-sm": ["Inter"], "body-md": ["Inter"], "label-md": ["Inter"], "headline-xl": ["Inter"], "numeric-slot": ["Inter"], "headline-sm": ["Inter"] }, fontSize: { "headline-md": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "500" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "numeric-slot": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "headline-sm": ["15px", { "lineHeight": "22px", "letterSpacing": "-0.005em", "fontWeight": "600" }] } } } };</script>
+</head>
+
+<body
+    class="bg-surface font-body-md text-body-md text-text-primary min-h-screen flex flex-col antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+    <main class="flex-1 flex flex-col relative w-full pt-safe pb-safe bg-surface px-gutter">
+        <div class="flex flex-col w-full max-w-lg mx-auto pb-space-2xl">
+            <!-- Confetti Canvas Layer -->
+            <canvas class="pointer-events-none fixed inset-0 z-50 w-full h-full" id="celebration-canvas"></canvas>
+            <!-- Celebratory Status Header -->
+            <section class="flex flex-col items-center text-center pt-space-md mb-space-lg">
+                <!-- Animated Badge Container -->
+                <div class="relative mb-space-md">
+                    <div
+                        class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined text-headline-xl"
+                            style="font-variation-settings: 'FILL' 1, 'wght' 700;">check</span>
+                    </div>
+                    <div
+                        class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-xs">
+                        <span class="material-symbols-outlined text-label-sm"
+                            style="font-variation-settings: 'FILL' 1;">arrow_back_ios_new</span>
+                    </div>
+                </div>
+                <!-- Headings -->
+                <h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight">
+                    You are scheduled!
+                </h1>
+                <p class="font-body-md text-body-md text-text-secondary mt-space-xs max-w-xs">
+                    A calendar invitation has been sent to your email address.
+                </p>
+            </section>
+            <!-- Meeting Receipt Card -->
+            <section class="bg-surface-container-lowest rounded-full p-space-lg shadow-sm space-y-space-md mb-space-lg">
+                <!-- Header: Event Title & Host -->
+                <div class="flex items-center justify-between pb-space-xs">
+                    <div class="min-w-0 pr-space-sm">
+                        <span
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm mb-1.5">
+                            <span class="material-symbols-outlined text-label-sm">schedule</span>
+                            30 Min Discovery Call
+                        </span>
+                        <h2 class="font-headline-sm text-headline-sm text-text-primary truncate">
+                            Discovery with Alex Rivera
+                        </h2>
+                    </div>
+                    <div class="relative shrink-0">
+                        <img alt="Host Alex Rivera" class="w-10 h-10 rounded-full object-cover shadow-xs"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm05Sw0Y7flfNqkzcMtf55dtOUfZu0xkaw2ru5vcvkZ9EgYqElQv-tGYEsX19KsYpDi3zdsQUm2TWshVRqfotyOzNDv1Tx4DT0bURoRHCaPQpawKQxb3VwJAg4A_l4OEJmtxS8-JkWgAfs4TeLH0s6YvcFjFYETpB723qv1rAOp0uC5fqSJO3Sk_Oj9eQj4-Ca1G3J5sQWoRXr0GmND-nP0d-cXnXISQJNvIyCBR5IhThqrCMhSmunfw" />
+                        <span
+                            class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-status-available flex items-center justify-center text-surface-container-lowest">
+                            <span class="material-symbols-outlined text-[9px] font-bold">check</span>
+                        </span>
+                    </div>
+                </div>
+                <!-- Hairline Separator Surface -->
+                <div class="h-px bg-surface-container-high w-full"></div>
+                <!-- Metadata Details List -->
+                <div class="space-y-space-md">
+                    <!-- Date & Time Row -->
+                    <div class="flex items-start gap-space-md">
+                        <div
+                            class="w-8 h-8 rounded-xl bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+                            <span class="material-symbols-outlined text-headline-sm">event</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="font-label-md text-label-md text-text-primary">
+                                Thursday, October 24, 2024
+                            </p>
+                            <p class="font-body-sm text-body-sm text-text-secondary">
+                                10:00 AM – 10:30 AM (EDT)
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Video / Location Row -->
+                    <div class="flex items-start gap-space-md">
+                        <div
+                            class="w-8 h-8 rounded-xl bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+                            <span class="material-symbols-outlined text-headline-sm">video_call</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-space-sm">
+                                <div>
+                                    <p class="font-label-md text-label-md text-text-primary">
+                                        Google Meet
+                                    </p>
+                                    <p class="font-body-sm text-body-sm text-text-secondary truncate max-w-[190px]">
+                                        meet.google.com/xyz-qwer-abc
+                                    </p>
+                                </div>
+                                <!-- One-tap Copy Link button -->
+                                <button aria-label="Copy meeting link"
+                                    class="shrink-0 px-space-sm py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors active:scale-95"
+                                    id="copy-link-btn" type="button">
+                                    <span class="material-symbols-outlined text-body-sm"
+                                        id="copy-icon">content_copy</span>
+                                    <span id="copy-label">Copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Attendees Row -->
+                    <div class="flex items-start gap-space-md">
+                        <div
+                            class="w-8 h-8 rounded-xl bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+                            <span class="material-symbols-outlined text-headline-sm">group</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="font-label-md text-label-md text-text-primary">
+                                Attendees
+                            </p>
+                            <div class="mt-1 space-y-1">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-status-available"></span>
+                                    <span class="font-body-sm text-body-sm text-text-secondary truncate">
+                                        Alex Rivera <span
+                                            class="font-label-sm text-label-sm text-text-secondary/70">(Host)</span>
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                                    <span class="font-body-sm text-body-sm text-text-secondary truncate">
+                                        Jane Doe <span
+                                            class="font-body-sm text-body-sm text-text-secondary/70">(jane@company.com)</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Dynamic Calendar Action Grid -->
+            <section class="space-y-space-sm mb-space-xl">
+                <!-- Google Calendar Action (Primary) -->
+                <a class="w-full h-11 px-space-lg rounded-xl bg-primary-container hover:bg-primary-hover active:scale-[0.99] text-surface-container-lowest font-headline-sm text-headline-sm flex items-center justify-center gap-space-sm shadow-sm transition-all text-decoration-none"
+                    href="https://calendar.google.com" rel="noopener noreferrer" target="_blank">
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewbox="0 0 24 24">
+                        <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                            fill="#FFFFFF"></path>
+                        <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#FFFFFF" fill-opacity="0.85"></path>
+                        <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                            fill="#FFFFFF" fill-opacity="0.75"></path>
+                        <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                            fill="#FFFFFF"></path>
+                    </svg>
+                    <span>Add to Google Calendar</span>
+                </a>
+                <!-- ICS / Outlook Action (Secondary) -->
+                <button
+                    class="w-full h-11 px-space-lg rounded-xl bg-surface-container-lowest hover:bg-surface-container active:scale-[0.99] text-text-primary font-headline-sm text-headline-sm flex items-center justify-center gap-space-sm shadow-sm transition-all"
+                    id="download-ics-btn" type="button">
+                    <span class="material-symbols-outlined text-headline-sm text-text-secondary">calendar_month</span>
+                    <span>Download .ICS / Outlook</span>
+                </button>
+            </section>
+            <!-- Reschedule, Cancel & CalSync Microcopy -->
+            <footer class="flex flex-col items-center text-center space-y-space-md pt-space-xs">
+                <!-- Action Microcopy -->
+                <p class="font-body-sm text-body-sm text-text-secondary">
+                    Need to make changes?
+                    <button
+                        class="text-primary hover:text-primary-hover underline underline-offset-2 transition-colors mx-1"
+                        id="reschedule-btn" type="button">
+                        Reschedule meeting
+                    </button>
+                    or
+                    <button class="text-error hover:opacity-80 underline underline-offset-2 transition-colors ml-1"
+                        id="cancel-btn" type="button">
+                        Cancel
+                    </button>
+                </p>
+                <!-- Branding Footnote -->
+                <div class="flex items-center gap-1.5 opacity-60">
+                    <span class="material-symbols-outlined text-label-sm text-text-secondary">sync_saved_locally</span>
+                    <span class="font-label-sm text-label-sm text-text-secondary uppercase tracking-widest">
+                        Powered by CalSync
+                    </span>
+                </div>
+            </footer>
+        </div>
+        <script>
+            (function () {
+                // Copy link micro-interaction
+                const copyBtn = document.getElementById('copy-link-btn');
+                const copyLabel = document.getElementById('copy-label');
+                const copyIcon = document.getElementById('copy-icon');
+
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', function () {
+                        const link = 'https://meet.google.com/xyz-qwer-abc';
+                        navigator.clipboard.writeText(link).then(() => {
+                            copyLabel.textContent = 'Copied!';
+                            copyIcon.textContent = 'check';
+                            copyBtn.classList.add('bg-secondary-container', 'text-on-secondary-container');
+                            setTimeout(() => {
+                                copyLabel.textContent = 'Copy';
+                                copyIcon.textContent = 'content_copy';
+                                copyBtn.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+                            }, 2000);
+                        }).catch(() => {
+                            copyLabel.textContent = 'Copied!';
+                            setTimeout(() => { copyLabel.textContent = 'Copy'; }, 1500);
+                        });
+                    });
+                }
+
+                // ICS download simulator
+                const icsBtn = document.getElementById('download-ics-btn');
+                if (icsBtn) {
+                    icsBtn.addEventListener('click', function () {
+                        const icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CalSync//EN\nBEGIN:VEVENT\nSUMMARY:30 Min Discovery Call with Alex Rivera\nDESCRIPTION:Meet link: https://meet.google.com/xyz-qwer-abc\nDTSTART:20241024T140000Z\nDTEND:20241024T143000Z\nSTATUS:CONFIRMED\nEND:VEVENT\nEND:VCALENDAR";
+                        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'discovery-call.ics';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    });
+                }
+
+                // Celebration Confetti burst
+                const canvas = document.getElementById('celebration-canvas');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    let particles = [];
+                    const particleCount = 42;
+                    const colors = ['#2563EB', '#10B981', '#60A5FA', '#34D399', '#93C5FD'];
+
+                    function resize() {
+                        canvas.width = window.innerWidth;
+                        canvas.height = window.innerHeight;
+                    }
+                    resize();
+
+                    for (let i = 0; i < particleCount; i++) {
+                        particles.push({
+                            x: canvas.width / 2 + (Math.random() * 40 - 20),
+                            y: canvas.height * 0.22,
+                            radius: Math.random() * 3 + 2,
+                            color: colors[Math.floor(Math.random() * colors.length)],
+                            vx: (Math.random() - 0.5) * 8,
+                            vy: Math.random() * -6 - 2,
+                            gravity: 0.18,
+                            alpha: 1,
+                            decay: Math.random() * 0.015 + 0.01
+                        });
+                    }
+
+                    function render() {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        let active = false;
+
+                        particles.forEach(p => {
+                            p.x += p.vx;
+                            p.y += p.vy;
+                            p.vy += p.gravity;
+                            p.alpha -= p.decay;
+
+                            if (p.alpha > 0) {
+                                active = true;
+                                ctx.save();
+                                ctx.globalAlpha = p.alpha;
+                                ctx.fillStyle = p.color;
+                                ctx.beginPath();
+                                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.restore();
+                            }
+                        });
+
+                        if (active) {
+                            requestAnimationFrame(render);
+                        } else {
+                            canvas.remove();
+                        }
+                    }
+                    requestAnimationFrame(render);
+                }
+            })();
+        </script>
+    </main>
+</body>
+
+</html>

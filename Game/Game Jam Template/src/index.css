@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-void: #08090D;
+  --surface-stage: #0F121C;
+  --surface-elevated: #171D2F;
+  --border-subtle: #222B42;
+  --accent-hype: #F43F5E;
+  --accent-cyan: #06B6D4;
+  --accent-gold: #F59E0B;
+  --accent-emerald: #10B981;
+  --wildcard-purple: #A855F7;
+  --text-display: #F8FAFC;
+  --text-muted: #94A3B8;
+}
+
+body {
+  background-color: var(--bg-void);
+  color: var(--text-display);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom cyber scanline effect */
+.cyber-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(34, 43, 66, 0.3) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(34, 43, 66, 0.3) 1px, transparent 1px);
+}
+
+.radar-sweep {
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(6, 182, 212, 0.15) 60deg, transparent 65deg);
+}
+
+/* Neon Glows */
+.glow-cyan {
+  box-shadow: 0 0 20px -3px rgba(6, 182, 212, 0.4);
+}
+
+.glow-hype {
+  box-shadow: 0 0 25px -2px rgba(244, 63, 94, 0.5);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px -3px rgba(245, 158, 11, 0.4);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.4);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px -3px rgba(168, 85, 247, 0.4);
+}
+
+/* Emergency Screen Vignette */
+.screen-vignette-critical {
+  box-shadow: inset 0 0 100px 30px rgba(244, 63, 94, 0.35);
+  animation: pulse 1s infinite alternate;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #08090D;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #222B42;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #06B6D4;
+}

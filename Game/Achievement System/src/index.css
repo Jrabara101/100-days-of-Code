@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html, body, #root {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #07090e;
+    color: #e2e8f0;
+  }
+}
+
+/* Custom Subterranean Grid Texture */
+.canvas-grid-bg {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+}
+
+/* Biome Ambient Background Glows */
+.biome-ambient-glow {
+  background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
+}
+
+/* Voxel Block 3D Isometric bevels */
+.voxel-block {
+  box-shadow: 
+    inset 2px 2px 0px rgba(255, 255, 255, 0.25),
+    inset -2px -2px 0px rgba(0, 0, 0, 0.6),
+    0 8px 16px -2px rgba(0, 0, 0, 0.7);
+}
+
+.voxel-block-locked {
+  box-shadow: 
+    inset 2px 2px 0px rgba(255, 255, 255, 0.05),
+    inset -2px -2px 0px rgba(0, 0, 0, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Conduit Animated Pulse */
+@keyframes conduitDash {
+  from {
+    stroke-dashoffset: 48;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-conduit-pulse {
+  animation: conduitDash 2s linear infinite;
+}
+
+/* Subtle Shimmer for High Tier & Secret */
+@keyframes secretGlyphPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.4));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(236, 72, 153, 0.9));
+    transform: scale(1.08);
+  }
+}
+
+.animate-glyph-pulse {
+  animation: secretGlyphPulse 2.5s ease-in-out infinite;
+}
+
+/* Custom Scrollbar for Drawer/Sheets */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0e1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #262f40;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+}
