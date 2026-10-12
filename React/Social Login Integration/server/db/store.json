@@ -1,0 +1,88 @@
+{
+  "users": [
+    {
+      "id": "a0000000-0000-0000-0000-000000000001",
+      "email": "alex.chen@acme.corp",
+      "full_name": "Alex Chen",
+      "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+      "created_at": "2026-09-09T01:05:02.274Z",
+      "last_sign_in_at": "2026-10-09T01:28:31.483Z"
+    },
+    {
+      "id": "a0000000-0000-0000-0000-000000000002",
+      "email": "sarah.connor@cyberdyne.io",
+      "full_name": "Sarah Connor",
+      "avatar_url": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&q=80",
+      "created_at": "2026-08-10T01:05:02.278Z",
+      "last_sign_in_at": "2026-10-08T01:05:02.278Z"
+    }
+  ],
+  "identities": [
+    {
+      "id": "b0000000-0000-0000-0000-000000000001",
+      "user_id": "a0000000-0000-0000-0000-000000000001",
+      "provider": "google",
+      "provider_user_id": "google-oauth2|10948291048201948",
+      "identity_data": {
+        "email": "alex.chen@acme.corp",
+        "name": "Alex Chen",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+        "verified_email": true,
+        "hd": "acme.corp"
+      },
+      "last_sign_in_at": "2026-10-09T01:28:31.486Z",
+      "created_at": "2026-09-09T01:05:02.278Z"
+    },
+    {
+      "id": "b0000000-0000-0000-0000-000000000002",
+      "user_id": "a0000000-0000-0000-0000-000000000002",
+      "provider": "github",
+      "provider_user_id": "gh_u_948271",
+      "identity_data": {
+        "email": "sarah.connor@cyberdyne.io",
+        "username": "sconnor",
+        "name": "Sarah Connor",
+        "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&q=80",
+        "verified_email": true
+      },
+      "last_sign_in_at": "2026-10-08T01:05:02.278Z",
+      "created_at": "2026-08-10T01:05:02.278Z"
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "2058aa3b-93ef-44d2-866e-5b9dfd2dd534",
+      "user_id": "a0000000-0000-0000-0000-000000000001",
+      "event_type": "oauth_handshake",
+      "provider": "google",
+      "details": {
+        "email": "alex.chen@acme.corp",
+        "providerUid": "google-oauth2|10948291048201948"
+      },
+      "ip_address": "127.0.0.1",
+      "created_at": "2026-10-09T01:28:31.490Z"
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000001",
+      "user_id": "a0000000-0000-0000-0000-000000000001",
+      "event_type": "account_created",
+      "provider": "google",
+      "details": {
+        "email": "alex.chen@acme.corp",
+        "method": "google_oauth_pkce"
+      },
+      "created_at": "2026-09-09T01:05:02.278Z"
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000002",
+      "user_id": "a0000000-0000-0000-0000-000000000001",
+      "event_type": "oauth_handshake",
+      "provider": "google",
+      "details": {
+        "email": "alex.chen@acme.corp",
+        "ip": "192.168.1.10"
+      },
+      "created_at": "2026-10-08T23:05:02.278Z"
+    }
+  ]
+}

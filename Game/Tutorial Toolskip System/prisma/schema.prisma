@@ -1,0 +1,27 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Replay {
+  id              String    @id @default(cuid())
+  replayId        String    @unique
+  gameTitle       String
+  authorName      String
+  mapSeed         String?
+  recordedAt      DateTime  @default(now())
+  totalTicks      Int
+  durationMs      Int
+  tickRate        Int       @default(60)
+  checksum        String
+  markersJson     String    // JSON serialized ReplayEventMarker[]
+  payloadJson     String    // JSON serialized compressed stream { keyframes, inputs }
+  isVerified      Boolean   @default(false)
+  verifiedAt      DateTime?
+  verificationLog String?
+  createdAt       DateTime  @default(now())
+}

@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-canvas: #0B0D14;
+    --surface-dialog: #131826f2;
+    --surface-card: #1A2133;
+    --border-pixel: #2D3954;
+    --border-highlight: #F59E0B;
+    --lantern-amber: #FBBF24;
+    --spirit-cyan: #38BDF8;
+    --quest-emerald: #10B981;
+    --danger-coral: #EF4444;
+    --text-primary: #F8FAFC;
+    --text-lore: #CBD5E1;
+    --text-muted: #64748B;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+}
+
+/* Retro Pixel Font Classes */
+.font-pixel {
+  font-family: 'Silkscreen', 'Press Start 2P', monospace;
+  letter-spacing: 0.05em;
+}
+
+.font-pixel-small {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  line-height: 1.2;
+}
+
+.font-story {
+  font-family: 'Outfit', sans-serif;
+}
+
+.font-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Pixel Art Canvas Rendering */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Stepped Pixel Framing */
+.pixel-border {
+  border: 2px solid var(--border-pixel);
+  box-shadow: 
+    0 0 0 1px #05070A,
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.pixel-border-gold {
+  border: 2px solid var(--border-highlight);
+  box-shadow: 
+    0 0 0 1px #05070A,
+    0 0 12px rgba(245, 158, 11, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.pixel-border-cyan {
+  border: 2px solid var(--spirit-cyan);
+  box-shadow: 
+    0 0 0 1px #05070A,
+    0 0 12px rgba(56, 189, 248, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Bobbing beacon animation for interact cues */
+@keyframes beacon-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-beacon {
+  animation: beacon-bob 1.6s ease-in-out infinite;
+}
+
+/* Subtle portrait breathing */
+@keyframes portrait-breath {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.animate-breath {
+  animation: portrait-breath 3s ease-in-out infinite;
+}
+
+/* Memory Echo Sepia Vignette */
+.sepia-vignette {
+  box-shadow: inset 0 0 120px rgba(180, 115, 45, 0.45), inset 0 0 40px rgba(0, 0, 0, 0.7);
+  filter: sepia(0.65) contrast(1.15) brightness(0.95);
+}
+
+/* CRT Scanlines Subtle Texture (Optional decorative toggle) */
+.scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+/* Scrollbar styling for dialog / journals */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0D111A;
+}
+::-webkit-scrollbar-thumb {
+  background: #2D3954;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

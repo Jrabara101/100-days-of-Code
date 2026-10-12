@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-canvas: #070A0B;
+  --surface-hud: rgba(12, 16, 18, 0.85);
+  --surface-card: #13191C;
+  --border-subtle: #1E272B;
+  --hazard-amber: #F59E0B;
+  --bio-emerald: #10B981;
+  --blood-crimson: #EF4444;
+  --shock-cyan: #06B6D4;
+  --cryo-ice: #38BDF8;
+  --text-display: #F8FAFC;
+  --text-muted: #64748B;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-canvas);
+  color: var(--text-display);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Custom Tactical Hazard Stripe Background */
+.hazard-stripe-amber {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(245, 158, 11, 0.15),
+    rgba(245, 158, 11, 0.15) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+.hazard-stripe-crimson {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(239, 68, 68, 0.2),
+    rgba(239, 68, 68, 0.2) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+/* Subtle Tactical CRT Scanlines */
+.scanline-overlay {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.02),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.02)
+  );
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Custom Tactical Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0c1012;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e272b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f59e0b;
+}
+
+/* Crosshair Pointer */
+.cursor-crosshair-tactical {
+  cursor: crosshair;
+}
