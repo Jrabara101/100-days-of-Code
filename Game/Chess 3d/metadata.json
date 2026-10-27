@@ -1,0 +1,10 @@
+{
+  "name": "Grandmaster 3D - Realtime Chess & Voice",
+  "description": "Interactive 3D chess game featuring real-time multiplayer, WebRTC voice chat, AI engine, and customizable procedural PBR board skins.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

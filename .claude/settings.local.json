@@ -120,5 +120,9 @@
       "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\c--Users-Admin-100-days-of-Code\\dd4a9a0a-1363-4a33-b7cd-9010bc682c6d\\scratchpad\\verify_extract",
       "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\c--Users-Admin-100-days-of-Code\\dd4a9a0a-1363-4a33-b7cd-9010bc682c6d\\scratchpad\\javagui_extract"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ],
+  "enableAllProjectMcpServers": true
 }
