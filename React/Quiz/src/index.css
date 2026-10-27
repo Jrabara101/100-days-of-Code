@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-indigo: #4F46E5;
+    --brand-dark: #0A0B0E;
+    --canvas-bg: #0A0B0E;
+  }
+
+  * {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  body {
+    background-color: #0A0B0E;
+    color: #F8FAFC;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.28);
+  }
+}
+
+@layer components {
+  /* Keycap Pill */
+  .keycap-badge {
+    @apply inline-flex items-center justify-center font-mono text-[11px] font-bold px-2 py-0.5 rounded border border-white/10 bg-white/[0.04] text-slate-300 shadow-sm transition-all;
+  }
+
+  /* Glass Panel */
+  .glass-panel {
+    @apply bg-[#121418]/90 backdrop-blur-md border border-white/10 shadow-elevated;
+  }
+
+  /* Question Card Hover Effect */
+  .interactive-choice-card {
+    @apply relative flex items-center gap-3.5 p-4 rounded-xl border border-white/10 bg-[#121418]/80 hover:bg-[#181A20] hover:border-brand/60 cursor-pointer transition-all duration-150 active:scale-[0.99] select-none;
+  }
+}
+
+/* Animations */
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #0B0C0E;
+  --bg-secondary: #121417;
+  --bg-elevated: #181A1F;
+  --border-color: #22252B;
+  --text-primary: #F1F5F9;
+  --text-muted: #8A94A6;
+  --brand-color: #4F46E5;
+}
+
+.light {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-elevated: #FFFFFF;
+  --border-color: #E2E8F0;
+  --text-primary: #0F172A;
+  --text-muted: #64748B;
+  --brand-color: #4F46E5;
+}
+
+/* Custom crisp scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.35);
+}
+
+/* Diagonal stripe pattern for Blocked tasks */
+.blocked-hazard-pattern {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(239, 68, 68, 0.95),
+    rgba(239, 68, 68, 0.95) 8px,
+    rgba(185, 28, 28, 0.95) 8px,
+    rgba(185, 28, 28, 0.95) 16px
+  );
+}
+
+/* What-If Sandbox Border glow & animated outline */
+.sandbox-active-border {
+  border: 2px dashed rgba(245, 158, 11, 0.85);
+  box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.08), 0 0 25px rgba(245, 158, 11, 0.15);
+}
+
+/* Critical path pulse animation */
+@keyframes critical-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.8));
+    stroke: #EF4444;
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 1));
+    stroke: #FF6B6B;
+  }
+}
+
+.critical-path-connector {
+  animation: critical-glow 2s ease-in-out infinite;
+}
+
+/* Magnetic snap indicator */
+.magnetic-node-active {
+  transform: scale(1.35);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
+}
+
+/* Font tabular numbers */
+.tabular-numbers {
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}

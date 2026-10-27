@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #080B11;
+  --color-surface-panel: #101622;
+  --color-surface-elevated: #192234;
+  --color-border-subtle: #1E293B;
+  --color-accent-cyan: #06B6D4;
+  --color-accent-cobalt: #3B82F6;
+  --color-discount-lime: #84CC16;
+  --color-sentiment-positive: #38BDF8;
+  --color-sentiment-mixed: #F59E0B;
+  --color-sentiment-negative: #F43F5E;
+  --color-text-display: #F8FAFC;
+  --color-text-muted: #94A3B8;
+
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+:root {
+  --bg-canvas: #080B11;
+  --surface-panel: #101622;
+  --surface-elevated: #192234;
+  --border-subtle: #1E293B;
+  --accent-steam-cyan: #06B6D4;
+  --accent-cobalt: #3B82F6;
+  --discount-lime: #84CC16;
+  --sentiment-positive: #38BDF8;
+  --sentiment-mixed: #F59E0B;
+  --sentiment-negative: #F43F5E;
+  --text-display: #F8FAFC;
+  --text-muted: #94A3B8;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--bg-canvas);
+  color: var(--text-display);
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080B11;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(16, 22, 34, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-popover {
+  background: rgba(22, 31, 48, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.35);
+}
+
+.glow-lime {
+  box-shadow: 0 0 20px -4px rgba(132, 204, 22, 0.4);
+}
+
+/* Card hover perspective & transitions */
+.hover-card-transition {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.05); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s infinite ease-in-out;
+}
