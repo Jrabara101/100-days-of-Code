@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-primary": "#ffffff", "error-container": "#ffdad6", "primary": "#006948", "secondary-container": "#316bf3", "on-error": "#ffffff", "surface-container-low": "#f5f4ec", "secondary-fixed-dim": "#b4c5ff", "inverse-surface": "#30312c", "primary-container": "#00855d", "on-tertiary-fixed": "#0f0069", "surface-variant": "#e4e3db", "on-tertiary-container": "#fffbff", "on-primary-fixed": "#002114", "surface-tint": "#006c4a", "on-surface-variant": "#3d4a42", "on-tertiary-fixed-variant": "#3323cc", "secondary": "#0051d5", "on-secondary": "#ffffff", "surface-container-high": "#eae8e0", "tertiary-fixed": "#e2dfff", "error": "#ba1a1a", "outline-variant": "#bccac0", "tertiary-container": "#645efb", "inverse-primary": "#68dba9", "secondary-fixed": "#dbe1ff", "surface-container-lowest": "#ffffff", "on-surface": "#1b1c17", "on-primary-fixed-variant": "#005137", "background": "#fbf9f1", "surface-container-highest": "#e4e3db", "surface": "#fbf9f1", "surface-bright": "#fbf9f1", "primary-fixed": "#85f8c4", "on-error-container": "#93000a", "on-secondary-fixed": "#00174b", "on-primary-container": "#f5fff7", "on-tertiary": "#ffffff", "on-secondary-container": "#fefcff", "tertiary-fixed-dim": "#c3c0ff", "surface-dim": "#dcdad2", "on-background": "#1b1c17", "inverse-on-surface": "#f3f1e9", "outline": "#6d7a72", "tertiary": "#4b41e1", "primary-fixed-dim": "#68dba9", "on-secondary-fixed-variant": "#003ea8", "surface-container": "#f0eee6" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xs": "0.25rem", "space-lg": "1rem", "margin": "1rem", "space-xl": "1.5rem", "space-md": "0.75rem", "space-sm": "0.5rem", "gutter": "0.75rem" }, "fontFamily": { "label-code-md": [ "JetBrains Mono" ], "headline-sm": [ "Inter" ], "body-sm": [ "Inter" ], "body-lg": [ "Inter" ], "label-hotkey": [ "JetBrains Mono" ], "label-code-sm": [ "JetBrains Mono" ], "body-md": [ "Inter" ], "headline-md": [ "Inter" ], "label-code-lg": [ "JetBrains Mono" ], "headline-lg": [ "Inter" ] }, "fontSize": { "label-code-md": [ "0.75rem", { "lineHeight": "0.875rem", "letterSpacing": "-0.02em", "fontWeight": "500" } ], "headline-sm": [ "0.875rem", { "lineHeight": "1.125rem", "letterSpacing": "-0.005em", "fontWeight": "600" } ], "body-sm": [ "0.75rem", { "lineHeight": "1rem", "fontWeight": "400" } ], "body-lg": [ "0.9375rem", { "lineHeight": "1.375rem", "fontWeight": "400" } ], "label-hotkey": [ "0.625rem", { "lineHeight": "0.75rem", "letterSpacing": "0.04em", "fontWeight": "600" } ], "label-code-sm": [ "0.6875rem", { "lineHeight": "0.75rem", "letterSpacing": "0em", "fontWeight": "500" } ], "body-md": [ "0.8125rem", { "lineHeight": "1.1875rem", "fontWeight": "400" } ], "headline-md": [ "1rem", { "lineHeight": "1.25rem", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-code-lg": [ "0.8125rem", { "lineHeight": "1rem", "letterSpacing": "-0.02em", "fontWeight": "500" } ], "headline-lg": [ "1.25rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.015em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 h-14 bg-surface-container-lowest border-b border-outline-variant/30 px-5 flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="w-7 h-7 rounded bg-primary flex items-center justify-center"><span class="font-label-code-md text-label-code-md text-on-primary font-bold">H</span></div><span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">Hollis Trust</span><span class="px-1.5 py-0.5 rounded bg-surface-container font-label-code-sm text-label-code-sm text-on-surface-variant font-medium">MOD-OPS</span></div><div class="w-[360px] relative"><div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-outline"><span class="material-symbols-outlined text-[16px]">search</span></div><input class="w-full h-8 pl-8 pr-12 bg-surface-container-lowest border border-outline-variant/50 rounded text-body-sm font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary" placeholder="Filter queue or audit ID..." type="text"/><div class="absolute inset-y-0 right-0 pr-2 flex items-center"><kbd class="font-label-hotkey text-label-hotkey bg-surface-container-low border border-outline-variant/60 text-outline px-1 py-0.5 rounded">⌘K</kbd></div></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-code-sm text-label-code-sm text-on-surface-variant">Live Stream Active</span></div><div class="h-4 w-px bg-outline-variant/40"></div><div class="flex items-center gap-space-sm"><div class="flex flex-col text-right"><span class="font-headline-sm text-label-code-md font-semibold text-on-surface leading-tight">MC</span><span class="font-label-code-sm text-label-code-sm text-primary font-medium leading-tight">Lead Operator</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><div class="pt-14"><aside class="fixed left-0 top-14 bottom-0 w-60 bg-surface-container-low border-r border-outline-variant/30 flex flex-col justify-between z-40"><div class="flex flex-col"><div class="px-space-md py-space-sm border-b border-outline-variant/20 flex items-center justify-between"><span class="font-label-code-sm text-label-code-sm font-medium uppercase tracking-wider text-outline">Queues Taxonomy</span><span class="font-label-code-sm text-label-code-sm text-primary font-semibold">6 Active</span></div><nav class="flex flex-col py-space-xs" data-active-classes="bg-surface-container-lowest text-on-surface font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-l-2 border-primary"><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="triage-inbox" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">inbox</span><span class="font-body-sm text-body-sm">Triage Inbox</span></div><span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded font-medium">15</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="needs-redaction" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">visibility_off</span><span class="font-body-sm text-body-sm">Needs Redaction</span></div><span class="font-label-code-sm text-label-code-sm bg-secondary-fixed text-on-secondary-fixed px-1.5 py-0.5 rounded font-medium">5</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="media-blur" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">blur_on</span><span class="font-body-sm text-body-sm">Media Blur</span></div><span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded font-medium">4</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="low-star-escalations" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">flag</span><span class="font-body-sm text-body-sm">Low-Star Escalations</span></div><span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded font-medium">6</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="fraud-hold" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">gavel</span><span class="font-body-sm text-body-sm">Fraud Hold</span></div><span class="font-label-code-sm text-label-code-sm bg-error-container text-on-error-container px-1.5 py-0.5 rounded font-medium">38</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="published" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">check_circle</span><span class="font-body-sm text-body-sm">Published</span></div><span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded font-medium">4,820</span></a></nav></div><div class="p-space-sm"><div class="p-space-sm bg-surface-container-lowest border border-outline-variant/40 rounded flex flex-col gap-1.5"><div class="flex items-center justify-between"><div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-error"></span><span class="font-label-code-sm text-label-code-sm uppercase tracking-wider font-semibold text-error">Defect Radar</span></div><span class="font-label-hotkey text-label-hotkey text-outline">72h</span></div><p class="font-body-sm text-body-sm text-on-surface leading-tight">Wool Coat · Charcoal L — 4 mentions of “seam torn”</p><div class="flex items-center justify-between pt-1 border-t border-outline-variant/20 font-label-code-sm text-label-code-sm text-outline"><span>SKU-89211</span><span>14m ago</span></div></div></div></aside><div class="pl-60 min-h-[calc(100vh-56px)] bg-surface"><main class="w-full"><div class="flex flex-col w-full">
+<!-- Telemetry Bar -->
+<div class="w-full h-11 bg-surface-container-lowest border-b border-outline-variant/30 px-5 flex items-center justify-between select-none">
+<div class="flex items-center gap- space-md text-label-code-sm font-label-code-sm text-on-surface-variant">
+<span class="flex items-center gap-1.5 font-semibold text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        Pending 15
+      </span>
+<span class="text-outline-variant">/</span>
+<span>Auto-approved today <strong class="text-on-surface font-semibold">91%</strong></span>
+<span class="text-outline-variant">/</span>
+<span>Avg triage <strong class="text-on-surface font-semibold">4.2 s</strong></span>
+<span class="text-outline-variant">/</span>
+<span class="flex items-center gap-1">
+        Brigade shield
+        <span class="inline-block w-2 h-2 rounded-full bg-primary mx-0.5"></span>
+<span class="text-primary font-semibold">Normal</span>
+</span>
+</div>
+<!-- Hotkeys Toolbar -->
+<div class="flex items-center gap-space-sm text-label-code-sm font-label-code-sm text-outline">
+<div class="flex items-center gap-1">
+<kbd class="font-label-hotkey text-label-hotkey bg-surface-container border border-outline-variant/60 text-on-surface-variant px-1.5 py-0.5 rounded">J</kbd>
+<span class="text-outline-variant">/</span>
+<kbd class="font-label-hotkey text-label-hotkey bg-surface-container border border-outline-variant/60 text-on-surface-variant px-1.5 py-0.5 rounded">K</kbd>
+<span class="ml-1 text-on-surface-variant">Nav</span>
+</div>
+<span class="text-outline-variant">·</span>
+<div class="flex items-center gap-1">
+<kbd class="font-label-hotkey text-label-hotkey bg-surface-container border border-outline-variant/60 text-on-surface-variant px-1.5 py-0.5 rounded">A</kbd>
+<span class="ml-1 text-on-surface-variant">Approve</span>
+</div>
+<span class="text-outline-variant">·</span>
+<div class="flex items-center gap-1">
+<kbd class="font-label-hotkey text-label-hotkey bg-surface-container border border-outline-variant/60 text-on-surface-variant px-1.5 py-0.5 rounded">E</kbd>
+<span class="ml-1 text-on-surface-variant">Redact</span>
+</div>
+<span class="text-outline-variant">·</span>
+<div class="flex items-center gap-1">
+<kbd class="font-label-hotkey text-label-hotkey bg-surface-container border border-outline-variant/60 text-on-surface-variant px-1.5 py-0.5 rounded">B</kbd>
+<span class="ml-1 text-on-surface-variant">Blur</span>
+</div>
+<span class="text-outline-variant">·</span>
+<div class="flex items-center gap-1">
+<kbd class="font-label-hotkey text-label-hotkey bg-surface-container border border-outline-variant/60 text-on-surface-variant px-1.5 py-0.5 rounded">R</kbd>
+<span class="ml-1 text-on-surface-variant">Reject</span>
+</div>
+<span class="text-outline-variant">·</span>
+<div class="flex items-center gap-1">
+<kbd class="font-label-hotkey text-label-hotkey bg-surface-container border border-outline-variant/60 text-on-surface-variant px-1.5 py-0.5 rounded">M</kbd>
+<span class="ml-1 text-on-surface-variant">Reply</span>
+</div>
+</div>
+</div>
+<!-- Workspace Stage -->
+<div class="flex w-full min-h-[calc(100vh-100px)]">
+<!-- Stream Column (420px wide) -->
+<section class="w-[420px] flex-shrink-0 bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col">
+<!-- Stream Header -->
+<div class="p-space-md border-b border-outline-variant/30 flex flex-col gap-2.5 bg-surface-container-lowest sticky top-0 z-20">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Triage Inbox</h2>
+<span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface font-semibold px-1.5 py-0.5 rounded">15</span>
+</div>
+<button class="flex items-center gap-1 text-body-sm font-body-sm text-on-surface-variant hover:text-on-surface bg-surface-container-low px-2 py-1 rounded border border-outline-variant/40">
+<span>Oldest first</span>
+<svg class="w-3.5 h-3.5 text-outline" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+</button>
+</div>
+<div class="relative w-full">
+<span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-outline">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+</span>
+<input class="w-full h-7 pl-8 pr-2.5 bg-surface-container-low border border-outline-variant/40 rounded text-body-sm font-body-sm placeholder:text-outline text-on-surface focus:outline-none focus:border-primary" placeholder="Quick filter queue items..." type="text"/>
+</div>
+</div>
+<!-- Triage Stream List -->
+<div class="flex flex-col divide-y divide-outline-variant/20 overflow-y-auto">
+<!-- Row 1: Selected -->
+<article class="h-[72px] px-3.5 py-2.5 bg-surface-container-low border-l-2 border-primary cursor-pointer flex flex-col justify-between hover:bg-surface-container-high transition-colors">
+<div class="flex items-center justify-between leading-none">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-label-code-sm text-label-code-sm font-semibold text-[#b45309] bg-amber-500/10 px-1 py-0.5 rounded flex items-center gap-0.5 flex-shrink-0">
+<svg class="w-3 h-3 text-[#f59e0b] fill-[#f59e0b]" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                5.0
+              </span>
+<span class="font-body-md text-body-md font-semibold text-on-surface truncate">Pour-Over Kettle</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline flex-shrink-0 ml-2">12m SLA</span>
+</div>
+<div class="flex items-center gap-1.5 text-body-sm leading-none pt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Dana K.</span>
+<span class="font-label-code-sm text-label-code-sm bg-primary/10 text-primary font-medium px-1.5 py-0.5 rounded">Verified</span>
+<span class="font-label-code-sm text-label-code-sm bg-amber-500/10 text-[#b45309] border border-amber-300 font-medium px-1.5 py-0.5 rounded flex items-center gap-1">
+              4 flags
+            </span>
+</div>
+</article>
+<!-- Row 2 -->
+<article class="h-[72px] px-3.5 py-2.5 bg-surface-container-lowest cursor-pointer flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between leading-none">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-label-code-sm text-label-code-sm font-semibold text-[#b45309] bg-amber-500/10 px-1 py-0.5 rounded flex items-center gap-0.5 flex-shrink-0">
+<svg class="w-3 h-3 text-[#f59e0b] fill-[#f59e0b]" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                5.0
+              </span>
+<span class="font-body-md text-body-md font-medium text-on-surface truncate">Linen Overshirt</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline flex-shrink-0 ml-2">18m SLA</span>
+</div>
+<div class="flex items-center gap-1.5 text-body-sm leading-none pt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Elena R.</span>
+<span class="font-label-code-sm text-label-code-sm bg-primary/10 text-primary font-medium px-1.5 py-0.5 rounded">Verified</span>
+<span class="font-label-code-sm text-label-code-sm bg-amber-500/10 text-[#b45309] font-medium px-1.5 py-0.5 rounded">Phone detected</span>
+</div>
+</article>
+<!-- Row 3 -->
+<article class="h-[72px] px-3.5 py-2.5 bg-surface-container-lowest cursor-pointer flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between leading-none">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-label-code-sm text-label-code-sm font-semibold text-error bg-error/10 px-1 py-0.5 rounded flex items-center gap-0.5 flex-shrink-0">
+<svg class="w-3 h-3 text-error fill-error" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                1.0
+              </span>
+<span class="font-body-md text-body-md font-medium text-on-surface truncate">Ceramic Mug</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline flex-shrink-0 ml-2">24m SLA</span>
+</div>
+<div class="flex items-center gap-1.5 text-body-sm leading-none pt-1">
+<span class="font-body-sm text-body-sm text-outline">user_83f2</span>
+<span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant font-medium px-1.5 py-0.5 rounded">Unverified</span>
+<span class="font-label-code-sm text-label-code-sm bg-error-container text-on-error-container font-medium px-1.5 py-0.5 rounded">Bot cluster · risk 85</span>
+</div>
+</article>
+<!-- Row 4 -->
+<article class="h-[72px] px-3.5 py-2.5 bg-surface-container-lowest cursor-pointer flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between leading-none">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-label-code-sm text-label-code-sm font-semibold text-outline text-on-surface-variant bg-surface-variant px-1 py-0.5 rounded flex items-center gap-0.5 flex-shrink-0">
+<svg class="w-3 h-3 text-[#f59e0b] fill-[#f59e0b]" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                2.0
+              </span>
+<span class="font-body-md text-body-md font-medium text-on-surface truncate">Wool Coat</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline flex-shrink-0 ml-2">31m SLA</span>
+</div>
+<div class="flex items-center gap-1.5 text-body-sm leading-none pt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Marcus T.</span>
+<span class="font-label-code-sm text-label-code-sm bg-primary/10 text-primary font-medium px-1.5 py-0.5 rounded">Verified</span>
+<span class="font-label-code-sm text-label-code-sm bg-error-container text-on-error-container font-medium px-1.5 py-0.5 rounded">QA: "seam torn"</span>
+</div>
+</article>
+<!-- Row 5 -->
+<article class="h-[72px] px-3.5 py-2.5 bg-surface-container-lowest cursor-pointer flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between leading-none">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-label-code-sm text-label-code-sm font-semibold text-[#b45309] bg-amber-500/10 px-1 py-0.5 rounded flex items-center gap-0.5 flex-shrink-0">
+<svg class="w-3 h-3 text-[#f59e0b] fill-[#f59e0b]" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                4.0
+              </span>
+<span class="font-body-md text-body-md font-medium text-on-surface truncate">Zip Hoodie</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline flex-shrink-0 ml-2">39m SLA</span>
+</div>
+<div class="flex items-center gap-1.5 text-body-sm leading-none pt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Priya S.</span>
+<span class="font-label-code-sm text-label-code-sm bg-secondary-fixed text-on-secondary-fixed font-medium px-1.5 py-0.5 rounded">Gifted · disclosed</span>
+</div>
+</article>
+<!-- Row 6 -->
+<article class="h-[72px] px-3.5 py-2.5 bg-surface-container-lowest cursor-pointer flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between leading-none">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-label-code-sm text-label-code-sm font-semibold text-[#b45309] bg-amber-500/10 px-1 py-0.5 rounded flex items-center gap-0.5 flex-shrink-0">
+<svg class="w-3 h-3 text-[#f59e0b] fill-[#f59e0b]" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                3.0
+              </span>
+<span class="font-body-md text-body-md font-medium text-on-surface truncate">Espresso Grinder</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline flex-shrink-0 ml-2">44m SLA</span>
+</div>
+<div class="flex items-center gap-1.5 text-body-sm leading-none pt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Owen L.</span>
+<span class="font-label-code-sm text-label-code-sm bg-primary/10 text-primary font-medium px-1.5 py-0.5 rounded">Verified</span>
+<span class="font-label-code-sm text-label-code-sm bg-amber-500/10 text-[#b45309] font-medium px-1.5 py-0.5 rounded">Competitor link</span>
+</div>
+</article>
+<!-- Row 7 -->
+<article class="h-[72px] px-3.5 py-2.5 bg-surface-container-lowest cursor-pointer flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between leading-none">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-label-code-sm text-label-code-sm font-semibold text-[#b45309] bg-amber-500/10 px-1 py-0.5 rounded flex items-center gap-0.5 flex-shrink-0">
+<svg class="w-3 h-3 text-[#f59e0b] fill-[#f59e0b]" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                5.0
+              </span>
+<span class="font-body-md text-body-md font-medium text-on-surface truncate">Stoneware Bowl</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline flex-shrink-0 ml-2">52m SLA</span>
+</div>
+<div class="flex items-center gap-1.5 text-body-sm leading-none pt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Mei W.</span>
+<span class="font-label-code-sm text-label-code-sm bg-primary/10 text-primary font-medium px-1.5 py-0.5 rounded">Verified</span>
+<span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant font-medium px-1.5 py-0.5 rounded">Photo</span>
+</div>
+</article>
+<!-- Row 8 -->
+<article class="h-[72px] px-3.5 py-2.5 bg-surface-container-lowest cursor-pointer flex flex-col justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between leading-none">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-label-code-sm text-label-code-sm font-semibold text-[#b45309] bg-amber-500/10 px-1 py-0.5 rounded flex items-center gap-0.5 flex-shrink-0">
+<svg class="w-3 h-3 text-[#f59e0b] fill-[#f59e0b]" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                4.0
+              </span>
+<span class="font-body-md text-body-md font-medium text-on-surface truncate">Linen Overshirt</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline flex-shrink-0 ml-2">1h SLA</span>
+</div>
+<div class="flex items-center gap-1.5 text-body-sm leading-none pt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Sam P.</span>
+<span class="font-label-code-sm text-label-code-sm bg-surface-container-highest text-on-surface font-medium px-1.5 py-0.5 rounded">Repeat buyer · 4 orders</span>
+</div>
+</article>
+</div>
+</section>
+<!-- Inspection Stage (Fluid, 780px target) -->
+<section class="flex-1 flex flex-col justify-between bg-surface min-w-0">
+<!-- Scrollable Inspection Body -->
+<div class="p-6 overflow-y-auto space-y-5">
+<!-- Review Inspector Header -->
+<div class="flex items-center justify-between pb-1">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-0.5 text-[#f59e0b]">
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+</div>
+<h1 class="font-headline-lg text-headline-lg font-semibold text-on-surface">Pours like a dream</h1>
+</div>
+<span class="font-label-code-md text-label-code-md text-outline">Oct 22, 2026 · 09:14</span>
+</div>
+<!-- Provenance Card -->
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-3.5 flex items-center justify-between text-label-code-sm font-label-code-sm">
+<div class="flex items-center gap-2">
+<span class="text-outline">Order</span>
+<span class="font-semibold text-on-surface">#HG-8492</span>
+<span class="text-outline-variant">·</span>
+<span class="text-on-surface-variant">delivered Oct 14</span>
+</div>
+<div class="h-3 w-px bg-outline-variant/40"></div>
+<div class="flex items-center gap-1.5">
+<span class="text-outline">Account</span>
+<span class="text-on-surface font-medium">2 yrs</span>
+<span class="text-outline-variant">·</span>
+<span class="text-on-surface-variant">4 orders</span>
+</div>
+<div class="h-3 w-px bg-outline-variant/40"></div>
+<div class="flex items-center gap-1.5">
+<span class="text-outline">Risk Index</span>
+<span class="text-primary font-semibold">8 / 100 · Low</span>
+</div>
+<div class="h-3 w-px bg-outline-variant/40"></div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="text-outline">Photo Hash</span>
+<span class="text-on-surface font-medium">unique (0 match)</span>
+</div>
+</div>
+<!-- Review Text Section -->
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-code-sm text-label-code-sm font-semibold uppercase tracking-wider text-outline">Review Text</span>
+<span class="font-label-code-sm text-label-code-sm text-primary font-medium">PII + Compliance Sanitized</span>
+</div>
+<!-- Review Card (Post Redact All State) -->
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-4 text-body-lg font-body-lg text-on-surface leading-relaxed mb-3">
+            I love this kettle! It arrived at 
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant border border-outline-variant/50 font-label-code-sm text-label-code-sm align-middle font-medium">
+<svg class="w-3 h-3 text-outline flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              [Address removed]
+            </span> 
+            super fast. If anyone has questions text me at 
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant border border-outline-variant/50 font-label-code-sm text-label-code-sm align-middle font-medium">
+<svg class="w-3 h-3 text-outline flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              [•••-•••-0194]
+            </span> 
+            — honestly 
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant border border-outline-variant/50 font-label-code-sm text-label-code-sm align-middle font-medium">
+<svg class="w-3 h-3 text-outline flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              [Health claim removed]
+            </span>!
+          </div>
+<!-- Token Status Replace Bar -->
+<div class="flex items-center justify-between mb-4 px-1">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-label-code-sm text-label-code-sm font-semibold">
+<svg class="w-3.5 h-3.5 stroke-primary" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                3 redactions applied
+              </span>
+<button class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface underline font-medium cursor-pointer">
+                Undo
+              </button>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline">Deterministic Rule Engine v4.8</span>
+</div>
+<!-- 2-Column Diff Card -->
+<div class="border border-outline-variant/40 rounded-xl bg-surface-container-low p-4">
+<div class="flex items-center justify-between mb-3 pb-2 border-b border-outline-variant/30">
+<span class="font-headline-sm text-body-sm font-bold text-on-surface-variant flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-outline" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                Original (audit only)
+              </span>
+<span class="font-headline-sm text-body-sm font-bold text-primary flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>
+                Public version
+              </span>
+</div>
+<div class="grid grid-cols-2 gap-4 font-body-sm text-body-sm leading-relaxed">
+<!-- Left: Original -->
+<div class="bg-error-container/20 p-3 rounded border border-error-container text-on-surface">
+                I love this kettle! It arrived at 
+                <del class="bg-error-container text-on-error-container px-1 py-0.5 rounded font-label-code-sm text-label-code-sm font-medium">1428 Elm Street, Austin</del> 
+                super fast. If anyone has questions text me at 
+                <del class="bg-error-container text-on-error-container px-1 py-0.5 rounded font-label-code-sm text-label-code-sm font-medium">512-555-0194</del> 
+                — honestly 
+                <del class="bg-error-container text-on-error-container px-1 py-0.5 rounded font-label-code-sm text-label-code-sm font-medium">it cured my insomnia</del>!
+              </div>
+<!-- Right: Public version -->
+<div class="bg-primary/5 p-3 rounded border border-primary/20 text-on-surface">
+                I love this kettle! It arrived at 
+                <ins class="bg-primary/10 text-primary px-1 py-0.5 rounded font-label-code-sm text-label-code-sm font-semibold no-underline">[Address removed]</ins> 
+                super fast. If anyone has questions text me at 
+                <ins class="bg-primary/10 text-primary px-1 py-0.5 rounded font-label-code-sm text-label-code-sm font-semibold no-underline">[•••-•••-0194]</ins> 
+                — honestly 
+                <ins class="bg-primary/10 text-primary px-1 py-0.5 rounded font-label-code-sm text-label-code-sm font-semibold no-underline">[Health claim removed]</ins>!
+              </div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline mt-3 block">
+              Original kept in audit log · body_original (SHA256: 7d89cf...f82a)
+            </span>
+</div>
+</div>
+<!-- Section: Media flagged -->
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-code-sm text-label-code-sm font-semibold uppercase tracking-wider text-outline">Media · 1 photo</span>
+<span class="font-label-code-sm text-label-code-sm text-error font-medium">Action Required</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-3.5 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<!-- Thumbnail Card with OCR Flag -->
+<div class="relative w-40 h-[100px] rounded bg-surface-container overflow-hidden border border-outline-variant/40 flex-shrink-0 flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Close up photograph of a stainless steel pour-over kettle placed on top of a brown cardboard shipping box indoors with soft studio lighting. A clear postal shipping label is adhered to the cardboard, framed with subtle inspection markers." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn6A41jcmHszQp9uyhl8ACcZ9bzZXPEBxT4wf59PNPTNyobRkDqiUNB3iMsB4b_GDXNm9ZaDrPHzszuWKtCrKHbQLX384jfst32c0wifvEYypXV5LSY3L3ksJinYq00cHY5kAzK-dTrPc0I8HAhNefBm6uH4HMXLfeAd-US7_Z06jIMwkAuuXy67DIhlj-4Wh2EzPq1mqTgtma4u6-fo7Fx4Vr5CejWZRSXAK51RCS"/>
+<div class="absolute inset-0 bg-on-surface/10 pointer-events-none"></div>
+<!-- Red bounding box over shipping label -->
+<div class="absolute bottom-2 right-2 w-16 h-8 border-2 border-error bg-error/20 rounded-sm flex items-center justify-center pointer-events-none">
+<span class="font-label-code-sm text-label-code-sm font-bold text-on-error bg-error px-1 rounded-sm">OCR</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center gap-2">
+<span class="font-body-md text-body-md font-semibold text-on-surface">img_kettle_box_01.jpg</span>
+<span class="font-label-code-sm text-label-code-sm bg-error-container text-on-error-container px-2 py-0.5 rounded font-semibold flex items-center gap-1">
+<svg class="w-3 h-3 text-error" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+                    Address on label
+                  </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm">
+                  Automated computer vision detected recipient name and zip code on box corner. Requires gaussian blur before public sync.
+                </p>
+</div>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-2 rounded bg-surface-container-high text-on-surface hover:bg-surface-variant border border-outline-variant/60 font-headline-sm text-body-sm font-medium transition-colors">
+<svg class="w-4 h-4 text-outline" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+<span>Open blur tool</span>
+<kbd class="font-label-hotkey text-label-hotkey bg-surface-container-lowest border border-outline-variant/60 text-outline px-1 rounded ml-1">B</kbd>
+</button>
+</div>
+</div>
+<!-- Collapsed Row: Brand Reply -->
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2.5">
+<svg class="w-4 h-4 text-outline" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg>
+<span class="font-headline-sm text-body-sm font-semibold text-on-surface">Brand reply</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">Optional · Not drafted</span>
+</div>
+<div class="flex items-center gap-2">
+<kbd class="font-label-hotkey text-label-hotkey bg-surface-container-low border border-outline-variant/60 text-outline px-1 rounded">M</kbd>
+<svg class="w-4 h-4 text-outline" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
+</div>
+</div>
+</div>
+<!-- Pinned Decision Bar -->
+<footer class="h-16 px-6 bg-surface-container-lowest border-t border-outline-variant/30 flex items-center justify-between flex-shrink-0 select-none">
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-1.5 px-3 py-2 rounded text-error hover:bg-error-container/20 border border-transparent font-headline-sm text-body-sm font-semibold transition-colors">
+<span>Reject</span>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+<kbd class="font-label-hotkey text-label-hotkey bg-error-container/30 border border-error/30 text-error px-1 py-0.2 rounded ml-1">R</kbd>
+</button>
+<button class="px-3 py-2 rounded text-outline hover:text-on-surface hover:bg-surface-container-low font-body-sm text-body-sm transition-colors">
+            Quarantine IP
+          </button>
+</div>
+<div class="flex items-center gap-3">
+<!-- Flag Warning Pill -->
+<div class="font-label-code-sm text-label-code-sm bg-amber-500/10 text-[#b45309] border border-amber-300 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-[#f59e0b]" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg>
+<span>1 photo still flagged</span>
+</div>
+<!-- Primary Decision Button -->
+<button class="flex items-center gap-2 px-4 py-2 rounded bg-primary text-on-primary hover:bg-primary-container shadow-sm font-headline-sm text-body-sm font-semibold transition-colors">
+<span>Approve redacted</span>
+<kbd class="font-label-hotkey text-label-hotkey bg-on-primary/20 text-on-primary px-1.5 py-0.5 rounded ml-1 border border-on-primary/30">A</kbd>
+</button>
+</div>
+</footer>
+</section>
+</div>
+</div>
+<script>
+  // Hotkey micro-interactions for rapid operational triage
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    const key = e.key.toUpperCase();
+    if (key === 'A') {
+      alert('Review #HG-8492 marked Approved (Redacted State). Syncing to live catalog.');
+    } else if (key === 'B') {
+      alert('Activating Media Blur workspace canvas for img_kettle_box_01.jpg');
+    } else if (key === 'R') {
+      alert('Reject escalation opened. Select violation category.');
+    }
+  });
+</script></main></div></div></body></html>

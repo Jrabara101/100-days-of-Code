@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-canvas: #0D0C0B;
+    --bg-surface: #161412;
+    --bg-elevated: #1E1B18;
+    --border-hairline: #2B2622;
+    --text-primary: #F5F2EB;
+    --text-muted: #9E9488;
+    --brand-primary: #C84B31;
+    --brand-hover: #A83820;
+    --accent-gold: #D4A359;
+    --wine-fill: rgba(136, 19, 55, 0.14);
+    --wine-text: #FB7185;
+    --wine-border: rgba(159, 18, 57, 0.35);
+    --safe-fill: rgba(16, 185, 129, 0.12);
+    --safe-text: #34D399;
+    --safe-border: rgba(16, 185, 129, 0.3);
+    --modifiable-fill: rgba(217, 119, 6, 0.14);
+    --modifiable-text: #FBBF24;
+    --modifiable-border: rgba(245, 158, 11, 0.4);
+    --scarcity-fill: rgba(225, 29, 72, 0.14);
+    --scarcity-text: #FB7185;
+  }
+
+  [data-theme="daylight"] {
+    --bg-canvas: #FAF7F2;
+    --bg-surface: #F2ECE1;
+    --bg-elevated: #FFFFFF;
+    --border-hairline: #E2D9C8;
+    --text-primary: #181512;
+    --text-muted: #6E655C;
+    --brand-primary: #C84B31;
+    --brand-hover: #A83820;
+    --accent-gold: #B88335;
+    --wine-fill: rgba(136, 19, 55, 0.08);
+    --wine-text: #9F1239;
+    --wine-border: rgba(159, 18, 57, 0.25);
+    --safe-fill: rgba(16, 185, 129, 0.1);
+    --safe-text: #059669;
+    --safe-border: rgba(16, 185, 129, 0.25);
+    --modifiable-fill: rgba(217, 119, 6, 0.1);
+    --modifiable-text: #D97706;
+    --modifiable-border: rgba(245, 158, 11, 0.3);
+    --scarcity-fill: rgba(225, 29, 72, 0.08);
+    --scarcity-text: #E11D48;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    transition: background-color 500ms cubic-bezier(0.4, 0, 0.2, 1),
+                color 500ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.font-editorial {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.font-mono-numbers {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle archival linen texture overlay */
+.bg-linen-pattern {
+  background-image: radial-gradient(rgba(212, 163, 89, 0.04) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+[data-theme="daylight"] .bg-linen-pattern {
+  background-image: radial-gradient(rgba(24, 21, 18, 0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Perforated ticket cutouts */
+.ticket-perforation-left {
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background-color: var(--bg-canvas);
+}
+
+.ticket-perforation-right {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background-color: var(--bg-canvas);
+}
+
+/* Custom delicate scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-hairline);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
+}

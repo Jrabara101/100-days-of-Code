@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-primary": "#ffffff", "error-container": "#ffdad6", "primary": "#006948", "secondary-container": "#316bf3", "on-error": "#ffffff", "surface-container-low": "#f5f4ec", "secondary-fixed-dim": "#b4c5ff", "inverse-surface": "#30312c", "primary-container": "#00855d", "on-tertiary-fixed": "#0f0069", "surface-variant": "#e4e3db", "on-tertiary-container": "#fffbff", "on-primary-fixed": "#002114", "surface-tint": "#006c4a", "on-surface-variant": "#3d4a42", "on-tertiary-fixed-variant": "#3323cc", "secondary": "#0051d5", "on-secondary": "#ffffff", "surface-container-high": "#eae8e0", "tertiary-fixed": "#e2dfff", "error": "#ba1a1a", "outline-variant": "#bccac0", "tertiary-container": "#645efb", "inverse-primary": "#68dba9", "secondary-fixed": "#dbe1ff", "surface-container-lowest": "#ffffff", "on-surface": "#1b1c17", "on-primary-fixed-variant": "#005137", "background": "#fbf9f1", "surface-container-highest": "#e4e3db", "surface": "#fbf9f1", "surface-bright": "#fbf9f1", "primary-fixed": "#85f8c4", "on-error-container": "#93000a", "on-secondary-fixed": "#00174b", "on-primary-container": "#f5fff7", "on-tertiary": "#ffffff", "on-secondary-container": "#fefcff", "tertiary-fixed-dim": "#c3c0ff", "surface-dim": "#dcdad2", "on-background": "#1b1c17", "inverse-on-surface": "#f3f1e9", "outline": "#6d7a72", "tertiary": "#4b41e1", "primary-fixed-dim": "#68dba9", "on-secondary-fixed-variant": "#003ea8", "surface-container": "#f0eee6" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xs": "0.25rem", "space-lg": "1rem", "margin": "1rem", "space-xl": "1.5rem", "space-md": "0.75rem", "space-sm": "0.5rem", "gutter": "0.75rem" }, "fontFamily": { "label-code-md": [ "JetBrains Mono" ], "headline-sm": [ "Inter" ], "body-sm": [ "Inter" ], "body-lg": [ "Inter" ], "label-hotkey": [ "JetBrains Mono" ], "label-code-sm": [ "JetBrains Mono" ], "body-md": [ "Inter" ], "headline-md": [ "Inter" ], "label-code-lg": [ "JetBrains Mono" ], "headline-lg": [ "Inter" ] }, "fontSize": { "label-code-md": [ "0.75rem", { "lineHeight": "0.875rem", "letterSpacing": "-0.02em", "fontWeight": "500" } ], "headline-sm": [ "0.875rem", { "lineHeight": "1.125rem", "letterSpacing": "-0.005em", "fontWeight": "600" } ], "body-sm": [ "0.75rem", { "lineHeight": "1rem", "fontWeight": "400" } ], "body-lg": [ "0.9375rem", { "lineHeight": "1.375rem", "fontWeight": "400" } ], "label-hotkey": [ "0.625rem", { "lineHeight": "0.75rem", "letterSpacing": "0.04em", "fontWeight": "600" } ], "label-code-sm": [ "0.6875rem", { "lineHeight": "0.75rem", "letterSpacing": "0em", "fontWeight": "500" } ], "body-md": [ "0.8125rem", { "lineHeight": "1.1875rem", "fontWeight": "400" } ], "headline-md": [ "1rem", { "lineHeight": "1.25rem", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-code-lg": [ "0.8125rem", { "lineHeight": "1rem", "letterSpacing": "-0.02em", "fontWeight": "500" } ], "headline-lg": [ "1.25rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.015em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 h-14 bg-surface-container-lowest border-b border-outline-variant/30 px-5 flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="w-7 h-7 rounded bg-primary flex items-center justify-center"><span class="font-label-code-md text-label-code-md text-on-primary font-bold">H</span></div><span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-on-surface">Hollis Trust</span><span class="px-1.5 py-0.5 rounded bg-surface-container font-label-code-sm text-label-code-sm text-on-surface-variant font-medium">MOD-OPS</span></div><div class="w-[360px] relative"><div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-outline"><span class="material-symbols-outlined text-[16px]">search</span></div><input class="w-full h-8 pl-8 pr-12 bg-surface-container-lowest border border-outline-variant/50 rounded text-body-sm font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary" placeholder="Filter queue or audit ID..." type="text"/><div class="absolute inset-y-0 right-0 pr-2 flex items-center"><kbd class="font-label-hotkey text-label-hotkey bg-surface-container-low border border-outline-variant/60 text-outline px-1 py-0.5 rounded">⌘K</kbd></div></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-code-sm text-label-code-sm text-on-surface-variant">Live Stream Active</span></div><div class="h-4 w-px bg-outline-variant/40"></div><div class="flex items-center gap-space-sm"><div class="flex flex-col text-right"><span class="font-headline-sm text-label-code-md font-semibold text-on-surface leading-tight">MC</span><span class="font-label-code-sm text-label-code-sm text-primary font-medium leading-tight">Lead Operator</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><div class="pt-14"><aside class="fixed left-0 top-14 bottom-0 w-60 bg-surface-container-low border-r border-outline-variant/30 flex flex-col justify-between z-40"><div class="flex flex-col"><div class="px-space-md py-space-sm border-b border-outline-variant/20 flex items-center justify-between"><span class="font-label-code-sm text-label-code-sm font-medium uppercase tracking-wider text-outline">Queues Taxonomy</span><span class="font-label-code-sm text-label-code-sm text-primary font-semibold">6 Active</span></div><nav class="flex flex-col py-space-xs" data-active-classes="bg-surface-container-lowest text-on-surface font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-l-2 border-primary"><a aria-current="page" class="flex items-center justify-between px-space-md py-2 transition-colors bg-surface-container-lowest text-on-surface font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-l-2 border-primary" data-path="triage-inbox" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">inbox</span><span class="font-body-sm text-body-sm">Triage Inbox</span></div><span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded font-medium">15</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="needs-redaction" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">visibility_off</span><span class="font-body-sm text-body-sm">Needs Redaction</span></div><span class="font-label-code-sm text-label-code-sm bg-secondary-fixed text-on-secondary-fixed px-1.5 py-0.5 rounded font-medium">5</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="media-blur" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">blur_on</span><span class="font-body-sm text-body-sm">Media Blur</span></div><span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded font-medium">4</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="low-star-escalations" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">flag</span><span class="font-body-sm text-body-sm">Low-Star Escalations</span></div><span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded font-medium">6</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="fraud-hold" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">gavel</span><span class="font-body-sm text-body-sm">Fraud Hold</span></div><span class="font-label-code-sm text-label-code-sm bg-error-container text-on-error-container px-1.5 py-0.5 rounded font-medium">38</span></a><a class="flex items-center justify-between px-space-md py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="published" href="#"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">check_circle</span><span class="font-body-sm text-body-sm">Published</span></div><span class="font-label-code-sm text-label-code-sm bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded font-medium">4,820</span></a></nav></div><div class="p-space-sm"><div class="p-space-sm bg-surface-container-lowest border border-outline-variant/40 rounded flex flex-col gap-1.5"><div class="flex items-center justify-between"><div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-error"></span><span class="font-label-code-sm text-label-code-sm uppercase tracking-wider font-semibold text-error">Defect Radar</span></div><span class="font-label-hotkey text-label-hotkey text-outline">72h</span></div><p class="font-body-sm text-body-sm text-on-surface leading-tight">Wool Coat · Charcoal L — 4 mentions of “seam torn”</p><div class="flex items-center justify-between pt-1 border-t border-outline-variant/20 font-label-code-sm text-label-code-sm text-outline"><span>SKU-89211</span><span>14m ago</span></div></div></div></aside><div class="pl-60 min-h-[calc(100vh-56px)] bg-surface"><main class="w-full"><div class="flex flex-col w-full text-on-surface select-none">
+<!-- 1. Top Telemetry Strip (44px) -->
+<div class="h-11 w-full bg-surface-container-lowest border-b border-outline-variant/30 px-6 flex items-center justify-between z-10 shrink-0">
+<div class="flex items-center gap-5 font-label-code-md text-label-code-md text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="text-outline uppercase text-[10px] tracking-wider font-semibold">Queue</span>
+<span class="font-semibold text-on-surface">Pending 15</span>
+</div>
+<span class="text-outline-variant/50">·</span>
+<div class="flex items-center gap-1.5">
+<span class="text-outline uppercase text-[10px] tracking-wider font-semibold">Automation</span>
+<span class="font-semibold text-primary">Auto-approved today 91%</span>
+</div>
+<span class="text-outline-variant/50">·</span>
+<div class="flex items-center gap-1.5">
+<span class="text-outline uppercase text-[10px] tracking-wider font-semibold">Latency</span>
+<span class="font-semibold text-on-surface">Avg triage 4.2 s</span>
+</div>
+<span class="text-outline-variant/50">·</span>
+<div class="flex items-center gap-1.5">
+<span class="text-outline uppercase text-[10px] tracking-wider font-semibold">Brigade shield</span>
+<span class="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-semibold text-primary">Normal</span>
+</div>
+</div>
+<!-- Hotkey Cheatsheet -->
+<div class="flex items-center gap-2.5 font-label-hotkey text-label-hotkey text-outline">
+<div class="flex items-center gap-1">
+<kbd class="px-1.5 py-0.5 bg-surface-container-lowest border border-outline-variant/60 rounded text-on-surface">J</kbd><span class="text-outline">/</span><kbd class="px-1.5 py-0.5 bg-surface-container-lowest border border-outline-variant/60 rounded text-on-surface">K</kbd>
+<span class="ml-0.5">Nav</span>
+</div>
+<span class="text-outline-variant/40">·</span>
+<div class="flex items-center gap-1">
+<kbd class="px-1.5 py-0.5 bg-surface-container-lowest border border-outline-variant/60 rounded text-on-surface">A</kbd>
+<span class="ml-0.5">Approve</span>
+</div>
+<span class="text-outline-variant/40">·</span>
+<div class="flex items-center gap-1">
+<kbd class="px-1.5 py-0.5 bg-surface-container-lowest border border-outline-variant/60 rounded text-on-surface">E</kbd>
+<span class="ml-0.5">Redact</span>
+</div>
+<span class="text-outline-variant/40">·</span>
+<div class="flex items-center gap-1">
+<kbd class="px-1.5 py-0.5 bg-surface-container-lowest border border-outline-variant/60 rounded text-on-surface">B</kbd>
+<span class="ml-0.5">Blur</span>
+</div>
+<span class="text-outline-variant/40">·</span>
+<div class="flex items-center gap-1">
+<kbd class="px-1.5 py-0.5 bg-surface-container-lowest border border-outline-variant/60 rounded text-on-surface">R</kbd>
+<span class="ml-0.5">Reject</span>
+</div>
+<span class="text-outline-variant/40">·</span>
+<div class="flex items-center gap-1">
+<kbd class="px-1.5 py-0.5 bg-surface-container-lowest border border-outline-variant/60 rounded text-on-surface">M</kbd>
+<span class="ml-0.5">Reply</span>
+</div>
+</div>
+</div>
+<!-- 2. Main Split Area (924px high) -->
+<div class="w-full h-[calc(100vh-100px)] flex flex-row overflow-hidden bg-surface-container-lowest">
+<!-- 2A. Triage List Column (420px fixed) -->
+<section class="w-[420px] min-w-[420px] max-w-[420px] border-r border-outline-variant/30 bg-surface-container-lowest flex flex-col h-full overflow-hidden">
+<!-- Subheader Filters -->
+<div class="p-3 border-b border-outline-variant/30 flex flex-col gap-2.5 bg-surface-container-low/50">
+<div class="flex items-center justify-between gap-2">
+<div class="relative flex-1">
+<span class="material-symbols-outlined text-[15px] absolute left-2 top-1.5 text-outline">filter_list</span>
+<input class="w-full h-7 pl-7 pr-2 bg-surface-container-lowest border border-outline-variant/60 rounded text-body-sm font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary" placeholder="Filter current triage subset..." type="text"/>
+</div>
+<div class="flex items-center gap-1 text-label-code-sm font-label-code-sm text-outline shrink-0">
+<span class="text-[10px] uppercase font-semibold">Sort:</span>
+<span class="text-on-surface font-semibold flex items-center gap-0.5 cursor-pointer hover:text-primary">
+              SLA (14m)
+              <span class="material-symbols-outlined text-[13px]">expand_more</span>
+</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 font-label-code-sm text-label-code-sm">
+<button class="px-2 py-0.5 rounded bg-on-surface text-surface-container-lowest font-medium shadow-sm">All 15</button>
+<button class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center gap-1">
+            PII <span class="text-[10px] px-1 rounded-full bg-surface-container-highest">5</span>
+</button>
+<button class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center gap-1">
+            Fraud <span class="text-[10px] px-1 rounded-full bg-error-container text-on-error-container">2</span>
+</button>
+<button class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center gap-1">
+            Media <span class="text-[10px] px-1 rounded-full bg-surface-container-highest">4</span>
+</button>
+</div>
+</div>
+<!-- Review Stream List -->
+<div class="flex-1 overflow-y-auto divide-y divide-outline-variant/20" id="triage-stream">
+<!-- Row 1 (ACTIVE / SELECTED) -->
+<article class="h-[74px] px-4 py-2.5 flex flex-col justify-between bg-surface-container-low border-l-[3px] border-primary cursor-pointer transition-colors relative">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Elena Vance</span>
+<div class="flex text-[#F59E0B] tracking-tighter">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-label-code-sm text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-800 border border-amber-300 font-medium">PII Detected</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant truncate">
+<span class="truncate pr-2 font-normal text-on-surface">"Love the fit! Call me at 415-555..."</span>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">#REV-98214</span>
+</div>
+<div class="flex items-center justify-between font-label-code-sm text-[11px] text-outline">
+<span class="truncate text-on-surface-variant">Merino Crewneck Sweater</span>
+<span class="text-error font-medium">12m SLA</span>
+</div>
+</article>
+<!-- Row 2 -->
+<article class="h-[74px] px-4 py-2.5 flex flex-col justify-between hover:bg-surface-container-lowest/80 bg-surface-container-lowest cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-medium text-on-surface">Marcus Thorne</span>
+<div class="flex text-[#F59E0B] tracking-tighter">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+</div>
+</div>
+<span class="font-label-code-sm text-[10px] px-1.5 py-0.5 rounded bg-error-container/70 text-on-error-container font-medium">Low-Star / Defect</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant truncate">
+<span class="truncate pr-2">"Seam torn on first day wearing it..."</span>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">#REV-98213</span>
+</div>
+<div class="flex items-center justify-between font-label-code-sm text-[11px] text-outline">
+<span class="truncate">Wool Coat · Charcoal L</span>
+<span>18m SLA</span>
+</div>
+</article>
+<!-- Row 3 -->
+<article class="h-[74px] px-4 py-2.5 flex flex-col justify-between hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-medium text-on-surface">Sarah Lin</span>
+<div class="flex text-[#F59E0B] tracking-tighter">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-label-code-sm text-[10px] px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-medium">Gifted</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant truncate">
+<span class="truncate pr-2">"Received free in exchange for review..."</span>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">#REV-98212</span>
+</div>
+<div class="flex items-center justify-between font-label-code-sm text-[11px] text-outline">
+<span class="truncate">Canvas Weekender Duffle</span>
+<span>24m SLA</span>
+</div>
+</article>
+<!-- Row 4 -->
+<article class="h-[74px] px-4 py-2.5 flex flex-col justify-between hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-medium text-on-surface">David K.</span>
+<div class="flex text-[#F59E0B] tracking-tighter">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+</div>
+</div>
+<span class="font-label-code-sm text-[10px] px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant font-medium">Media Attached</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant truncate">
+<span class="truncate pr-2">"Great wash and sturdy denim, phot..."</span>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">#REV-98211</span>
+</div>
+<div class="flex items-center justify-between font-label-code-sm text-[11px] text-outline">
+<span class="truncate">Selvedge Denim 32x32</span>
+<span>31m SLA</span>
+</div>
+</article>
+<!-- Row 5 -->
+<article class="h-[74px] px-4 py-2.5 flex flex-col justify-between hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-medium text-on-surface">Bot Pattern #88</span>
+<div class="flex text-[#F59E0B] tracking-tighter">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-label-code-sm text-[10px] px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-medium">Fraud Hold</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant truncate">
+<span class="truncate pr-2 text-error">"Best product click link bit.ly/..."</span>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">#REV-98210</span>
+</div>
+<div class="flex items-center justify-between font-label-code-sm text-[11px] text-outline">
+<span class="truncate">Leather Cardholder</span>
+<span class="text-error font-medium">Critical</span>
+</div>
+</article>
+<!-- Row 6 -->
+<article class="h-[74px] px-4 py-2.5 flex flex-col justify-between hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-medium text-on-surface">Claire B.</span>
+<div class="flex text-[#F59E0B] tracking-tighter">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-svg: fill;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-label-code-sm text-[10px] px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-medium">Verified</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant truncate">
+<span class="truncate pr-2">"Crisp collar, retains shape neatly after wash"</span>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">#REV-98209</span>
+</div>
+<div class="flex items-center justify-between font-label-code-sm text-[11px] text-outline">
+<span class="truncate">Oxford Cotton Button-Down</span>
+<span>42m SLA</span>
+</div>
+</article>
+<!-- Row 7 -->
+<article class="h-[74px] px-4 py-2.5 flex flex-col justify-between hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-medium text-on-surface">Julian Hayes</span>
+<div class="flex text-[#F59E0B] tracking-tighter">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+</div>
+</div>
+<span class="font-label-code-sm text-[10px] px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant font-medium">Sizing Defect</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant truncate">
+<span class="truncate pr-2">"Runs extremely snug, headache after 10m"</span>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">#REV-98208</span>
+</div>
+<div class="flex items-center justify-between font-label-code-sm text-[11px] text-outline">
+<span class="truncate">Merino Wool Beanie</span>
+<span>48m SLA</span>
+</div>
+</article>
+<!-- Row 8 -->
+<article class="h-[74px] px-4 py-2.5 flex flex-col justify-between hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-medium text-on-surface">Amara O.</span>
+<div class="flex text-[#F59E0B] tracking-tighter">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-label-code-sm text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-800 border border-amber-300 font-medium">PII Detected</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant truncate">
+<span class="truncate pr-2">"Deliver to rear porch code 4492 please"</span>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">#REV-98207</span>
+</div>
+<div class="flex items-center justify-between font-label-code-sm text-[11px] text-outline">
+<span class="truncate">Linen Relaxed Trouser</span>
+<span>52m SLA</span>
+</div>
+</article>
+<!-- Row 9 -->
+<article class="h-[74px] px-4 py-2.5 flex flex-col justify-between hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-medium text-on-surface">Thomas Wright</span>
+<div class="flex text-[#F59E0B] tracking-tighter">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+<span class="material-symbols-outlined text-[13px] text-outline-variant">star</span>
+</div>
+</div>
+<span class="font-label-code-sm text-[10px] px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant font-medium">Media Blur Needed</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant truncate">
+<span class="truncate pr-2">"Photo includes vehicle plate and license"</span>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">#REV-98206</span>
+</div>
+<div class="flex items-center justify-between font-label-code-sm text-[11px] text-outline">
+<span class="truncate">Suede Chelsea Boot</span>
+<span>59m SLA</span>
+</div>
+</article>
+</div>
+</section>
+<!-- 2B. Inspector Pane (Fluid width, approx 780px+) -->
+<section class="flex-1 flex flex-col justify-between bg-surface-container-lowest h-full relative overflow-hidden">
+<!-- Content Scrollable Workspace -->
+<div class="flex-1 overflow-y-auto p-6 pb-28 space-y-5">
+<!-- Header Identity & Product Card -->
+<div class="bg-surface-container-low border border-outline-variant/30 rounded-xl p-4.5 flex flex-col gap-3.5">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2.5">
+<h2 class="font-headline-lg text-headline-lg font-semibold text-on-surface tracking-tight">Elena Vance</h2>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-fixed/60 text-primary font-label-code-sm text-label-code-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  Verified Buyer
+                </div>
+<div class="px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-code-sm text-label-code-sm font-medium">
+                  First-time Reviewer
+                </div>
+</div>
+<div class="flex items-center gap-3 font-label-code-sm text-label-code-sm text-outline">
+<span class="font-semibold text-on-surface">#REV-98214</span>
+<span>·</span>
+<span>Order #ORD-449102</span>
+<span>·</span>
+<span>Submitted 12 mins ago</span>
+<span>·</span>
+<span>iOS Safari / US-West</span>
+</div>
+</div>
+<!-- Product pill card -->
+<div class="px-3 py-2 bg-surface-container-lowest border border-outline-variant/40 rounded-lg flex items-center gap-3">
+<div class="w-9 h-9 rounded bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px] text-outline">checkroom</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold leading-tight">Merino Crewneck Sweater</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">SKU: MCN-GRY-MED · $128.00 · Heather Grey / M</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Rating & Review Headline -->
+<div class="flex flex-col gap-2 pt-1">
+<div class="flex items-center gap-2.5">
+<div class="flex text-[#F59E0B] tracking-tight">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-label-code-md text-label-code-md font-semibold text-on-surface">5.0 / 5.0 Star Rating</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface text-[18px] leading-snug">
+            Super soft and luxurious, but need help with size exchange
+          </h3>
+</div>
+<!-- Review Prose with highlighted PII -->
+<div class="p-4 bg-surface-container-lowest border border-outline-variant/40 rounded-lg font-body-lg text-body-lg text-on-surface leading-relaxed">
+<p>
+            I wore this sweater all weekend during our trip to Tahoe. The knit is dense and soft without being itchy at all. However, my partner accidentally ordered a Medium when I asked for Small. If anyone from customer support sees this, please reach out to me directly at 
+            <mark class="bg-amber-100 text-amber-900 border border-amber-300 px-1 py-0.5 rounded font-label-code-sm text-label-code-sm mx-0.5">elena.vance@workmail.com</mark> 
+            or text my mobile at 
+            <mark class="bg-amber-100 text-amber-900 border border-amber-300 px-1 py-0.5 rounded font-label-code-sm text-label-code-sm mx-0.5">+1 (415) 555-0198</mark> 
+            so we can arrange an exchange before my return window expires!
+          </p>
+</div>
+<!-- Automated Flag Callout (PII Alert) -->
+<div class="border border-amber-300 bg-amber-500/10 rounded-xl p-4 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-amber-800">warning</span>
+<span class="font-headline-sm text-headline-sm font-semibold text-amber-900">Automated Inspection: PII Detected (2 instances)</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm bg-amber-200/60 text-amber-900 px-2 py-0.5 rounded font-medium">Compliance Rule: FTC-314</span>
+</div>
+<div class="grid grid-cols-2 gap-2 font-label-code-sm text-label-code-sm text-amber-950">
+<div class="flex items-center gap-2 bg-amber-100/40 p-2 rounded border border-amber-200/50">
+<span class="material-symbols-outlined text-[15px] text-amber-800">mail</span>
+<span>1 Direct Email Address</span>
+</div>
+<div class="flex items-center gap-2 bg-amber-100/40 p-2 rounded border border-amber-200/50">
+<span class="material-symbols-outlined text-[15px] text-amber-800">call</span>
+<span>1 US Mobile Phone Number</span>
+</div>
+</div>
+<!-- Redaction Live Preview Block -->
+<div class="mt-1 p-3 bg-surface-container-lowest/90 border border-amber-300/80 rounded-lg flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-label-code-sm text-label-code-sm text-outline font-semibold uppercase tracking-wider">Sanitization Preview ([E] Action result)</span>
+<span class="font-label-code-sm text-label-code-sm text-primary font-medium">Deterministic Masking Applied</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              "...reach out to me directly at <code class="px-1 py-0.2 rounded bg-surface-container font-label-code-sm text-label-code-sm text-outline font-semibold">[REDACTED: EMAIL]</code> or text my mobile at <code class="px-1 py-0.2 rounded bg-surface-container font-label-code-sm text-label-code-sm text-outline font-semibold">[REDACTED: PHONE]</code> so we can arrange an exchange..."
+            </p>
+</div>
+</div>
+<!-- Trust & Risk Signals Grid -->
+<div class="border border-outline-variant/30 rounded-xl p-4 bg-surface-container-low flex flex-col gap-3">
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Heuristic &amp; Machine Intelligence Signals</span>
+<span class="font-label-code-sm text-label-code-sm text-primary font-semibold">Model v4.8 Verified</span>
+</div>
+<div class="grid grid-cols-4 gap-3 font-label-code-sm text-label-code-sm">
+<div class="bg-surface-container-lowest p-2.5 rounded border border-outline-variant/30 flex flex-col gap-1">
+<span class="text-outline uppercase text-[10px]">Sentiment Index</span>
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-on-surface text-[14px]">0.94</span>
+<span class="text-primary font-semibold">Positive</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-2.5 rounded border border-outline-variant/30 flex flex-col gap-1">
+<span class="text-outline uppercase text-[10px]">Fraud Risk Score</span>
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-primary text-[14px]">0.02</span>
+<span class="text-outline">Very Low</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-2.5 rounded border border-outline-variant/30 flex flex-col gap-1">
+<span class="text-outline uppercase text-[10px]">IP Geolocation</span>
+<div class="flex items-center gap-1.5 truncate">
+<span class="font-bold text-on-surface truncate">94107 US-CA</span>
+<span class="material-symbols-outlined text-[14px] text-primary">verified</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-2.5 rounded border border-outline-variant/30 flex flex-col gap-1">
+<span class="text-outline uppercase text-[10px]">Submission Velocity</span>
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-on-surface text-[14px]">1 / 180d</span>
+<span class="text-outline">Normal</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Media Attachments (2 photos) -->
+<div class="flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Attached Visual Media (2)</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">All artifacts cleared safety pipeline</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- Photo 1 -->
+<div class="border border-outline-variant/40 rounded-xl overflow-hidden bg-surface-container-lowest flex flex-col">
+<div class="h-44 w-full bg-surface-container relative overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="High-resolution flat-lay photograph of a charcoal heather grey fine merino wool crewneck knit sweater neatly folded on a minimalist textured studio background, soft neutral ambient studio lighting, clean product photography for trust and safety catalog inspection" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrX-oBaV1OXX0s0u8xTKfUkuxAsM67qjmmMI2qFFT-VaCqIwimbZ74AOKrbqOU6cKZC6FVP4SredJlBqboAG8i5ehVtYWi-Rq30rgJJ7TvpRRJQAUs1L1gFsFtynlLzj4DR0Jw4Kzl697uUdnDrAk4zkf0RYV6VvQVBfX5GIMQ2nASPipnqH0Y90UMiPw0miwBO3JzIRmgPCk-94O8TZ-KcoBJXDSClPVrYuMyEq78"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-on-surface/80 text-surface-container-lowest font-label-code-sm text-[10px] backdrop-blur-sm">IMG_01.HEIC</span>
+</div>
+<div class="p-2.5 flex items-center justify-between font-label-code-sm text-label-code-sm border-t border-outline-variant/20">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="font-medium">Safe / Passed AI filter</span>
+</div>
+<button class="text-outline hover:text-on-surface flex items-center gap-0.5 font-label-code-sm">
+<kbd class="px-1 py-0.2 bg-surface-container border border-outline-variant/60 rounded text-[9px]">B</kbd>
+                  Blur
+                </button>
+</div>
+</div>
+<!-- Photo 2 -->
+<div class="border border-outline-variant/40 rounded-xl overflow-hidden bg-surface-container-lowest flex flex-col">
+<div class="h-44 w-full bg-surface-container relative overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Close-up detail photograph of the sleeve stitching and wool texture of a grey merino crewneck sweater showing fabric gauge and ribbed cuff construction, well-lit indoor daylight, zero faces or sensitive items present" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA5yxTpCHonzbn-ohZ0necs5HaqMoxU100-sRsQel3xICmUn9GpYBprfkebeFRhl_xqDcmp5t3NZk0JhtcQQ-GV29uesuNkPOVEexK88hfEnX24c7WqP3ZvbPRr_ldL9NF3JuJb8J-ecAUQbB1PYJSZwtYrWHM0Xx9YMryjBjrtELiqZMyseG2OfKMJhNPXAbKiP401xvYaDzJeeMI-eL9Nz_r6fFGGytSe3cEHFR4"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-on-surface/80 text-surface-container-lowest font-label-code-sm text-[10px] backdrop-blur-sm">IMG_02.HEIC</span>
+</div>
+<div class="p-2.5 flex items-center justify-between font-label-code-sm text-label-code-sm border-t border-outline-variant/20">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[14px]">face_retouching_off</span>
+<span class="font-medium">Safe / No face detected</span>
+</div>
+<button class="text-outline hover:text-on-surface flex items-center gap-0.5 font-label-code-sm">
+<kbd class="px-1 py-0.2 bg-surface-container border border-outline-variant/60 rounded text-[9px]">B</kbd>
+                  Blur
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pinned Decision Bar (Height 72px) -->
+<footer class="absolute bottom-0 left-0 right-0 h-[72px] bg-surface-container-lowest border-t border-outline-variant/40 px-6 flex items-center justify-between z-20 shadow-[0_-2px_8px_rgba(0,0,0,0.03)]">
+<!-- Left Destructive / Escalations -->
+<div class="flex items-center gap-2.5">
+<button class="h-9 px-3.5 rounded-lg border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 font-headline-sm text-body-md font-semibold flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[16px]">close</span>
+<span>Reject</span>
+<kbd class="px-1 py-0.5 bg-surface-container-lowest border border-red-300 rounded font-label-hotkey text-[10px]">R</kbd>
+</button>
+<button class="h-9 px-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-headline-sm text-body-md font-medium flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">security</span>
+<span>Escalate to Fraud</span>
+</button>
+</div>
+<!-- Center Toggles / CS Routing -->
+<div class="flex items-center gap-2">
+<label class="flex items-center gap-2 cursor-pointer font-body-sm text-body-sm text-on-surface">
+<input checked="" class="w-4 h-4 rounded text-primary border-outline-variant focus:ring-0 accent-primary" type="checkbox"/>
+<span>Notify customer service for sizing inquiry</span>
+</label>
+</div>
+<!-- Right Approvals / Safe Handlers -->
+<div class="flex items-center gap-2.5">
+<button class="h-9 px-4 rounded-lg border border-amber-400 bg-amber-50 text-amber-900 hover:bg-amber-100 font-headline-sm text-body-md font-semibold flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[16px]">shield</span>
+<span>Redact &amp; Approve</span>
+<kbd class="px-1.5 py-0.5 bg-surface-container-lowest border border-amber-300 rounded font-label-hotkey text-[10px]">E</kbd>
+</button>
+<button class="h-9 px-5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-body-md font-semibold flex items-center gap-2 shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[16px]">done_all</span>
+<span>Approve Verbatim</span>
+<kbd class="px-1.5 py-0.5 bg-primary-container border border-primary-fixed-dim/40 text-on-primary rounded font-label-hotkey text-[10px]">A</kbd>
+</button>
+</div>
+</footer>
+</section>
+</div>
+</div>
+<script>
+  // Simple hotkey listener simulation for keyboard-driven operators
+  document.addEventListener('keydown', (e) => {
+    if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+    const key = e.key.toUpperCase();
+    if (key === 'A') {
+      alert('Action: Review #REV-98214 Approved Verbatim');
+    } else if (key === 'E') {
+      alert('Action: Review #REV-98214 Redacted & Approved');
+    } else if (key === 'R') {
+      alert('Action: Review #REV-98214 Rejected');
+    }
+  });
+</script></main></div></div></body></html>

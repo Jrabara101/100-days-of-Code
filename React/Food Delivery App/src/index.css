@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@layer base {
+  :root, [data-theme="daylight"] {
+    --bg-canvas: #FAF8F5;
+    --bg-surface: #F2EFE9;
+    --bg-elevated: #FFFFFF;
+    --border-hairline: #E6E2D8;
+    --border-subtle: #EDE9E0;
+    --text-primary: #141413;
+    --text-muted: #68655F;
+    --brand-primary: #E11D48;
+    --brand-hover: #BE123C;
+    --accent-emerald-fill: rgba(16, 185, 129, 0.12);
+    --accent-emerald-text: #059669;
+    --accent-emerald-dot: #10B981;
+    --accent-cobalt-fill: rgba(37, 99, 235, 0.12);
+    --accent-cobalt-text: #2563EB;
+    --accent-cobalt-stroke: #3B82F6;
+    --accent-amber-fill: rgba(245, 158, 11, 0.14);
+    --accent-amber-text: #D97706;
+    --accent-amber-border: #FBBF24;
+    --accent-violet-fill: rgba(139, 92, 246, 0.12);
+    --accent-violet-text: #7C3AED;
+    --accent-violet-ring: #8B5CF6;
+  }
+
+  [data-theme="midnight"] {
+    --bg-canvas: #0B0C0E;
+    --bg-surface: #131519;
+    --bg-elevated: #1A1D24;
+    --border-hairline: #262A34;
+    --border-subtle: #2F3440;
+    --text-primary: #F8FAFC;
+    --text-muted: #949BA6;
+    --brand-primary: #E11D48;
+    --brand-hover: #BE123C;
+    --accent-emerald-fill: rgba(16, 185, 129, 0.15);
+    --accent-emerald-text: #34D399;
+    --accent-emerald-dot: #10B981;
+    --accent-cobalt-fill: rgba(37, 99, 235, 0.15);
+    --accent-cobalt-text: #60A5FA;
+    --accent-cobalt-stroke: #3B82F6;
+    --accent-amber-fill: rgba(245, 158, 11, 0.18);
+    --accent-amber-text: #FBBF24;
+    --accent-amber-border: #F59E0B;
+    --accent-violet-fill: rgba(139, 92, 246, 0.18);
+    --accent-violet-text: #A78BFA;
+    --accent-violet-ring: #8B5CF6;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.font-display {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.font-body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.font-mono-numbers {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+[data-theme="midnight"] .glass-panel {
+  background: rgba(26, 29, 36, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Radar pulse animation for drop-off pin / curbside arrival */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-radar {
+  animation: radar-pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Smooth odometer price roll transition */
+.price-roll-enter {
+  transform: translateY(100%);
+  opacity: 0;
+}
+.price-roll-active {
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 200ms ease-out, opacity 200ms ease-out;
+}
+
+/* Custom delicate scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-hairline);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E11D48;
+}

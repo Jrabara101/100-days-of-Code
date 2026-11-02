@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-error-container":"#93000a","background":"#fbf9f1","surface-container-low":"#f5f4ec","surface-container-highest":"#e4e3db","inverse-surface":"#30312c","error-container":"#ffdad6","outline-variant":"#bccac0","surface-tint":"#006c4a","surface":"#fbf9f1","on-primary-fixed":"#002114","secondary":"#0051d5","on-secondary":"#ffffff","surface-variant":"#e4e3db","on-background":"#1b1c17","on-primary-fixed-variant":"#005137","on-secondary-container":"#fefcff","surface-dim":"#dcdad2","on-primary":"#ffffff","surface-container":"#f0eee6","on-surface-variant":"#3d4a42","on-primary-container":"#f5fff7","on-tertiary-fixed-variant":"#3323cc","secondary-fixed":"#dbe1ff","on-tertiary-container":"#fffbff","surface-container-lowest":"#ffffff","tertiary-fixed":"#e2dfff","secondary-container":"#316bf3","outline":"#6d7a72","on-tertiary":"#ffffff","inverse-primary":"#68dba9","secondary-fixed-dim":"#b4c5ff","tertiary":"#4b41e1","tertiary-fixed-dim":"#c3c0ff","surface-container-high":"#eae8e0","on-tertiary-fixed":"#0f0069","primary-container":"#00855d","error":"#ba1a1a","inverse-on-surface":"#f3f1e9","primary-fixed":"#85f8c4","on-error":"#ffffff","primary":"#006948","primary-fixed-dim":"#68dba9","tertiary-container":"#645efb","surface-bright":"#fbf9f1","on-surface":"#1b1c17","on-secondary-fixed":"#00174b","on-secondary-fixed-variant":"#003ea8"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-sm":"0.5rem","space-lg":"1rem","gutter":"0.75rem","space-xs":"0.25rem","space-md":"0.75rem","space-xl":"1.5rem","margin":"1rem"},fontFamily:{"body-md":["Inter"],"label-code-md":["JetBrains Mono"],"body-sm":["Inter"],"label-hotkey":["JetBrains Mono"],"label-code-lg":["JetBrains Mono"],"headline-lg":["Inter"],"headline-sm":["Inter"],"headline-md":["Inter"],"label-code-sm":["JetBrains Mono"],"body-lg":["Inter"]},fontSize:{"body-md":["0.8125rem",{"lineHeight":"1.1875rem","fontWeight":"400"}],"label-code-md":["0.75rem",{"lineHeight":"0.875rem","letterSpacing":"-0.02em","fontWeight":"500"}],"body-sm":["0.75rem",{"lineHeight":"1rem","fontWeight":"400"}],"label-hotkey":["0.625rem",{"lineHeight":"0.75rem","letterSpacing":"0.04em","fontWeight":"600"}],"label-code-lg":["0.8125rem",{"lineHeight":"1rem","letterSpacing":"-0.02em","fontWeight":"500"}],"headline-lg":["1.25rem",{"lineHeight":"1.5rem","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-sm":["0.875rem",{"lineHeight":"1.125rem","letterSpacing":"-0.005em","fontWeight":"600"}],"headline-md":["1rem",{"lineHeight":"1.25rem","letterSpacing":"-0.01em","fontWeight":"600"}],"label-code-sm":["0.6875rem",{"lineHeight":"0.75rem","letterSpacing":"0em","fontWeight":"500"}],"body-lg":["0.9375rem",{"lineHeight":"1.375rem","fontWeight":"400"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 h-14 bg-surface-container-lowest z-50 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 w-full px-margin flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-md w-[240px] shrink-0"><div class="w-8 h-8 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center font-headline-sm font-bold tracking-tight">H</div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">Hollis Trust</span><span class="font-label-code-sm text-label-code-sm text-outline uppercase tracking-wider">MOD OPS v4.2</span></div></div><div class="flex-1 max-w-xl mx-auto"><div class="relative flex items-center w-full"><span class="material-symbols-outlined absolute left-space-md text-[18px] text-outline">search</span><input class="w-full h-8 pl-9 pr-14 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest" placeholder="Search reviews, author hash, order ID, product SKU..." type="text"/><div class="absolute right-space-sm flex items-center gap-1"><kbd class="px-1.5 py-0.5 rounded bg-surface-container font-label-hotkey text-label-hotkey text-on-surface-variant">⌘K</kbd></div></div></div><div class="flex items-center gap-space-lg shrink-0"><div class="flex items-center gap-space-sm px-space-sm py-1 rounded-full bg-surface-container-low"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-code-sm text-label-code-sm text-primary uppercase font-bold">Live Stream</span></div><div class="h-4 w-px bg-surface-container-high"></div><button class="flex items-center text-outline hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">keyboard</span></button><button class="relative flex items-center text-outline hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-error"></span></button><div class="flex items-center gap-space-sm pl-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col text-left"><span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface leading-tight">op_mc</span><span class="font-label-code-sm text-label-code-sm text-outline leading-tight">Lead Analyst</span></div></div></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-[240px] bg-surface-container-low z-40 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex flex-col gap-space-md"><div class="flex items-center justify-between px-space-xs"><span class="font-label-code-sm text-label-code-sm font-bold uppercase tracking-wider text-outline">Queues</span><span class="font-label-code-sm text-label-code-sm text-outline">Active</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container-lowest text-primary font-semibold shadow-[0_1px_4px_rgba(0,0,0,0.03)]"><a class="flex items-center justify-between px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="triage-inbox" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">inbox</span><span>Triage Inbox</span></div><span class="px-1.5 py-0.2 rounded bg-error-container text-on-error-container font-label-code-sm text-label-code-sm font-bold">15</span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="needs-redaction" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">edit_note</span><span>Needs Redaction</span></div><span class="px-1.5 py-0.2 rounded bg-surface-container font-label-code-sm text-label-code-sm font-semibold text-on-surface">5</span></a><a aria-current="page" class="flex items-center justify-between px-space-sm py-1.5 rounded-lg transition-all bg-surface-container-lowest text-primary font-semibold shadow-[0_1px_4px_rgba(0,0,0,0.03)]" data-path="media-blur-inspector" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">blur_on</span><span>Media Blur</span></div><span class="px-1.5 py-0.2 rounded bg-surface-container font-label-code-sm text-label-code-sm font-semibold text-on-surface">4</span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="low-star-escalations" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">grade</span><span>Low-Star Escalations</span></div><span class="px-1.5 py-0.2 rounded bg-surface-container font-label-code-sm text-label-code-sm font-semibold text-on-surface">6</span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="fraud-hold" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">gavel</span><span>Fraud Hold</span></div><span class="px-1.5 py-0.2 rounded bg-secondary-fixed text-on-secondary-fixed-variant font-label-code-sm text-label-code-sm font-bold">38</span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="brigade-protection" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">shield</span><span>Brigade Protection</span></div><span class="w-2 h-2 rounded-full bg-primary"></span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="published-reviews" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">task_alt</span><span>Published</span></div><span class="font-label-code-sm text-label-code-sm text-outline">4,820</span></a></nav></div><div class="bg-surface-container-lowest p-space-md rounded-xl flex flex-col gap-space-sm shadow-[0_1px_4px_rgba(0,0,0,0.03)]"><div class="flex items-center justify-between"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-tertiary">radar</span><span class="font-headline-sm text-headline-sm text-on-surface">Defect Radar</span></div><span class="px-1.5 py-0.5 rounded bg-surface-container font-label-code-sm text-label-code-sm text-outline">Live</span></div><div class="flex flex-col gap-1"><div class="flex justify-between items-center"><span class="font-body-sm text-body-sm text-outline">Spam Velocity</span><span class="font-label-code-sm text-label-code-sm text-error font-semibold">+14.8%</span></div><div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-error rounded-full w-[65%]"></div></div></div><div class="flex justify-between items-center pt-space-xs"><span class="font-body-sm text-body-sm text-outline">PII Leaks</span><span class="font-label-code-sm text-label-code-sm text-primary font-semibold">0.02%</span></div></div></aside><div class="pl-[240px]"><div class="fixed top-14 left-[240px] right-0 h-11 bg-surface-container z-30 shadow-[0_1px_6px_rgba(0,0,0,0.02)]"><div class="h-11 w-full px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-xl overflow-x-auto"><div class="flex items-center gap-space-xs"><span class="font-body-sm text-body-sm text-outline">Pending:</span><span class="font-label-code-md text-label-code-md font-bold text-on-surface">15</span></div><div class="flex items-center gap-space-xs"><span class="font-body-sm text-body-sm text-outline">Auto-approved today:</span><span class="font-label-code-md text-label-code-md font-bold text-primary">91%</span></div><div class="flex items-center gap-space-xs"><span class="font-body-sm text-body-sm text-outline">Avg triage:</span><span class="font-label-code-md text-label-code-md font-bold text-on-surface">4.2 s</span></div><div class="flex items-center gap-space-xs"><span class="font-body-sm text-body-sm text-outline">Brigade shield:</span><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container-lowest font-label-code-sm text-label-code-sm font-semibold text-primary"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Normal</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden md:flex items-center gap-space-xs"><span class="font-body-sm text-body-sm text-outline">Hotkeys:</span><div class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 rounded bg-surface-container-lowest font-label-hotkey text-label-hotkey text-outline">[A] Approve</kbd><kbd class="px-1.5 py-0.5 rounded bg-surface-container-lowest font-label-hotkey text-label-hotkey text-outline">[R] Reject</kbd><kbd class="px-1.5 py-0.5 rounded bg-surface-container-lowest font-label-hotkey text-label-hotkey text-outline">[E] Escalate</kbd></div></div></div></div></div><main class="relative pt-[100px] w-full min-h-screen bg-surface px-margin py-space-lg"><div class="flex flex-col w-full">
+<!-- Interactive Viewport Layout: Two Columns (Triage List 410px + Inspector Stage Fluid) -->
+<div class="flex w-full gap-space-lg items-start">
+<!-- LEFT PANEL: Triage Stream (Queue: Media Blur, 4 items pending) -->
+<div class="w-[410px] shrink-0 flex flex-col gap-space-sm">
+<!-- Queue Header Bar -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Media Blur Inspector</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-code-sm text-label-code-sm text-outline">Q4</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Oldest submission first · 4 pending redactions</span>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="w-7 h-7 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors" title="Filter Queue">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+</button>
+<button class="w-7 h-7 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors" title="Sort Order">
+<span class="material-symbols-outlined text-[16px]">swap_vert</span>
+</button>
+</div>
+</div>
+<!-- Triage Stream Rows -->
+<div class="flex flex-col gap-1.5">
+<!-- ROW 1: SELECTED (Dana K. - Pour-Over Kettle) -->
+<div class="relative bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all cursor-pointer">
+<div class="absolute left-0 top-3 bottom-3 w-1 bg-primary rounded-r"></div>
+<div class="flex items-start justify-between gap-space-sm pl-1.5">
+<div class="flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[14px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">5.0</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-space-xs truncate">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Pour-Over Kettle EKG</span>
+<span class="text-outline text-body-sm">·</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Dana K.</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-primary font-label-code-sm text-label-code-sm font-medium">Verified</span>
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-code-sm text-label-code-sm font-semibold">PII: Shipping Label</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-code-sm text-label-code-sm text-outline">1 Photo</span>
+</div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">12m</span>
+</div>
+</div>
+<!-- ROW 2: Elena R. -->
+<div class="bg-surface-container-lowest/80 hover:bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[14px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">5.0</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-space-xs truncate">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Linen Overshirt</span>
+<span class="text-outline text-body-sm">·</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Elena R.</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-primary font-label-code-sm text-label-code-sm font-medium">Verified</span>
+<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-label-code-sm text-label-code-sm font-medium">Phone detected</span>
+</div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">28m</span>
+</div>
+</div>
+<!-- ROW 3: user_83f2 -->
+<div class="bg-surface-container-lowest/80 hover:bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[14px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">1.0</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-space-xs truncate">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Ceramic Pourer Mug</span>
+<span class="text-outline text-body-sm">·</span>
+<span class="font-label-code-sm text-label-code-sm text-outline truncate">user_83f2</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-code-sm text-label-code-sm text-outline">Unverified</span>
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-code-sm text-label-code-sm font-semibold">Bot cluster · risk 85</span>
+</div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">1h</span>
+</div>
+</div>
+<!-- ROW 4: Marcus T. -->
+<div class="bg-surface-container-lowest/80 hover:bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[14px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">2.0</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-space-xs truncate">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Heavy Wool Trench</span>
+<span class="text-outline text-body-sm">·</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Marcus T.</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-primary font-label-code-sm text-label-code-sm font-medium">Verified</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface font-label-code-sm text-label-code-sm font-medium">QA: "seam torn"</span>
+</div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">1h 14m</span>
+</div>
+</div>
+<!-- ROW 5: Priya S. -->
+<div class="bg-surface-container-lowest/80 hover:bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[14px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">4.0</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-space-xs truncate">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Full Zip Daily Hoodie</span>
+<span class="text-outline text-body-sm">·</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Priya S.</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed-variant font-label-code-sm text-label-code-sm font-medium">Gifted · Disclosed</span>
+</div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">2h</span>
+</div>
+</div>
+<!-- ROW 6: Owen L. -->
+<div class="bg-surface-container-lowest/80 hover:bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[14px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">3.0</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-space-xs truncate">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Precision Grinder Ode</span>
+<span class="text-outline text-body-sm">·</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Owen L.</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-primary font-label-code-sm text-label-code-sm font-medium">Verified</span>
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-code-sm text-label-code-sm font-medium">Competitor Link</span>
+</div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">3h</span>
+</div>
+</div>
+<!-- ROW 7: Mei W. -->
+<div class="bg-surface-container-lowest/80 hover:bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[14px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">5.0</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-space-xs truncate">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Stoneware Salad Bowl</span>
+<span class="text-outline text-body-sm">·</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Mei W.</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-primary font-label-code-sm text-label-code-sm font-medium">Verified</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-code-sm text-label-code-sm text-on-surface">Photo Check</span>
+</div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">4h</span>
+</div>
+</div>
+<!-- ROW 8: Sam P. -->
+<div class="bg-surface-container-lowest/80 hover:bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[14px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">4.0</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-space-xs truncate">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Linen Overshirt M</span>
+<span class="text-outline text-body-sm">·</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Sam P.</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-code-sm text-label-code-sm text-outline">Repeat Buyer (4)</span>
+</div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline shrink-0">5h</span>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT PANEL: Inspector Stage (Fluid width) -->
+<div class="flex-1 min-w-0 bg-surface-container-lowest rounded-xl shadow-sm flex flex-col p-space-lg">
+<!-- Top Stage Header: Review Details Context -->
+<div class="flex items-center justify-between pb-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">"Pours like a dream"</span>
+<div class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[16px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px] text-amber-500 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-primary font-label-code-sm text-label-code-sm font-semibold">Verified Purchase</span>
+</div>
+<div class="flex items-center gap-space-xs font-body-sm text-body-sm text-outline mt-0.5">
+<span class="text-on-surface font-medium">Dana K.</span>
+<span>·</span>
+<span class="font-label-code-sm text-label-code-sm">Order #HG-8492</span>
+<span>·</span>
+<span>SKU: FLW-STAGG-MBK</span>
+<span>·</span>
+<span>Oct 22, 2026 14:18 UTC</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-amber-50 text-amber-800 font-label-code-sm text-label-code-sm font-medium">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+            Automated Flag: Physical Address PII on Box Label
+          </span>
+</div>
+</div>
+<!-- Stage Toolbar: Redaction & View Controls -->
+<div class="h-11 bg-surface-container-low rounded-lg px-space-md flex items-center justify-between mb-space-md">
+<!-- Tools Group -->
+<div class="flex items-center gap-1.5">
+<!-- Active Mode -->
+<button class="h-7 px-space-md rounded bg-inverse-surface text-inverse-on-surface font-label-code-sm text-label-code-sm font-semibold flex items-center gap-1.5 shadow-sm transition-colors" id="btnDragBlur">
+<span class="material-symbols-outlined text-[15px]">blur_circular</span>
+<span>Drag to Blur</span>
+<kbd class="ml-1 px-1 py-0.2 rounded bg-surface-variant text-on-surface-variant font-label-hotkey text-label-hotkey">B</kbd>
+</button>
+<button class="h-7 px-space-md rounded bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-code-sm text-label-code-sm font-medium flex items-center gap-1.5 shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[15px] text-primary">auto_fix_high</span>
+<span>Auto-Blur Detected Label</span>
+</button>
+<button class="h-7 px-space-md rounded bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-code-sm text-label-code-sm font-medium flex items-center gap-1.5 shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[15px] text-outline">grid_view</span>
+<span>Pixelate</span>
+</button>
+<div class="h-4 w-px bg-surface-container-highest mx-1"></div>
+<button class="h-7 px-space-sm rounded hover:bg-error-container text-error font-label-code-sm text-label-code-sm font-medium flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[15px]">restart_alt</span>
+<span>Reset Original</span>
+</button>
+</div>
+<!-- Zoom / View Controls -->
+<div class="flex items-center gap-space-xs font-label-code-sm text-label-code-sm">
+<div class="flex items-center bg-surface-container-lowest rounded shadow-sm px-1 py-0.5">
+<button class="w-6 h-6 rounded flex items-center justify-center text-outline hover:text-on-surface transition-colors" title="Zoom Out">
+<span class="material-symbols-outlined text-[14px]">remove</span>
+</button>
+<span class="px-2 font-semibold text-on-surface">100%</span>
+<button class="w-6 h-6 rounded flex items-center justify-center text-outline hover:text-on-surface transition-colors" title="Zoom In">
+<span class="material-symbols-outlined text-[14px]">add</span>
+</button>
+</div>
+<button class="w-7 h-7 rounded bg-surface-container-lowest hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface shadow-sm transition-colors" title="Fit to Screen">
+<span class="material-symbols-outlined text-[15px]">fit_screen</span>
+</button>
+</div>
+</div>
+<!-- Center Inspection Canvas Stage -->
+<div class="relative w-full h-[520px] bg-stone-900 rounded-xl overflow-hidden flex items-center justify-center shadow-inner group select-none">
+<!-- Photographic Subject: Matte Black Kettle + Box with Label -->
+<img class="w-full h-full object-contain" data-alt="A matte black Fellow Stagg electric pour-over kettle resting on a wooden kitchen countertop next to its cardboard unboxing packaging which displays a white courier shipping barcode label with residential address text, warm moody morning light in a serene Scandinavian kitchen" id="photoReviewTarget" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjp-AGZlyo7mOki-EAvuocgmyUM17B1LlVWXjC59G7jbGrXT1QtxLLxREWux44rnc7P5MUUB5VnjHg8gNPBsBTVaBgflJjHoYYu4YXzDyUqs_RgR4Rebu-IbJcuGYuR5wUE8fOjXvzQNbgM4yx27rJvMDfq5g9YWSeJMKyPwCCyBYReryiNuggX1ur7C1inS3GxPecdIec7tT6onuYy-N8yyc9utlwi3wDM7AG6gb9"/>
+<!-- High-Precision Interactive Privacy Blur Overlay Layer (Positioned over Shipping Label) -->
+<div class="absolute w-[184px] h-[162px] left-[39%] top-[60%] cursor-move transition-shadow" id="blurSelectionBox" style="backdrop-filter: blur(14px) saturate(120%); background: rgba(255, 255, 255, 0.28); box-shadow: 0 0 0 1.5px #006948, 0 8px 24px rgba(0,0,0,0.35);">
+<!-- Floating Redaction Status Pill directly over top edge -->
+<div class="absolute -top-7 left-0 flex items-center gap-1.5 px-2 py-0.5 rounded bg-primary text-on-primary font-label-code-sm text-label-code-sm font-semibold shadow-md pointer-events-none">
+<span class="material-symbols-outlined text-[13px]">lock</span>
+<span>PII Redacted (14px Gaussian)</span>
+</div>
+<!-- Crosshair Guide (Center Indicator) -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
+<div class="w-3 h-px bg-primary"></div>
+<div class="h-3 w-px bg-primary"></div>
+</div>
+<!-- 8 Strict Crisp White Geometric Resize Handles -->
+<!-- Northwest -->
+<div class="absolute -top-1.5 -left-1.5 w-3 h-3 bg-surface-container-lowest rounded-xs shadow-sm ring-1 ring-primary cursor-nwse-resize"></div>
+<!-- North -->
+<div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-surface-container-lowest rounded-xs shadow-sm ring-1 ring-primary cursor-ns-resize"></div>
+<!-- Northeast -->
+<div class="absolute -top-1.5 -right-1.5 w-3 h-3 bg-surface-container-lowest rounded-xs shadow-sm ring-1 ring-primary cursor-nesw-resize"></div>
+<!-- East -->
+<div class="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-surface-container-lowest rounded-xs shadow-sm ring-1 ring-primary cursor-ew-resize"></div>
+<!-- Southeast -->
+<div class="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-surface-container-lowest rounded-xs shadow-sm ring-1 ring-primary cursor-nwse-resize"></div>
+<!-- South -->
+<div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-surface-container-lowest rounded-xs shadow-sm ring-1 ring-primary cursor-ns-resize"></div>
+<!-- Southwest -->
+<div class="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-surface-container-lowest rounded-xs shadow-sm ring-1 ring-primary cursor-nesw-resize"></div>
+<!-- West -->
+<div class="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-surface-container-lowest rounded-xs shadow-sm ring-1 ring-primary cursor-ew-resize"></div>
+</div>
+<!-- Stage Live Inspection Badge -->
+<div class="absolute bottom-3 left-3 flex items-center gap-2 px-2.5 py-1 rounded bg-black/75 backdrop-blur-md text-white font-label-code-sm text-label-code-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+<span>Target: Courier Shipping Slip #9405-5020</span>
+<span class="text-stone-400">|</span>
+<span class="text-stone-300">Confidence: 99.4%</span>
+</div>
+<!-- Crosshair Cursor Prompt (Bottom Right) -->
+<div class="absolute bottom-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded bg-black/60 backdrop-blur-md text-stone-300 font-label-code-sm text-label-code-sm">
+<span class="material-symbols-outlined text-[14px]">pan_tool</span>
+<span>Click &amp; drag box to reposition blur</span>
+</div>
+</div>
+<!-- Sub-Stage Section: Before & After Verification + Sanitization Telemetry -->
+<div class="flex items-center justify-between pt-space-md gap-space-lg">
+<!-- Left: Side-by-side verification thumbs -->
+<div class="flex items-center gap-space-md shrink-0">
+<!-- Thumbnail 1: Original Unsanitized -->
+<div class="flex flex-col gap-1">
+<div class="relative w-28 h-20 rounded-lg overflow-hidden bg-stone-900 ring-2 ring-error/50">
+<img class="w-full h-full object-cover opacity-80" data-alt="Close up crop of the raw courier label containing physical street address and recipient name on cardboard box" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEEo0g6WjiKUCdXlhol0_g6iSGfy3BhGw-2Z0iiiKgEkjVUJcqGYTzmCHg_MZX5IMroyTHGau85VbsVAhKSBfDe28-V66ka62ymb6nIB5kLPZZBp0If7C6mn-YbKU54Wz5xk-CYe_PIQd8jTfhpPXk0koc9pI-L2mnDBqlNAvVpr2nLij3ypdLfRU3tUkgsmLMYtJBZ9GYh2dpXklBTKmUEKctqJe-kTNUG576rge2"/>
+<div class="absolute top-1 left-1 px-1 py-0.2 rounded bg-error text-white font-label-code-sm text-label-code-sm font-bold uppercase text-[9px]">
+                Private
+              </div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline">Raw (Unredacted)</span>
+</div>
+<!-- Transformation Arrow -->
+<div class="flex flex-col items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+<span class="font-label-hotkey text-label-hotkey">BLUR</span>
+</div>
+<!-- Thumbnail 2: Public Redacted WebP -->
+<div class="flex flex-col gap-1">
+<div class="relative w-28 h-20 rounded-lg overflow-hidden bg-stone-900 ring-2 ring-primary">
+<img class="w-full h-full object-cover" data-alt="Sanitized preview of the review photo showing blurred out shipping details on the packaging box" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsu8S0plqPSjjFiwBR5OK875rSM1JAndP9BAbOmetecm1LaW8r3lpelV8OTYA_uGr_h4i3dUL-2S-QIqeykSkmHya4Pb4l-_efFrQQZoqsKWoS5gaC55h88xcHkBeB05MYVska19burRlf80ieQCxfIqRDZgAWW8bwTl0ZiIWBl4J2XyoHCv8ZiCFqkDajSLeA0wpD-DqutH7t6-kSIosn2ZwkpbYAXmEmxm8sbDah"/>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-12 h-6 backdrop-blur-md bg-white/20 rounded-xs"></div>
+</div>
+<div class="absolute top-1 left-1 px-1 py-0.2 rounded bg-primary text-white font-label-code-sm text-label-code-sm font-bold uppercase text-[9px]">
+                Public CDN
+              </div>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-primary font-semibold">WebP Ready</span>
+</div>
+</div>
+<!-- Center: Stripped Telemetry & Compression Specs -->
+<div class="flex-1 bg-surface-container rounded-lg p-space-sm flex flex-col justify-center gap-1">
+<div class="flex items-center gap-space-md font-label-code-sm text-label-code-sm text-on-surface">
+<span class="flex items-center gap-1 font-semibold text-primary">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+              EXIF &amp; GPS coordinates stripped
+            </span>
+<span class="flex items-center gap-1 font-semibold text-primary">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+              Device Serial / IMEI pruned
+            </span>
+</div>
+<div class="flex items-center justify-between text-outline font-label-code-sm text-label-code-sm pt-0.5">
+<span>Compression: 1.2 MB (JPEG) → 284 KB (Lossless WebP)</span>
+<span>Target Hash: sha256:8f4c2...91e</span>
+</div>
+</div>
+</div>
+<!-- Pinned Footer Decision Bar -->
+<div class="flex items-center justify-between pt-space-lg mt-space-md bg-surface-container-lowest">
+<div class="flex items-center gap-space-sm">
+<button class="h-8 px-space-md rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-headline-sm font-medium transition-colors">
+            Cancel
+          </button>
+<button class="h-8 px-space-md rounded bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-headline-sm text-headline-sm flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[15px]">flag</span>
+<span>Flag for Manual T2 Escalation</span>
+<kbd class="px-1 py-0.2 rounded bg-surface-container-lowest font-label-hotkey text-label-hotkey text-outline">E</kbd>
+</button>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="h-8 px-space-md rounded bg-surface-container-low hover:bg-surface-container text-error font-headline-sm text-headline-sm flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[15px]">delete_sweep</span>
+<span>Discard Photo Only</span>
+<kbd class="px-1 py-0.2 rounded bg-surface-container-lowest font-label-hotkey text-label-hotkey text-error">D</kbd>
+</button>
+<button class="h-8 px-space-xl rounded bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold flex items-center gap-2 shadow-sm transition-all" id="btnCommitSanitized">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span>Commit Sanitized Photo &amp; Approve</span>
+<kbd class="px-1.5 py-0.5 rounded bg-on-primary-fixed/20 text-on-primary font-label-hotkey text-label-hotkey">↵ Enter</kbd>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interactive drag-adjust simulation for the blur box inside the inspection stage
+  (function() {
+    const box = document.getElementById('blurSelectionBox');
+    const commitBtn = document.getElementById('btnCommitSanitized');
+    if (!box) return;
+
+    let isDragging = false;
+    let startX, startY, initialLeft, initialTop;
+
+    box.addEventListener('mousedown', (e) => {
+      // Don't drag if clicking resize handles directly
+      if (e.target !== box && !e.target.classList.contains('pointer-events-none')) return;
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      initialLeft = box.offsetLeft;
+      initialTop = box.offsetTop;
+      box.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      box.style.left = `${initialLeft + dx}px`;
+      box.style.top = `${initialTop + dy}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        box.style.cursor = 'move';
+      }
+    });
+
+    // Keyboard hotkey simulation: Press Enter to trigger approve confirmation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (commitBtn) {
+          commitBtn.classList.add('scale-95');
+          setTimeout(() => commitBtn.classList.remove('scale-95'), 150);
+        }
+      }
+    });
+  })();
+</script></main></div></body></html>

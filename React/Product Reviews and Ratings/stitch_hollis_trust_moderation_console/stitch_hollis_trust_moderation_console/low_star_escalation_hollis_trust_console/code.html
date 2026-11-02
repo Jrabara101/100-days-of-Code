@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"inverse-on-surface":"#f3f1e9","on-tertiary":"#ffffff","tertiary":"#4b41e1","tertiary-container":"#645efb","on-surface-variant":"#3d4a42","surface-dim":"#dcdad2","error":"#ba1a1a","outline-variant":"#bccac0","on-primary-fixed":"#002114","on-error":"#ffffff","inverse-primary":"#68dba9","surface-container-high":"#eae8e0","error-container":"#ffdad6","surface-container-lowest":"#ffffff","on-primary":"#ffffff","secondary-fixed":"#dbe1ff","tertiary-fixed":"#e2dfff","on-secondary-fixed-variant":"#003ea8","surface-tint":"#006c4a","on-error-container":"#93000a","secondary-fixed-dim":"#b4c5ff","secondary-container":"#316bf3","tertiary-fixed-dim":"#c3c0ff","primary-fixed-dim":"#68dba9","on-secondary-container":"#fefcff","surface-container-highest":"#e4e3db","surface-container":"#f0eee6","surface-variant":"#e4e3db","background":"#fbf9f1","on-background":"#1b1c17","on-tertiary-container":"#fffbff","surface":"#fbf9f1","surface-container-low":"#f5f4ec","surface-bright":"#fbf9f1","on-primary-container":"#f5fff7","outline":"#6d7a72","on-surface":"#1b1c17","on-secondary":"#ffffff","on-primary-fixed-variant":"#005137","inverse-surface":"#30312c","primary-container":"#00855d","on-tertiary-fixed":"#0f0069","on-secondary-fixed":"#00174b","primary":"#006948","secondary":"#0051d5","on-tertiary-fixed-variant":"#3323cc","primary-fixed":"#85f8c4"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{margin:"1rem","space-xs":"0.25rem","space-xl":"1.5rem","space-sm":"0.5rem",gutter:"0.75rem","space-lg":"1rem","space-md":"0.75rem"},fontFamily:{"label-code-sm":["JetBrains Mono"],"headline-sm":["Inter"],"label-code-lg":["JetBrains Mono"],"body-sm":["Inter"],"headline-lg":["Inter"],"label-hotkey":["JetBrains Mono"],"body-md":["Inter"],"body-lg":["Inter"],"headline-md":["Inter"],"label-code-md":["JetBrains Mono"]},fontSize:{"label-code-sm":["0.6875rem",{lineHeight:"0.75rem",letterSpacing:"0em",fontWeight:"500"}],"headline-sm":["0.875rem",{lineHeight:"1.125rem",letterSpacing:"-0.005em",fontWeight:"600"}],"label-code-lg":["0.8125rem",{lineHeight:"1rem",letterSpacing:"-0.02em",fontWeight:"500"}],"body-sm":["0.75rem",{lineHeight:"1rem",fontWeight:"400"}],"headline-lg":["1.25rem",{lineHeight:"1.5rem",letterSpacing:"-0.015em",fontWeight:"600"}],"label-hotkey":["0.625rem",{lineHeight:"0.75rem",letterSpacing:"0.04em",fontWeight:"600"}],"body-md":["0.8125rem",{lineHeight:"1.1875rem",fontWeight:"400"}],"body-lg":["0.9375rem",{lineHeight:"1.375rem",fontWeight:"400"}],"headline-md":["1rem",{lineHeight:"1.25rem",letterSpacing:"-0.01em",fontWeight:"600"}],"label-code-md":["0.75rem",{lineHeight:"0.875rem",letterSpacing:"-0.02em",fontWeight:"500"}]}}}}</script></head><body class="bg-surface text-on-surface font-body-md text-body-md"><aside class="fixed left-0 top-0 h-full w-60 bg-surface-container-low z-50 flex flex-col shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 px-space-md flex items-center justify-between bg-surface-container"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[20px]">verified_user</span><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase">Hollis Trust</span></div><span class="font-label-code-sm text-label-code-sm bg-surface-container-high text-on-surface-variant px-space-xs py-0.5 rounded">OPS</span></div><div class="px-space-md py-space-sm"><div class="font-label-code-sm text-label-code-sm text-outline uppercase tracking-wider mb-space-xs">Moderation Queues</div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm text-headline-sm rounded"><a aria-current="page" class="flex items-center justify-between px-space-sm py-1.5 transition-colors bg-primary-container text-on-primary-container font-headline-sm text-headline-sm rounded" data-path="moderation-console" href="#"><span class="font-body-sm text-body-sm">Low-Star Escalations</span><span class="font-label-code-sm text-label-code-sm bg-error-container text-on-error-container px-1.5 rounded">18</span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="priority-pii-triage" href="#"><span class="font-body-sm text-body-sm">PII Flagged Queue</span><span class="font-label-code-sm text-label-code-sm bg-surface-container-high text-on-surface px-1.5 rounded">7</span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="fraud-anomaly-feed" href="#"><span class="font-body-sm text-body-sm">Fraud Anomalies</span><span class="font-label-code-sm text-label-code-sm bg-surface-container-high text-on-surface px-1.5 rounded">24</span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="verified-buyer-intake" href="#"><span class="font-body-sm text-body-sm">Pending Intake</span><span class="font-label-code-sm text-label-code-sm bg-surface-container-high text-on-surface px-1.5 rounded">142</span></a></nav></div><div class="mt-auto p-space-md bg-surface-container flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-code-sm text-label-code-sm text-on-surface-variant">Console Mode</span><span class="font-label-code-sm text-label-code-sm text-primary font-bold">ONLINE</span></div><div class="font-label-code-sm text-label-code-sm text-outline">Shift SLA: 98.4%</div></div></aside><div class="pl-60"><header class="fixed top-0 left-60 right-0 h-14 bg-surface/90 backdrop-blur-xl z-40 flex items-center justify-between px-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 rounded w-80"><span class="material-symbols-outlined text-outline text-[16px]">search</span><span class="font-body-sm text-body-sm text-outline">Search reviews, order ID, reviewer...</span><span class="font-label-hotkey text-label-hotkey bg-surface-container-high text-outline px-1 rounded ml-auto">/</span></div><div class="flex items-center gap-space-xs"><span class="font-label-hotkey text-label-hotkey bg-surface-container-high text-on-surface-variant px-1 rounded">[A] Approve</span><span class="font-label-hotkey text-label-hotkey bg-surface-container-high text-on-surface-variant px-1 rounded">[R] Reject</span><span class="font-label-hotkey text-label-hotkey bg-surface-container-high text-on-surface-variant px-1 rounded">[E] Escalate</span></div></div><div class="flex items-center gap-space-md"><span class="font-label-code-sm text-label-code-sm text-on-surface-variant">Analyst: Team Delta</span><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-14 px-space-lg bg-surface"><div class="flex flex-col w-full">
+<!-- Telemetry Bar -->
+<div class="w-full bg-surface-container-low px-space-lg py-space-xs flex flex-wrap items-center justify-between gap-space-md shadow-sm mb-space-sm rounded-lg">
+<div class="flex items-center gap-space-md text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Queue Stream Active</span>
+</div>
+<span class="text-outline-variant font-label-code-sm text-label-code-sm">/</span>
+<div class="flex items-center gap-1">
+<span>Pending:</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">15</span>
+</div>
+<span class="text-outline-variant font-label-code-sm text-label-code-sm">·</span>
+<div class="flex items-center gap-1">
+<span>Auto-approved today:</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-primary">91%</span>
+</div>
+<span class="text-outline-variant font-label-code-sm text-label-code-sm">·</span>
+<div class="flex items-center gap-1">
+<span>Avg triage:</span>
+<span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">4.2s</span>
+</div>
+<span class="text-outline-variant font-label-code-sm text-label-code-sm">·</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[15px]">security</span>
+<span>Brigade shield:</span>
+<span class="font-label-code-sm text-label-code-sm text-primary uppercase font-bold">Normal</span>
+</div>
+</div>
+<!-- Global Keycaps Context -->
+<div class="flex items-center gap-space-xs font-label-hotkey text-label-hotkey text-on-surface-variant">
+<span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface font-semibold">[A] Approve</span>
+<span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface font-semibold">[R] Reject</span>
+<span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface font-semibold">[E] Escalate</span>
+<span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface font-semibold">[M] Reply</span>
+</div>
+</div>
+<!-- Primary Triage Grid: Stream (400px) + Deep Inspection Pane (Fluid) -->
+<div class="grid grid-cols-12 gap-space-md w-full items-start">
+<!-- Column 1: Triage List (5 of 12 cols, ~410px) -->
+<div class="col-span-12 lg:col-span-5 flex flex-col gap-space-xs bg-surface-container-lowest p-space-sm rounded-lg shadow-sm">
+<!-- List Header and Mini-Filters -->
+<div class="flex items-center justify-between px-space-xs py-space-xs bg-surface-container-low rounded">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">Low-Star Escalations</span>
+<span class="font-label-code-sm text-label-code-sm bg-error-container text-on-error-container px-1.5 py-0.5 rounded font-bold">6</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<button class="flex items-center gap-1 font-body-sm text-body-sm bg-surface-container hover:bg-surface-container-high px-space-xs py-0.5 rounded text-on-surface transition-colors">
+<span>Oldest first</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface" title="Filter list">
+<span class="material-symbols-outlined text-[15px]">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Queue Items Stream -->
+<div class="flex flex-col gap-1.5 mt-space-xs">
+<!-- Row 1: Unverified bot anomaly -->
+<div class="flex flex-col p-space-sm rounded bg-surface hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-1.5">
+<div class="flex text-[#F59E0B]">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface truncate max-w-[160px]">Ceramic Mug</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">user_83f2</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm bg-error-container text-on-error-container px-1 rounded font-semibold">risk 85</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span class="truncate">Glaze cracked on first hot pour...</span>
+<span class="font-label-code-sm text-label-code-sm text-outline whitespace-nowrap">Bot cluster</span>
+</div>
+</div>
+<!-- Row 2: SELECTED ROW (Wool Coat) -->
+<div class="flex flex-col p-space-sm rounded bg-surface-container relative shadow-sm cursor-pointer">
+<!-- Active Left Accent Indicator -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l"></div>
+<div class="flex items-center justify-between mb-1 pl-1">
+<div class="flex items-center gap-1.5">
+<div class="flex text-[#F59E0B]">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold truncate max-w-[150px]">Wool Coat · L</span>
+<span class="font-label-code-sm text-label-code-sm bg-primary/10 text-primary px-1 rounded">Verified</span>
+</div>
+<div class="flex items-center gap-1 font-label-code-sm text-label-code-sm text-error font-medium">
+<span class="material-symbols-outlined text-[13px]">timer</span>
+<span>31m SLA</span>
+</div>
+</div>
+<div class="flex items-center justify-between pl-1">
+<span class="font-body-sm text-body-sm text-on-surface font-medium truncate">Marcus T. — QA: "seam torn"</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">Oct 22</span>
+</div>
+</div>
+<!-- Row 3: Espresso Grinder -->
+<div class="flex flex-col p-space-sm rounded bg-surface hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-1.5">
+<div class="flex text-[#F59E0B]">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface truncate max-w-[160px]">Espresso Grinder</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">Owen L.</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm bg-secondary-fixed text-on-secondary-fixed-variant px-1 rounded font-medium">Comp Link</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span class="truncate">Mentioned competitor store URL...</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">1h ago</span>
+</div>
+</div>
+<!-- Row 4: Cast Iron Skillet -->
+<div class="flex flex-col p-space-sm rounded bg-surface hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-1.5">
+<div class="flex text-[#F59E0B]">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface truncate max-w-[160px]">Cast Iron Skillet</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">Sarah D.</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm bg-surface-container-highest text-on-surface-variant px-1 rounded">Ship Defect</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span class="truncate">Handle bent on pallet arrival</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">2h ago</span>
+</div>
+</div>
+<!-- Row 5: Pour-Over Stand -->
+<div class="flex flex-col p-space-sm rounded bg-surface hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-1.5">
+<div class="flex text-[#F59E0B]">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface truncate max-w-[160px]">Pour-Over Stand</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">Alex K.</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm bg-surface-container-highest text-outline px-1 rounded">Unverified</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span class="truncate">Hinge snapped during initial test</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">3h ago</span>
+</div>
+</div>
+<!-- Row 6: Linen Duvet -->
+<div class="flex flex-col p-space-sm rounded bg-surface hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-1.5">
+<div class="flex text-[#F59E0B]">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface truncate max-w-[160px]">Linen Duvet Set</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">Nora P.</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm bg-primary/10 text-primary px-1 rounded">Verified</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span class="truncate">Dimensions 4 inches off Queen standard</span>
+<span class="font-label-code-sm text-label-code-sm text-outline">5h ago</span>
+</div>
+</div>
+</div>
+<!-- Pinned Live Defect Radar Alert -->
+<div class="mt-space-sm p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-error animate-ping"></span>
+<span class="font-label-code-sm text-label-code-sm uppercase font-bold text-error tracking-wider">Defect Radar Alert</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline">14m ago</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Wool Coat · Charcoal L</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          4 customer mentions of <span class="font-semibold text-on-surface underline decoration-error/50">"seam torn"</span> flagged within past 72h window.
+        </p>
+<div class="flex items-center justify-between mt-1 pt-1 font-label-code-sm text-label-code-sm text-outline">
+<span>Batch: LOT-441B</span>
+<span class="text-primary font-semibold hover:underline cursor-pointer">Open Radar Matrix →</span>
+</div>
+</div>
+</div>
+<!-- Column 2: Workspace Inspector Stage (7 of 12 cols, ~780px) -->
+<div class="col-span-12 lg:col-span-7 flex flex-col gap-space-md">
+<!-- Primary Review Detail Card -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md relative overflow-hidden">
+<!-- Header Info & Metadata -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex flex-wrap items-center justify-between gap-space-xs">
+<!-- 5-Star Rating Track: 2 active, 3 track -->
+<div class="flex items-center gap-1 text-[#F59E0B]">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[18px] text-surface-container-highest" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[18px] text-surface-container-highest" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[18px] text-surface-container-highest" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-code-md text-label-code-md text-on-surface font-bold ml-1">2.0</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-code-sm text-label-code-sm text-outline">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+<span>Oct 22, 2026 · 08:55 UTC</span>
+</div>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">
+            "Beautiful coat, seam tore in a week"
+          </h1>
+<!-- Reviewer Context Line -->
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1 font-body-sm text-body-sm text-on-surface-variant pt-0.5">
+<span class="font-semibold text-on-surface">Marcus T.</span>
+<span class="text-outline-variant">·</span>
+<span class="font-label-code-sm text-label-code-sm bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">Verified buyer</span>
+<span class="text-outline-variant">·</span>
+<span class="font-label-code-sm text-label-code-sm">Order #HG-7731</span>
+<span class="text-outline-variant">·</span>
+<span>Delivered Oct 12</span>
+<span class="text-outline-variant">·</span>
+<span class="font-label-code-sm text-label-code-sm text-on-surface">SKU-89211 ($285.00)</span>
+</div>
+</div>
+<!-- Product Snippet Reference -->
+<div class="flex items-center gap-space-md p-space-sm rounded bg-surface-container-low">
+<div class="w-12 h-12 rounded bg-surface-container-high flex-shrink-0 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[24px]">checkroom</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="font-headline-sm text-headline-sm text-on-surface truncate">Wool Coat · Charcoal / L</div>
+<div class="font-label-code-sm text-label-code-sm text-outline truncate">Hollis Atelier Outerwear Series · Winter Run 2026</div>
+</div>
+<div class="ml-auto flex items-center gap-1 font-label-code-sm text-label-code-sm text-primary cursor-pointer hover:underline">
+<span>Product Page</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</div>
+</div>
+<!-- Review Body prose -->
+<div class="bg-surface p-space-md rounded-lg">
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">
+            "I was really excited about this coat and loved the wool weight and fit out of the box. Unfortunately, after just five days of gentle office wear, the inner underarm seam completely tore open. Really disappointing for a $285 investment piece."
+          </p>
+</div>
+<!-- Amber Callout linking to Defect Radar -->
+<div class="p-space-md rounded-xl bg-amber-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-amber-500/20 text-[#B45309] flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+</div>
+<div class="flex flex-col">
+<div class="font-headline-sm text-headline-sm text-[#B45309]">
+                Defect Radar Link: 4 similar reports · Charcoal L · 72h
+              </div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+                Cluster detected across SKU-89211 manufacturing batch <span class="font-label-code-sm text-label-code-sm font-semibold text-on-surface">#LOT-441B</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end sm:self-center">
+<!-- Inline Mini Sparkline of reports over 3 days -->
+<svg class="w-16 h-6 text-[#B45309]" fill="none" viewbox="0 0 60 20">
+<path d="M2 18 L18 16 L34 10 L58 3" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<circle cx="58" cy="3" fill="currentColor" r="2.5"></circle>
+</svg>
+<button class="font-label-code-sm text-label-code-sm bg-amber-500/20 hover:bg-amber-500/30 text-[#B45309] font-bold px-space-sm py-1 rounded transition-colors whitespace-nowrap">
+              View trend →
+            </button>
+</div>
+</div>
+<!-- Integrated Brand Response Station -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-md">
+<!-- Mode Tabs -->
+<div class="flex items-center justify-between border-b pb-space-xs">
+<div class="flex items-center gap-space-xs font-headline-sm text-headline-sm">
+<button class="px-space-sm py-1.5 rounded bg-surface-container-lowest shadow-sm text-primary font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">forum</span>
+<span>Public response</span>
+</button>
+<button class="px-space-sm py-1.5 rounded hover:bg-surface-container text-on-surface-variant transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">mail</span>
+<span>Private make-good</span>
+</button>
+<button class="px-space-sm py-1.5 rounded hover:bg-surface-container text-on-surface-variant transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">bug_report</span>
+<span>Escalate to QA</span>
+</button>
+</div>
+<!-- Brand Response Taxonomy Chip -->
+<span class="font-label-code-sm text-label-code-sm bg-tertiary/10 text-tertiary px-2 py-0.5 rounded font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">verified</span>
+              Official response from Hollis Goods
+            </span>
+</div>
+<!-- Active Reply Editor Area -->
+<div class="flex flex-col gap-space-xs">
+<textarea class="w-full bg-surface-container-lowest text-on-surface p-space-sm rounded-lg font-body-md text-body-md focus:outline-none resize-none shadow-inner" placeholder="Draft official merchant reply..." rows="3">We're sorry, Marcus — that seam should never give. We've sent a replacement and flagged this batch for inspection.</textarea>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm px-1">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>Posting as <strong class="text-on-surface">Ana Ruiz</strong> · Head of Product Quality</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-outline">Auto-publishes to storefront upon approval</span>
+</div>
+</div>
+<!-- Attached Automated Make-Good Record -->
+<div class="bg-surface-container-lowest p-space-sm rounded-lg flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-code-sm text-label-code-sm uppercase tracking-wider text-outline">Make-good status:</span>
+<span class="font-label-code-sm text-label-code-sm bg-primary/10 text-primary px-2 py-0.5 rounded font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">local_shipping</span>
+                Replacement sent · Charcoal L
+              </span>
+</div>
+<div class="flex items-center gap-space-md font-label-code-sm text-label-code-sm text-on-surface-variant">
+<span>Tracking: <strong class="text-on-surface">#TRK-882193-FEDEX</strong></span>
+<span class="text-outline-variant">·</span>
+<span class="text-primary font-bold">Re-order $0.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Decision Dock (Pinned Bar across Inspector Bottom) -->
+<div class="bg-surface-container-low p-space-md rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-space-md">
+<!-- Secondary Actions Left -->
+<div class="flex items-center gap-space-xs">
+<button class="bg-surface-container-lowest hover:bg-surface-container-high px-space-md py-2 rounded text-on-surface font-headline-sm text-headline-sm flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">bug_report</span>
+<span>Escalate to QA</span>
+<span class="font-label-hotkey text-label-hotkey bg-surface-container px-1 py-0.5 rounded text-outline ml-1">E</span>
+</button>
+<button class="bg-surface-container-lowest hover:bg-surface-container-high px-space-md py-2 rounded text-on-surface font-headline-sm text-headline-sm flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit_note</span>
+<span>Add Internal Note</span>
+<span class="font-label-hotkey text-label-hotkey bg-surface-container px-1 py-0.5 rounded text-outline ml-1">N</span>
+</button>
+</div>
+<!-- Primary Action Right -->
+<div class="flex items-center gap-space-sm">
+<button class="bg-error-container hover:bg-error-container/80 text-on-error-container px-space-md py-2 rounded font-headline-sm text-headline-sm flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">block</span>
+<span>Reject Review</span>
+<span class="font-label-hotkey text-label-hotkey bg-surface-container-lowest px-1 py-0.5 rounded text-error ml-1">R</span>
+</button>
+<button class="bg-primary hover:bg-primary-container text-on-primary px-space-lg py-2 rounded font-headline-sm text-headline-sm font-semibold flex items-center gap-2 shadow-sm transition-all" id="approve-btn">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Approve & post reply</span>
+<span class="font-label-hotkey text-label-hotkey bg-primary-container text-on-primary px-1.5 py-0.5 rounded font-bold ml-1">A</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for hotkey visual response
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'a' || e.key === 'A') {
+      const btn = document.getElementById('approve-btn');
+      if (btn && !e.target.matches('textarea, input')) {
+        btn.classList.add('scale-95');
+        setTimeout(() => btn.classList.remove('scale-95'), 150);
+      }
+    }
+  });
+</script></main></div></body></html>
