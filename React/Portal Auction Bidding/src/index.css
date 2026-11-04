@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+    --bg-canvas: #FAF9F5;
+    --bg-surface: #FFFFFF;
+    --bg-surface-secondary: #F3F2EE;
+    --bg-surface-elevated: #FFFFFF;
+    --border-color: #E5E3DC;
+    --text-primary: #111315;
+    --text-muted: #646870;
+  }
+
+  .dark {
+    --bg-canvas: #0A0B0E;
+    --bg-surface: #12141A;
+    --bg-surface-secondary: #161922;
+    --bg-surface-elevated: #181B23;
+    --border-color: #252934;
+    --text-primary: #F8FAFC;
+    --text-muted: #8E96A8;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+  }
+
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Animations */
+@keyframes outbid-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.animate-outbid-shake {
+  animation: outbid-shake 0.4s ease-in-out;
+}
+
+@keyframes popcorn-surge {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 25px 5px rgba(245, 158, 11, 0.3); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+.animate-popcorn-surge {
+  animation: popcorn-surge 0.8s ease-out;
+}
+
+@keyframes proxy-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-proxy-pulse {
+  animation: proxy-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes stamp-slam {
+  0% { transform: scale(2.2) rotate(-15deg); opacity: 0; }
+  70% { transform: scale(0.95) rotate(-8deg); opacity: 0.9; }
+  100% { transform: scale(1) rotate(-8deg); opacity: 1; }
+}
+
+.animate-stamp-slam {
+  animation: stamp-slam 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Tabular numbers for clocks and bid tickers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 150, 170, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 150, 170, 0.45);
+}
