@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --canvas-obsidian: #0D0E11;
+    --canvas-console: #15171C;
+    --canvas-stage: #1C1F26;
+    --surface-glass-dock: rgba(21, 23, 28, 0.88);
+    --surface-glass-pill: rgba(255, 255, 255, 0.08);
+    --border-hairline: rgba(255, 255, 255, 0.08);
+    --border-hairline-strong: rgba(255, 255, 255, 0.16);
+    --border-amber: #F59E0B;
+    
+    --text-primary: #F4F4F6;
+    --text-secondary: #A1A1AA;
+    --text-muted: #6E717A;
+    
+    --accent-amber: #F59E0B;
+    --accent-coral: #FB7185;
+    --accent-emerald: #10B981;
+    --accent-indigo: #818CF8;
+
+    --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  /* Daylight Editorial Paper Mode */
+  body.theme-daylight {
+    --canvas-obsidian: #F7F5F0;
+    --canvas-console: #FFFFFF;
+    --canvas-stage: #EFECE6;
+    --surface-glass-dock: rgba(247, 245, 240, 0.92);
+    --surface-glass-pill: rgba(0, 0, 0, 0.06);
+    --border-hairline: rgba(0, 0, 0, 0.08);
+    --border-hairline-strong: rgba(0, 0, 0, 0.16);
+    
+    --text-primary: #18191E;
+    --text-secondary: #525460;
+    --text-muted: #8A8D9B;
+    
+    background-color: var(--canvas-obsidian);
+    color: var(--text-primary);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--canvas-obsidian);
+    color: var(--text-primary);
+    overflow-x: hidden;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-mono-tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom Scrollbar for Studio Well */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 145, 160, 0.22);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 145, 160, 0.42);
+}
+
+/* Glassmorphism Classes */
+.glass-dock {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: var(--surface-glass-dock);
+  border-top: 1px solid var(--border-hairline);
+}
+
+.glass-pill {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: var(--surface-glass-pill);
+  border: 1px solid var(--border-hairline);
+}
+
+.glass-modal {
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  background: rgba(17, 19, 24, 0.94);
+  border: 1px solid var(--border-hairline-strong);
+}
+
+body.theme-daylight .glass-modal {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* LED Blink & Pulse */
+@keyframes on-air-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.96);
+    box-shadow: 0 0 4px rgba(245, 158, 11, 0.2);
+  }
+}
+
+.animate-on-air {
+  animation: on-air-pulse 2s infinite ease-in-out;
+}
+
+@keyframes vu-bounce {
+  0%, 100% { height: 25%; }
+  50% { height: 95%; }
+}
+
+.animate-vu {
+  animation: vu-bounce 0.6s ease-in-out infinite alternate;
+}
+
+/* Waveform Hover Physics */
+.waveform-bar {
+  transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease;
+}
+.waveform-bar:hover {
+  transform: scaleY(1.22);
+}
+
+/* Active Transcript Line Glow */
+.transcript-line-active {
+  background: rgba(245, 158, 11, 0.12);
+  border-left: 3px solid #F59E0B;
+}
+
+body.theme-daylight .transcript-line-active {
+  background: rgba(245, 158, 11, 0.18);
+  border-left: 3px solid #D97706;
+}

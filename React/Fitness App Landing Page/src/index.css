@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --canvas-obsidian: #08090C;
+    --canvas-surface: #111318;
+    --canvas-elevated: #181B22;
+    --border-hairline: rgba(255, 255, 255, 0.08);
+    --border-hairline-strong: rgba(255, 255, 255, 0.16);
+    --volt-accent: #D4FF00;
+    --emerald-accent: #10B981;
+    --sky-accent: #38BDF8;
+    --crimson-accent: #FB7185;
+    --gold-accent: #F59E0B;
+  }
+
+  body {
+    background-color: #08090C;
+    color: #F8FAFC;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(212, 255, 0, 0.04) 0%, transparent 55%),
+      linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 100% 100%, 40px 40px, 40px 40px;
+  }
+
+  /* Monospace font for telemetry readouts */
+  .font-mono-telemetry {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Headlines */
+  .font-display {
+    font-family: 'Plus Jakarta Sans', 'Geist', sans-serif;
+  }
+}
+
+/* Custom glow utility classes */
+.glow-volt {
+  box-shadow: 0 0 24px -4px rgba(212, 255, 0, 0.28);
+}
+
+.glow-volt-lg {
+  box-shadow: 0 0 36px -4px rgba(212, 255, 0, 0.45);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 24px -4px rgba(16, 185, 129, 0.25);
+}
+
+.glow-crimson {
+  box-shadow: 0 0 24px -4px rgba(251, 113, 133, 0.25);
+}
+
+.glow-sky {
+  box-shadow: 0 0 24px -4px rgba(56, 189, 248, 0.25);
+}
+
+/* Glassmorphic surfaces */
+.surface-hud {
+  background: rgba(17, 19, 24, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.surface-dock {
+  background: rgba(8, 9, 12, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #08090C;
+}
+::-webkit-scrollbar-thumb {
+  background: #222632;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #333846;
+}
+
+/* Pulse animation */
+@keyframes heart-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.15);
+  }
+  30% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.1);
+  }
+}
+
+.animate-heart-pulse {
+  animation: heart-pulse 1.2s ease-in-out infinite;
+}
+
+/* Shimmer animation for QR update */
+@keyframes qr-shimmer {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-shimmer {
+  animation: qr-shimmer 0.4s ease-out;
+}
