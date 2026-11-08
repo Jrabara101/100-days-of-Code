@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --canvas-bg: #FAF9F5;
+    --canvas-card: #FFFFFF;
+    --surface-secondary: #F2F0E8;
+    --border-color: #E4E2D8;
+    --text-primary: #111827;
+    --text-muted: #64748B;
+  }
+
+  .dark {
+    --canvas-bg: #090B10;
+    --canvas-card: #171B26;
+    --surface-secondary: #11141C;
+    --border-color: #232836;
+    --text-primary: #F8FAFC;
+    --text-muted: #8E98AE;
+  }
+
+  body {
+    background-color: var(--canvas-bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Monospace numerals */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+/* Custom scrollbars for clean code and transcripts */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 150, 170, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 150, 170, 0.45);
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
