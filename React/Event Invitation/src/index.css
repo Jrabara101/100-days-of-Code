@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Default: Wedding Botanical & Letterpress */
+  --canvas-bg: #FAF7F2;
+  --canvas-inset: #F2ECE1;
+  --surface-card: #FFFDF9;
+  --surface-velvet: #161E19;
+  --border-hairline: rgba(22, 30, 25, 0.12);
+  --border-foil: rgba(197, 160, 89, 0.55);
+  --text-primary: #161E19;
+  --text-secondary: #4E5851;
+  --text-muted: #828C85;
+  --accent-primary: #2E5A44;
+  --accent-gold: #C5A059;
+  --accent-sage: #2E5A44;
+  --accent-toast: #C85A32;
+  --shadow-color: rgba(22, 30, 25, 0.08);
+}
+
+.theme-birthday-velvet {
+  --canvas-bg: #120E16;
+  --canvas-inset: #1A1420;
+  --surface-card: #1D1724;
+  --surface-velvet: #281E33;
+  --border-hairline: rgba(253, 248, 247, 0.12);
+  --border-foil: rgba(244, 63, 94, 0.5);
+  --text-primary: #FDF8F7;
+  --text-secondary: #D4C5D2;
+  --text-muted: #9A889D;
+  --accent-primary: #F43F5E;
+  --accent-gold: #FBBF24;
+  --accent-sage: #10B981;
+  --accent-toast: #FB7185;
+  --shadow-color: rgba(0, 0, 0, 0.45);
+}
+
+.theme-summit-swiss {
+  --canvas-bg: #F4F5F7;
+  --canvas-inset: #E6E9EF;
+  --surface-card: #FFFFFF;
+  --surface-velvet: #0F172A;
+  --border-hairline: rgba(15, 23, 42, 0.12);
+  --border-foil: rgba(37, 99, 235, 0.45);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #8492A6;
+  --accent-primary: #2563EB;
+  --accent-gold: #0EA5E9;
+  --accent-sage: #10B981;
+  --accent-toast: #F97316;
+  --shadow-color: rgba(15, 23, 42, 0.08);
+}
+
+/* Base Body Styles */
+body {
+  background-color: var(--canvas-bg);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+/* 3D Flip Card Styles */
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Perforated ticket lines */
+.border-perforated {
+  border-bottom: 2px dashed var(--border-hairline);
+  position: relative;
+}
+
+.border-perforated::before,
+.border-perforated::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--canvas-bg);
+}
+
+.border-perforated::before {
+  left: -8px;
+}
+
+.border-perforated::after {
+  right: -8px;
+}
+
+/* Foil Shimmer Sweep Animation */
+.foil-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.foil-shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.22) 35%,
+    rgba(245, 222, 179, 0.35) 50%,
+    rgba(255, 255, 255, 0.22) 65%,
+    transparent 80%
+  );
+  transform: rotate(25deg) translateY(-100%);
+  transition: transform 0.8s ease;
+  pointer-events: none;
+}
+
+.foil-shimmer:hover::after {
+  transform: rotate(25deg) translateY(100%);
+}
+
+/* Custom Smooth Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--canvas-inset);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 4px;
+}
+
