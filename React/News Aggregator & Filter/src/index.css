@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas-newsprint-base: #F8F6F1;
+  --surface-cluster-card: #FFFFFF;
+  --surface-brief-inset: #F0ECE1;
+  --surface-edition-complete: #E8F0EC;
+  --surface-glass-filter-bar: rgba(248, 246, 241, 0.88);
+  --surface-glass-toast: rgba(24, 24, 27, 0.92);
+  --border-editorial-hairline: rgba(24, 24, 27, 0.09);
+  --border-column-rule: rgba(24, 24, 27, 0.14);
+  --border-signal-active: #1E293B;
+  --text-ink-primary: #141413;
+  --text-ink-secondary: #4B5563;
+  --text-ink-muted: #78716C;
+  --accent-signal-emerald: #059669;
+  --accent-lens-market: #2563EB;
+  --accent-lens-policy: #D97706;
+  --accent-lens-tech: #7C3AED;
+  --accent-blindspot-coral: #E11D48;
+  --spin-highlight-bg: rgba(217, 119, 6, 0.16);
+  --spin-highlight-underline: rgba(217, 119, 6, 0.65);
+}
+
+.dark {
+  --canvas-newsprint-base: #0C0E12;
+  --surface-cluster-card: #13161C;
+  --surface-brief-inset: #1A1E26;
+  --surface-edition-complete: #11221C;
+  --surface-glass-filter-bar: rgba(12, 14, 18, 0.88);
+  --surface-glass-toast: rgba(24, 24, 27, 0.95);
+  --border-editorial-hairline: rgba(255, 255, 255, 0.08);
+  --border-column-rule: rgba(255, 255, 255, 0.12);
+  --border-signal-active: #38BDF8;
+  --text-ink-primary: #F3F4F6;
+  --text-ink-secondary: #9CA3AF;
+  --text-ink-muted: #8E96A4;
+  --spin-highlight-bg: rgba(251, 191, 36, 0.15);
+  --spin-highlight-underline: rgba(251, 191, 36, 0.65);
+}
+
+body {
+  background-color: var(--canvas-newsprint-base);
+  color: var(--text-ink-primary);
+  font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+  transition: background-color 220ms ease, color 220ms ease;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.glass-filter-bar {
+  background-color: var(--surface-glass-filter-bar);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-editorial-hairline);
+}
+
+.glass-toast {
+  background-color: var(--surface-glass-toast);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.editorial-card {
+  background-color: var(--surface-cluster-card);
+  border: 1px solid var(--border-editorial-hairline);
+  border-radius: 14px;
+}
+
+.editorial-inset {
+  background-color: var(--surface-brief-inset);
+  border-radius: 10px;
+}
+
+.column-rule-left {
+  border-left: 1px solid var(--border-column-rule);
+}
+
+.column-rule-right {
+  border-right: 1px solid var(--border-column-rule);
+}
+
+.spin-word {
+  background-color: var(--spin-highlight-bg);
+  border-bottom: 2px solid var(--spin-highlight-underline);
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 500;
+}
+
+@keyframes calmMorph {
+  0% {
+    opacity: 0.45;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-calm-morph {
+  animation: calmMorph 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes clusterFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-cluster-in {
+  animation: clusterFadeIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Custom subtle scrollbars for side drawers */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 113, 108, 0.28);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 113, 108, 0.45);
+}
+
