@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --canvas-telemetry-base: #090B0E;
+    --surface-widget-card: #11141B;
+    --surface-widget-elevated: #171B24;
+    --border-widget-hairline: rgba(255, 255, 255, 0.07);
+    --border-widget-focus: rgba(56, 189, 248, 0.55);
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+  }
+
+  .light {
+    --canvas-telemetry-base: #F6F7F9;
+    --surface-widget-card: #FFFFFF;
+    --surface-widget-elevated: #F0F2F5;
+    --border-widget-hairline: rgba(15, 23, 42, 0.08);
+    --border-widget-focus: rgba(2, 132, 199, 0.55);
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom telemetry scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.35);
+}
+
+/* Subtle glowing pulse */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.15); }
+}
+
+.animate-pulse-live {
+  animation: pulse-subtle 2s infinite ease-in-out;
+}

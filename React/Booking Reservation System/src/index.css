@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --canvas-travertine-base: #FAF7F2;
+    --canvas-floorplan-well: #F1ECE3;
+    --surface-card-concierge: #FFFFFF;
+    --surface-pass-velvet: #18201C;
+    --slot-available-emerald: #1E6F50;
+    --slot-prime-terracotta: #C85A32;
+    --slot-nudge-amber: #D9822B;
+    --slot-waitlist-plum: #6D4C7D;
+  }
+
+  .dark {
+    --canvas-travertine-base: #0E1012;
+    --canvas-floorplan-well: #15181C;
+    --surface-card-concierge: #1B1F24;
+    --surface-pass-velvet: #121518;
+  }
+}
+
+/* Custom 3D Card Flip Perspective */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Perforated ticket cutouts */
+.ticket-notch-left {
+  position: relative;
+}
+.ticket-notch-left::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--canvas-travertine-base);
+  box-shadow: inset -2px 0 3px rgba(0,0,0,0.06);
+  z-index: 10;
+}
+
+.ticket-notch-right {
+  position: relative;
+}
+.ticket-notch-right::after {
+  content: '';
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--canvas-travertine-base);
+  box-shadow: inset 2px 0 3px rgba(0,0,0,0.06);
+  z-index: 10;
+}
+
+/* Custom Scrollbar for Time Scrubber */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(82, 91, 86, 0.2);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(82, 91, 86, 0.35);
+}
+
+/* Tabular figures for monospace elements */
+.tabular-numbers {
+  font-variant-numeric: tabular-nums;
+}
